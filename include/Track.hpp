@@ -12,7 +12,7 @@ class TrackPoint : public Vec2f {
     TrackPoint* next() const { return m_next; };
     TrackPoint* prev() const { return m_prev; };
     // Traverses the track in any direction and returns the destination point
-    TrackPoint* traverse(int32_t);
+    TrackPoint* step(int32_t);
 
   private:
     TrackPoint(sf::Vector2f, float angle = 0.f);

@@ -5,21 +5,21 @@
 TrackPoint::TrackPoint(sf::Vector2f v, float angle)
     : Vec2f(v), m_angle(angle), m_next(nullptr), m_prev(nullptr) {}
 
-TrackPoint* TrackPoint::traverse(int32_t s) {
+TrackPoint* TrackPoint::step(int32_t s) {
     if (s > 0) {
         if (!m_next) {
             logWarning("No next TrackPoint.");
             throw std::out_of_range(
                 "Trying to access TrackPoint beyond the Track end.");
         }
-        return m_next->traverse(s - 1);
+        return m_next->step(s - 1);
     } else if (s < 0) {
         if (!m_prev) {
             logWarning("No previous TrackPoint.");
             throw std::out_of_range(
                 "Trying to access TrackPoint beyond the Track end.");
         }
-        return m_prev->traverse(s + 1);
+        return m_prev->step(s + 1);
     } else
         return this;
 }
