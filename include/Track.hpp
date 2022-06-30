@@ -12,7 +12,7 @@ class TrackPoint : public Vec2f {
     TrackPoint* next() const { return m_next; };
     TrackPoint* prev() const { return m_prev; };
     // Traverses the track in any direction and returns the destination point
-    TrackPoint* traverse(int32_t); 
+    TrackPoint* traverse(int32_t);
 
   private:
     TrackPoint(sf::Vector2f, float angle = 0.f);
@@ -25,18 +25,23 @@ class TrackPoint : public Vec2f {
 
 class Track {
   public:
+    Track();
     void clear();
-    float length() const { return length(front(), back()); }
-    float length(TrackPoint const* from, TrackPoint const* to) const;
-    TrackPoint* front() const { return m_trackPoints.front(); };
-    TrackPoint* back() const { return m_trackPoints.back(); };
+    bool empty() const { return !m_front; }
+    float size() const { return size(m_front, m_back); }
+    float size(TrackPoint const* from, TrackPoint const* to) const;
+    TrackPoint* front() const { return m_front; };
+    TrackPoint* back() const { return m_back; };
     void pop_back();
     void pop_front();
     void create_back(Vec2f, float angle);
     void create_front(Vec2f, float angle);
 
   private:
-    std::deque<TrackPoint*> m_trackPoints;
+    void push_back(TrackPoint*);
+    void push_front(TrackPoint*);
+    TrackPoint* m_front;
+    TrackPoint* m_back;
 };
 
 #endif

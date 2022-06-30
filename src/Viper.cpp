@@ -30,7 +30,7 @@ void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(m_vertices, states);
 }
 
-float Viper::length() const { return m_track.length(m_head, m_tail); }
+float Viper::length() const { return m_track.size(m_head, m_tail); }
 
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
@@ -71,9 +71,8 @@ void Viper::tick(sf::Time elapsedTime) {
 
     m_head = m_head->traverse(-1);
     m_tail = m_tail->traverse(-1);
-    updateVertices();
-
     m_track.pop_back();
+    updateVertices();
 }
 
 void Viper::updateVertices() {

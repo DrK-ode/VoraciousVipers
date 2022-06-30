@@ -2,9 +2,8 @@
 #define VIPER_HPP
 
 #include <SFML/Graphics.hpp>
-#include <deque>
 
-#include "ViperSegment.hpp"
+#include "Track.hpp"
 
 class Viper : public sf::Drawable {
   public:

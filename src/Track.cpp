@@ -24,9 +24,19 @@ TrackPoint* TrackPoint::traverse(int32_t s) {
         return this;
 }
 
-void Track::clear() { m_trackPoints.clear(); }
+Track::Track() : m_front(nullptr), m_back(nullptr){}
 
-float Track::length(TrackPoint const* from, TrackPoint const* to) const {
+void Track::clear() {
+    TrackPoint* tp;
+    while (m_front) {
+        tp = m_front->next();
+        delete m_front;
+        m_front = tp;
+    }
+    m_back = nullptr;
+}
+
+float Track::size(TrackPoint const* from, TrackPoint const* to) const {
     auto t1 = from;
     auto t2 = from->next();
     float L = 0.f;
@@ -39,33 +49,45 @@ float Track::length(TrackPoint const* from, TrackPoint const* to) const {
 }
 
 void Track::pop_back() {
-    delete m_trackPoints.back();
-    m_trackPoints.pop_back();
-    m_trackPoints.back()->m_next = nullptr;
+    TrackPoint* delete_me = m_back;
+    m_back = m_back->m_prev;
+    m_back->m_next = nullptr;
+    delete delete_me;
 }
 
 void Track::pop_front() {
-    delete m_trackPoints.front();
-    m_trackPoints.pop_front();
-    m_trackPoints.front()->m_next = nullptr;
+    TrackPoint* delete_me = m_front;
+    m_front = m_front->m_next;
+    m_front->m_prev = nullptr;
+    delete delete_me;
 }
 
 void Track::create_back(Vec2f v, float angle) {
-    TrackPoint* secondToLast = m_trackPoints.empty() ? nullptr : m_trackPoints.back();
-    TrackPoint* last = new TrackPoint(v,angle);
-    m_trackPoints.push_back(last);
-    if (secondToLast) {
-        last->m_prev = secondToLast;
-        secondToLast->m_next = last;
-    }
+    push_back(new TrackPoint(v, angle));
 }
 
 void Track::create_front(Vec2f v, float angle) {
-    TrackPoint* second = m_trackPoints.empty() ? nullptr : m_trackPoints.front();
-    TrackPoint* first = new TrackPoint(v);
-    m_trackPoints.push_front(first);
-    if (second) {
-        second->m_prev = first;
-        first->m_next = second;
+    push_front(new TrackPoint(v, angle));
+}
+
+void Track::push_back(TrackPoint* tp) {
+    if (empty())
+        m_front = m_back = tp;
+    else {
+        m_back->m_next = tp;
+        tp->m_prev = m_back;
+        m_back = tp;
+        m_back->m_next = nullptr;
+    }
+}
+
+void Track::push_front(TrackPoint* tp) {
+    if (empty())
+        m_front = m_back = tp;
+    else {
+        m_front->m_prev = tp;
+        tp->m_next = m_front;
+        m_front = tp;
+        m_front->m_prev = nullptr;
     }
 }
