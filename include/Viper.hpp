@@ -16,17 +16,22 @@ class Viper : public sf::Drawable {
     void updateVertices();
 
   private:
-    static float s_segmentLength;
-    static float s_segmentWidth;
-    static float s_nominalSpeed;  // px/s
-    static float s_pointsPerSegment;
-    static uint32_t s_nVerticesHead;
-    static uint32_t s_nVerticesBody;
-    static uint32_t s_nVerticesTail;
-    float m_angle;         // degrees, clockwise since y-axis is downwards
-    float m_speed;         // px/s
-    float m_acc;           // px/s²
+    void createNextTrackPoint(sf::Time elapsedTime);
+    void moveHead(int frames);
+    void moveTail(int frames);
+    void cleanUpTrailingTrackPoints();
+    static const float s_segmentLength;
+    static const float s_segmentWidth;
+    static const float s_nominalSpeed;  // px/s
+    static const float s_pointsPerSegment;
+    static const uint32_t s_nVerticesHead;
+    static const uint32_t s_nVerticesBody;
+    static const uint32_t s_nVerticesTail;
+    float m_angle;  // degrees, clockwise since y-axis is downwards
+    float m_speed;  // px/s
+    float m_acc;    // px/s²
     int32_t m_nSegments;
+    int32_t m_growth;
     sf::Color m_color1;
     sf::Color m_color2;
     TrackPoint* m_head;
