@@ -12,18 +12,28 @@ class Viper : public sf::Drawable {
     ~Viper();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     float length() const;
-    void setupStart(const Vec2f& from, const Vec2f& to, uint32_t nSeg);
+    void setupStart(const Vec2f& from, float angle, uint32_t nSeg);
     void tick(sf::Time elapsedTime);
+    void updateVertices();
 
   private:
-    ViperSegment* head() const { return m_segments.front(); }
-    ViperSegment* tail() const { return m_segments.back(); }
+    static float s_segmentLength;
+    static float s_segmentWidth;
+    static float s_nominalSpeed;  // px/s
+    static float s_pointsPerSegment;
+    static uint32_t s_nVerticesHead;
+    static uint32_t s_nVerticesBody;
+    static uint32_t s_nVerticesTail;
     float m_angle;         // degrees, clockwise since y-axis is downwards
     float m_speed;         // px/s
-    float m_nominalSpeed;  // px/s
     float m_acc;           // px/s²
+    int32_t m_nSegments;
+    sf::Color m_color1;
+    sf::Color m_color2;
+    TrackPoint* m_head;
+    TrackPoint* m_tail;
     Track m_track;
-    std::vector<ViperSegment*> m_segments;
+    sf::VertexArray m_vertices;
 };
 
 #endif

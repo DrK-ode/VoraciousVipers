@@ -5,84 +5,174 @@
 #include "VectorMath.hpp"
 #include "debug.hpp"
 
-Viper::Viper() {
-    m_nominalSpeed = 60.f;
-    m_speed = m_nominalSpeed;
-    m_angle = 45.f;
-    m_acc = 0.f;
-}
+float Viper::s_segmentWidth(20);
+float Viper::s_segmentLength(30);
+float Viper::s_nominalSpeed(60.f);
+const int32_t fps = 60;
+float Viper::s_pointsPerSegment(s_segmentLength / s_nominalSpeed * fps);
+uint32_t Viper::s_nVerticesHead(10);
+uint32_t Viper::s_nVerticesBody(6);
+uint32_t Viper::s_nVerticesTail(1);
 
-Viper::~Viper() {
-    for_each(m_segments.begin(), m_segments.end(),
-             [](ViperSegment* vs) { delete vs; });
-}
+Viper::Viper()
+    : m_nSegments(0),
+      m_acc(0.f),
+      m_speed(s_nominalSpeed),
+      m_color1(0x00dd00ff),
+      m_color2(0x007700ff),
+      m_head(nullptr),
+      m_tail(nullptr),
+      m_vertices(sf::TriangleStrip) {}
+
+Viper::~Viper() {}
 
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for_each(m_segments.begin(), m_segments.end(),
-             [&](const ViperSegment* seg) { target.draw(*seg, states); });
+    target.draw(m_vertices, states);
 }
 
-float Viper::length() const {
-    return m_track.length(head()->getPositionBegin(), tail()->getPositionEnd());
-}
+float Viper::length() const { return m_track.length(m_head, m_tail); }
 
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void Viper::setupStart(const Vec2f& from, const Vec2f& to, uint32_t nSeg) {
+void Viper::setupStart(const Vec2f& from, float angle, uint32_t nSeg) {
     logInfo("Setting up Viper.");
 
-    Vec2f vipVec = (from - to);
-    Vec2f segVec = vipVec / nSeg;
-    float angle = radToDeg( atan2( vipVec.y, vipVec.x ) );
+    m_nSegments = nSeg;
 
-    // First, find all the positions the Viper segments will move through
+    Vec2f vipVec = s_segmentLength * m_nSegments *
+                   Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
+
+    // One point more since all segments share the end ones
+    auto nTrackPoints = s_pointsPerSegment * m_nSegments + 1;
+
+    // Find all the positions the Viper segments will move through
     m_track.clear();
-    const uint32_t fps = 60;
-    uint32_t nSegIntervals = segVec.abs() / m_nominalSpeed * fps;
-    Vec2f trackVec = segVec / nSegIntervals;
-    // One point more than the number of track intervals
-    auto nTrackPoints = nSegIntervals * nSeg + 1;
+    Vec2f trackVec = vipVec / (nTrackPoints - 1);
+
     logInfo("Filling track with ", nTrackPoints, " track points.");
     for (int i = 0; i < nTrackPoints; ++i) {
-        m_track.create_back( to + trackVec * i, angle );
+        m_track.create_back(from + vipVec - trackVec * i, angle);
     }
 
-    // Second, construct the segments and line them up
-    m_segments.clear();
-    m_segments.push_back(new ViperSegment);
-    for (int i = 1; i < nSeg; ++i) {
-        ViperSegment* seg = new ViperSegment;
-        // Attach the new segment to the previous one
-        m_segments.back()->attach(seg);
-        m_segments.push_back(seg);
-    }
-    ViperSegment* seg = head();
-    TrackPoint* tp = m_track.front();
-    logInfo("First track point at ", *tp);
-    while (seg) {
-        TrackPoint* middle = tp->traverse(int(0.5 * nSegIntervals));
-        TrackPoint* end = tp->traverse(nSegIntervals);
-        seg->setTrackPoints(tp, middle, end);
-        tp = end;
-        seg = seg->next();
-    }
-    logInfo("Last track point at ", *tp );
+    m_head = m_track.front();
+    m_tail = m_track.back();
+    updateVertices();
+
     logInfo("Viper is ready.");
 }
 
 void Viper::tick(sf::Time elapsedTime) {
-    logInfo("Viper tick.");
-    const ViperSegment* head = m_segments[0];
     float dx = m_speed * elapsedTime.asSeconds() * cos(degToRad(m_angle));
     float dy = m_speed * elapsedTime.asSeconds() * sin(degToRad(m_angle));
     Vec2f advance(dx, dy);
-    m_track.create_front(*(head->getPositionBegin()) + advance, m_angle);
+    m_track.create_front(*m_head + advance, m_angle);
     m_angle += 0.4f;
 
-    for_each(m_segments.begin(), m_segments.end(),
-             [&](ViperSegment* vs) { vs->step(1); });
+    m_head = m_head->traverse(-1);
+    m_tail = m_tail->traverse(-1);
+    updateVertices();
 
     m_track.pop_back();
-    logInfo("Viper tock.");
+}
+
+void Viper::updateVertices() {
+    TrackPoint* segFront = m_head;
+    TrackPoint* segMiddle = m_head->traverse(s_pointsPerSegment / 2);
+    TrackPoint* segBack = m_head->traverse(s_pointsPerSegment);
+
+    // Calculate segment length axis (broken in the middle)
+    Vec2f dl1 = *segMiddle - *segFront;
+    Vec2f dl2 = *segBack - *segMiddle;
+    //
+    // Calculate width (perpendicular) axis
+    const float halfWidth = 0.5f * s_segmentWidth;
+    Vec2f dw1 = dl1.perpVec().normalize(halfWidth);
+    Vec2f dw2 = dl2.perpVec().normalize(halfWidth);
+
+    const Vec2f dw_avg = (dw1 + dw2) / 2.f;  // Helper
+    int nVertices = s_nVerticesHead;
+    if (m_nSegments > 1)
+        nVertices += s_nVerticesTail;
+    if (m_nSegments > 2)
+        nVertices += s_nVerticesBody * (m_nSegments - 2);
+    m_vertices.resize(nVertices);
+    int i = 0;
+    // Draw head
+    m_vertices[i].position = *segFront - dw1 / 3.f;
+    m_vertices[i++].color = m_color1;
+    m_vertices[i].position = *segFront + dw1 / 3.f;
+    m_vertices[i++].color = m_color1;
+
+    m_vertices[i].position = *segFront + 0.8f * dl1 - dw_avg;
+    m_vertices[i++].color = m_color2;
+    m_vertices[i].position = *segFront + 0.8f * dl1 + dw_avg;
+    m_vertices[i++].color = m_color2;
+    m_vertices[i].position = *segBack - 0.8f * dl2 - dw_avg;
+    m_vertices[i++].color = m_color2;
+    m_vertices[i].position = *segBack - 0.8f * dl2 + dw_avg;
+    m_vertices[i++].color = m_color2;
+
+    m_vertices[i].position = *segBack - 0.2f * dl2 - 0.5f * dw2;
+    m_vertices[i++].color = m_color1;
+    m_vertices[i].position = *segBack - 0.2f * dl2 + 0.5f * dw2;
+    m_vertices[i++].color = m_color1;
+    m_vertices[i].position = *segBack - 2.f / 3.f * dw2;
+    m_vertices[i++].color = m_color1;
+    m_vertices[i].position = *segBack + 2.f / 3.f * dw2;
+    m_vertices[i++].color = m_color1;
+    // Check for stupid mistakes
+    if (i != s_nVerticesHead)
+        logError("Wrong number of head vertices: ", i, ".");
+
+    if (m_nSegments > 2) {
+        for (int n = 0; n < m_nSegments - 2; ++n) {
+            segFront = segBack;
+            segMiddle = segFront->traverse(s_pointsPerSegment / 2);
+            segBack = segBack->traverse(s_pointsPerSegment);
+            // Calculate segment length axis (broken in the middle)
+            Vec2f dl1 = *segMiddle - *segFront;
+            Vec2f dl2 = *segBack - *segMiddle;
+            //
+            // Calculate width (perpendicular) axis
+            const float halfWidth = 0.5f * s_segmentWidth;
+            Vec2f dw1 = dl1.perpVec().normalize(halfWidth);
+            Vec2f dw2 = dl2.perpVec().normalize(halfWidth);
+
+            const Vec2f dw_avg = (dw1 + dw2) / 2.f;  // Helper
+            // Draw body
+            m_vertices[i].position = *segFront + 0.5f * dl1 - dw_avg;
+            m_vertices[i++].color = m_color2;
+            m_vertices[i].position = *segFront + 0.5f * dl1 + dw_avg;
+            m_vertices[i++].color = m_color2;
+            m_vertices[i].position = *segBack - 0.5f * dl2 - dw_avg;
+            m_vertices[i++].color = m_color2;
+            m_vertices[i].position = *segBack - 0.5f * dl2 + dw_avg;
+            m_vertices[i++].color = m_color2;
+            m_vertices[i].position = *segBack - dw2 * (2.f / 3.f);
+            m_vertices[i++].color = m_color1;
+            m_vertices[i].position = *segBack + dw2 * (2.f / 3.f);
+            m_vertices[i++].color = m_color1;
+        }
+        // Check for stupid mistakes
+        if (i != s_nVerticesHead + s_nVerticesBody * (m_nSegments - 2))
+            logError("Wrong number of body vertices: ", i - s_nVerticesHead,
+                     ".");
+    }
+
+    if (m_nSegments > 1) {
+        segFront = segBack;
+        segMiddle = segFront->traverse(s_pointsPerSegment / 2);
+        segBack = segBack->traverse(s_pointsPerSegment);
+        // Draw tail
+        m_vertices[i].position = *segBack;
+        m_vertices[i++].color = m_color2;
+
+        // Check for stupid mistakes
+        if (i != s_nVerticesHead + s_nVerticesBody * (m_nSegments - 2) +
+                     s_nVerticesTail)
+            logError("Wrong number of tail vertices: ",
+                     i - s_nVerticesHead - s_nVerticesBody * (m_nSegments - 2),
+                     ".");
+    }
 }

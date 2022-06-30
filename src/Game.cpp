@@ -4,7 +4,7 @@
 
 Game::Game() {
     m_viper = new Viper;
-    m_viper->setupStart({300.f, 100.f}, {400.f, 100.f}, 5);
+    m_viper->setupStart({300.f, 100.f}, 0.f , 15);
 }
 
 Game::~Game() { delete m_viper; }
@@ -14,7 +14,5 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void Game::tick(sf::Time elapsedTime) {
-    logInfo("Game tick.");
     m_viper->tick( elapsedTime );
-    logInfo("Game tock.");
 }
