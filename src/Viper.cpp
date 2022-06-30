@@ -8,44 +8,39 @@
 const float Viper::s_segmentWidth(20);
 const float Viper::s_segmentLength(30);
 const float Viper::s_nominalSpeed(60.f);
-const int32_t fps = 60;
-const float Viper::s_pointsPerSegment(s_segmentLength / s_nominalSpeed * fps);
+const uint32_t fps = 60;
+const uint32_t Viper::s_nPtsPerSegment(s_segmentLength / s_nominalSpeed * fps);
 const uint32_t Viper::s_nVerticesHead(10);
 const uint32_t Viper::s_nVerticesBody(6);
 const uint32_t Viper::s_nVerticesTail(1);
 
 Viper::Viper()
     : m_acc(0.f),
-      m_color1(0x00dd00ff),
-      m_color2(0x007700ff),
+      m_colors {sf::Color(0x00dd00ff), sf::Color(0x007700ff)},
       m_growth(0),
-      m_nSegments(0),
       m_speed(s_nominalSpeed),
       m_head(nullptr),
-      m_tail(nullptr),
-      m_vertices(sf::TriangleStrip) {}
+      m_tail(nullptr) {}
 
 Viper::~Viper() {}
 
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(m_vertices, states);
+    target.draw(&m_vertices[0], m_vertices.size(), sf::TriangleStrip, states);
 }
 
-float Viper::length() const { return m_track.size(m_head, m_tail); }
+float Viper::length() const { return m_track.length(m_head, m_tail); }
 
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void Viper::setupStart(const Vec2f& from, float angle, uint32_t nSeg) {
+void Viper::setupStart(const Vec2f& headPosition, float angle, uint32_t nSeg) {
     logInfo("Setting up Viper.");
 
-    m_nSegments = nSeg;
-
-    Vec2f vipVec = s_segmentLength * m_nSegments *
+    Vec2f vipVec = s_segmentLength * nSeg *
                    Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
 
     // One point more since all segments share the end ones
-    auto nTrackPoints = s_pointsPerSegment * m_nSegments + 1;
+    auto nTrackPoints = s_nPtsPerSegment * nSeg + 1;
 
     // Find all the positions the Viper segments will move through
     m_track.clear();
@@ -53,7 +48,7 @@ void Viper::setupStart(const Vec2f& from, float angle, uint32_t nSeg) {
 
     logInfo("Filling track with ", nTrackPoints, " track points.");
     for (int i = 0; i < nTrackPoints; ++i) {
-        m_track.create_back(from + vipVec - trackVec * i, angle);
+        m_track.create_back(headPosition - trackVec * i);
     }
 
     m_head = m_track.front();
@@ -67,7 +62,7 @@ void Viper::createNextTrackPoint(sf::Time elapsedTime) {
     float dx = m_speed * elapsedTime.asSeconds() * cos(degToRad(m_angle));
     float dy = m_speed * elapsedTime.asSeconds() * sin(degToRad(m_angle));
     Vec2f advance(dx, dy);
-    m_track.create_front(*m_head + advance, m_angle);
+    m_track.create_front(*m_head + advance);
     m_angle += 0.4f;
 }
 
@@ -84,7 +79,7 @@ void Viper::moveTail(int frames) {
         // Tail is moving one point less so the Viper has grown one track point
         ++tail_traverse;
         --m_growth;
-    } else {  // Negative growth
+    } else if( m_growth < 0 ) {  // Negative growth
         ++tail_traverse;
         ++m_growth;
         tagWarning("Negative growth should not happen yet.");
@@ -99,6 +94,13 @@ void Viper::cleanUpTrailingTrackPoints() {
 }
 
 void Viper::tick(sf::Time elapsedTime) {
+    static sf::Time t = sf::Time::Zero;
+    t += elapsedTime;
+    if (t.asSeconds() > 1) {
+        m_growth += s_nPtsPerSegment;
+        t = sf::Time::Zero;
+    }
+    tagInfo("dist to end: ", m_track.size(m_tail,nullptr), ", m_tail->next: ", m_tail->next(),", size: ", m_track.size());
     createNextTrackPoint(elapsedTime);
     moveHead(1);
     moveTail(1);
@@ -106,103 +108,92 @@ void Viper::tick(sf::Time elapsedTime) {
     updateVertices();
 }
 
+void Viper::setHeadVertices(TrackPoint* tp_front, TrackPoint* tp_back,
+                            sf::Vertex array[]) {
+    TrackPoint* spine[s_nVerticesHead / 2];
+    spine[0] = tp_front;
+    spine[1] = spine[0]->step(s_nPtsPerSegment * 3 / 8);
+    spine[2] = spine[1]->step(s_nPtsPerSegment / 4);
+    spine[3] = spine[2]->step(s_nPtsPerSegment / 4);
+    spine[4] = tp_back;
+    float hwidth[s_nVerticesHead / 2];
+    hwidth[0] = s_segmentWidth * 0.15f;
+    hwidth[1] = s_segmentWidth * 0.45f;
+    hwidth[2] = s_segmentWidth * 0.45f;
+    hwidth[3] = s_segmentWidth * 0.2f;
+    hwidth[4] = s_segmentWidth * 0.2f;
+    Vec2f arm[s_nVerticesHead / 2];
+    for (int i = 0; i < s_nVerticesHead/2; ++i) 
+        arm[i] = (*(spine[i]->next()) - *(spine[i])).perpVec().normalize(hwidth[i]);
+    // Since there is a tail there will always be a next point after the head.
+
+    for (int i = 0; i < s_nVerticesHead; ++i) {
+        array[i].position = *spine[i / 2] - (1 - 2*(i%2)) * arm[i / 2];
+        array[i].color = m_colors[(i % 4) / 2];
+    }
+}
+
+void Viper::setBodyVertices(TrackPoint* tp_front, TrackPoint* tp_back,
+                            sf::Vertex array[]) {
+    TrackPoint* spine[s_nVerticesBody / 2];
+    spine[0] = tp_front->step(s_nPtsPerSegment / 3);
+    spine[1] = spine[0]->step(s_nPtsPerSegment / 3);
+    spine[2] = tp_back;
+    float hwidth[s_nVerticesBody / 2];
+    hwidth[0] = s_segmentWidth * 0.5f;
+    hwidth[1] = s_segmentWidth * 0.5f;
+    hwidth[2] = s_segmentWidth * 0.2f;
+    Vec2f arm[s_nVerticesBody / 2];
+    for (int i = 0; i < s_nVerticesBody/2; ++i) 
+        arm[i] = (*(spine[i]->next()) - *(spine[i])).perpVec().normalize(hwidth[i]);
+
+    for (int i = 0; i < s_nVerticesBody; ++i) {
+        array[i].position = *spine[i / 2] - (1 - 2*(i%2))*arm[i / 2];
+        array[i].color = m_colors[(i % 4) / 2];
+    }
+}
+
+void Viper::setTailVertices(TrackPoint* tp_front, TrackPoint* tp_back,
+                            sf::Vertex array[]) {
+    // Draw tail
+    array[0].position = *tp_back;
+    array[0].color = m_colors[1];
+}
+
 void Viper::updateVertices() {
-    TrackPoint* segFront = m_head;
-    TrackPoint* segMiddle = m_head->step(s_pointsPerSegment / 2);
-    TrackPoint* segBack = m_head->step(s_pointsPerSegment);
-
-    // Calculate segment length axis (broken in the middle)
-    Vec2f dl1 = *segMiddle - *segFront;
-    Vec2f dl2 = *segBack - *segMiddle;
-    //
-    // Calculate width (perpendicular) axis
-    const float halfWidth = 0.5f * s_segmentWidth;
-    Vec2f dw1 = dl1.perpVec().normalize(halfWidth);
-    Vec2f dw2 = dl2.perpVec().normalize(halfWidth);
-
-    const Vec2f dw_avg = (dw1 + dw2) / 2.f;  // Helper
-    int nVertices = s_nVerticesHead;
-    if (m_nSegments > 1)
-        nVertices += s_nVerticesTail;
-    if (m_nSegments > 2)
-        nVertices += s_nVerticesBody * (m_nSegments - 2);
+    size_t viperSize = m_track.size() - 1; // One less since we are counting intervals, not points
+    if (viperSize < 2*s_nPtsPerSegment) {
+        tagError("Viper is too small to afford a head and a tail.");
+        throw std::runtime_error("Inacceptable viper size.");
+    }
+    int32_t nHeadPts = s_nPtsPerSegment;
+    int32_t nBodySegments =
+        std::max(0uL, (viperSize - nHeadPts) / s_nPtsPerSegment - 1);
+    int32_t nBodyPts = nBodySegments * s_nPtsPerSegment;
+    int32_t nTailPts = viperSize - nHeadPts - nBodyPts;
+    // Sanity check
+    if (nBodyPts > 0 && nTailPts < s_nPtsPerSegment) {
+        tagError("Tail is too small even though is could be bigger.");
+        throw std::runtime_error("Inacceptable tail size.");
+    }
+    int nVertices =
+        s_nVerticesHead + s_nVerticesBody * nBodySegments + s_nVerticesTail;
     m_vertices.resize(nVertices);
-    int i = 0;
-    // Draw head
-    m_vertices[i].position = *segFront - dw1 / 3.f;
-    m_vertices[i++].color = m_color1;
-    m_vertices[i].position = *segFront + dw1 / 3.f;
-    m_vertices[i++].color = m_color1;
 
-    m_vertices[i].position = *segFront + 0.8f * dl1 - dw_avg;
-    m_vertices[i++].color = m_color2;
-    m_vertices[i].position = *segFront + 0.8f * dl1 + dw_avg;
-    m_vertices[i++].color = m_color2;
-    m_vertices[i].position = *segBack - 0.8f * dl2 - dw_avg;
-    m_vertices[i++].color = m_color2;
-    m_vertices[i].position = *segBack - 0.8f * dl2 + dw_avg;
-    m_vertices[i++].color = m_color2;
+    TrackPoint* segFront = m_track.front();
+    TrackPoint* segBack = m_track.front()->step(s_nPtsPerSegment);
+    sf::Vertex* storagePtr = &m_vertices[0];
+    setHeadVertices(segFront,segBack, storagePtr);
+    storagePtr += s_nVerticesHead;
 
-    m_vertices[i].position = *segBack - 0.2f * dl2 - 0.5f * dw2;
-    m_vertices[i++].color = m_color1;
-    m_vertices[i].position = *segBack - 0.2f * dl2 + 0.5f * dw2;
-    m_vertices[i++].color = m_color1;
-    m_vertices[i].position = *segBack - 2.f / 3.f * dw2;
-    m_vertices[i++].color = m_color1;
-    m_vertices[i].position = *segBack + 2.f / 3.f * dw2;
-    m_vertices[i++].color = m_color1;
-    // Check for stupid mistakes
-    if (i != s_nVerticesHead)
-        logError("Wrong number of head vertices: ", i, ".");
-
-    if (m_nSegments > 2) {
-        for (int n = 0; n < m_nSegments - 2; ++n) {
-            segFront = segBack;
-            segMiddle = segFront->step(s_pointsPerSegment / 2);
-            segBack = segBack->step(s_pointsPerSegment);
-            // Calculate segment length axis (broken in the middle)
-            Vec2f dl1 = *segMiddle - *segFront;
-            Vec2f dl2 = *segBack - *segMiddle;
-            //
-            // Calculate width (perpendicular) axis
-            const float halfWidth = 0.5f * s_segmentWidth;
-            Vec2f dw1 = dl1.perpVec().normalize(halfWidth);
-            Vec2f dw2 = dl2.perpVec().normalize(halfWidth);
-
-            const Vec2f dw_avg = (dw1 + dw2) / 2.f;  // Helper
-            // Draw body
-            m_vertices[i].position = *segFront + 0.5f * dl1 - dw_avg;
-            m_vertices[i++].color = m_color2;
-            m_vertices[i].position = *segFront + 0.5f * dl1 + dw_avg;
-            m_vertices[i++].color = m_color2;
-            m_vertices[i].position = *segBack - 0.5f * dl2 - dw_avg;
-            m_vertices[i++].color = m_color2;
-            m_vertices[i].position = *segBack - 0.5f * dl2 + dw_avg;
-            m_vertices[i++].color = m_color2;
-            m_vertices[i].position = *segBack - dw2 * (2.f / 3.f);
-            m_vertices[i++].color = m_color1;
-            m_vertices[i].position = *segBack + dw2 * (2.f / 3.f);
-            m_vertices[i++].color = m_color1;
-        }
-        // Check for stupid mistakes
-        if (i != s_nVerticesHead + s_nVerticesBody * (m_nSegments - 2))
-            logError("Wrong number of body vertices: ", i - s_nVerticesHead,
-                     ".");
-    }
-
-    if (m_nSegments > 1) {
+    for (int i = 0; i < nBodySegments; ++i) {
         segFront = segBack;
-        segMiddle = segFront->step(s_pointsPerSegment / 2);
-        segBack = segBack->step(s_pointsPerSegment);
-        // Draw tail
-        m_vertices[i].position = *segBack;
-        m_vertices[i++].color = m_color2;
-
-        // Check for stupid mistakes
-        if (i != s_nVerticesHead + s_nVerticesBody * (m_nSegments - 2) +
-                     s_nVerticesTail)
-            logError("Wrong number of tail vertices: ",
-                     i - s_nVerticesHead - s_nVerticesBody * (m_nSegments - 2),
-                     ".");
+        segBack = segFront->step(s_nPtsPerSegment);
+        setBodyVertices(segFront, segBack, storagePtr);
+        storagePtr += s_nVerticesBody;
     }
+
+    segFront = segBack;
+    segBack = segFront->step(nTailPts);
+    setTailVertices(segFront, segBack, storagePtr);
 }

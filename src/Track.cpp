@@ -2,8 +2,8 @@
 
 #include "debug.hpp"
 
-TrackPoint::TrackPoint(sf::Vector2f v, float angle)
-    : Vec2f(v), m_angle(angle), m_next(nullptr), m_prev(nullptr) {}
+TrackPoint::TrackPoint(sf::Vector2f v)
+    : Vec2f(v), m_next(nullptr), m_prev(nullptr) {}
 
 TrackPoint* TrackPoint::step(int32_t s) {
     if (s > 0) {
@@ -24,7 +24,7 @@ TrackPoint* TrackPoint::step(int32_t s) {
         return this;
 }
 
-Track::Track() : m_front(nullptr), m_back(nullptr){}
+Track::Track() : m_size(0), m_front(nullptr), m_back(nullptr) {}
 
 void Track::clear() {
     TrackPoint* tp;
@@ -36,7 +36,21 @@ void Track::clear() {
     m_back = nullptr;
 }
 
-float Track::size(TrackPoint const* from, TrackPoint const* to) const {
+size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
+    if (!from)
+        return 0;
+    if (from == m_front && to == m_back)
+        return m_size;
+    auto tp = from;
+    uint32_t n = 0;
+    while (tp != to) {
+        ++n;
+        tp = tp->m_next;
+    }
+    return n;
+}
+
+float Track::length(TrackPoint const* from, TrackPoint const* to) const {
     auto t1 = from;
     auto t2 = from->next();
     float L = 0.f;
@@ -49,25 +63,31 @@ float Track::size(TrackPoint const* from, TrackPoint const* to) const {
 }
 
 void Track::pop_back() {
+    if (empty())
+        return;
     TrackPoint* delete_me = m_back;
     m_back = m_back->m_prev;
     m_back->m_next = nullptr;
     delete delete_me;
+    --m_size;
 }
 
 void Track::pop_front() {
+    if (empty())
+        return;
     TrackPoint* delete_me = m_front;
     m_front = m_front->m_next;
     m_front->m_prev = nullptr;
     delete delete_me;
+    --m_size;
 }
 
-void Track::create_back(Vec2f v, float angle) {
-    push_back(new TrackPoint(v, angle));
+void Track::create_back(Vec2f v) {
+    push_back(new TrackPoint(v));
 }
 
-void Track::create_front(Vec2f v, float angle) {
-    push_front(new TrackPoint(v, angle));
+void Track::create_front(Vec2f v) {
+    push_front(new TrackPoint(v));
 }
 
 void Track::push_back(TrackPoint* tp) {
@@ -79,6 +99,7 @@ void Track::push_back(TrackPoint* tp) {
         m_back = tp;
         m_back->m_next = nullptr;
     }
+    ++m_size;
 }
 
 void Track::push_front(TrackPoint* tp) {
@@ -90,4 +111,5 @@ void Track::push_front(TrackPoint* tp) {
         m_front = tp;
         m_front->m_prev = nullptr;
     }
+    ++m_size;
 }
