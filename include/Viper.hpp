@@ -38,11 +38,12 @@ class Viper : public sf::Drawable {
     float m_speed;  // px/s
     float m_acc;    // px/s²
     int32_t m_growth;
-    sf::Color m_colors[2];
+    sf::Color m_color;
     TrackPoint* m_head;
     TrackPoint* m_tail;
     Track m_track;
     std::vector<sf::Vertex> m_vertices;
+    sf::Texture m_texture;
 };
 
 #endif

@@ -12,7 +12,8 @@ endif()
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
 
-configure_file(./include/config.hpp.in ./include/config.hpp)
+configure_file(./include/config.hpp.in ${PROJECT_SOURCE_DIR}/include/config.hpp)
+
 set(INC_FILES "")
 list(APPEND INC_FILES "include/config.hpp")
 list(APPEND INC_FILES "include/debug.hpp")
