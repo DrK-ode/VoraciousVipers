@@ -4,7 +4,7 @@
 
 Game::Game() {
     m_viper = new Viper;
-    m_viper->setupStart({400.f, 100.f}, 0.f , 2);
+    m_viper->setupStart({400.f, 300.f}, -90.f , 5);
 }
 
 Game::~Game() { delete m_viper; }

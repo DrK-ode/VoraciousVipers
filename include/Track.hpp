@@ -13,6 +13,7 @@ class TrackPoint : public Vec2f {
     TrackPoint* prev() const { return m_prev; };
     // Traverses the track in any direction and returns the destination point
     TrackPoint* step(int32_t);
+    size_t stepsUntil(const TrackPoint* target) const;
 
   private:
     TrackPoint(sf::Vector2f);
