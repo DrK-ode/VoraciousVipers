@@ -21,8 +21,6 @@ class Viper : public sf::Drawable {
     void moveHead(int frames);
     void moveTail(int frames);
     void cleanUpTrailingTrackPoints();
-    static const float s_segmentLength;
-    static const float s_segmentWidth;
     static const float s_nominalSpeed;  // px/s
     static const uint32_t s_nPtsPerSegment;
     float m_angle;  // degrees, clockwise since y-axis is downwards

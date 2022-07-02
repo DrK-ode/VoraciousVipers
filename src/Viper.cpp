@@ -5,9 +5,7 @@
 
 const float Viper::s_nominalSpeed(60.f);
 const uint32_t fps = 60;
-const float Viper::s_segmentWidth(40);
-const float Viper::s_segmentLength(60);
-const uint32_t Viper::s_nPtsPerSegment(s_segmentLength / s_nominalSpeed * fps);
+const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getSegmentLength() / s_nominalSpeed * fps);
 
 Viper::Viper()
     : m_acc(0.f),
@@ -30,7 +28,7 @@ float Viper::length() const { return m_track.length(m_head, m_tail); }
 void Viper::setupStart(const Vec2f& headPosition, float angle, uint32_t nSeg) {
     logInfo("Setting up Viper.");
     m_angle = angle;
-    Vec2f vipVec = s_segmentLength * nSeg *
+    Vec2f vipVec = ViperVertices::getSegmentLength() * nSeg *
                    Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
 
     // One point more since all segments share the end ones
@@ -47,8 +45,7 @@ void Viper::setupStart(const Vec2f& headPosition, float angle, uint32_t nSeg) {
 
     m_head = m_track.front();
     m_tail = m_track.back();
-    m_vertices.update(m_head, m_tail, s_nPtsPerSegment, s_segmentWidth,
-                      s_segmentLength);
+    m_vertices.update(m_head, m_tail, s_nPtsPerSegment);
 
     logInfo("Viper is ready.");
 }
@@ -99,6 +96,5 @@ void Viper::tick(sf::Time elapsedTime) {
     moveHead(1);
     moveTail(1);
     cleanUpTrailingTrackPoints();
-    m_vertices.update(m_track.front(), m_track.back(), s_nPtsPerSegment,
-                      s_segmentWidth, s_segmentLength);
+    m_vertices.update(m_track.front(), m_track.back(), s_nPtsPerSegment);
 }
