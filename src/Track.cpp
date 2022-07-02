@@ -24,6 +24,16 @@ TrackPoint* TrackPoint::step(int32_t s) {
         return this;
 }
 
+size_t TrackPoint::stepsUntil(const TrackPoint* target) const{
+    auto tp = this;
+    uint32_t n = 0;
+    while (tp != target) {
+        ++n;
+        tp = tp->m_next;
+    }
+    return n;
+}
+
 Track::Track() : m_size(0), m_front(nullptr), m_back(nullptr) {}
 
 void Track::clear() {
@@ -41,13 +51,7 @@ size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
         return 0;
     if (from == m_front && to == m_back)
         return m_size;
-    auto tp = from;
-    uint32_t n = 0;
-    while (tp != to) {
-        ++n;
-        tp = tp->m_next;
-    }
-    return n;
+    return from->stepsUntil(to);
 }
 
 float Track::length(TrackPoint const* from, TrackPoint const* to) const {

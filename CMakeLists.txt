@@ -24,6 +24,7 @@ list(APPEND INC_FILES "include/Level.hpp")
 list(APPEND INC_FILES "include/Track.hpp")
 list(APPEND INC_FILES "include/VectorMath.hpp")
 list(APPEND INC_FILES "include/Viper.hpp")
+list(APPEND INC_FILES "include/ViperVertices.hpp")
 
 set(SRC_FILES "")
 list(APPEND SRC_FILES "src/main.cpp")
@@ -33,6 +34,7 @@ list(APPEND SRC_FILES "src/GameWindow.cpp")
 list(APPEND SRC_FILES "src/Level.cpp")
 list(APPEND SRC_FILES "src/Track.cpp")
 list(APPEND SRC_FILES "src/Viper.cpp")
+list(APPEND SRC_FILES "src/ViperVertices.cpp")
 
 add_executable(vorvip ${INC_FILES} ${SRC_FILES})
 
