@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Player.hpp"
 #include "Viper.hpp"
 
 class Game : public sf::Drawable {
@@ -13,7 +14,7 @@ class Game : public sf::Drawable {
     void tick(sf::Time elapsedTime);
 
   private:
-    Viper* m_viper;
+    std::map<Player*,Viper*> m_players;
 };
 
 #endif

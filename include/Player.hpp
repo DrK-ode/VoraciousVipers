@@ -10,14 +10,15 @@
 
 class Player {
   public:
-    Player();
+    Player(std::string name);
     ~Player();
+    void setController(Controller* ctrl){m_controller = ctrl;}
+    Controller* getController() const {return m_controller;}
 
   private:
     Controller* m_controller;
     std::string m_name;
     Score m_score;
-    Viper m_viper;
-}
+};
 
 #endif

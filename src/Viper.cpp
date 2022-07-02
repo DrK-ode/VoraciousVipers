@@ -5,7 +5,8 @@
 
 const float Viper::s_nominalSpeed(60.f);
 const uint32_t fps = 60;
-const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getSegmentLength() / s_nominalSpeed * fps);
+const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getSegmentLength() /
+                                       s_nominalSpeed * fps);
 
 Viper::Viper()
     : m_acc(0.f),
@@ -20,12 +21,19 @@ void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     m_vertices.draw(target, states);
 }
 
+void Viper::growSegment(float growth) {
+    static float fraction = 0;
+    float wholePts;
+    fraction = std::modf(growth * s_nPtsPerSegment + fraction, &wholePts);
+    m_growth += wholePts;
+}
+
 float Viper::length() const { return m_track.length(m_head, m_tail); }
 
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void Viper::setupStart(const Vec2f& headPosition, float angle, uint32_t nSeg) {
+void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
     logInfo("Setting up Viper.");
     m_angle = angle;
     Vec2f vipVec = ViperVertices::getSegmentLength() * nSeg *
@@ -87,11 +95,6 @@ void Viper::cleanUpTrailingTrackPoints() {
 void Viper::tick(sf::Time elapsedTime) {
     static sf::Time t = sf::Time::Zero;
     t += elapsedTime;
-    if (t.asSeconds() > 2) {
-        // m_growth += s_nPtsPerSegment;
-        t = sf::Time::Zero;
-    }
-    m_angle += 0.4f;
     createNextTrackPoint(elapsedTime);
     moveHead(1);
     moveTail(1);
