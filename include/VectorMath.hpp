@@ -17,6 +17,7 @@ class Vec2 : public sf::Vector2<T> {
     Vec2(){};
     Vec2(T x, T y) : sf::Vector2<T>(x, y){};
     Vec2(const sf::Vector2<T>& v) : sf::Vector2<T>(v) {}
+    template <typename U> Vec2(const sf::Vector2<U>& v) : sf::Vector2<T>(v) {}
     float abs() const { return std::sqrt(this->x * this->x + this->y * this->y); }
     Vec2<T>& normalize(T norm = 1) {
         *this *= norm / this->abs();

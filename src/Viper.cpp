@@ -94,10 +94,11 @@ void Viper::tick(sf::Time elapsedTime) {
         // m_growth += s_nPtsPerSegment;
         t = sf::Time::Zero;
     }
-    // m_angle += 0.4f;
-    /*createNextTrackPoint(elapsedTime);
+    m_angle += 0.4f;
+    createNextTrackPoint(elapsedTime);
     moveHead(1);
     moveTail(1);
     cleanUpTrailingTrackPoints();
-    m_vertices.update();*/
+    m_vertices.update(m_track.front(), m_track.back(), s_nPtsPerSegment,
+                      s_segmentWidth, s_segmentLength);
 }
