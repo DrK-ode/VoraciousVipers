@@ -82,32 +82,37 @@ void prepareSegments(TrackPoint* tp_front, uint32_t nPtsPerSeg,
                      uint32_t nSegments, float segmentWidth,
                      float segmentLength, const std::vector<Vec2f>& relSize,
                      const sf::Color& color, const Vec2f textureSize,
-                     const std::vector<sf::Vertex>& copySource,
+                     const std::vector<sf::Vertex>* copySource,
                      std::vector<sf::Vertex>& storage) {
     const size_t nVertPerSeg = relSize.size();
     const size_t addPerSeg = nVertPerSeg - 2;
     const size_t nVertices = 2 + addPerSeg * nSegments;
     storage.resize(nVertices);
 
-    // Grab the two first points from the last part of the head and handle them
-    // seperately
-    std::copy(copySource.end() - 2, copySource.end(), storage.begin());
+    int startIndex = 0;
     auto iter = storage.begin();
-    (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[0]) * textureSize;
-    (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[1]) * textureSize;
+    if (copySource) {
+        // Grab the two first points from the last part of the head and handle
+        // them seperately
+        std::copy(copySource->end() - 2, copySource->end(), iter);
+        (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[0]) * textureSize;
+        (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[1]) * textureSize;
+        startIndex = 2;
+    }
 
     TrackPoint* spine = tp_front;
     for (int seg = 0; seg < nSegments; ++seg) {
         // i is the index of the width and length arrays while the iterator
         // points to the current vertex
-        for (int i = 2; i < nVertPerSeg; ++i) {
+        for (int i = startIndex; i < nVertPerSeg; ++i) {
             const TrackPoint& vertebra =
                 *spine->step(nPtsPerSeg * relSize[i].y);
             /* i is the index of the width and length arrays while the iterator
              * points to the current vertex. */
             /* Each segment will use the two last vertices from the previous
              * segment and thereby not adding those. */
-            Vec2f arm = (vertebra - *vertebra.prev())
+            Vec2f arm = (vertebra.next() ? (*vertebra.next() - vertebra)
+                                         : (vertebra - *vertebra.prev()))
                             .perpVec()
                             .normalize(-segmentWidth * relSize[i].x);
             iter->position = vertebra + arm;
@@ -116,42 +121,39 @@ void prepareSegments(TrackPoint* tp_front, uint32_t nPtsPerSeg,
             ++iter;
         }
         spine = spine->step(nPtsPerSeg);
+        startIndex = 2;  // Always skip the first two vertices if we're doing
+                         // several segments
     }
 }
 
 void ViperVertices::prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
-    const size_t nHeadVertices = 10;
-    m_headVertices.resize(nHeadVertices);
-    const Vec2f textureSize(m_bodyTexture.getSize());
+    const size_t nSegments = 1;
+    sf::Texture& texture = m_headTexture;
+    std::vector<sf::Vertex>& storage = m_headVertices;
+    const std::vector<sf::Vertex>* copySource = nullptr;
 
-    float relWidth[nHeadVertices / 2] = {0.125, 0.45, 0.45, 0.2, 0.2};
-    float relLength[nHeadVertices / 2] = {0, 0.625, 95 / 120., 115 / 120., 1};
+    std::vector<Vec2f> relSize;
+    relSize.push_back({-0.125, 0});
+    relSize.push_back({0.125, 0});
+    relSize.push_back({-0.45, 0.625});
+    relSize.push_back({0.45, 0.625});
+    relSize.push_back({-0.45, 0.8});
+    relSize.push_back({0.45, 0.8});
+    relSize.push_back({-0.2, 0.95});
+    relSize.push_back({0.2, 0.95});
+    relSize.push_back({-0.2, 1});
+    relSize.push_back({0.2, 1});
 
-    for (int i = 0; i < nHeadVertices / 2; ++i) {
-        const TrackPoint& spine = *tp_front->step(nPtsPerSeg * relLength[i]);
-        /* A point after the last TrackPoint is guaranteed since there will be
-         * either a body segment or tail coming. */
-        Vec2f arm = (*spine.next() - spine)
-                        .perpVec()
-                        .normalize(s_segmentWidth * relWidth[i]);
-        m_headVertices[2 * i].position = spine + arm;
-        m_headVertices[2 * i + 1].position = spine - arm;
-
-        m_headVertices[2 * i].color = m_color;
-        m_headVertices[2 * i + 1].color = m_color;
-
-        m_headVertices[2 * i].texCoords =
-            Vec2f(0.5f - relWidth[i], relLength[i]) * textureSize;
-        m_headVertices[2 * i + 1].texCoords =
-            Vec2f(0.5f + relWidth[i], relLength[i]) * textureSize;
-    }
+    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth,
+                    s_segmentLength, relSize, m_color, texture.getSize(),
+                    copySource, storage);
 }
 
 void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
                                 uint32_t nSegments) {
     sf::Texture& texture = m_bodyTexture;
     std::vector<sf::Vertex>& storage = m_bodyVertices;
-    std::vector<sf::Vertex>& copySource = m_headVertices;
+    const std::vector<sf::Vertex>* copySource = &m_headVertices;
 
     std::vector<Vec2f> relSize;
     relSize.push_back({-0.2, 0});
@@ -166,15 +168,12 @@ void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
     prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth,
                     s_segmentLength, relSize, m_color, texture.getSize(),
                     copySource, storage);
-    for( int i = 0; i < storage.size(); ++i ){
-    logInfo( i , " ", storage[i].texCoords );
-    }
 }
 
 void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
     sf::Texture& texture = m_tailTexture;
     std::vector<sf::Vertex>& storage = m_tailVertices;
-    std::vector<sf::Vertex>& copySource = m_bodyVertices;
+    const std::vector<sf::Vertex>* copySource = &m_bodyVertices;
     const size_t nSegments = 1;
 
     std::vector<Vec2f> relSize;
