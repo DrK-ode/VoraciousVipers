@@ -3,16 +3,29 @@
 #include "debug.hpp"
 
 Game::Game() {
-    m_viper = new Viper;
-    m_viper->setupStart({400.f, 300.f}, -90.f , 5);
+    Player* p = new Player("DefaultPlayerName");
+    p->setController( new ControllerGoingInCircles(0.5f) );
+    Viper* v = new Viper;
+    v->setup({400.f, 100.f}, 0.f , 2);
+    m_players[p] = v;
 }
 
-Game::~Game() { delete m_viper; }
+Game::~Game() { 
+    for_each( m_players.begin(), m_players.end(), [](auto p){
+        delete p.first;
+        delete p.second;
+    });
+ }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(*m_viper, states);
+    for_each( m_players.begin(), m_players.end(), [&](auto p){
+        target.draw( *p.second, states);
+    });
 }
 
 void Game::tick(sf::Time elapsedTime) {
-    m_viper->tick( elapsedTime );
+    for_each( m_players.begin(), m_players.end(), [&](auto p){
+        p.first->getController()->onTick( *p.second );
+        p.second->tick(elapsedTime);
+    });
 }
