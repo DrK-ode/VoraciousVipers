@@ -14,19 +14,16 @@ class ViperVertices {
                 float segmentWidth, float segmentLength);
 
   private:
-    void setHeadVertices(TrackPoint* tp_front, TrackPoint* tp_back,
-                         uint32_t nPtsPerSeg, float segmentWidth,
-                         float segmentLength, sf::Vertex array[]);
-    void setBodyVertices(TrackPoint* tp_front, TrackPoint* tp_back,
-                         uint32_t nPtsPerSeg, float segmentWidth,
-                         float segmentLength, sf::Vertex array[]);
-    void setTailVertices(TrackPoint* tp_front, TrackPoint* tp_back,
-                         uint32_t nPtsPerSeg, float segmentWidth,
-                         float segmentLength, sf::Vertex array[]);
-    static const size_t s_nHeadVertices;
-    static const size_t s_nBodyVertices;
-    static const size_t s_nTailVertices;
-    std::vector<sf::Vertex> m_vertices;
+    void prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg,
+                     float segmentWidth, float segmentLength);
+    void prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
+                     uint32_t nBodySegments, float segmentWidth,
+                     float segmentLength);
+    void prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg,
+                     float segmentWidth, float segmentLength);
+    std::vector<sf::Vertex> m_headVertices;
+    std::vector<sf::Vertex> m_bodyVertices;
+    std::vector<sf::Vertex> m_tailVertices;
     sf::Color m_color;
     sf::Texture m_headTexture;
     sf::Texture m_bodyTexture;

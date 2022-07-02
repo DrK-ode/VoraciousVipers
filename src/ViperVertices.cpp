@@ -1,12 +1,8 @@
 #include "ViperVertices.hpp"
 
-#include "config.hpp"
 #include "VectorMath.hpp"
+#include "config.hpp"
 #include "debug.hpp"
-
-const size_t ViperVertices::s_nHeadVertices(10);
-const size_t ViperVertices::s_nBodyVertices(8);
-const size_t ViperVertices::s_nTailVertices(3);
 
 ViperVertices::ViperVertices() : m_color(0x007700ff) {
     // Load image and split it into the different textures.
@@ -24,6 +20,7 @@ ViperVertices::ViperVertices() : m_color(0x007700ff) {
     upperLeft.y = rectSize.y;
     m_bodyTexture.loadFromImage(combinedTextureImage,
                                 sf::IntRect(upperLeft, rectSize));
+                                m_bodyTexture.setRepeated(true);
     // Tail texture
     upperLeft.y = 2 * rectSize.y;
     m_tailTexture.loadFromImage(combinedTextureImage,
@@ -37,176 +34,139 @@ void ViperVertices::draw(sf::RenderTarget& target,
     size_t numberOfVertices;
 
     // Draw head
-    vertexPtr = &m_vertices[0];
-    numberOfVertices = s_nHeadVertices;
     states.texture = &m_headTexture;
-    target.draw(vertexPtr, numberOfVertices, sf::TriangleStrip, states);
+    target.draw(&m_headVertices[0], m_headVertices.size(), sf::TriangleStrip,
+                states);
 
     // Draw body
-    // Each segment, except the head, shares the two first vertices with the
-    // previous segment
-    vertexPtr += (numberOfVertices - 2);
-    // All that is not head or tail must be body (taking shared vertices into
-    // account)
-    numberOfVertices =
-        m_vertices.size() - (s_nHeadVertices - 2) - (s_nTailVertices - 2);
     states.texture = &m_bodyTexture;
-    target.draw(vertexPtr, numberOfVertices, sf::TriangleStrip, states);
+    target.draw(&m_bodyVertices[0], m_bodyVertices.size(), sf::TriangleStrip,
+                states);
 
     // Draw tail
-    // Each segment, except the head, shares the two first vertices with the
-    // previous segment
-    vertexPtr += (numberOfVertices - 2);
-    numberOfVertices = s_nTailVertices;
     states.texture = &m_tailTexture;
-    target.draw(vertexPtr, numberOfVertices, sf::TriangleStrip, states);
+    target.draw(&m_tailVertices[0], m_tailVertices.size(), sf::TriangleStrip,
+                states);
 }
 
-void ViperVertices::setHeadVertices(TrackPoint* tp_front, TrackPoint* tp_back,uint32_t nPtsPerSeg, float segmentWidth, float segmentLength,
-                                    sf::Vertex array[]) {
-    float skel_y[s_nHeadVertices / 2];
-    skel_y[0] = 0.f;
-    skel_y[1] = 0.625f * segmentLength;
-    skel_y[2] = 95.f / 120.f * segmentLength;
-    skel_y[3] = 115.f / 120.f * segmentLength;
-    skel_y[4] = segmentLength;
-    float skel_x[s_nHeadVertices / 2];
-    skel_x[0] = 0.125f * segmentWidth;
-    skel_x[1] = 0.45f * segmentWidth;
-    skel_x[2] = 0.45f * segmentWidth;
-    skel_x[3] = 0.2f * segmentWidth;
-    skel_x[4] = 0.2f * segmentWidth;
-
-    TrackPoint* spine[s_nHeadVertices / 2];
-    for (int i = 0; i < s_nHeadVertices / 2; ++i) {
-        spine[i] =
-            tp_front->step(nPtsPerSeg * skel_y[i] / segmentLength);
-    }
-
-    Vec2f arm[s_nHeadVertices / 2];
-    for (int i = 0; i < s_nHeadVertices / 2; ++i)
-        arm[i] =
-            (*(spine[i]->next()) - *(spine[i])).perpVec().normalize(skel_x[i]);
-    /* A point after the last TrackPoint is guaranteed since there will be
-     * either a body segment or tail coming. */
-
-    // Set triangles vertices
-    for (int i = 0; i < s_nHeadVertices; ++i) {
-        array[i].position = *spine[i / 2] - (1 - 2 * (i % 2)) * arm[i / 2];
-        array[i].color = m_color;
-    }
-
-    // Set texture coordinates
-    Vec2 textureSize(m_headTexture.getSize());
-    for (int i = 0; i < s_nHeadVertices; ++i) {
-        array[i].texCoords = {-(1 - 2 * (i % 2)) * skel_x[i / 2],
-                              skel_y[i / 2]};
-        // Move texture anchor point
-        array[i].texCoords.x += segmentWidth / 2;
-        // Scale the coordinates to the texture space
-        array[i].texCoords.x *= textureSize.x / segmentWidth;
-        array[i].texCoords.y *= textureSize.y / segmentLength;
-    }
-}
-
-void ViperVertices::setBodyVertices(TrackPoint* tp_front, TrackPoint* tp_back,uint32_t nPtsPerSeg, float segmentWidth, float segmentLength,
-                                    sf::Vertex array[]) {
-    // The first two vertices are already created by the previous segment
-    size_t nVertices = s_nBodyVertices - 2;
-    float skel_x[nVertices / 2];
-    skel_x[0] = 0.4f * segmentWidth;
-    skel_x[1] = 0.4f * segmentWidth;
-    skel_x[2] = 0.2f * segmentWidth;
-    float skel_y[nVertices / 2];
-    skel_y[0] = 0.25f * segmentLength;
-    skel_y[1] = 0.75f * segmentLength;
-    skel_y[2] = segmentLength;
-
-    TrackPoint* spine[nVertices / 2];
-    for (int i = 0; i < nVertices / 2; ++i) {
-        spine[i] =
-            tp_front->step(nPtsPerSeg * skel_y[i] / segmentLength);
-    }
-
-    Vec2f arm[nVertices / 2];
-    for (int i = 0; i < nVertices / 2; ++i)
-        arm[i] =
-            (*(spine[i]->next()) - *(spine[i])).perpVec().normalize(skel_x[i]);
-    // A point after the last TrackPoint is guaranteed because of the tail.
-
-    // Set all the triangles vertices
-    for (int i = 0; i < nVertices; ++i) {
-        array[i].position = *spine[i / 2] - (1 - 2 * (i % 2)) * arm[i / 2];
-        array[i].color = m_color;
-    }
-
-    // Prepare the texture coordinates
-    //  The following code is identical for every body segment and should be
-    //  bundled with the texture somehow
-    Vec2 textureSize(m_bodyTexture.getSize());
-    (array - 2)[0].texCoords = sf::Vector2f(12, 0);
-    (array - 2)[1].texCoords = sf::Vector2f(28, 0);
-    /*for (int i = 0; i < nVertices; ++i) {
-        array[i].texCoords =
-            sf::Vector2f(-(1 - 2 * (i % 2)) * skel_x[i / 2], skel_y[i / 2]);
-        // Move texture anchor point
-        array[i].texCoords.x += segmentWidth / 2;
-        // Scale the coordinates to the texture space
-        array[i].texCoords.x *= textureSize.x / segmentWidth;
-        array[i].texCoords.y *= textureSize.y / segmentLength;
-        tagInfo( array[i].position);
-        tagInfo( array[i].texCoords);
-    }*/
-    array[0].texCoords = sf::Vector2f(4, 45);
-    array[1].texCoords = sf::Vector2f(36, 45);
-    array[2].texCoords = sf::Vector2f(4, 135);
-    array[3].texCoords = sf::Vector2f(36, 135);
-    array[4].texCoords = sf::Vector2f(12, 180);
-    array[5].texCoords = sf::Vector2f(28, 180);
-}
-
-void ViperVertices::setTailVertices(TrackPoint* tp_front, TrackPoint* tp_back,uint32_t nPtsPerSeg, float segmentWidth, float segmentLength,
-                                    sf::Vertex array[]) {
-    // Draw tail
-    array[0].position = *tp_back;
-    array[0].color = m_color;
-
-    // (array -2)[0].texCoords = sf::Vector2f(15,0);
-    //(array -2)[1].texCoords = sf::Vector2f(25,0);
-    array[0].texCoords = {m_tailTexture.getSize().x / 2.f,
-                          1.f * m_tailTexture.getSize().y};
-}
-
-void ViperVertices::update(TrackPoint* tp_front, TrackPoint* tp_back, uint32_t nPtsPerSeg, float segmentWidth, float segmentLength) {
-    size_t viperSize = tp_front->stepsUntil(tp_back); // We are counting intervals, not points
+void ViperVertices::update(TrackPoint* tp_front, TrackPoint* tp_back,
+                           uint32_t nPtsPerSeg, float segmentWidth,
+                           float segmentLength) {
+    // We are counting intervals, not points
+    size_t viperSize = tp_front->stepsUntil(tp_back);
     uint32_t nHeadPts = nPtsPerSeg;
     size_t nBodySegments =
         std::max(0uL, (viperSize - nHeadPts) / nPtsPerSeg - 1);
     uint32_t nBodyPts = nBodySegments * nPtsPerSeg;
     uint32_t nTailPts = viperSize - nHeadPts - nBodyPts;
-    // Sanity check
-    if (nBodyPts > 0 && nTailPts < nPtsPerSeg) {
-        tagError("Tail is too small even though is could be bigger.");
-        throw std::runtime_error("Inacceptable tail size.");
+
+    // Find start and end of the different parts
+    TrackPoint* headFront = tp_front;
+    TrackPoint* headBack = headFront->step(nHeadPts);
+    TrackPoint* bodyFront = headBack;
+    TrackPoint* bodyBack = bodyFront->step(nBodyPts);
+    TrackPoint* tailFront = bodyBack;
+    TrackPoint* tailBack = tailFront->step(nTailPts);
+
+    prepareHead(headFront, nHeadPts, segmentWidth, segmentLength);
+    prepareBody(bodyFront, nPtsPerSeg, nBodySegments, segmentWidth,
+                segmentLength);
+    prepareTail(tailFront, nTailPts, segmentWidth, segmentLength);
+}
+
+void ViperVertices::prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg,
+                                float segmentWidth, float segmentLength) {
+    const size_t nHeadVertices = 10;
+    m_headVertices.resize(nHeadVertices);
+    const Vec2f textureSize(m_bodyTexture.getSize());
+
+    float relWidth[nHeadVertices / 2] = {0.125, 0.45, 0.45, 0.2, 0.2};
+    float relLength[nHeadVertices / 2] = {0, 0.625, 95 / 120., 115 / 120., 1};
+
+    for (int i = 0; i < nHeadVertices / 2; ++i) {
+        const TrackPoint& spine = *tp_front->step(nPtsPerSeg * relLength[i]);
+        /* A point after the last TrackPoint is guaranteed since there will be
+         * either a body segment or tail coming. */
+        Vec2f arm = (*spine.next() - spine)
+                        .perpVec()
+                        .normalize(segmentWidth * relWidth[i]);
+        m_headVertices[2 * i].position = spine + arm;
+        m_headVertices[2 * i + 1].position = spine - arm;
+
+        m_headVertices[2 * i].color = m_color;
+        m_headVertices[2 * i + 1].color = m_color;
+
+        m_headVertices[2 * i].texCoords =
+            Vec2f(0.5f - relWidth[i], relLength[i]) * textureSize;
+        m_headVertices[2 * i + 1].texCoords =
+            Vec2f(0.5f + relWidth[i], relLength[i]) * textureSize;
     }
-    size_t nVertices = s_nHeadVertices + (s_nBodyVertices - 2) * nBodySegments +
-                       (s_nTailVertices - 2);
-    m_vertices.resize(nVertices);
+}
 
-    TrackPoint* segFront = tp_front;
-    TrackPoint* segBack = segFront->step(nPtsPerSeg);
-    sf::Vertex* storagePtr = &m_vertices[0];
-    setHeadVertices(segFront, segBack, nPtsPerSeg, segmentWidth, segmentLength, storagePtr);
-    storagePtr += s_nHeadVertices;
+void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
+                                uint32_t nBodySegments, float segmentWidth,
+                                float segmentLength) {
+    const size_t nVertPerSeg = 8;
+    const size_t addPerSeg = nVertPerSeg - 2;
+    const size_t nBodyVertices = 2 + addPerSeg * nBodySegments;
+    m_bodyVertices.resize(nBodyVertices);
+    const Vec2f textureSize(m_bodyTexture.getSize());
+    float relWidth[nVertPerSeg / 2] = {0.2, 0.4, 0.4, 0.2};
+    float relLength[nVertPerSeg / 2] = {0, 0.25, 0.75, 1};
+    // Grab the two first points from the last part of the body and handlke them
+    // seperately
+    int index = 0;
+    m_bodyVertices[index] = m_headVertices[m_headVertices.size() - 2];
+    m_bodyVertices[index].texCoords =
+        Vec2f(0.5f - relWidth[0], relLength[0]) * textureSize;
+    ++index;
+    m_bodyVertices[index] = m_headVertices[m_headVertices.size() - 1];
+    m_bodyVertices[index].texCoords =
+        Vec2f(0.5f + relWidth[0], relLength[0]) * textureSize;
+    ++index;
 
-    for (int i = 0; i < nBodySegments; ++i) {
-        segFront = segBack;
-        segBack = segFront->step(nPtsPerSeg);
-        setBodyVertices(segFront, segBack, nPtsPerSeg, segmentWidth, segmentLength, storagePtr);
-        storagePtr += (s_nBodyVertices - 2);
+    TrackPoint* spine = tp_front;
+    for (int seg = 0; seg < nBodySegments; ++seg) {
+        // i is the index of the width and length arrays but index is the index
+        // of the current vertex
+        for (int i = 1; i < nVertPerSeg / 2; ++i) {
+            const TrackPoint& vertebra =
+                *spine->step(nPtsPerSeg * relLength[i]);
+            /* A point after the last TrackPoint is guaranteed since there will
+             * be either a body segment or tail coming. */
+            Vec2f arm = (*vertebra.next() - vertebra)
+                            .perpVec()
+                            .normalize(segmentWidth * relWidth[i]);
+            m_bodyVertices[index].position = vertebra + arm;
+            m_bodyVertices[index].color = m_color;
+            m_bodyVertices[index].texCoords =
+                Vec2f(0.5f - relWidth[i], relLength[i]+seg) * textureSize;
+            ++index;
+            m_bodyVertices[index].position = vertebra - arm;
+            m_bodyVertices[index].color = m_color;
+            m_bodyVertices[index].texCoords =
+                Vec2f(0.5f + relWidth[i], relLength[i]+seg) * textureSize;
+            ++index;
+        }
+        spine = spine->step(nPtsPerSeg);
     }
+}
 
-    segFront = segBack;
-    segBack = segFront->step(nTailPts);
-    setTailVertices(segFront, segBack, nPtsPerSeg, segmentWidth, segmentLength, storagePtr);
+void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPts,
+                                float segmentWidth, float segmentLength) {
+    m_tailVertices.resize(3);
+    // Grab the two first points from the last part of the body
+    m_tailVertices[0] = m_bodyVertices[m_bodyVertices.size() - 2];
+    m_tailVertices[1] = m_bodyVertices[m_bodyVertices.size() - 1];
+    // Draw tail
+    m_tailVertices[2].position = *tp_front->step(nPts);
+    m_tailVertices[2].color = m_color;
+
+    // The texture coordinates should not change?
+    m_tailVertices[0].texCoords =
+        sf::Vector2f(0.3 * m_tailTexture.getSize().x, 0);
+    m_tailVertices[1].texCoords =
+        sf::Vector2f(0.7 * m_tailTexture.getSize().x, 0);
+    m_tailVertices[2].texCoords = sf::Vector2f(m_tailTexture.getSize().x / 2.f,
+                                               m_tailTexture.getSize().y);
 }
