@@ -9,18 +9,18 @@
 class ViperVertices {
   public:
     ViperVertices();
+    static float getSegmentLength() {return s_segmentLength; }
+    static float getSegmentWidth() {return s_segmentWidth; }
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void update(TrackPoint* tp_front, TrackPoint* tp_back, uint32_t nPtsPerSeg,
-                float segmentWidth, float segmentLength);
+    void update(TrackPoint* tp_front, TrackPoint* tp_back, uint32_t nPtsPerSeg);
 
   private:
-    void prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg,
-                     float segmentWidth, float segmentLength);
+    static const float s_segmentLength;
+    static const float s_segmentWidth;
+    void prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg);
     void prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
-                     uint32_t nBodySegments, float segmentWidth,
-                     float segmentLength);
-    void prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg,
-                     float segmentWidth, float segmentLength);
+                     uint32_t nBodySegments);
+    void prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg);
     std::vector<sf::Vertex> m_headVertices;
     std::vector<sf::Vertex> m_bodyVertices;
     std::vector<sf::Vertex> m_tailVertices;
