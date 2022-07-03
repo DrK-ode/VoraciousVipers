@@ -1,8 +1,12 @@
 #include <vvipers/Controller.hpp>
 
-ControllerGoingInCircles::ControllerGoingInCircles(float da) : m_da(da){}
+namespace VVipers {
 
-void ControllerGoingInCircles::onTick(Viper& viper){
-    viper.setAngle( viper.getAngle() + m_da );
+ControllerGoingInCircles::ControllerGoingInCircles(float da) : m_da(da) {}
+
+void ControllerGoingInCircles::onTick(Viper& viper) {
+    viper.setAngle(viper.getAngle() + m_da);
     viper.growSegment(0.001);
 }
+
+}  // namespace VVipers

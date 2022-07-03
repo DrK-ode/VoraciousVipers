@@ -2,7 +2,7 @@
 
 int main()
 {
-    VVipers game;
+    VVipers::VVipers game;
     game.startGame();
     return 0;
 }

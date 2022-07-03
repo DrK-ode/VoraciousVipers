@@ -1,5 +1,7 @@
 #include <vvipers/VVipers.hpp>
 
+namespace VVipers {
+
 VVipers::VVipers() {
     m_window = new GameWindow;
     m_window->setFramerateLimit(60);
@@ -14,11 +16,12 @@ VVipers::~VVipers() {
 void VVipers::startGame() {
     sf::Clock clock;
     while (m_window->isOpen()) {
-        m_game->tick( clock.restart());
+        m_game->tick(clock.restart());
 
         sf::Event event;
         while (m_window->pollEvent(event)) {
-            if (event.type == sf::Event::Closed) m_window->close();
+            if (event.type == sf::Event::Closed)
+                m_window->close();
         }
 
         m_window->clear(sf::Color::Black);
@@ -26,3 +29,5 @@ void VVipers::startGame() {
         m_window->display();
     }
 }
+
+}  // namespace VVipers

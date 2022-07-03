@@ -3,17 +3,18 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-
 #include <vvipers/Track.hpp>
 #include <vvipers/ViperVertices.hpp>
+
+namespace VVipers {
 
 class Viper : public sf::Drawable {
   public:
     Viper();
     ~Viper();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    float getAngle() const {return m_angle;}
-    void setAngle(float a) {m_angle = a;}
+    float getAngle() const { return m_angle; }
+    void setAngle(float a) { m_angle = a; }
     void growSegment(float growth);
     float length() const;
     void setup(const Vec2f& from, float angle, uint32_t nSeg);
@@ -36,4 +37,5 @@ class Viper : public sf::Drawable {
     ViperVertices m_vertices;
 };
 
+}  // namespace VVipers
 #endif

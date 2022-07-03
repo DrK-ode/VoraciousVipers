@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+namespace VVipers {
+
 class Score {
   public:
     Score(uint32_t s = 0) : m_score(s){};
@@ -39,4 +41,5 @@ class Score {
     uint32_t m_score;
 };
 
+}  // namespace VVipers
 #endif

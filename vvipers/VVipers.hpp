@@ -1,10 +1,12 @@
 #ifndef VVIPERS_VVIPERS_HPP
 #define VVIPERS_VVIPERS_HPP
 
-#include <vvipers/GameWindow.hpp>
 #include <vvipers/Game.hpp>
+#include <vvipers/GameWindow.hpp>
 
-class VVipers{
+namespace VVipers {
+
+class VVipers {
   public:
     VVipers();
     ~VVipers();
@@ -15,5 +17,6 @@ class VVipers{
     Game* m_game;
 };
 
+}  // namespace VVipers
 
 #endif

@@ -3,16 +3,18 @@
 
 #include <vvipers/Viper.hpp>
 
+namespace VVipers {
+
 class Controller {
   public:
-    Controller() : m_connected(false){}
+    Controller() : m_connected(false) {}
     virtual void onTick(Viper&){};
     virtual void onKeyboard(Viper&){};
     virtual void onMouse(Viper&){};
 
     static const Controller dummyController;
 
-    protected:
+  protected:
     bool m_connected;
 };
 
@@ -25,4 +27,5 @@ class ControllerGoingInCircles : public Controller {
     float m_da;
 };
 
+}  // namespace VVipers
 #endif

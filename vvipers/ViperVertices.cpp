@@ -1,10 +1,11 @@
 #include "vvipers/ViperVertices.hpp"
 
 #include <algorithm>
-
 #include <vvipers/VectorMath.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
+
+namespace VVipers {
 
 const float ViperVertices::s_segmentWidth(40);
 const float ViperVertices::s_segmentLength(60);
@@ -188,3 +189,5 @@ void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
                     s_segmentLength, relSize, m_color, texture.getSize(),
                     copySource, storage);
 }
+
+}  // namespace VVipers

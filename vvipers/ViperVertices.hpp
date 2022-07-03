@@ -3,14 +3,15 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-
 #include <vvipers/Track.hpp>
+
+namespace VVipers {
 
 class ViperVertices {
   public:
     ViperVertices();
-    static float getSegmentLength() {return s_segmentLength; }
-    static float getSegmentWidth() {return s_segmentWidth; }
+    static float getSegmentLength() { return s_segmentLength; }
+    static float getSegmentWidth() { return s_segmentWidth; }
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void update(TrackPoint* tp_front, TrackPoint* tp_back, uint32_t nPtsPerSeg);
 
@@ -30,4 +31,5 @@ class ViperVertices {
     sf::Texture m_tailTexture;
 };
 
+}  // namespace VVipers
 #endif

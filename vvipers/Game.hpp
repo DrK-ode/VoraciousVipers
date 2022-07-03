@@ -2,9 +2,10 @@
 #define VVIPERS_GAME_HPP
 
 #include <SFML/Graphics.hpp>
-
 #include <vvipers/Player.hpp>
 #include <vvipers/Viper.hpp>
+
+namespace VVipers {
 
 class Game : public sf::Drawable {
   public:
@@ -14,7 +15,9 @@ class Game : public sf::Drawable {
     void tick(sf::Time elapsedTime);
 
   private:
-    std::map<Player*,Viper*> m_players;
+    std::map<Player*, Viper*> m_players;
 };
+
+}  // namespace VVipers
 
 #endif

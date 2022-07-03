@@ -1,6 +1,7 @@
 #include <vvipers/Track.hpp>
-
 #include <vvipers/debug.hpp>
+
+namespace VVipers {
 
 TrackPoint::TrackPoint(sf::Vector2f v)
     : Vec2f(v), m_next(nullptr), m_prev(nullptr) {}
@@ -24,7 +25,7 @@ TrackPoint* TrackPoint::step(int32_t s) {
         return this;
 }
 
-size_t TrackPoint::stepsUntil(const TrackPoint* target) const{
+size_t TrackPoint::stepsUntil(const TrackPoint* target) const {
     auto tp = this;
     uint32_t n = 0;
     while (tp != target) {
@@ -86,13 +87,9 @@ void Track::pop_front() {
     --m_size;
 }
 
-void Track::create_back(Vec2f v) {
-    push_back(new TrackPoint(v));
-}
+void Track::create_back(Vec2f v) { push_back(new TrackPoint(v)); }
 
-void Track::create_front(Vec2f v) {
-    push_front(new TrackPoint(v));
-}
+void Track::create_front(Vec2f v) { push_front(new TrackPoint(v)); }
 
 void Track::push_back(TrackPoint* tp) {
     if (empty())
@@ -117,3 +114,5 @@ void Track::push_front(TrackPoint* tp) {
     }
     ++m_size;
 }
+
+}  // namespace VVipers

@@ -1,7 +1,8 @@
-#include <vvipers/Viper.hpp>
-
 #include <vvipers/VectorMath.hpp>
+#include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
+
+namespace VVipers {
 
 const float Viper::s_nominalSpeed(60.f);
 const uint32_t fps = 60;
@@ -101,3 +102,5 @@ void Viper::tick(sf::Time elapsedTime) {
     cleanUpTrailingTrackPoints();
     m_vertices.update(m_track.front(), m_track.back(), s_nPtsPerSegment);
 }
+
+}  // namespace VVipers
