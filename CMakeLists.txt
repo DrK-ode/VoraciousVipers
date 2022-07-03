@@ -12,6 +12,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_subdirectory(./vvipers)
+# Tests depend on library built by the above subdir
+add_subdirectory(./tests)
 
 add_executable(voraciousvipers "./vvipers/VVipers.hpp" "./vvipers/main.cpp")
 target_include_directories(voraciousvipers PRIVATE "./")
