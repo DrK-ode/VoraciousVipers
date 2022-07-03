@@ -5,11 +5,30 @@
 #include <cmath>
 #include <iostream>
 
+namespace VVipers {
+
 const float pi = 3.14159265358979323846;
+const float twopi = 2 * pi;
 const float radPerDeg = pi / 180.f;
 const float degPerRad = 180.f / pi;
 inline float degToRad(float deg) { return deg * radPerDeg; }
 inline float radToDeg(float rad) { return rad * degPerRad; }
+inline float mod180Deg(float deg) {
+    deg = fmod(deg, 360.f);
+    if (deg > 180.f)
+        deg -= 360.f;
+    else if (deg < -180.f)
+        deg += 360.f;
+    return deg;
+}
+inline float modPiRad(float rad) {
+    rad = fmod(rad, twopi);
+    if (rad > pi)
+        rad -= twopi;
+    else if (rad < -pi)
+        rad += twopi;
+    return rad;
+}
 
 template <typename T>
 class Vec2 : public sf::Vector2<T> {
@@ -17,10 +36,17 @@ class Vec2 : public sf::Vector2<T> {
     Vec2(){};
     Vec2(T x, T y) : sf::Vector2<T>(x, y){};
     Vec2(const sf::Vector2<T>& v) : sf::Vector2<T>(v) {}
-    template <typename U> Vec2(const sf::Vector2<U>& v) : sf::Vector2<T>(v) {}
-    float abs() const { return std::sqrt(this->x * this->x + this->y * this->y); }
+    template <typename U>
+    Vec2(const sf::Vector2<U>& v) : sf::Vector2<T>(v) {}
+    float abs() const {
+        return std::sqrt(this->x * this->x + this->y * this->y);
+    }
+    T dot(const Vec2<T>& v) { return this->x * v.x + this->y * v.y; }
+    // Might yield unexpected results for integer types
     Vec2<T>& normalize(T norm = 1) {
-        *this *= norm / this->abs();
+        norm /= this->abs();
+        this->x *= norm;
+        this->y *= norm;
         return (*this);
     };
     Vec2<T> perpVec() const { return Vec2<T>(-this->y, this->x); }
@@ -91,4 +117,5 @@ inline float distance(const Vec2<T>& a, const Vec2<T>& b) {
     return abs(b - a);
 }
 
+}  // namespace VVipers
 #endif
