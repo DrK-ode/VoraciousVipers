@@ -56,10 +56,17 @@ size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
 }
 
 float Track::length(TrackPoint const* from, TrackPoint const* to) const {
+    if (from == nullptr) {
+        if (to == nullptr)
+            return 0;
+        else
+            throw std::runtime_error(
+                "Cannot measure track length from a null TrackPoint.");
+    }
     auto t1 = from;
     auto t2 = from->next();
     float L = 0.f;
-    while (t1 != t2) {
+    while (t1 != to || t2 != nullptr) {
         L += distance(*t1, *t2);
         t1 = t2;
         t2 = t2->next();

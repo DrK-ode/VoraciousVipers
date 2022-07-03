@@ -2,6 +2,7 @@
 #define VVIPERS_TRACK_HPP
 
 #include <deque>
+#include <vvipers/debug.hpp>
 #include <vvipers/VectorMath.hpp>
 
 namespace VVipers {

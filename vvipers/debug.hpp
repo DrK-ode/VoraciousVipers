@@ -7,8 +7,8 @@
 
 namespace VVipers {
 
-enum LogLevel { onlyErrors = 0, errorsAndWarnings = 1, all = 2 };
-inline LogLevel logLevel = all;
+enum class LogLevel { onlyErrors = 0, errorsAndWarnings = 1, all = 2 };
+inline LogLevel logLevel = LogLevel::all;
 
 #ifndef __INTELLISENSE__  // Because intellisense bugs on
                           // std::source_location::current() and this removes
@@ -28,7 +28,7 @@ inline void tag(const std::source_location& location = std::source_location()) {
 template <typename... Args>
 inline void _implLogInfo(bool doTag, const std::source_location loc,
                          Args&&... args) {
-    if (logLevel >= all) {
+    if (logLevel >= LogLevel::all ) {
         if (doTag)
             tag(loc);
         std::cout << "   INFO   ";
@@ -39,7 +39,7 @@ inline void _implLogInfo(bool doTag, const std::source_location loc,
 template <typename... Args>
 inline void _implLogWarning(bool doTag, const std::source_location loc,
                             Args&&... args) {
-    if (logLevel >= errorsAndWarnings) {
+    if (logLevel >= LogLevel::errorsAndWarnings) {
         if (doTag)
             tag(loc);
         std::cout << "   WARN   ";
@@ -50,7 +50,7 @@ inline void _implLogWarning(bool doTag, const std::source_location loc,
 template <typename... Args>
 inline void _implLogError(bool doTag, const std::source_location loc,
                           Args&&... args) {
-    if (logLevel >= onlyErrors) {
+    if (logLevel >= LogLevel::onlyErrors) {
         if (doTag)
             tag(loc);
         std::cout << "   ERR    ";

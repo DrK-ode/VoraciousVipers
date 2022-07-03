@@ -14,7 +14,7 @@ class Viper : public sf::Drawable {
     ~Viper();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     float getAngle() const { return m_angle; }
-    void setAngle(float a) { m_angle = a; }
+    void setAngle(float a) { m_angle = mod180Deg(a); }
     void growSegment(float growth);
     float length() const;
     void setup(const Vec2f& from, float angle, uint32_t nSeg);

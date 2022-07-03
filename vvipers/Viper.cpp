@@ -1,3 +1,4 @@
+#include <exception>
 #include <vvipers/VectorMath.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
@@ -35,7 +36,9 @@ float Viper::length() const { return m_track.length(m_head, m_tail); }
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
 void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
-    logInfo("Setting up Viper.");
+    if (nSeg < 2)
+        throw std::out_of_range(
+            "Trying to setup viper with less than two segments.");
     m_angle = angle;
     Vec2f vipVec = ViperVertices::getSegmentLength() * nSeg *
                    Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
@@ -47,7 +50,7 @@ void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
     m_track.clear();
     Vec2f trackVec = vipVec / (nTrackPoints - 1);
 
-    logInfo("Filling track with ", nTrackPoints, " track points.");
+    logInfo("Filling viper track with ", nTrackPoints, " track points.");
     for (int i = 0; i < nTrackPoints; ++i) {
         m_track.create_back(headPosition - trackVec * i);
     }
@@ -55,8 +58,6 @@ void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
     m_head = m_track.front();
     m_tail = m_track.back();
     m_vertices.update(m_head, m_tail, s_nPtsPerSegment);
-
-    logInfo("Viper is ready.");
 }
 
 void Viper::createNextTrackPoint(sf::Time elapsedTime) {
