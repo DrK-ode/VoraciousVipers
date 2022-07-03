@@ -1,34 +1,39 @@
 configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
-set(INC_FILES "")
-list(APPEND INC_FILES "config.hpp")
-list(APPEND INC_FILES "debug.hpp")
-list(APPEND INC_FILES "Controller.hpp")
-list(APPEND INC_FILES "Game.hpp")
-list(APPEND INC_FILES "GameWindow.hpp")
-list(APPEND INC_FILES "Level.hpp")
-list(APPEND INC_FILES "Player.hpp")
-list(APPEND INC_FILES "Score.hpp")
-list(APPEND INC_FILES "Track.hpp")
-list(APPEND INC_FILES "VectorMath.hpp")
-list(APPEND INC_FILES "Viper.hpp")
-list(APPEND INC_FILES "ViperVertices.hpp")
-list(APPEND INC_FILES "VVipers.hpp")
+set(INC_FILES
+    config.hpp
+    debug.hpp
+    Controller.hpp
+    Game.hpp
+    GameWindow.hpp
+    Level.hpp
+    Player.hpp
+    Score.hpp
+    Track.hpp
+    VectorMath.hpp
+    Viper.hpp
+    ViperVertices.hpp
+    VVipers.hpp
+)
 
-set(SRC_FILES "")
-list(APPEND SRC_FILES "Controller.cpp")
-list(APPEND SRC_FILES "Game.cpp")
-list(APPEND SRC_FILES "GameWindow.cpp")
-list(APPEND SRC_FILES "Level.cpp")
-list(APPEND SRC_FILES "Player.cpp")
-list(APPEND SRC_FILES "Score.cpp")
-list(APPEND SRC_FILES "Track.cpp")
-list(APPEND SRC_FILES "Viper.cpp")
-list(APPEND SRC_FILES "ViperVertices.cpp")
-list(APPEND SRC_FILES "VVipers.cpp")
+set(SRC_FILES
+    Controller.cpp
+    Game.cpp
+    GameWindow.cpp
+    Level.cpp
+    Player.cpp
+    Score.cpp
+    Track.cpp
+    Viper.cpp
+    ViperVertices.cpp
+    VVipers.cpp
+)
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 add_library(libvvipers ${INC_FILES} ${SRC_FILES})
-target_include_directories(libvvipers PRIVATE "../")
+target_include_directories(libvvipers 
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}
+)
 target_link_libraries(libvvipers sfml-graphics)
