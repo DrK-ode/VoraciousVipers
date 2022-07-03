@@ -13,7 +13,7 @@ const float ViperVertices::s_segmentLength(60);
 ViperVertices::ViperVertices() : m_color(0x007700ff) {
     // Load image and split it into the different textures.
     sf::Image combinedTextureImage;
-    combinedTextureImage.loadFromFile(VIPER_TEXTURE_FILE);
+    combinedTextureImage.loadFromFile(VIPER_FILE_PATH);
     sf::Vector2i imgSize(combinedTextureImage.getSize());
     Vec2i upperLeft;
     Vec2i rectSize(imgSize.x, imgSize.y / 3);
