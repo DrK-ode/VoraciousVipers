@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace VVipers {
-
+// TODO Change all floats to doubles
 const float pi = 3.14159265358979323846;
 const float twopi = 2 * pi;
 const float radPerDeg = pi / 180.f;

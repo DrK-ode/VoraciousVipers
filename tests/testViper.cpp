@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <SFML/System/Time.hpp>
+
 #include <vvipers/Viper.hpp>
 #include <vvipers/ViperVertices.hpp>
 #include <vvipers/debug.hpp>
@@ -36,7 +38,19 @@ TEST_F(ViperTest, angleTest) {
 
 TEST_F(ViperTest, lengthTest) {
     EXPECT_FLOAT_EQ(Viper().length(), 0.f);
-    EXPECT_FLOAT_EQ(viper.length(), 3.f * ViperVertices::getSegmentLength());
+    EXPECT_FLOAT_EQ(viper.length(), 3.f * ViperVertices::getNominalSegmentLength());
+}
+
+TEST_F(ViperTest, growthTest) {
+    // No growth
+    for( int i = 0; i < 10*viper.getTrackPointsPerSegment(); ++i )
+    viper.tick( sf::seconds(1 / 60.0) );
+    EXPECT_NEAR(viper.length(), 3.f * ViperVertices::getNominalSegmentLength(), 0.01f );
+
+    viper.growSegment(10);
+    for( int i = 0; i < 10*viper.getTrackPointsPerSegment(); ++i )
+    viper.tick( sf::seconds(1 / 60.0) );
+    EXPECT_NEAR(viper.length() / (13.f * ViperVertices::getNominalSegmentLength()), 1.f, 0.001f);
 }
 
 }  // namespace

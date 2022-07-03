@@ -81,8 +81,8 @@ void ViperVertices::update(TrackPoint* tp_front, TrackPoint* tp_back,
 // Helper function since the prepare methods share most of the code
 void prepareSegments(TrackPoint* tp_front, uint32_t nPtsPerSeg,
                      uint32_t nSegments, float segmentWidth,
-                     float segmentLength, const std::vector<Vec2f>& relSize,
-                     const sf::Color& color, const Vec2f textureSize,
+                     const std::vector<Vec2f>& relSize, const sf::Color& color,
+                     const Vec2f textureSize,
                      const std::vector<sf::Vertex>* copySource,
                      std::vector<sf::Vertex>& storage) {
     const size_t nVertPerSeg = relSize.size();
@@ -145,9 +145,8 @@ void ViperVertices::prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
     relSize.push_back({-0.2, 1});
     relSize.push_back({0.2, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth,
-                    s_segmentLength, relSize, m_color, texture.getSize(),
-                    copySource, storage);
+    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
+                    m_color, texture.getSize(), copySource, storage);
 }
 
 void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
@@ -166,9 +165,8 @@ void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
     relSize.push_back({-0.2, 1});
     relSize.push_back({0.2, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth,
-                    s_segmentLength, relSize, m_color, texture.getSize(),
-                    copySource, storage);
+    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
+                    m_color, texture.getSize(), copySource, storage);
 }
 
 void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
@@ -185,9 +183,8 @@ void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
     relSize.push_back({-0.01, 1});
     relSize.push_back({0.01, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth,
-                    s_segmentLength, relSize, m_color, texture.getSize(),
-                    copySource, storage);
+    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
+                    m_color, texture.getSize(), copySource, storage);
 }
 
 }  // namespace VVipers

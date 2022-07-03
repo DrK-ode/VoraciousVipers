@@ -10,8 +10,8 @@ namespace VVipers {
 class ViperVertices {
   public:
     ViperVertices();
-    static float getSegmentLength() { return s_segmentLength; }
-    static float getSegmentWidth() { return s_segmentWidth; }
+    static float getNominalSegmentLength() { return s_segmentLength; }
+    static float getNominalSegmentWidth() { return s_segmentWidth; }
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void update(TrackPoint* tp_front, TrackPoint* tp_back, uint32_t nPtsPerSeg);
 

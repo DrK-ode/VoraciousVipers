@@ -7,7 +7,7 @@ namespace VVipers {
 
 const float Viper::s_nominalSpeed(60.f);
 const uint32_t fps = 60;
-const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getSegmentLength() /
+const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getNominalSegmentLength() /
                                        s_nominalSpeed * fps);
 
 Viper::Viper()
@@ -40,7 +40,7 @@ void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
         throw std::out_of_range(
             "Trying to setup viper with less than two segments.");
     m_angle = angle;
-    Vec2f vipVec = ViperVertices::getSegmentLength() * nSeg *
+    Vec2f vipVec = ViperVertices::getNominalSegmentLength() * nSeg *
                    Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
 
     // One point more since all segments share the end ones
