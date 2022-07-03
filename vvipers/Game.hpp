@@ -1,10 +1,10 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef VVIPERS_GAME_HPP
+#define VVIPERS_GAME_HPP
 
 #include <SFML/Graphics.hpp>
 
-#include "Player.hpp"
-#include "Viper.hpp"
+#include <vvipers/Player.hpp>
+#include <vvipers/Viper.hpp>
 
 class Game : public sf::Drawable {
   public:

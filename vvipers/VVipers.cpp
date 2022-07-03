@@ -1,17 +1,17 @@
-#include "GameManager.hpp"
+#include <vvipers/VVipers.hpp>
 
-GameManager::GameManager() {
+VVipers::VVipers() {
     m_window = new GameWindow;
     m_window->setFramerateLimit(60);
     m_game = new Game;
 }
 
-GameManager::~GameManager() {
+VVipers::~VVipers() {
     delete m_window;
     delete m_game;
 }
 
-void GameManager::startGame() {
+void VVipers::startGame() {
     sf::Clock clock;
     while (m_window->isOpen()) {
         m_game->tick( clock.restart());

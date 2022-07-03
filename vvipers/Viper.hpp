@@ -1,11 +1,11 @@
-#ifndef VIPER_HPP
-#define VIPER_HPP
+#ifndef VVIPER_VIPER_HPP
+#define VVIPER_VIPER_HPP
 
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "Track.hpp"
-#include "ViperVertices.hpp"
+#include <vvipers/Track.hpp>
+#include <vvipers/ViperVertices.hpp>
 
 class Viper : public sf::Drawable {
   public:

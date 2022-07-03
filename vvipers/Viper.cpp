@@ -1,7 +1,7 @@
-#include "Viper.hpp"
+#include <vvipers/Viper.hpp>
 
-#include "VectorMath.hpp"
-#include "debug.hpp"
+#include <vvipers/VectorMath.hpp>
+#include <vvipers/debug.hpp>
 
 const float Viper::s_nominalSpeed(60.f);
 const uint32_t fps = 60;

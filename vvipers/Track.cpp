@@ -1,6 +1,6 @@
-#include "Track.hpp"
+#include <vvipers/Track.hpp>
 
-#include "debug.hpp"
+#include <vvipers/debug.hpp>
 
 TrackPoint::TrackPoint(sf::Vector2f v)
     : Vec2f(v), m_next(nullptr), m_prev(nullptr) {}

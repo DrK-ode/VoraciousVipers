@@ -1,9 +1,9 @@
-#ifndef TRACK_HPP
-#define TRACK_HPP
+#ifndef VVIPERS_TRACK_HPP
+#define VVIPERS_TRACK_HPP
 
 #include <deque>
 
-#include "VectorMath.hpp"
+#include <vvipers/VectorMath.hpp>
 
 class Track;
 

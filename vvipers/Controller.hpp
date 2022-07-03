@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_HPP
 #define CONTROLLER_HPP
 
-#include "Viper.hpp"
+#include <vvipers/Viper.hpp>
 
 class Controller {
   public:

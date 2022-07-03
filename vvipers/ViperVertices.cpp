@@ -1,10 +1,10 @@
-#include "ViperVertices.hpp"
+#include "vvipers/ViperVertices.hpp"
 
 #include <algorithm>
 
-#include "VectorMath.hpp"
-#include "config.hpp"
-#include "debug.hpp"
+#include <vvipers/VectorMath.hpp>
+#include <vvipers/config.hpp>
+#include <vvipers/debug.hpp>
 
 const float ViperVertices::s_segmentWidth(40);
 const float ViperVertices::s_segmentLength(60);

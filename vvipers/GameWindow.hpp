@@ -1,5 +1,5 @@
-#ifndef GAMEWINDOW_HPP
-#define GAMEWINDOW_HPP
+#ifndef VVIPERS_GAMEWINDOW_HPP
+#define VVIPERS_GAMEWINDOW_HPP
 
 #include <SFML/Graphics.hpp>
 

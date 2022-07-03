@@ -1,4 +1,4 @@
-#include "Controller.hpp"
+#include <vvipers/Controller.hpp>
 
 ControllerGoingInCircles::ControllerGoingInCircles(float da) : m_da(da){}
 

@@ -1,6 +1,6 @@
-#include "Game.hpp"
+#include <vvipers/Game.hpp>
 
-#include "debug.hpp"
+#include <vvipers/debug.hpp>
 
 Game::Game() {
     Player* p = new Player("DefaultPlayerName");

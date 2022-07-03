@@ -1,5 +1,5 @@
-#ifndef DEBUG_HPP
-#define DEBUG_HPP
+#ifndef VVIPERS_DEBUG_HPP
+#define VVIPERS_DEBUG_HPP
 
 #include <iostream>
 #include <source_location>

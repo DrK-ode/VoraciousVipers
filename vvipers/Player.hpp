@@ -1,12 +1,12 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#ifndef VVIPERS_PLAYER_HPP
+#define VVIPERS_PLAYER_HPP
 
 #include <string>
 
-#include "Controller.hpp"
-#include "Score.hpp"
-#include "Viper.hpp"
-#include "debug.hpp"
+#include <vvipers/Controller.hpp>
+#include <vvipers/Score.hpp>
+#include <vvipers/Viper.hpp>
+#include <vvipers/debug.hpp>
 
 class Player {
   public:

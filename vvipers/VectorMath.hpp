@@ -1,5 +1,5 @@
-#ifndef VECTORMATH_HPP
-#define VECTORMATH_HPP
+#ifndef VVIPERS_VECTORMATH_HPP
+#define VVIPERS_VECTORMATH_HPP
 
 #include <SFML/System/Vector2.hpp>
 #include <cmath>

@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "Track.hpp"
+#include <vvipers/Track.hpp>
 
 class ViperVertices {
   public:

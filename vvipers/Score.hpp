@@ -1,5 +1,5 @@
-#ifndef SCORE_HPP
-#define SCORE_HPP
+#ifndef VVIPERS_SCORE_HPP
+#define VVIPERS_SCORE_HPP
 
 #include <stdint.h>
 
