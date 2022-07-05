@@ -14,14 +14,14 @@ inline LogLevel logLevel = all;
                           // std::source_location::current() and this removes
                           // the error squiggles
 inline void tag(
-    const std::source_location& location = std::source_location::current()) {
+    const std::source_location& location = std::source_location::current(), std::ostream& os = std::cout) {
     std::string_view filename(location.file_name());
-    std::cout << '@' << filename.substr(filename.find_last_of("/\\") + 1) << ":"
+    os << '@' << filename.substr(filename.find_last_of("/\\") + 1) << ":"
               << location.line() << " " << location.function_name()
               << std::endl;
 }
 #else
-inline void tag(const std::source_location& location = std::source_location()) {
+inline void tag(const std::source_location& location = std::source_location(), std::ostream& os = std::cout) {
 }
 #endif
 
@@ -30,7 +30,7 @@ inline void _implLogInfo(bool doTag, const std::source_location loc,
                          Args&&... args) {
     if (logLevel >= all) {
         if (doTag)
-            tag(loc);
+            tag(loc, std::cout );
         std::cout << "   INFO   ";
         (std::cout << ... << std::forward<Args>(args)) << '\n';
     }
@@ -41,8 +41,8 @@ inline void _implLogWarning(bool doTag, const std::source_location loc,
                             Args&&... args) {
     if (logLevel >= errorsAndWarnings) {
         if (doTag)
-            tag(loc);
-        std::cout << "   WARN   ";
+            tag(loc, std::cerr);
+        std::cerr << "   WARN   ";
         (std::cerr << ... << std::forward<Args>(args)) << '\n';
     }
 }
@@ -52,8 +52,8 @@ inline void _implLogError(bool doTag, const std::source_location loc,
                           Args&&... args) {
     if (logLevel >= onlyErrors) {
         if (doTag)
-            tag(loc);
-        std::cout << "   ERR    ";
+            tag(loc, std::cerr);
+        std::cerr << "   ERR    ";
         (std::cerr << ... << std::forward<Args>(args)) << '\n';
     }
 }
