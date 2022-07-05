@@ -93,7 +93,7 @@ Vec2f Track::direction(const sf::Time& t) const {
     if (!p2)
         logError("This should not happen?");
     TrackPoint* p1 = p2->prev();
-    return (*p2 - *p1).normalize();
+    return (*p1 - *p2).normalize();
 }
 
 float Track::length() const {
@@ -107,7 +107,7 @@ float Track::length(const Time& t1, const Time& t2) const {
     // But if t2 > t1 we return a negative length
     if (t1 < t2)
         return -length(t2, t1);
-
+    // t1 or t2 o0utside the track's range
     if (t1 > m_front->getTime() || t2 < m_back->getTime()) {
         std::stringstream msg;
         msg << "Requesting length between t1 = " << t1.asSeconds()
@@ -117,13 +117,12 @@ float Track::length(const Time& t1, const Time& t2) const {
             << m_front->getTime().asSeconds() << "s).";
         throw std::runtime_error(msg.str());
     }
-
     // Or if a zero time interval has been passed to the method
     if (t1 == t2)
         return 0;
 
     float L = 0.f;
-
+    // Find first track point
     TrackPoint* p2 = m_front;
     while (p2 && p2->getTime() > t1)
         p2 = p2->next();
@@ -133,17 +132,15 @@ float Track::length(const Time& t1, const Time& t2) const {
         L += p1->distanceToNext() /
              (p2->getTime() - p1->getTime()).asSeconds() *
              (p2->getTime() - t1).asSeconds();
-
     // Add all distances until t2 has been passed
     while (p2 && p2->getTime() > t2) {
         L += p2->distanceToNext();
         p2 = p2->next();
     }
-    if (!p2)
+    if (!p2) // p1 == m_back
         return L;
-
     // The full distance between p1 and p2 was added to L, this must be
-    // corrected.
+    // corrected for.
     p1 = p2->prev();
     L -= p1->distanceToNext() / (p2->getTime() - p1->getTime()).asSeconds() *
          (p2->getTime() - t2).asSeconds();
@@ -173,7 +170,7 @@ Vec2f Track::position(const sf::Time& t) const {
     TrackPoint* p1 = p2->prev();
     // The sought position lies between p1 and p2, linear interpolation
     return *p1 + (*p2 - *p1) / (p2->getTime() - p1->getTime()).asSeconds() *
-                     (p2->getTime() - t).asSeconds();
+                     (t - p1->getTime() ).asSeconds();
 }
 
 void Track::pop_back() {
