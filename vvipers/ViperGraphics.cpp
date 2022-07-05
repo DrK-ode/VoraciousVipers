@@ -1,17 +1,16 @@
-#include "vvipers/ViperVertices.hpp"
+#include <vvipers/ViperGraphics.hpp>
 
-#include <algorithm>
-#include <vvipers/VectorMath.hpp>
-#include <vvipers/config.hpp>
-#include <vvipers/debug.hpp>
+#include <vvipers/ViperSketch.hpp>
 
 namespace VVipers {
 
-const sf::Time ViperVertices::s_headTemporalLength(sf::seconds(1));
-const sf::Time ViperVertices::s_bodyTemporalLength(sf::seconds(1));
-const sf::Time ViperVertices::s_tailTemporalLength(sf::seconds(1));
+const sf::Time ViperGraphics::s_headTemporalLength(sf::seconds(1));
+const sf::Time ViperGraphics::s_bodyTemporalLength(sf::seconds(1));
+const sf::Time ViperGraphics::s_tailTemporalLength(sf::seconds(1));
 
-ViperVertices::ViperVertices() : m_color(0x007700ff) {
+ViperGraphics::ViperGraphics() : m_color(0x007700ff) { loadTextures(); }
+
+void ViperGraphics::loadTextures() {
     // Load image and split it into the different textures.
     sf::Image combinedTextureImage;
     combinedTextureImage.loadFromFile(VIPER_FILE_PATH);
@@ -34,7 +33,7 @@ ViperVertices::ViperVertices() : m_color(0x007700ff) {
                                 sf::IntRect(upperLeft, rectSize));
 }
 
-void ViperVertices::draw(sf::RenderTarget& target,
+void ViperGraphics::draw(sf::RenderTarget& target,
                          sf::RenderStates states) const {
     // Viper is drawn in three parts: head, tail and all body segments together
     const sf::Vertex* vertexPtr;
@@ -56,9 +55,14 @@ void ViperVertices::draw(sf::RenderTarget& target,
                 states);
 }
 
-void ViperVertices::update(const sf::Time& headFront,
-                           const sf::Time& temporalLength,
-                           const Track& timeTrack) {
+void ViperGraphics::update(const sf::Time& elapsedTime,
+                           const ViperPhysics& viperPhys) {
+    updateVertices(viperPhys.head()->getTime(), viperPhys.temporalLength(),
+                   viperPhys.getTrack());
+}
+void ViperGraphics::updateVertices(const sf::Time& headFront,
+                                   const sf::Time& temporalLength,
+                                   const Track& timeTrack) {
     if (temporalLength < s_headTemporalLength + s_tailTemporalLength)
         throw std::runtime_error("Viper is too small");
 
@@ -74,13 +78,17 @@ void ViperVertices::update(const sf::Time& headFront,
     sf::Time tailFront = bodyFront - bodyLength;
 
     infoTag();
-    logInfo("Preparing head starting at: ", headFront.asSeconds(), "s and ending at: ", (headFront-headLength).asSeconds() , "s.");
+    logInfo("Preparing head starting at: ", headFront.asSeconds(),
+            "s and ending at: ", (headFront - headLength).asSeconds(), "s.");
     prepareHead(headFront, headLength, timeTrack);
     if (numberOfBodySegments > 0) {
-        logInfo("Preparing body starting at: ", bodyFront.asSeconds(), "s and ending at: ", (bodyFront-bodyLength).asSeconds() , "s.");
+        logInfo("Preparing body starting at: ", bodyFront.asSeconds(),
+                "s and ending at: ", (bodyFront - bodyLength).asSeconds(),
+                "s.");
         prepareBody(bodyFront, bodyLength, timeTrack, numberOfBodySegments);
     }
-    logInfo("Preparing tail starting at: ", tailFront.asSeconds(), "s and ending at: ", (tailFront-tailLength).asSeconds() , "s.");
+    logInfo("Preparing tail starting at: ", tailFront.asSeconds(),
+            "s and ending at: ", (tailFront - tailLength).asSeconds(), "s.");
     prepareTail(tailFront, tailLength, timeTrack);
 }
 
@@ -125,55 +133,24 @@ void prepareSegments(const sf::Time& timeFront, const sf::Time& temporalLength,
     }
 }
 
-void ViperVertices::prepareHead(const sf::Time& timeFront,
+void ViperGraphics::prepareHead(const sf::Time& timeFront,
                                 const sf::Time& temporalLength,
                                 const Track& timeTrack) {
-    std::vector<Vec2f> relSize;
-    relSize.push_back({-0.125, 0});
-    relSize.push_back({0.125, 0});
-    relSize.push_back({-0.45, 0.625});
-    relSize.push_back({0.45, 0.625});
-    relSize.push_back({-0.45, 0.8});
-    relSize.push_back({0.45, 0.8});
-    relSize.push_back({-0.2, 0.95});
-    relSize.push_back({0.2, 0.95});
-    relSize.push_back({-0.2, 1});
-    relSize.push_back({0.2, 1});
-
-    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::headNodes(), m_color,
                     m_headTexture, m_headVertices);
 }
 
-void ViperVertices::prepareBody(const sf::Time& timeFront,
+void ViperGraphics::prepareBody(const sf::Time& timeFront,
                                 const sf::Time& temporalLength,
                                 const Track& timeTrack, uint32_t nSegments) {
-    std::vector<Vec2f> relSize;
-    relSize.push_back({-0.2, 0});
-    relSize.push_back({0.2, 0});
-    relSize.push_back({-0.4, 0.25});
-    relSize.push_back({0.4, 0.25});
-    relSize.push_back({-0.4, 0.75});
-    relSize.push_back({0.4, 0.75});
-    relSize.push_back({-0.2, 1});
-    relSize.push_back({0.2, 1});
-
-    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::bodyNodes(), m_color,
                     m_bodyTexture, m_bodyVertices, nSegments);
 }
 
-void ViperVertices::prepareTail(const sf::Time& timeFront,
+void ViperGraphics::prepareTail(const sf::Time& timeFront,
                                 const sf::Time& temporalLength,
                                 const Track& timeTrack) {
-    std::vector<Vec2f> relSize;
-    relSize.push_back({-0.2, 0});
-    relSize.push_back({0.2, 0});
-    relSize.push_back({-0.1, 0.5});
-    relSize.push_back({0.1, 0.5});
-    relSize.push_back({-0.01, 1});
-    relSize.push_back({0.01, 1});
-
-    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::tailNodes(), m_color,
                     m_tailTexture, m_tailVertices);
 }
-
 }  // namespace VVipers

@@ -23,10 +23,10 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
              [&](auto p) { target.draw(*p.second, states); });
 }
 
-void Game::tick(sf::Time elapsedTime) {
+void Game::update(sf::Time elapsedTime) {
     for_each(m_players.begin(), m_players.end(), [&](auto p) {
-        p.first->getController()->onTick(elapsedTime,*p.second);
-        p.second->tick(elapsedTime);
+        p.first->getController()->onUpdate(elapsedTime,*p.second);
+        p.second->update(elapsedTime);
     });
 }
 

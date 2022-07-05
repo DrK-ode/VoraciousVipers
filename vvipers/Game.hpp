@@ -12,7 +12,7 @@ class Game : public sf::Drawable {
     Game();
     ~Game();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void tick(sf::Time elapsedTime);
+    void update(sf::Time elapsedTime);
 
   private:
     std::map<Player*, Viper*> m_players;

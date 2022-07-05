@@ -9,7 +9,7 @@ namespace VVipers {
 class Controller {
   public:
     Controller() : m_connected(false) {}
-    virtual void onTick(const sf::Time& elapsedTime, Viper&){};
+    virtual void onUpdate(const sf::Time& elapsedTime, Viper&){};
     virtual void onKeyboard(Viper&){};
     virtual void onMouse(Viper&){};
 
@@ -22,7 +22,7 @@ class Controller {
 class ControllerGoingInCircles : public Controller {
   public:
     ControllerGoingInCircles(float da);
-    virtual void onTick( const sf::Time& elapsedTime, Viper&) override;
+    virtual void onUpdate( const sf::Time& elapsedTime, Viper&) override;
 
   private:
     float m_da;

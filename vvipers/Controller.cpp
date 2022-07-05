@@ -4,9 +4,10 @@ namespace VVipers {
 
 ControllerGoingInCircles::ControllerGoingInCircles(float da) : m_da(da) {}
 
-void ControllerGoingInCircles::onTick(const sf::Time& elapsedTime, Viper& viper) {
-    viper.setAngle(viper.angle() + m_da);
-    viper.growth( elapsedTime * 0.5f );
+void ControllerGoingInCircles::onUpdate(const sf::Time& elapsedTime, Viper& viper) {
+    ViperPhysics& viperPhys = viper.getPhysicalViper();
+    viperPhys.setAngle(viperPhys.angle() + m_da);
+    viperPhys.growth( elapsedTime * 0.5f );
 }
 
 }  // namespace VVipers

@@ -2,8 +2,7 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <vvipers/Viper.hpp>
-#include <vvipers/ViperVertices.hpp>
+#include <vvipers/ViperPhysics.hpp>
 #include <vvipers/debug.hpp>
 
 using namespace VVipers;
@@ -17,14 +16,8 @@ class ViperTest : public ::testing::Test {
         viper.setup(Vec2f(0, 0), 180.f, sf::seconds(3));
     }
 
-    Viper viper;
+    ViperPhysics viper;
 };
-
-TEST_F(ViperTest, setupTest) {
-    EXPECT_THROW(Viper().setup(Vec2f(0, 0), 0.f, sf::seconds(0)), std::runtime_error);
-    EXPECT_THROW(Viper().setup(Vec2f(0, 0), 0.f, sf::seconds(1)), std::runtime_error);
-    EXPECT_NO_THROW(Viper().setup(Vec2f(0, 0), 0.f, sf::seconds(2)));
-}
 
 TEST_F(ViperTest, angleTest) {
     EXPECT_FLOAT_EQ(viper.angle(), 180.f);

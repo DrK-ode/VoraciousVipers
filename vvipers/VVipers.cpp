@@ -16,7 +16,7 @@ void VVipers::startGame() {
     sf::Clock clock;
     while (m_window->isOpen()) {
         if (clock.getElapsedTime().asSeconds() > 0.01) // TODO: Need better time handling
-            m_game->tick(clock.restart());
+            m_game->update(clock.restart());
 
         sf::Event event;
         while (m_window->pollEvent(event)) {

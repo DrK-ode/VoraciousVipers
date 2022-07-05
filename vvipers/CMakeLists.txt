@@ -12,7 +12,9 @@ set(INC_FILES
     Track.hpp
     VectorMath.hpp
     Viper.hpp
-    ViperVertices.hpp
+    ViperGraphics.hpp
+    ViperPhysics.hpp
+    ViperSketch.hpp
     VVipers.hpp
 )
 
@@ -25,7 +27,9 @@ set(SRC_FILES
     Score.cpp
     Track.cpp
     Viper.cpp
-    ViperVertices.cpp
+    ViperGraphics.cpp
+    ViperPhysics.cpp
+    ViperSketch.cpp
     VVipers.cpp
 )
 
