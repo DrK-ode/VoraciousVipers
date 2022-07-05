@@ -7,13 +7,14 @@
 
 namespace VVipers {
 
-const float ViperVertices::s_segmentWidth(40);
-const float ViperVertices::s_segmentLength(60);
+const sf::Time ViperVertices::s_headTemporalLength(sf::seconds(1));
+const sf::Time ViperVertices::s_bodyTemporalLength(sf::seconds(1));
+const sf::Time ViperVertices::s_tailTemporalLength(sf::seconds(1));
 
 ViperVertices::ViperVertices() : m_color(0x007700ff) {
     // Load image and split it into the different textures.
     sf::Image combinedTextureImage;
-    combinedTextureImage.loadFromFile(RESOURCE_PATH VIPER_TEXTURE_FILE);
+    combinedTextureImage.loadFromFile(VIPER_FILE_PATH);
     sf::Vector2i imgSize(combinedTextureImage.getSize());
     Vec2i upperLeft;
     Vec2i rectSize(imgSize.x, imgSize.y / 3);
@@ -55,84 +56,78 @@ void ViperVertices::draw(sf::RenderTarget& target,
                 states);
 }
 
-void ViperVertices::update(TrackPoint* tp_front, TrackPoint* tp_back,
-                           uint32_t nPtsPerSeg) {
-    // We are counting intervals, not points
-    size_t viperSize = tp_front->stepsUntil(tp_back);
-    uint32_t nHeadPts = nPtsPerSeg;
-    size_t nBodySegments =
-        std::max(0uL, (viperSize - nHeadPts) / nPtsPerSeg - 1);
-    uint32_t nBodyPts = nBodySegments * nPtsPerSeg;
-    uint32_t nTailPts = viperSize - nHeadPts - nBodyPts;
+void ViperVertices::update(const sf::Time& headFront,
+                           const sf::Time& temporalLength,
+                           const Track& timeTrack) {
+    if (temporalLength < s_headTemporalLength + s_tailTemporalLength)
+        throw std::runtime_error("Viper is too small");
 
-    // Find start and end of the different parts
-    TrackPoint* headFront = tp_front;
-    TrackPoint* headBack = headFront->step(nHeadPts);
-    TrackPoint* bodyFront = headBack;
-    TrackPoint* bodyBack = bodyFront->step(nBodyPts);
-    TrackPoint* tailFront = bodyBack;
-    TrackPoint* tailBack = tailFront->step(nTailPts);
+    sf::Time headLength = s_headTemporalLength;
+    size_t numberOfBodySegments =
+        std::max(0.f, (temporalLength - headLength).asSeconds() /
+                              s_bodyTemporalLength.asSeconds() -
+                          1);
+    sf::Time bodyLength = s_bodyTemporalLength * float(numberOfBodySegments);
+    sf::Time tailLength = temporalLength - headLength - bodyLength;
 
-    prepareHead(headFront, nHeadPts);
-    prepareBody(bodyFront, nPtsPerSeg, nBodySegments);
-    prepareTail(tailFront, nTailPts);
+    sf::Time bodyFront = headFront - headLength;
+    sf::Time tailFront = bodyFront - bodyLength;
+
+    infoTag();
+    logInfo("Preparing head starting at: ", headFront.asSeconds(), "s and ending at: ", (headFront-headLength).asSeconds() , "s.");
+    prepareHead(headFront, headLength, timeTrack);
+    if (numberOfBodySegments > 0) {
+        logInfo("Preparing body starting at: ", bodyFront.asSeconds(), "s and ending at: ", (bodyFront-bodyLength).asSeconds() , "s.");
+        prepareBody(bodyFront, bodyLength, timeTrack, numberOfBodySegments);
+    }
+    logInfo("Preparing tail starting at: ", tailFront.asSeconds(), "s and ending at: ", (tailFront-tailLength).asSeconds() , "s.");
+    prepareTail(tailFront, tailLength, timeTrack);
 }
 
 // Helper function since the prepare methods share most of the code
-void prepareSegments(TrackPoint* tp_front, uint32_t nPtsPerSeg,
-                     uint32_t nSegments, float segmentWidth,
-                     const std::vector<Vec2f>& relSize, const sf::Color& color,
-                     const Vec2f textureSize,
-                     const std::vector<sf::Vertex>* copySource,
-                     std::vector<sf::Vertex>& storage) {
-    const size_t nVertPerSeg = relSize.size();
+void prepareSegments(const sf::Time& timeFront, const sf::Time& temporalLength,
+                     const Track& timeTrack,
+                     const std::vector<Vec2f>& relativePosistion,
+                     const sf::Color& color, const sf::Texture& texture,
+                     std::vector<sf::Vertex>& storage, uint32_t nSegments = 1) {
+    Vec2f textureSize = texture.getSize();
+    const size_t nVertPerSeg = relativePosistion.size();
     const size_t addPerSeg = nVertPerSeg - 2;
     const size_t nVertices = 2 + addPerSeg * nSegments;
+    const sf::Time temporalSegmentLength = temporalLength / float(nSegments);
     storage.resize(nVertices);
 
-    int startIndex = 0;
-    auto iter = storage.begin();
-    if (copySource) {
-        // Grab the two first points from the last part of the head and handle
-        // them seperately
-        std::copy(copySource->end() - 2, copySource->end(), iter);
-        (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[0]) * textureSize;
-        (iter++)->texCoords = (Vec2f(0.5f, 0) + relSize[1]) * textureSize;
-        startIndex = 2;
-    }
+    float width = 20;  // TODO:Adapt width depending on how streched the segment
+                       // is, i.e., dL/dt
 
-    TrackPoint* spine = tp_front;
+    auto iter = storage.begin();
+    // seg is the current segment index
+    // i is the index of the width and length arrays
+    // iter points to the current vertex
     for (int seg = 0; seg < nSegments; ++seg) {
-        // i is the index of the width and length arrays while the iterator
-        // points to the current vertex
+        // Skip the two first vertices of any segment coming after the first one
+        const int startIndex = seg > 0 ? 2 : 0;
         for (int i = startIndex; i < nVertPerSeg; ++i) {
-            const TrackPoint& vertebra =
-                *spine->step(nPtsPerSeg * relSize[i].y);
-            /* i is the index of the width and length arrays while the iterator
-             * points to the current vertex. */
-            /* Each segment will use the two last vertices from the previous
-             * segment and thereby not adding those. */
-            Vec2f arm = (vertebra.next() ? (*vertebra.next() - vertebra)
-                                         : (vertebra - *vertebra.prev()))
-                            .perpVec()
-                            .normalize(-segmentWidth * relSize[i].x);
-            iter->position = vertebra + arm;
+            sf::Time temporalPosition =
+                timeFront -
+                (seg + relativePosistion[i].y) * temporalSegmentLength;
+
+            Vec2f midPosition = timeTrack.position(temporalPosition);
+            Vec2f perpLength = timeTrack.direction(temporalPosition).perpVec() *
+                               (width * relativePosistion[i].x);
+
+            iter->position = midPosition + perpLength;
             iter->color = color;
-            iter->texCoords = (Vec2f(0.5f, seg) + relSize[i]) * textureSize;
+            iter->texCoords =
+                (Vec2f(0.5f, seg) + relativePosistion[i]) * textureSize;
             ++iter;
         }
-        spine = spine->step(nPtsPerSeg);
-        startIndex = 2;  // Always skip the first two vertices if we're doing
-                         // several segments
     }
 }
 
-void ViperVertices::prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
-    const size_t nSegments = 1;
-    sf::Texture& texture = m_headTexture;
-    std::vector<sf::Vertex>& storage = m_headVertices;
-    const std::vector<sf::Vertex>* copySource = nullptr;
-
+void ViperVertices::prepareHead(const sf::Time& timeFront,
+                                const sf::Time& temporalLength,
+                                const Track& timeTrack) {
     std::vector<Vec2f> relSize;
     relSize.push_back({-0.125, 0});
     relSize.push_back({0.125, 0});
@@ -145,16 +140,13 @@ void ViperVertices::prepareHead(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
     relSize.push_back({-0.2, 1});
     relSize.push_back({0.2, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
-                    m_color, texture.getSize(), copySource, storage);
+    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+                    m_headTexture, m_headVertices);
 }
 
-void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
-                                uint32_t nSegments) {
-    sf::Texture& texture = m_bodyTexture;
-    std::vector<sf::Vertex>& storage = m_bodyVertices;
-    const std::vector<sf::Vertex>* copySource = &m_headVertices;
-
+void ViperVertices::prepareBody(const sf::Time& timeFront,
+                                const sf::Time& temporalLength,
+                                const Track& timeTrack, uint32_t nSegments) {
     std::vector<Vec2f> relSize;
     relSize.push_back({-0.2, 0});
     relSize.push_back({0.2, 0});
@@ -165,16 +157,13 @@ void ViperVertices::prepareBody(TrackPoint* tp_front, uint32_t nPtsPerSeg,
     relSize.push_back({-0.2, 1});
     relSize.push_back({0.2, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
-                    m_color, texture.getSize(), copySource, storage);
+    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+                    m_bodyTexture, m_bodyVertices, nSegments);
 }
 
-void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
-    sf::Texture& texture = m_tailTexture;
-    std::vector<sf::Vertex>& storage = m_tailVertices;
-    const std::vector<sf::Vertex>* copySource = &m_bodyVertices;
-    const size_t nSegments = 1;
-
+void ViperVertices::prepareTail(const sf::Time& timeFront,
+                                const sf::Time& temporalLength,
+                                const Track& timeTrack) {
     std::vector<Vec2f> relSize;
     relSize.push_back({-0.2, 0});
     relSize.push_back({0.2, 0});
@@ -183,8 +172,8 @@ void ViperVertices::prepareTail(TrackPoint* tp_front, uint32_t nPtsPerSeg) {
     relSize.push_back({-0.01, 1});
     relSize.push_back({0.01, 1});
 
-    prepareSegments(tp_front, nPtsPerSeg, nSegments, s_segmentWidth, relSize,
-                    m_color, texture.getSize(), copySource, storage);
+    prepareSegments(timeFront, temporalLength, timeTrack, relSize, m_color,
+                    m_tailTexture, m_tailVertices);
 }
 
 }  // namespace VVipers

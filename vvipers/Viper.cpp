@@ -6,16 +6,8 @@
 namespace VVipers {
 
 const float Viper::s_nominalSpeed(60.f);
-const uint32_t fps = 60;
-const uint32_t Viper::s_nPtsPerSegment(ViperVertices::getNominalSegmentLength() /
-                                       s_nominalSpeed * fps);
 
-Viper::Viper()
-    : m_acc(0.f),
-      m_growth(0),
-      m_speed(s_nominalSpeed),
-      m_head(nullptr),
-      m_tail(nullptr) {}
+Viper::Viper() : m_acc(0.f), m_speed(s_nominalSpeed), m_head(nullptr) {}
 
 Viper::~Viper() {}
 
@@ -23,85 +15,82 @@ void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     m_vertices.draw(target, states);
 }
 
-void Viper::growSegment(float growth) {
-    static float fraction = 0;
-    float wholePts;
-    fraction = std::modf(growth * s_nPtsPerSegment + fraction, &wholePts);
-    m_growth += wholePts;
-}
+void Viper::growth(const sf::Time& g) { m_growth += g; }
 
-float Viper::length() const { return m_track.length(m_head, m_tail); }
+float Viper::length() const {
+    return m_track.length(m_head->getTime(),
+                          m_head->getTime() - m_temporalLength);
+}
 
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void Viper::setup(const Vec2f& headPosition, float angle, uint32_t nSeg) {
-    if (nSeg < 2)
-        throw std::out_of_range(
-            "Trying to setup viper with less than two segments.");
+void Viper::setup(const Vec2f& headPosition, float angle,
+                  const sf::Time& viperTemporalLength) {
+    logInfo("Setting up Viper.");
+    const float viperLength = viperTemporalLength.asSeconds() * s_nominalSpeed;
     m_angle = angle;
-    Vec2f vipVec = ViperVertices::getNominalSegmentLength() * nSeg *
-                   Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
-
-    // One point more since all segments share the end ones
-    uint32_t nTrackPoints = s_nPtsPerSegment * nSeg + 1;
+    Vec2f vipVec =
+        viperLength * Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
+    Vec2f dL = vipVec / viperLength;
+    sf::Time tailTime = sf::Time::Zero;
+    sf::Time headTime = tailTime + viperTemporalLength;
+    m_temporalLength = (headTime - tailTime);
+    sf::Int64 numberOfPoints = 60 * m_temporalLength.asSeconds() + 1;  // 60 FPS
 
     // Find all the positions the Viper segments will move through
     m_track.clear();
-    Vec2f trackVec = vipVec / (nTrackPoints - 1);
-
-    logInfo("Filling viper track with ", nTrackPoints, " track points.");
-    for (int i = 0; i < nTrackPoints; ++i) {
-        m_track.create_back(headPosition - trackVec * i);
+    logInfo("Filling track with ", numberOfPoints, " track points.");
+    for (int i = 0; i < numberOfPoints; ++i) {
+        m_track.create_back(
+            headPosition - dL * i,
+            headTime - m_temporalLength * float(i) / float(numberOfPoints - 1));
     }
 
     m_head = m_track.front();
-    m_tail = m_track.back();
-    m_vertices.update(m_head, m_tail, s_nPtsPerSegment);
+    m_vertices.update(m_head->getTime(), m_temporalLength, m_track);
+
+    logInfo("Viper is ready.");
 }
 
-void Viper::createNextTrackPoint(sf::Time elapsedTime) {
+TrackPoint* Viper::createNextHeadTrackPoint(sf::Time elapsedTime) {
     float dx = m_speed * elapsedTime.asSeconds() * cos(degToRad(m_angle));
     float dy = m_speed * elapsedTime.asSeconds() * sin(degToRad(m_angle));
     Vec2f advance(dx, dy);
-    m_track.create_front(*m_head + advance);
-}
-
-void Viper::moveHead(int frames) {
-    m_head = m_head->step(
-        -frames);  // Always moves head one track point further per frame
-}
-
-void Viper::moveTail(int frames) {
-    // Default: moves tail one track point further per frame, i.e., towards the
-    // front on the track
-    int tail_traverse = -frames;
-    if (m_growth > 0) {
-        // Tail is moving one point less so the Viper has grown one track point
-        ++tail_traverse;
-        --m_growth;
-    } else if (m_growth < 0) {  // Negative growth
-        ++tail_traverse;
-        ++m_growth;
-        tagWarning("Negative growth should not happen yet.");
-    }
-    m_tail = m_tail->step(tail_traverse);
+    return m_track.create_front(*m_head + advance,
+                                m_head->getTime() + elapsedTime);
 }
 
 void Viper::cleanUpTrailingTrackPoints() {
-    while (m_track.back() != m_tail) {
+    // Removes any point(s) the whole Viper has passed through
+    sf::Time tailTime = m_head->getTime() - m_temporalLength;
+    // Find the last two needed trackpoints
+    TrackPoint* afterTail = m_track.back();
+    while (afterTail && afterTail->getTime() <= tailTime)
+        afterTail = afterTail->prev();
+    if (!afterTail)
+        throw std::runtime_error(
+            "About to remove all TrackPoints, this cannot be right.");
+    TrackPoint* beforeTail = afterTail->next();
+
+    // Remove the rest
+    while (beforeTail != m_track.back()) {
         m_track.pop_back();
     }
 }
 
+void Viper::grow(sf::Time elapsedTime) {
+    // Limit the growth to how much time that has passed
+    sf::Time actualGrowth = std::min(m_growth, elapsedTime);
+    m_temporalLength += actualGrowth;
+    m_growth -= actualGrowth;
+}
+
 void Viper::tick(sf::Time elapsedTime) {
-    static sf::Time t = sf::Time::Zero;
-    t += elapsedTime;
-    createNextTrackPoint(elapsedTime);
-    moveHead(1);
-    moveTail(1);
+    m_head = createNextHeadTrackPoint(elapsedTime);
+    grow(elapsedTime);
     cleanUpTrailingTrackPoints();
-    m_vertices.update(m_track.front(), m_track.back(), s_nPtsPerSegment);
+    m_vertices.update(m_head->getTime(), m_temporalLength, m_track);
 }
 
 }  // namespace VVipers

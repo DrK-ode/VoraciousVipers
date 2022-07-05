@@ -4,9 +4,9 @@ namespace VVipers {
 
 ControllerGoingInCircles::ControllerGoingInCircles(float da) : m_da(da) {}
 
-void ControllerGoingInCircles::onTick(Viper& viper) {
-    viper.setAngle(viper.getAngle() + m_da);
-    viper.growSegment(0.001);
+void ControllerGoingInCircles::onTick(const sf::Time& elapsedTime, Viper& viper) {
+    viper.setAngle(viper.angle() + m_da);
+    viper.growth( elapsedTime * 0.5f );
 }
 
 }  // namespace VVipers

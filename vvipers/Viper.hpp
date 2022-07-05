@@ -13,29 +13,25 @@ class Viper : public sf::Drawable {
     Viper();
     ~Viper();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    float getAngle() const { return m_angle; }
+    float angle() const { return m_angle; }
     void setAngle(float a) { m_angle = mod180Deg(a); }
-    void growSegment(float growth);
-    float getSpeed(){return m_speed;}
-    float getNominalSpeed(){return s_nominalSpeed;}
-    uint32_t getTrackPointsPerSegment() const {return s_nPtsPerSegment;};
+    void growth( const sf::Time& g );
     float length() const;
-    void setup(const Vec2f& from, float angle, uint32_t nSeg);
+    void setup(const Vec2f& from, float angle, const sf::Time& length);
+    float speed() const {return m_speed;}
     void tick(sf::Time elapsedTime);
 
   private:
-    void createNextTrackPoint(sf::Time elapsedTime);
-    void moveHead(int frames);
-    void moveTail(int frames);
+    TrackPoint* createNextHeadTrackPoint(sf::Time elapsedTime);
     void cleanUpTrailingTrackPoints();
+    void grow( sf::Time elapsedTime);
     static const float s_nominalSpeed;  // px/s
-    static const uint32_t s_nPtsPerSegment;
     float m_angle;  // degrees, clockwise since y-axis is downwards
     float m_speed;  // px/s
     float m_acc;    // px/s²
-    int32_t m_growth;
+    sf::Time m_temporalLength;
+    sf::Time m_growth;
     TrackPoint* m_head;
-    TrackPoint* m_tail;
     Track m_track;
     ViperVertices m_vertices;
 };
