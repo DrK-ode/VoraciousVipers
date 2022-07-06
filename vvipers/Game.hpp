@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vvipers/Player.hpp>
+#include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
 
 namespace VVipers {
@@ -12,7 +13,7 @@ class Game : public sf::Drawable {
     Game();
     ~Game();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void update(sf::Time elapsedTime);
+    void update(Time elapsedTime);
 
   private:
     std::map<Player*, Viper*> m_players;

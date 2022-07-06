@@ -4,9 +4,10 @@
 
 namespace VVipers {
 
-const sf::Time ViperGraphics::s_headTemporalLength(sf::seconds(1));
-const sf::Time ViperGraphics::s_bodyTemporalLength(sf::seconds(1));
-const sf::Time ViperGraphics::s_tailTemporalLength(sf::seconds(1));
+using namespace std::chrono_literals;
+const Time ViperGraphics::s_headTemporalLength(1s);
+const Time ViperGraphics::s_bodyTemporalLength(1s);
+const Time ViperGraphics::s_tailTemporalLength(1s);
 
 ViperGraphics::ViperGraphics() : m_color(0x007700ff) { loadTextures(); }
 
@@ -15,8 +16,8 @@ void ViperGraphics::loadTextures() {
     sf::Image combinedTextureImage;
     combinedTextureImage.loadFromFile(VIPER_FILE_PATH);
     sf::Vector2i imgSize(combinedTextureImage.getSize());
-    Vec2i upperLeft;
-    Vec2i rectSize(imgSize.x, imgSize.y / 3);
+    sf::Vector2i upperLeft;
+    sf::Vector2i rectSize(imgSize.x, imgSize.y / 3);
 
     // Head texture
     upperLeft = {0, 0};
@@ -55,54 +56,54 @@ void ViperGraphics::draw(sf::RenderTarget& target,
                 states);
 }
 
-void ViperGraphics::update(const sf::Time& elapsedTime,
+void ViperGraphics::update(const Time& elapsedTime,
                            const ViperPhysics& viperPhys) {
     updateVertices(viperPhys.head()->getTime(), viperPhys.temporalLength(),
                    viperPhys.getTrack());
 }
-void ViperGraphics::updateVertices(const sf::Time& headFront,
-                                   const sf::Time& temporalLength,
+void ViperGraphics::updateVertices(const Time& headFront,
+                                   const Time& temporalLength,
                                    const Track& timeTrack) {
     if (temporalLength < s_headTemporalLength + s_tailTemporalLength)
         throw std::runtime_error("Viper is too small");
 
-    sf::Time headLength = s_headTemporalLength;
+    Time headLength = s_headTemporalLength;
     size_t numberOfBodySegments =
-        std::max(0.f, (temporalLength - headLength).asSeconds() /
-                              s_bodyTemporalLength.asSeconds() -
-                          1);
-    sf::Time bodyLength = s_bodyTemporalLength * float(numberOfBodySegments);
-    sf::Time tailLength = temporalLength - headLength - bodyLength;
+        std::max( 0., (temporalLength - headLength) /
+                              s_bodyTemporalLength -
+                          1.);
+    Time bodyLength = s_bodyTemporalLength * numberOfBodySegments;
+    Time tailLength = temporalLength - headLength - bodyLength;
 
-    sf::Time bodyFront = headFront - headLength;
-    sf::Time tailFront = bodyFront - bodyLength;
+    Time bodyFront = headFront - headLength;
+    Time tailFront = bodyFront - bodyLength;
 
     infoTag();
-    logInfo("Preparing head starting at: ", headFront.asSeconds(),
-            "s and ending at: ", (headFront - headLength).asSeconds(), "s.");
+    logInfo("Preparing head starting at: ", headFront,
+            "s and ending at: ", (headFront - headLength), "s.");
     prepareHead(headFront, headLength, timeTrack);
     if (numberOfBodySegments > 0) {
-        logInfo("Preparing body starting at: ", bodyFront.asSeconds(),
-                "s and ending at: ", (bodyFront - bodyLength).asSeconds(),
+        logInfo("Preparing body starting at: ", bodyFront,
+                "s and ending at: ", (bodyFront - bodyLength),
                 "s.");
         prepareBody(bodyFront, bodyLength, timeTrack, numberOfBodySegments);
     }
-    logInfo("Preparing tail starting at: ", tailFront.asSeconds(),
-            "s and ending at: ", (tailFront - tailLength).asSeconds(), "s.");
+    logInfo("Preparing tail starting at: ", tailFront,
+            "s and ending at: ", (tailFront - tailLength), "s.");
     prepareTail(tailFront, tailLength, timeTrack);
 }
 
 // Helper function since the prepare methods share most of the code
-void prepareSegments(const sf::Time& timeFront, const sf::Time& temporalLength,
+void prepareSegments(const Time& timeFront, const Time& temporalLength,
                      const Track& timeTrack,
-                     const std::vector<Vec2f>& relativePosistion,
+                     const std::vector<Vec2>& relativePosistion,
                      const sf::Color& color, const sf::Texture& texture,
                      std::vector<sf::Vertex>& storage, uint32_t nSegments = 1) {
-    Vec2f textureSize = texture.getSize();
+    Vec2 textureSize = texture.getSize();
     const size_t nVertPerSeg = relativePosistion.size();
     const size_t addPerSeg = nVertPerSeg - 2;
     const size_t nVertices = 2 + addPerSeg * nSegments;
-    const sf::Time temporalSegmentLength = temporalLength / float(nSegments);
+    const Time temporalSegmentLength = temporalLength / float(nSegments);
     storage.resize(nVertices);
 
     float width = 20;  // TODO:Adapt width depending on how streched the segment
@@ -116,39 +117,39 @@ void prepareSegments(const sf::Time& timeFront, const sf::Time& temporalLength,
         // Skip the two first vertices of any segment coming after the first one
         const int startIndex = seg > 0 ? 2 : 0;
         for (int i = startIndex; i < nVertPerSeg; ++i) {
-            sf::Time temporalPosition =
+            Time temporalPosition =
                 timeFront -
                 (seg + relativePosistion[i].y) * temporalSegmentLength;
 
-            Vec2f midPosition = timeTrack.position(temporalPosition);
-            Vec2f perpLength = timeTrack.direction(temporalPosition).perpVec() *
+            Vec2 midPosition = timeTrack.position(temporalPosition);
+            Vec2 perpLength = timeTrack.direction(temporalPosition).perpVec() *
                                (width * relativePosistion[i].x);
 
             iter->position = midPosition + perpLength;
             iter->color = color;
             iter->texCoords =
-                (Vec2f(0.5f, seg) + relativePosistion[i]) * textureSize;
+                (Vec2(0.5f, seg) + relativePosistion[i]) * textureSize;
             ++iter;
         }
     }
 }
 
-void ViperGraphics::prepareHead(const sf::Time& timeFront,
-                                const sf::Time& temporalLength,
+void ViperGraphics::prepareHead(const Time& timeFront,
+                                const Time& temporalLength,
                                 const Track& timeTrack) {
     prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::headNodes(), m_color,
                     m_headTexture, m_headVertices);
 }
 
-void ViperGraphics::prepareBody(const sf::Time& timeFront,
-                                const sf::Time& temporalLength,
+void ViperGraphics::prepareBody(const Time& timeFront,
+                                const Time& temporalLength,
                                 const Track& timeTrack, uint32_t nSegments) {
     prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::bodyNodes(), m_color,
                     m_bodyTexture, m_bodyVertices, nSegments);
 }
 
-void ViperGraphics::prepareTail(const sf::Time& timeFront,
-                                const sf::Time& temporalLength,
+void ViperGraphics::prepareTail(const Time& timeFront,
+                                const Time& temporalLength,
                                 const Track& timeTrack) {
     prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::tailNodes(), m_color,
                     m_tailTexture, m_tailVertices);

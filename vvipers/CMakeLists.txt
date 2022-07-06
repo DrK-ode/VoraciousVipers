@@ -8,14 +8,16 @@ set(INC_FILES
     GameWindow.hpp
     Level.hpp
     Player.hpp
-    Score.hpp
-    Track.hpp
-    VectorMath.hpp
+    Math.hpp
+    Vec2.hpp
     Viper.hpp
     ViperGraphics.hpp
     ViperPhysics.hpp
     ViperSketch.hpp
     VVipers.hpp
+    Score.hpp
+    Time.hpp
+    Track.hpp
 )
 
 set(SRC_FILES
@@ -24,13 +26,14 @@ set(SRC_FILES
     GameWindow.cpp
     Level.cpp
     Player.cpp
-    Score.cpp
-    Track.cpp
+    Vec2.cpp
     Viper.cpp
     ViperGraphics.cpp
     ViperPhysics.cpp
     ViperSketch.cpp
     VVipers.cpp
+    Score.cpp
+    Track.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)

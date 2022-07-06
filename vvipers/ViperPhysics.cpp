@@ -1,5 +1,5 @@
 #include <exception>
-#include <vvipers/VectorMath.hpp>
+#include <vvipers/Vec2.hpp>
 #include <vvipers/ViperPhysics.hpp>
 #include <vvipers/debug.hpp>
 
@@ -10,7 +10,7 @@ const float ViperPhysics::s_nominalSpeed(60.f);
 ViperPhysics::ViperPhysics()
     : m_acc(0.f), m_speed(s_nominalSpeed), m_head(nullptr) {}
 
-void ViperPhysics::growth(const sf::Time& g) { m_growth += g; }
+void ViperPhysics::growth(const Time& g) { m_growth += g; }
 
 float ViperPhysics::length() const {
     return m_track.length(m_head->getTime(),
@@ -20,18 +20,18 @@ float ViperPhysics::length() const {
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void ViperPhysics::setup(const Vec2f& headPosition, float angle,
-                         const sf::Time& viperTemporalLength) {
+void ViperPhysics::setup(const Vec2& headPosition, float angle,
+                         const Time& viperTemporalLength) {
     logInfo("Setting up physical viper.");
-    const float viperLength = viperTemporalLength.asSeconds() * s_nominalSpeed;
+    const float viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
     m_angle = angle;
-    Vec2f vipVec =
-        viperLength * Vec2f(cos(degToRad(angle)), sin(degToRad(angle)));
-    Vec2f dL = vipVec / viperLength;
-    sf::Time tailTime = sf::Time::Zero;
-    sf::Time headTime = tailTime + viperTemporalLength;
+    Vec2 vipVec =
+        viperLength * Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
+    Vec2 dL = vipVec / viperLength;
+    Time tailTime = seconds(0);;
+    Time headTime = tailTime + viperTemporalLength;
     m_temporalLength = (headTime - tailTime);
-    sf::Int64 numberOfPoints = 60 * m_temporalLength.asSeconds() + 1;  // 60 FPS
+    size_t numberOfPoints = 60 * toSeconds(m_temporalLength) + 1;  // 60 FPS
 
     // Find all the positions the Viper segments will move through
     m_track.clear();
@@ -47,17 +47,17 @@ void ViperPhysics::setup(const Vec2f& headPosition, float angle,
     logInfo("Physical viper is ready.");
 }
 
-TrackPoint* ViperPhysics::createNextHeadTrackPoint(sf::Time elapsedTime) {
-    float dx = m_speed * elapsedTime.asSeconds() * cos(degToRad(m_angle));
-    float dy = m_speed * elapsedTime.asSeconds() * sin(degToRad(m_angle));
-    Vec2f advance(dx, dy);
+TrackPoint* ViperPhysics::createNextHeadTrackPoint(Time elapsedTime) {
+    float dx = m_speed * toSeconds(elapsedTime) * cos(degToRad(m_angle));
+    float dy = m_speed * toSeconds(elapsedTime) * sin(degToRad(m_angle));
+    Vec2 advance(dx, dy);
     return m_track.create_front(*m_head + advance,
                                 m_head->getTime() + elapsedTime);
 }
 
 void ViperPhysics::cleanUpTrailingTrackPoints() {
     // Removes any point(s) the whole Viper has passed through
-    sf::Time tailTime = m_head->getTime() - m_temporalLength;
+    Time tailTime = m_head->getTime() - m_temporalLength;
     // Find the last two needed trackpoints
     TrackPoint* afterTail = m_track.back();
     while (afterTail && afterTail->getTime() <= tailTime)
@@ -73,14 +73,14 @@ void ViperPhysics::cleanUpTrailingTrackPoints() {
     }
 }
 
-void ViperPhysics::grow(const sf::Time& elapsedTime) {
+void ViperPhysics::grow(const Time& elapsedTime) {
     // Limit the growth to how much time that has passed
-    sf::Time actualGrowth = std::min(m_growth, elapsedTime);
+    Time actualGrowth = std::min(m_growth, elapsedTime);
     m_temporalLength += actualGrowth;
     m_growth -= actualGrowth;
 }
 
-void ViperPhysics::update(const sf::Time& elapsedTime) {
+void ViperPhysics::update(const Time& elapsedTime) {
     m_head = createNextHeadTrackPoint(elapsedTime);
     grow(elapsedTime);
     cleanUpTrailingTrackPoints();

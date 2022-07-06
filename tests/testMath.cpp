@@ -1,16 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <vvipers/VectorMath.hpp>
+#include <vvipers/Vec2.hpp>
 
 using namespace VVipers;
 
 namespace {
-
-TEST(VectorMathTest, typeDefTest) {
-    EXPECT_EQ(Vec2i(), Vec2(0, 0));
-    EXPECT_EQ(Vec2u(), Vec2(0u, 0u));
-    EXPECT_EQ(Vec2f(), Vec2(0.f, 0.f));
-}
 
 TEST(VectorMathTest, dotProductTest) {
     EXPECT_EQ(Vec2(1, 1).dot(Vec2(0, 0)), 0);
@@ -22,7 +16,7 @@ TEST(VectorMathTest, dotProductTest) {
 TEST(VectorMathTest, absTest) {
     EXPECT_EQ(Vec2(1, 0).abs(), 1);
     EXPECT_EQ(Vec2(3, 4).abs(), 5);
-    EXPECT_FLOAT_EQ(Vec2f(1, 1).abs(), 1.414213562);
+    EXPECT_FLOAT_EQ(Vec2(1, 1).abs(), 1.414213562);
 }
 
 TEST(VectorMathTest, perpVecTest) {
@@ -34,10 +28,10 @@ TEST(VectorMathTest, perpVecTest) {
 
 // Only relevant to test float variant Vec2<int>::normalize() should not be used
 TEST(VectorMathTest, normalizeVecTest) {
-    EXPECT_FLOAT_EQ(Vec2f(1, 1).normalize().abs(), 1.f);
-    EXPECT_EQ(Vec2f(2, 0).normalize(), Vec2f(1, 0.f));
-    EXPECT_FLOAT_EQ(Vec2f(1, 1).normalize(3).abs(), 3.f);
-    EXPECT_EQ(Vec2f(2, 0).normalize(3), Vec2f(3, 0.f));
+    EXPECT_FLOAT_EQ(Vec2(1, 1).normalize().abs(), 1.f);
+    EXPECT_EQ(Vec2(2, 0).normalize(), Vec2(1, 0.f));
+    EXPECT_FLOAT_EQ(Vec2(1, 1).normalize(3).abs(), 3.f);
+    EXPECT_EQ(Vec2(2, 0).normalize(3), Vec2(3, 0.f));
 }
 
 TEST(VectorMathTest, radToDegTest) {

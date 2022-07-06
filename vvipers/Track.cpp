@@ -4,10 +4,8 @@
 
 namespace VVipers {
 
-using sf::Time;
-
-TrackPoint::TrackPoint(const Vec2f& v, const Time& t)
-    : Vec2f(v), m_time(t), m_next(nullptr), m_prev(nullptr), m_distToNext(0) {}
+TrackPoint::TrackPoint(const Vec2& v, const Time& t)
+    : Vec2(v), m_time(t), m_next(nullptr), m_prev(nullptr), m_distToNext(0) {}
 
 void TrackPoint::setNext(TrackPoint* tp) {
     m_next = tp;
@@ -74,16 +72,15 @@ size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
     return from->stepsUntil(to);
 }
 
-Vec2f Track::direction(const sf::Time& t) const {
+Vec2 Track::direction(const Time& t) const {
     if (m_size < 2)
         throw std::runtime_error(
             "Cannot compute direction with < 2 TrackPoints.");
     if (t > m_front->getTime() || t < m_back->getTime()) {
         std::stringstream msg;
-        msg << "Requesting direction at t=" << t.asSeconds()
-            << "s, which is outside viper time interval("
-            << m_back->getTime().asSeconds() << "s - "
-            << m_front->getTime().asSeconds() << "s).";
+        msg << "Requesting direction at t=" << t
+            << "s, which is outside viper time interval(" << m_back->getTime()
+            << "s - " << m_front->getTime() << "s).";
         throw std::runtime_error(msg.str());
     }
 
@@ -110,51 +107,46 @@ float Track::length(const Time& t1, const Time& t2) const {
     // t1 or t2 o0utside the track's range
     if (t1 > m_front->getTime() || t2 < m_back->getTime()) {
         std::stringstream msg;
-        msg << "Requesting length between t1 = " << t1.asSeconds()
-            << "s and t2 = " << t2.asSeconds()
-            << "s, which is outside viper time interval("
-            << m_back->getTime().asSeconds() << "s - "
-            << m_front->getTime().asSeconds() << "s).";
+        msg << "Requesting length between t1 = " << t1 << "s and t2 = " << t2
+            << "s, which is outside viper time interval(" << m_back->getTime()
+            << "s - " << m_front->getTime() << "s).";
         throw std::runtime_error(msg.str());
     }
     // Or if a zero time interval has been passed to the method
     if (t1 == t2)
         return 0;
 
-    float L = 0.f;
+    double L = 0.f;
     // Find first track point
     TrackPoint* p2 = m_front;
     while (p2 && p2->getTime() > t1)
         p2 = p2->next();
     // Linear interpolation of the distance to the next TrackPoint
     TrackPoint* p1 = p2->prev();
-    if (p1) // Otherwise p2 == m_front and no distance needs to be added
-        L += p1->distanceToNext() /
-             (p2->getTime() - p1->getTime()).asSeconds() *
-             (p2->getTime() - t1).asSeconds();
+    if (p1)  // Otherwise p2 == m_front and no distance needs to be added
+        L += p1->distanceToNext() *
+             ((p2->getTime() - t1) / (p2->getTime() - p1->getTime()));
     // Add all distances until t2 has been passed
     while (p2 && p2->getTime() > t2) {
         L += p2->distanceToNext();
         p2 = p2->next();
     }
-    if (!p2) // p1 == m_back
+    if (!p2)  // p1 == m_back
         return L;
     // The full distance between p1 and p2 was added to L, this must be
     // corrected for.
     p1 = p2->prev();
-    L -= p1->distanceToNext() / (p2->getTime() - p1->getTime()).asSeconds() *
-         (p2->getTime() - t2).asSeconds();
+    L -= p1->distanceToNext() * ( (p2->getTime() - t2) / (p2->getTime() - p1->getTime()) );
 
     return L;
 }
 
-Vec2f Track::position(const sf::Time& t) const {
+Vec2 Track::position(const Time& t) const {
     if (t > m_front->getTime() || t < m_back->getTime()) {
         std::stringstream msg;
-        msg << "Requesting position at t=" << t.asSeconds()
-            << "s, which is outside viper time interval("
-            << m_back->getTime().asSeconds() << "s - "
-            << m_front->getTime().asSeconds() << "s).";
+        msg << "Requesting position at t=" << t
+            << "s, which is outside viper time interval(" << m_back->getTime()
+            << "s - " << m_front->getTime() << "s).";
         throw std::runtime_error(msg.str());
     }
 
@@ -169,8 +161,8 @@ Vec2f Track::position(const sf::Time& t) const {
 
     TrackPoint* p1 = p2->prev();
     // The sought position lies between p1 and p2, linear interpolation
-    return *p1 + (*p2 - *p1) / (p2->getTime() - p1->getTime()).asSeconds() *
-                     (t - p1->getTime() ).asSeconds();
+    return *p1 +
+           (*p2 - *p1) * (  (t - p1->getTime()) / (p2->getTime() - p1->getTime()) );
 }
 
 void Track::pop_back() {
@@ -193,7 +185,7 @@ void Track::pop_front() {
     --m_size;
 }
 
-TrackPoint* Track::createPoint(const Vec2f& v, const Time& t,
+TrackPoint* Track::createPoint(const Vec2& v, const Time& t,
                                TrackOrientation ori) {
     TrackPoint* p = new TrackPoint(v, t);
     switch (ori) {
@@ -211,8 +203,9 @@ void Track::push_back(TrackPoint* tp) {
     if (empty())
         m_front = m_back = tp;
     else {
-        if( tp->getTime() > m_back->getTime() )
-            throw std::runtime_error("Trying to push back a track point out of temporal order.");
+        if (tp->getTime() > m_back->getTime())
+            throw std::runtime_error(
+                "Trying to push back a track point out of temporal order.");
         m_back->setNext(tp);
         tp->setPrev(m_back);
         tp->setNext(nullptr);
@@ -225,8 +218,9 @@ void Track::push_front(TrackPoint* tp) {
     if (empty())
         m_front = m_back = tp;
     else {
-        if( tp->getTime() < m_front->getTime() )
-            throw std::runtime_error("Trying to push front a track point out of temporal order.");
+        if (tp->getTime() < m_front->getTime())
+            throw std::runtime_error(
+                "Trying to push front a track point out of temporal order.");
         m_front->setPrev(tp);
         tp->setNext(m_front);
         tp->setPrev(nullptr);

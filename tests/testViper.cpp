@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <SFML/System/Time.hpp>
+#include <vvipers/Time.hpp>
 
 #include <vvipers/ViperPhysics.hpp>
 #include <vvipers/debug.hpp>
@@ -13,7 +13,7 @@ class ViperTest : public ::testing::Test {
   protected:
     void SetUp() override {
         logLevel = LogLevel::onlyErrors;
-        viper.setup(Vec2f(0, 0), 180.f, sf::seconds(3));
+        viper.setup(Vec2(0, 0), 180.f, seconds(3));
     }
 
     ViperPhysics viper;

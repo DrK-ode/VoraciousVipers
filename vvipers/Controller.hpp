@@ -2,14 +2,14 @@
 #define CONTROLLER_HPP
 
 #include <vvipers/Viper.hpp>
-#include <SFML/System/Time.hpp>
+#include <vvipers/Time.hpp>
 
 namespace VVipers {
 
 class Controller {
   public:
     Controller() : m_connected(false) {}
-    virtual void onUpdate(const sf::Time& elapsedTime, Viper&){};
+    virtual void onUpdate(const Time& elapsedTime, Viper&){};
     virtual void onKeyboard(Viper&){};
     virtual void onMouse(Viper&){};
 
@@ -22,7 +22,7 @@ class Controller {
 class ControllerGoingInCircles : public Controller {
   public:
     ControllerGoingInCircles(float da);
-    virtual void onUpdate( const sf::Time& elapsedTime, Viper&) override;
+    virtual void onUpdate( const Time& elapsedTime, Viper&) override;
 
   private:
     float m_da;
