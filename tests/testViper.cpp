@@ -20,17 +20,17 @@ class ViperTest : public ::testing::Test {
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_FLOAT_EQ(viper.angle(), 180.f);
+    EXPECT_DOUBLE_EQ(viper.angle(), 180.f);
     viper.setAngle(90.f);
-    EXPECT_FLOAT_EQ(viper.angle(), 90.f);
+    EXPECT_DOUBLE_EQ(viper.angle(), 90.f);
     viper.setAngle(-90.f);
-    EXPECT_FLOAT_EQ(viper.angle(), -90.f);
+    EXPECT_DOUBLE_EQ(viper.angle(), -90.f);
     viper.setAngle(270.f);
-    EXPECT_FLOAT_EQ(viper.angle(), -90.f);
+    EXPECT_DOUBLE_EQ(viper.angle(), -90.f);
 }
 
 TEST_F(ViperTest, lengthTest) {
-    EXPECT_FLOAT_EQ(viper.length(), 3.f * viper.speed() );
+    EXPECT_DOUBLE_EQ(viper.length(), 3.f * viper.speed() );
 }
 
 TEST_F(ViperTest, growthTest) {

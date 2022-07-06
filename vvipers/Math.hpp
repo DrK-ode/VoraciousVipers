@@ -4,14 +4,14 @@
 #include <cmath>
 
 namespace VVipers {
-// TODO Change all floats to doubles
-const float pi = 3.14159265358979323846;
-const float twopi = 2 * pi;
-const float radPerDeg = pi / 180.f;
-const float degPerRad = 180.f / pi;
-inline float degToRad(float deg) { return deg * radPerDeg; }
-inline float radToDeg(float rad) { return rad * degPerRad; }
-inline float mod180Deg(float deg) {
+// TODO Change all doubles to doubles
+const double pi = 3.14159265358979323846;
+const double twopi = 2 * pi;
+const double radPerDeg = pi / 180.f;
+const double degPerRad = 180.f / pi;
+inline double degToRad(double deg) { return deg * radPerDeg; }
+inline double radToDeg(double rad) { return rad * degPerRad; }
+inline double mod180Deg(double deg) {
     deg = std::fmod(deg, 360.f);
     if (deg > 180.f)
         deg -= 360.f;
@@ -19,7 +19,7 @@ inline float mod180Deg(float deg) {
         deg += 360.f;
     return deg;
 }
-inline float modPiRad(float rad) {
+inline double modPiRad(double rad) {
     rad = std::fmod(rad, twopi);
     if (rad > pi)
         rad -= twopi;

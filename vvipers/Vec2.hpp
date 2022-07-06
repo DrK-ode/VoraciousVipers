@@ -57,9 +57,9 @@ inline std::ostream& operator<<(std::ostream& os, const sf::Vector2<T>& v) {
     return os << "(x: " << v.x << ", y: " << v.y << ")";
 }
 
-inline float abs(const Vec2& v) { return v.abs(); }
+inline double abs(const Vec2& v) { return v.abs(); }
 
-inline float distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
+inline double distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
 
 }  // namespace VVipers
 

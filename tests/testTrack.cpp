@@ -20,9 +20,9 @@ class TrackTest : public ::testing::Test {
 };
 
 TEST_F(TrackTest, LengthTestBasic) {
-    EXPECT_FLOAT_EQ(track.length(), 2);
-    EXPECT_FLOAT_EQ(track.length(seconds(3), seconds(0)), 1);
-    EXPECT_FLOAT_EQ(track.length(seconds(4), seconds(0)), 1.5);
+    EXPECT_DOUBLE_EQ(track.length(), 2);
+    EXPECT_DOUBLE_EQ(track.length(seconds(3), seconds(0)), 1);
+    EXPECT_DOUBLE_EQ(track.length(seconds(4), seconds(0)), 1.5);
 }
 
 TEST_F(TrackTest, LengthTestOverFlow) {
@@ -30,11 +30,11 @@ TEST_F(TrackTest, LengthTestOverFlow) {
 }
 
 TEST_F(TrackTest, LengthTestInterpolation) {
-    EXPECT_FLOAT_EQ(track.length(seconds(5), seconds(2)), 1 + 1 / 3.f);
+    EXPECT_DOUBLE_EQ(track.length(seconds(5), seconds(2)), 1 + 1 / 3.f);
 }
 
 TEST_F(TrackTest, LengthTestBackwards) {
-    EXPECT_FLOAT_EQ(track.length(seconds(0), seconds(4)), -1.5);
+    EXPECT_DOUBLE_EQ(track.length(seconds(0), seconds(4)), -1.5);
 }
 
 TEST_F(TrackTest, DirectionTest) {
