@@ -5,6 +5,7 @@ add_executable(
   vvtest
   testMath.cpp
   testViper.cpp
+  testTime.cpp
   testTrack.cpp
 )
 target_link_libraries(

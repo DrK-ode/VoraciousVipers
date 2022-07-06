@@ -119,7 +119,7 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
         for (int i = startIndex; i < nVertPerSeg; ++i) {
             Time temporalPosition =
                 timeFront -
-                convertTime((seg + relativePosistion[i].y) * temporalSegmentLength);
+                ((seg + relativePosistion[i].y) * temporalSegmentLength);
 
             Vec2 midPosition = timeTrack.position(temporalPosition);
             Vec2 perpLength = timeTrack.direction(temporalPosition).perpVec() *
