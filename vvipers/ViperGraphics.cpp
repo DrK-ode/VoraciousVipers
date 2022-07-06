@@ -103,10 +103,10 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
     const size_t nVertPerSeg = relativePosistion.size();
     const size_t addPerSeg = nVertPerSeg - 2;
     const size_t nVertices = 2 + addPerSeg * nSegments;
-    const Time temporalSegmentLength = temporalLength / float(nSegments);
+    const Time temporalSegmentLength = temporalLength / nSegments;
     storage.resize(nVertices);
 
-    float width = 20;  // TODO:Adapt width depending on how streched the segment
+    double width = 20;  // TODO:Adapt width depending on how streched the segment
                        // is, i.e., dL/dt
 
     auto iter = storage.begin();
@@ -119,7 +119,7 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
         for (int i = startIndex; i < nVertPerSeg; ++i) {
             Time temporalPosition =
                 timeFront -
-                (seg + relativePosistion[i].y) * temporalSegmentLength;
+                convertTime((seg + relativePosistion[i].y) * temporalSegmentLength);
 
             Vec2 midPosition = timeTrack.position(temporalPosition);
             Vec2 perpLength = timeTrack.direction(temporalPosition).perpVec() *

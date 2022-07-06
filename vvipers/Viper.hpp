@@ -12,7 +12,7 @@ class Viper : public sf::Drawable {
   public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     ViperPhysics& getPhysicalViper() { return m_viperPhys; };
-    void setup(const Vec2& from, float angle, const Time& length);
+    void setup(const Vec2& from, double angle, const Time& length);
     void update(const Time& elapsedTime);
 
   private:

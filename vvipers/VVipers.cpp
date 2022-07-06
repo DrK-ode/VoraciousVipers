@@ -1,5 +1,5 @@
-#include <vvipers/VVipers.hpp>
 #include <vvipers/Time.hpp>
+#include <vvipers/VVipers.hpp>
 
 namespace VVipers {
 
@@ -14,10 +14,12 @@ VVipers::~VVipers() {
 }
 
 void VVipers::startGame() {
-    sf::Clock clock;
+    StopWatch clock;
+    clock.start();
     while (m_window->isOpen()) {
-        if ( seconds(clock.getElapsedTime().asSeconds()) > seconds(0.01) ) // TODO: Need better time handling
-            m_game->update( seconds(clock.restart().asSeconds() )); //TODO: fix this mess
+        Time elapsedTime = clock.split();
+        if (elapsedTime > seconds(0.01))  // TODO: Need better time handling
+            m_game->update(elapsedTime);
 
         sf::Event event;
         while (m_window->pollEvent(event)) {

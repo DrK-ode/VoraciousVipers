@@ -5,14 +5,14 @@
 
 namespace VVipers {
 
-const float ViperPhysics::s_nominalSpeed(60.f);
+const double ViperPhysics::s_nominalSpeed(60.);
 
 ViperPhysics::ViperPhysics()
     : m_acc(0.f), m_speed(s_nominalSpeed), m_head(nullptr) {}
 
 void ViperPhysics::growth(const Time& g) { m_growth += g; }
 
-float ViperPhysics::length() const {
+double ViperPhysics::length() const {
     return m_track.length(m_head->getTime(),
                           m_head->getTime() - m_temporalLength);
 }
@@ -20,10 +20,10 @@ float ViperPhysics::length() const {
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
-void ViperPhysics::setup(const Vec2& headPosition, float angle,
+void ViperPhysics::setup(const Vec2& headPosition, double angle,
                          const Time& viperTemporalLength) {
     logInfo("Setting up physical viper.");
-    const float viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
+    const double viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
     m_angle = angle;
     Vec2 vipVec =
         viperLength * Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
@@ -39,7 +39,7 @@ void ViperPhysics::setup(const Vec2& headPosition, float angle,
     for (int i = 0; i < numberOfPoints; ++i) {
         m_track.create_back(
             headPosition - dL * i,
-            headTime - m_temporalLength * float(i) / float(numberOfPoints - 1));
+            headTime - (m_temporalLength * i) / (numberOfPoints - 1));
     }
 
     m_head = m_track.front();
@@ -48,8 +48,8 @@ void ViperPhysics::setup(const Vec2& headPosition, float angle,
 }
 
 TrackPoint* ViperPhysics::createNextHeadTrackPoint(Time elapsedTime) {
-    float dx = m_speed * toSeconds(elapsedTime) * cos(degToRad(m_angle));
-    float dy = m_speed * toSeconds(elapsedTime) * sin(degToRad(m_angle));
+    double dx = m_speed * toSeconds(elapsedTime) * cos(degToRad(m_angle));
+    double dy = m_speed * toSeconds(elapsedTime) * sin(degToRad(m_angle));
     Vec2 advance(dx, dy);
     return m_track.create_front(*m_head + advance,
                                 m_head->getTime() + elapsedTime);

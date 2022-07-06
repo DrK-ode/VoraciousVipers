@@ -93,13 +93,13 @@ Vec2 Track::direction(const Time& t) const {
     return (*p1 - *p2).normalize();
 }
 
-float Track::length() const {
+double Track::length() const {
     if (!m_front)
         return 0;
     return length(m_front->getTime(), m_back->getTime());
 }
 
-float Track::length(const Time& t1, const Time& t2) const {
+double Track::length(const Time& t1, const Time& t2) const {
     // Typically the front of the track is the youngest so we expect t1 > t2
     // But if t2 > t1 we return a negative length
     if (t1 < t2)

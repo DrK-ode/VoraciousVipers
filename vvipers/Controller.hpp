@@ -21,11 +21,11 @@ class Controller {
 
 class ControllerGoingInCircles : public Controller {
   public:
-    ControllerGoingInCircles(float da);
+    ControllerGoingInCircles(double da);
     virtual void onUpdate( const Time& elapsedTime, Viper&) override;
 
   private:
-    float m_da;
+    double m_da;
 };
 
 }  // namespace VVipers

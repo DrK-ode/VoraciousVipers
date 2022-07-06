@@ -20,8 +20,8 @@ class Track {
     size_t size(TrackPoint const* from, TrackPoint const* to = nullptr) const;
 
     Vec2 direction(const Time& t) const;
-    float length() const;
-    float length(const Time& from, const Time& to) const;
+    double length() const;
+    double length(const Time& from, const Time& to) const;
     Vec2 position(const Time& t) const;
 
     TrackPoint* front() const { return m_front; };
@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, const Track& t);
 
 class TrackPoint : public Vec2 {
   public:
-    float distanceToNext() const { return m_distToNext; }
+    double distanceToNext() const { return m_distToNext; }
     TrackPoint* next() const { return m_next; }
     TrackPoint* prev() const { return m_prev; }
     void setNext(TrackPoint* tp);
@@ -74,7 +74,7 @@ class TrackPoint : public Vec2 {
     Time m_time;
     TrackPoint* m_next;
     TrackPoint* m_prev;
-    float m_distToNext;
+    double m_distToNext;
 
     friend TrackPoint* Track::createPoint(const Vec2&, const Time&,
                                           TrackOrientation);

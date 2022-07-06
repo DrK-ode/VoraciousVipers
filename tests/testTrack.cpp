@@ -30,7 +30,7 @@ TEST_F(TrackTest, LengthTestOverFlow) {
 }
 
 TEST_F(TrackTest, LengthTestInterpolation) {
-    EXPECT_DOUBLE_EQ(track.length(seconds(5), seconds(2)), 1 + 1 / 3.f);
+    EXPECT_DOUBLE_EQ(track.length(seconds(5), seconds(2)), 1 + 1 / 3.);
 }
 
 TEST_F(TrackTest, LengthTestBackwards) {
