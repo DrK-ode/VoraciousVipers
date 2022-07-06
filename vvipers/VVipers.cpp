@@ -14,7 +14,7 @@ VVipers::~VVipers() {
 }
 
 void VVipers::startGame() {
-    StopWatch clock;
+    Stopwatch clock;
     clock.start();
     while (m_window->isOpen()) {
         Time elapsedTime = clock.split();

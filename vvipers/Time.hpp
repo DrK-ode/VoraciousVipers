@@ -22,9 +22,9 @@ inline double toSeconds(const std::chrono::duration<T,U>& t) {
     return std::chrono::duration_cast<std::chrono::duration<double>>(t).count();
 }
 
-class StopWatch {
+class Stopwatch {
   public:
-    StopWatch() : m_isRunning(false) {}
+    Stopwatch() : m_isRunning(false) {}
     std::chrono::high_resolution_clock::duration restart() {
         auto tmp = m_isRunning
                        ? stop()
@@ -34,20 +34,20 @@ class StopWatch {
     }
     void start() {
         if (m_isRunning)
-            throw std::logic_error("StopWatch is already running.");
+            throw std::logic_error("Stopwatch is already running.");
         m_isRunning = true;
         m_startTime = m_lastSplit = m_clock.now();
     }
     std::chrono::high_resolution_clock::duration split() {
         if (!m_isRunning)
-            throw std::logic_error("StopWatch is not running.");
+            throw std::logic_error("Stopwatch is not running.");
         auto tmp = m_lastSplit;
         m_lastSplit = m_clock.now();
         return m_lastSplit - tmp;
     }
     std::chrono::high_resolution_clock::duration stop() {
         if (!m_isRunning)
-            throw std::logic_error("StopWatch is not running.");
+            throw std::logic_error("Stopwatch is not running.");
         m_isRunning = false;
         return m_clock.now() - m_startTime;
     }

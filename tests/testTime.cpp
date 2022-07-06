@@ -16,7 +16,7 @@ TEST(TimeTest, BasicTest) {
 }
 
 TEST(TimeTest, StopwatchTest) {
-    StopWatch clock;
+    Stopwatch clock;
     EXPECT_THROW(clock.stop(), std::logic_error);
     EXPECT_THROW(clock.split(), std::logic_error);
     clock.start();
