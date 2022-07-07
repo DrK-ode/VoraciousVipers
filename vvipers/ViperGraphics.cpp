@@ -1,5 +1,4 @@
 #include <vvipers/ViperGraphics.hpp>
-
 #include <vvipers/ViperSketch.hpp>
 
 namespace VVipers {
@@ -69,27 +68,16 @@ void ViperGraphics::updateVertices(const Time& headFront,
 
     Time headLength = s_headTemporalLength;
     size_t numberOfBodySegments =
-        std::max( 0., (temporalLength - headLength) /
-                              s_bodyTemporalLength -
-                          1.);
+        std::max(0., (temporalLength - headLength) / s_bodyTemporalLength - 1.);
     Time bodyLength = s_bodyTemporalLength * numberOfBodySegments;
     Time tailLength = temporalLength - headLength - bodyLength;
 
     Time bodyFront = headFront - headLength;
     Time tailFront = bodyFront - bodyLength;
 
-    infoTag();
-    logInfo("Preparing head starting at: ", headFront,
-            "s and ending at: ", (headFront - headLength), "s.");
     prepareHead(headFront, headLength, timeTrack);
-    if (numberOfBodySegments > 0) {
-        logInfo("Preparing body starting at: ", bodyFront,
-                "s and ending at: ", (bodyFront - bodyLength),
-                "s.");
+    if (numberOfBodySegments > 0)
         prepareBody(bodyFront, bodyLength, timeTrack, numberOfBodySegments);
-    }
-    logInfo("Preparing tail starting at: ", tailFront,
-            "s and ending at: ", (tailFront - tailLength), "s.");
     prepareTail(tailFront, tailLength, timeTrack);
 }
 
@@ -106,8 +94,8 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
     const Time temporalSegmentLength = temporalLength / nSegments;
     storage.resize(nVertices);
 
-    double width = 20;  // TODO:Adapt width depending on how streched the segment
-                       // is, i.e., dL/dt
+    double width = 20;  // TODO:Adapt width depending on how streched the
+                        // segment is, i.e., dL/dt
 
     auto iter = storage.begin();
     // seg is the current segment index
@@ -123,7 +111,7 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
 
             Vec2 midPosition = timeTrack.position(temporalPosition);
             Vec2 perpLength = timeTrack.direction(temporalPosition).perpVec() *
-                               (width * relativePosistion[i].x);
+                              (width * relativePosistion[i].x);
 
             iter->position = midPosition + perpLength;
             iter->color = color;
@@ -137,21 +125,24 @@ void prepareSegments(const Time& timeFront, const Time& temporalLength,
 void ViperGraphics::prepareHead(const Time& timeFront,
                                 const Time& temporalLength,
                                 const Track& timeTrack) {
-    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::headNodes(), m_color,
-                    m_headTexture, m_headVertices);
+    prepareSegments(timeFront, temporalLength, timeTrack,
+                    ViperSketch::headNodes(), m_color, m_headTexture,
+                    m_headVertices);
 }
 
 void ViperGraphics::prepareBody(const Time& timeFront,
                                 const Time& temporalLength,
                                 const Track& timeTrack, uint32_t nSegments) {
-    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::bodyNodes(), m_color,
-                    m_bodyTexture, m_bodyVertices, nSegments);
+    prepareSegments(timeFront, temporalLength, timeTrack,
+                    ViperSketch::bodyNodes(), m_color, m_bodyTexture,
+                    m_bodyVertices, nSegments);
 }
 
 void ViperGraphics::prepareTail(const Time& timeFront,
                                 const Time& temporalLength,
                                 const Track& timeTrack) {
-    prepareSegments(timeFront, temporalLength, timeTrack, ViperSketch::tailNodes(), m_color,
-                    m_tailTexture, m_tailVertices);
+    prepareSegments(timeFront, temporalLength, timeTrack,
+                    ViperSketch::tailNodes(), m_color, m_tailTexture,
+                    m_tailVertices);
 }
 }  // namespace VVipers

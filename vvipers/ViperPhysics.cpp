@@ -22,13 +22,12 @@ double ViperPhysics::length() const {
 // nominal speed. Tail at from-vector, head at to-vector.
 void ViperPhysics::setup(const Vec2& headPosition, double angle,
                          const Time& viperTemporalLength) {
-    logInfo("Setting up physical viper.");
     const double viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
     m_angle = angle;
     Vec2 vipVec =
         viperLength * Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
     Vec2 dL = vipVec / viperLength;
-    Time tailTime = seconds(0);;
+    Time tailTime = seconds(0);
     Time headTime = tailTime + viperTemporalLength;
     m_temporalLength = (headTime - tailTime);
     size_t numberOfPoints = 60 * toSeconds(m_temporalLength) + 1;  // 60 FPS
@@ -43,8 +42,6 @@ void ViperPhysics::setup(const Vec2& headPosition, double angle,
     }
 
     m_head = m_track.front();
-
-    logInfo("Physical viper is ready.");
 }
 
 TrackPoint* ViperPhysics::createNextHeadTrackPoint(Time elapsedTime) {
@@ -78,7 +75,6 @@ void ViperPhysics::grow(const Time& elapsedTime) {
     Time actualGrowth = std::min(m_growth, elapsedTime);
     m_temporalLength += actualGrowth;
     m_growth -= actualGrowth;
-
 }
 
 void ViperPhysics::update(const Time& elapsedTime) {
