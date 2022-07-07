@@ -24,9 +24,9 @@ TEST(TimeTest, StopwatchTest) {
     auto split = clock.split();
     std::this_thread::sleep_for(std::chrono::duration<double>(1 / 60.));
     auto duration = clock.stop();
-    // Cannot expect much better resolution than 1%
-    EXPECT_NEAR(toSeconds(split) * 60, 1, 0.01);
-    EXPECT_NEAR(toSeconds(duration) * 60, 2, 0.01);
+    // Cannot expect much better resolution than 5% appearently
+    EXPECT_NEAR(toSeconds(split) * 60, 1, 0.05);
+    EXPECT_NEAR(toSeconds(duration) * 60, 2, 0.05);
     EXPECT_THROW(clock.stop(), std::logic_error);
 }
 
