@@ -8,7 +8,7 @@ namespace VVipers {
 const double ViperPhysics::s_nominalSpeed(60.);
 
 ViperPhysics::ViperPhysics()
-    : m_acc(0.f), m_speed(s_nominalSpeed), m_head(nullptr) {}
+    : m_acc(0.), m_speed(s_nominalSpeed), m_growth(0), m_head(nullptr) {}
 
 void ViperPhysics::growth(const Time& g) { m_growth += g; }
 
@@ -78,6 +78,7 @@ void ViperPhysics::grow(const Time& elapsedTime) {
     Time actualGrowth = std::min(m_growth, elapsedTime);
     m_temporalLength += actualGrowth;
     m_growth -= actualGrowth;
+
 }
 
 void ViperPhysics::update(const Time& elapsedTime) {
