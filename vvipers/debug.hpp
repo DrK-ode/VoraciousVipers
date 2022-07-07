@@ -81,31 +81,31 @@ inline void _implLogError(bool doTag, const std::source_location loc,
                           // std::source_location::current() and this removes
                           // the error squiggles
 #define logInfo(...) \
-    VVipers::_implLogInfo(false, std::source_location::current(), __VA_ARGS__)
+    _implLogInfo(false, std::source_location::current(), __VA_ARGS__)
 #define logWarning(...)                                              \
-    VVipers::_implLogWarning(false, std::source_location::current(), \
+    _implLogWarning(false, std::source_location::current(), \
                              __VA_ARGS__)
 #define logError(...) \
-    VVipers::_implLogError(false, std::source_location::current(), __VA_ARGS__)
+    _implLogError(false, std::source_location::current(), __VA_ARGS__)
 #define tagInfo(...) \
-    VVipers::_implLogInfo(true, std::source_location::current(), __VA_ARGS__)
+    _implLogInfo(true, std::source_location::current(), __VA_ARGS__)
 #define tagWarning(...) \
-    VVipers::_implLogWarning(true, std::source_location::current(), __VA_ARGS__)
+    _implLogWarning(true, std::source_location::current(), __VA_ARGS__)
 #define tagError(...) \
-    VVipers::_implLogError(true, std::source_location::current(), __VA_ARGS__)
+    _implLogError(true, std::source_location::current(), __VA_ARGS__)
 #else
 #define logInfo(...) \
-    VVipers::_implLogInfo(false, std::source_location(), __VA_ARGS__)
-#define logWarning(...) \
-    VVipers::_implLogWarning(false, std::source_location(), __VA_ARGS__)
-#define logError(...) \
-    VVipers::_implLogError(false, std::source_location(), __VA_ARGS__)
+    _implLogInfo(false, std::source_location(), __VA_ARGS__)
+#define logWarn(...) \
+    _implLogWarning(false, std::source_location(), __VA_ARGS__)
+#define logErr(...) \
+    _implLogError(false, std::source_location(), __VA_ARGS__)
 #define tagInfo(...) \
-    VVipers::_implLogInfo(true, std::source_location(), __VA_ARGS__)
-#define tagWarning(...) \
-    VVipers::_implLogWarning(true, std::source_location(), __VA_ARGS__)
-#define tagError(...) \
-    VVipers::_implLogError(true, std::source_location(), __VA_ARGS__)
+    _implLogInfo(true, std::source_location(), __VA_ARGS__)
+#define tagWarn(...) \
+    _implLogWarning(true, std::source_location(), __VA_ARGS__)
+#define tagErr(...) \
+    _implLogError(true, std::source_location(), __VA_ARGS__)
 #endif
 
 }  // namespace VVipers
