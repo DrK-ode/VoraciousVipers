@@ -4,7 +4,6 @@
 #include <cmath>
 
 namespace VVipers {
-// TODO Change all doubles to doubles
 const double pi = 3.14159265358979323846;
 const double twopi = 2 * pi;
 const double radPerDeg = pi / 180.f;
