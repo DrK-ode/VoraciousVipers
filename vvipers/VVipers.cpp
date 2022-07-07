@@ -17,7 +17,6 @@ VVipers::~VVipers() {
 }
 
 void VVipers::startGame() {
-    Stopwatch clock;
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
         sleepDuration(0), debtDuration(0), debugDuration(0);
     const Time nominalFrameDuration = seconds(1. / 60);
@@ -27,12 +26,14 @@ void VVipers::startGame() {
     std::vector<double> durationSamples(sampleSize, 0.);
     size_t sampleIndex = 0;
 
+    Stopwatch clock;
     clock.start();
+    bool firstFrame = true;
     while (m_window->isOpen()) {
         tickDuration = clock.restart();
 
         // If not first tick
-        if (tickDuration > seconds(0.01)) {
+        if ( !firstFrame ) {
             // Analyze last event
             debtDuration = frameDuration - tickDuration;
             frameDuration = nominalFrameDuration + debtDuration;
@@ -57,8 +58,7 @@ void VVipers::startGame() {
         }
         debugDuration = clock.split();
 
-        if (tickDuration >
-            seconds(0.01))  // TODO: Better fix for the first tick
+        if ( !firstFrame )
             m_game->update(tickDuration);
 
         updateDuration = clock.split();
@@ -81,6 +81,7 @@ void VVipers::startGame() {
             (debugDuration, updateDuration + eventDuration + drawDuration);
 
         std::this_thread::sleep_for(sleepDuration);
+        firstFrame = false;
     }
 }
 
