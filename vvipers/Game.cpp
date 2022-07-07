@@ -7,9 +7,9 @@ using namespace std::chrono_literals;
 
 Game::Game() {
     Player* p = new Player("DefaultPlayerName");
-    p->setController(new ControllerGoingInCircles(0.5f));
+    p->setController(new ControllerGoingInCircles(45.));
     Viper* v = new Viper;
-    v->setup({400.f, 100.f}, 0.f, 5s );
+    v->setup({400., 100.}, 0., 5s );
     m_players[p] = v;
 }
 
