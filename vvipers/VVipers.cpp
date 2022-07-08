@@ -33,7 +33,7 @@ void VVipers::startGame() {
         tickDuration = clock.restart();
 
         // If not first tick
-        if ( !firstFrame ) {
+        if (!firstFrame) {
             // Analyze last event
             debtDuration = frameDuration - tickDuration;
             frameDuration = nominalFrameDuration + debtDuration;
@@ -41,8 +41,8 @@ void VVipers::startGame() {
             // Calculate average FPS
             durationSamples[sampleIndex++] = fps;
             fpsAverage = 0.;
-            for_each(durationSamples.begin(), durationSamples.end(),
-                     [&fpsAverage](double t) { fpsAverage += t; });
+            for (auto& t : durationSamples)
+                fpsAverage += t;
             fpsAverage /= sampleSize;
             if (sampleIndex == sampleSize)
                 sampleIndex = 0;
@@ -58,7 +58,7 @@ void VVipers::startGame() {
         }
         debugDuration = clock.split();
 
-        if ( !firstFrame )
+        if (!firstFrame)
             m_game->update(tickDuration);
 
         updateDuration = clock.split();
