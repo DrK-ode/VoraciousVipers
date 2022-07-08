@@ -11,6 +11,6 @@ void Viper::setup(const Vec2& from, double angle, const Time& length) {
 }
 void Viper::update(const Time& elapsedTime) {
     m_viperPhys.update(elapsedTime);
-    m_viperGraph.update(elapsedTime, m_viperPhys);
+    m_viperGraph.update(m_viperPhys);
 }
 }  // namespace VVipers

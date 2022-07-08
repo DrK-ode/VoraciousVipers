@@ -13,22 +13,14 @@ class ViperGraphics : public sf::Drawable {
   public:
     ViperGraphics();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void update(const Time& elapsedTime, const ViperPhysics& viperPhys);
+    void update(const ViperPhysics& viperPhys);
 
   private:
-    static const Time s_headTemporalLength;
-    static const Time s_bodyTemporalLength;
-    static const Time
-        s_tailTemporalLength;  // Actually a minimum, can be larger
-    void prepareHead(const Time& timeFront, const Time& temporalLength,
-                     const Track& timeTrack);
-    void prepareBody(const Time& timeFront, const Time& temporalLength,
-                     const Track& timeTrack, uint32_t nSegments);
-    void prepareTail(const Time& timeFront, const Time& temporalLength,
-                     const Track& timeTrack);
     void loadTextures();
-    void updateVertices(const Time& timeFront, const Time& temporalLength,
-                        const Track& timeTrack);
+    void updateVertices(const std::vector<Vec2>& nodes,
+                        const std::vector<Vec2>& relativePositions,
+                        const sf::Texture& texture,
+                        std::vector<sf::Vertex>& vertices);
 
     // Atm, the same color will be applied to the whole viper
     sf::Color m_color;
