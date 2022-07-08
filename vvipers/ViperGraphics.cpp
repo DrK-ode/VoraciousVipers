@@ -3,11 +3,6 @@
 
 namespace VVipers {
 
-using namespace std::chrono_literals;
-const Time ViperGraphics::s_headTemporalLength(1s);
-const Time ViperGraphics::s_bodyTemporalLength(1s);
-const Time ViperGraphics::s_tailTemporalLength(1s);
-
 ViperGraphics::ViperGraphics() : m_color(0x007700ff) { loadTextures(); }
 
 void ViperGraphics::loadTextures() {
@@ -55,94 +50,52 @@ void ViperGraphics::draw(sf::RenderTarget& target,
                 states);
 }
 
-void ViperGraphics::update(const Time& elapsedTime,
-                           const ViperPhysics& viperPhys) {
-    updateVertices(viperPhys.head()->getTime(), viperPhys.temporalLength(),
-                   viperPhys.getTrack());
-}
-void ViperGraphics::updateVertices(const Time& headFront,
-                                   const Time& temporalLength,
-                                   const Track& timeTrack) {
-    if (temporalLength < s_headTemporalLength + s_tailTemporalLength)
-        throw std::runtime_error("Viper is too small");
-
-    Time headLength = s_headTemporalLength;
-    size_t numberOfBodySegments =
-        std::max(0., (temporalLength - headLength) / s_bodyTemporalLength - 1.);
-    Time bodyLength = s_bodyTemporalLength * numberOfBodySegments;
-    Time tailLength = temporalLength - headLength - bodyLength;
-
-    Time bodyFront = headFront - headLength;
-    Time tailFront = bodyFront - bodyLength;
-
-    prepareHead(headFront, headLength, timeTrack);
-    if (numberOfBodySegments > 0)
-        prepareBody(bodyFront, bodyLength, timeTrack, numberOfBodySegments);
-    prepareTail(tailFront, tailLength, timeTrack);
+void ViperGraphics::update(const ViperPhysics& viperPhys) {
+    updateVertices(viperPhys.headNodes(), ViperSketch::headNodes(),
+                   m_headTexture, m_headVertices);
+    updateVertices(viperPhys.bodyNodes(), ViperSketch::bodyNodes(),
+                   m_bodyTexture, m_bodyVertices);
+    updateVertices(viperPhys.tailNodes(), ViperSketch::tailNodes(),
+                   m_tailTexture, m_tailVertices);
 }
 
 // Helper function since the prepare methods share most of the code
-void prepareSegments(const Time& timeFront, const Time& temporalLength,
-                     const Track& timeTrack,
-                     const std::vector<Vec2>& relativePosistion,
-                     const sf::Color& color, const sf::Texture& texture,
-                     std::vector<sf::Vertex>& storage, uint32_t nSegments = 1) {
+void ViperGraphics::updateVertices(const std::vector<Vec2>& nodes,
+                                   const std::vector<Vec2>& relativePositions,
+                                   const sf::Texture& texture,
+                                   std::vector<sf::Vertex>& vertices) {
+    if (nodes.size() == 0)
+        return;
     Vec2 textureSize = texture.getSize();
-    const size_t nVertPerSeg = relativePosistion.size();
+    const size_t nVertPerSeg = relativePositions.size();
     const size_t addPerSeg = nVertPerSeg - 2;
-    const size_t nVertices = 2 + addPerSeg * nSegments;
-    const Time temporalSegmentLength = temporalLength / nSegments;
-    storage.resize(nVertices);
+    const size_t nSegments = (nodes.size() + 2) / (nVertPerSeg - 2);
+    vertices.resize(nodes.size());
 
-    double width = 20;  // TODO:Adapt width depending on how streched the
-                        // segment is, i.e., dL/dt
+    auto iterVert = vertices.begin();
+    auto iterPosRight = nodes.cbegin();
+    auto iterPosLeft = nodes.crbegin();
+    auto iterRelRight = relativePositions.cbegin();
+    auto iterRelLeft = relativePositions.crbegin();
 
-    auto iter = storage.begin();
-    // seg is the current segment index
-    // i is the index of the width and length arrays
-    // iter points to the current vertex
-    for (int seg = 0; seg < nSegments; ++seg) {
-        // Skip the two first vertices of any segment coming after the first one
-        const int startIndex = seg > 0 ? 2 : 0;
-        for (int i = startIndex; i < nVertPerSeg; ++i) {
-            Time temporalPosition =
-                timeFront -
-                ((seg + relativePosistion[i].y) * temporalSegmentLength);
-
-            Vec2 midPosition = timeTrack.position(temporalPosition);
-            Vec2 perpLength = timeTrack.direction(temporalPosition).perpVec() *
-                              (width * relativePosistion[i].x);
-
-            iter->position = midPosition + perpLength;
-            iter->color = color;
-            iter->texCoords =
-                (Vec2(0.5f, seg) + relativePosistion[i]) * textureSize;
-            ++iter;
+    int seg = 0;
+    while (iterVert != vertices.end()) {
+        while (iterRelRight < iterRelLeft.base()) {
+            iterVert->position = sf::Vector2f(*iterPosLeft++);
+            iterVert->color = m_color;
+            iterVert->texCoords =
+                (Vec2(0.5f, seg) + *iterRelLeft++) * textureSize;
+            ++iterVert;
+            iterVert->position = sf::Vector2f(*iterPosRight++);
+            iterVert->color = m_color;
+            iterVert->texCoords =
+                (Vec2(0.5f, seg) + *iterRelRight++) * textureSize;
+            ++iterVert;
         }
+        ++seg;
+        iterRelRight = relativePositions.cbegin() + 1;
+        iterRelLeft = relativePositions.crbegin() + 1;
     }
 }
 
-void ViperGraphics::prepareHead(const Time& timeFront,
-                                const Time& temporalLength,
-                                const Track& timeTrack) {
-    prepareSegments(timeFront, temporalLength, timeTrack,
-                    ViperSketch::headNodes(), m_color, m_headTexture,
-                    m_headVertices);
-}
-
-void ViperGraphics::prepareBody(const Time& timeFront,
-                                const Time& temporalLength,
-                                const Track& timeTrack, uint32_t nSegments) {
-    prepareSegments(timeFront, temporalLength, timeTrack,
-                    ViperSketch::bodyNodes(), m_color, m_bodyTexture,
-                    m_bodyVertices, nSegments);
-}
-
-void ViperGraphics::prepareTail(const Time& timeFront,
-                                const Time& temporalLength,
-                                const Track& timeTrack) {
-    prepareSegments(timeFront, temporalLength, timeTrack,
-                    ViperSketch::tailNodes(), m_color, m_tailTexture,
-                    m_tailVertices);
-}
 }  // namespace VVipers
