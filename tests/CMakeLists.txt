@@ -3,6 +3,7 @@ find_package(GTest REQUIRED)
 
 add_executable(
   vvtest
+  testCollidable.cpp
   testMath.cpp
   testViper.cpp
   testTime.cpp

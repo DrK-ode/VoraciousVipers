@@ -13,11 +13,12 @@ class CollidablePart {
         updateEdges();
         updateNormals();
     }
+    static bool collision(const CollidablePart&, const CollidablePart&);
 
     /** Only collisions involving at least one active colliding part are tried.
-      * Passive parts are, e.g. walls, and other parts that won't move into other
-      * parts.
-      **/
+     * Passive parts are, e.g. walls, and other parts that won't move into other
+     * parts.
+     **/
     bool isActive;
     bool isSymmetric;
     std::string label;
@@ -35,6 +36,7 @@ class Collidable {
     virtual const std::vector<CollidablePart>& parts() const {
         return m_collidableParts;
     }
+    static bool collision(const Collidable&, const Collidable&);
 
   protected:
     virtual void updateCollidable() {

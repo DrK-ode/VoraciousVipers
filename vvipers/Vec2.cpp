@@ -18,11 +18,18 @@ Vec2& Vec2::normalize(double norm) {
 
 Vec2 Vec2::perpVec() const { return Vec2(-this->y, this->x); }
 
-Vec2 Vec2::projection(Vec2 v) const {
+double Vec2::projectionScalar(Vec2 v) const {
     double vAbs = v.abs();
-    if (vAbs == 0.)
+    if (vAbs < 1e-9)
+        return 0.;
+    return this->dot(v) / vAbs;
+}
+
+Vec2 Vec2::projectionVector(Vec2 v) const {
+    double v2 = v.dot(v);
+    if (v2 == 0.)
         return v;
-    return v * this->dot(v) / (vAbs * vAbs);
+    return v * this->dot(v) / v2;
 }
 
 }  // namespace VVipers
