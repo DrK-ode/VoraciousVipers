@@ -2,6 +2,7 @@
 #define VVIPER_VIPERPHYSICS_HPP
 
 #include <vector>
+#include <vvipers/Collidable.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
 
@@ -11,7 +12,7 @@ namespace VVipers {
  * Handles all aspects of the Viper that is not related to the graphical
  * representation.
  */
-class ViperPhysics {
+class ViperPhysics : public Collidable {
   public:
     ViperPhysics();
     /** @return current direction of the head. **/
@@ -38,16 +39,6 @@ class ViperPhysics {
     /** Updates state of the Viper. Should be called every frame. **/
     void update(const Time& elapsedTime);
 
-    const std::vector<Vec2>& headNodes() const { return m_headNodes; }
-    const std::vector<Vec2>& bodyNodes() const { return m_bodyNodes; }
-    const std::vector<Vec2>& tailNodes() const { return m_tailNodes; }
-    const std::vector<Vec2>& headEdges() const { return m_headEdges; }
-    const std::vector<Vec2>& bodyEdges() const { return m_bodyEdges; }
-    const std::vector<Vec2>& tailEdges() const { return m_tailEdges; }
-    const std::vector<Vec2>& headNormals() const { return m_headNormals; }
-    const std::vector<Vec2>& bodyNormals() const { return m_bodyNormals; }
-    const std::vector<Vec2>& tailNormals() const { return m_tailNormals; }
-
   private:
     static const Time s_headTemporalLength;
     static const Time s_bodyTemporalLength;
@@ -55,13 +46,11 @@ class ViperPhysics {
     TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
     void grow(const Time& elapsedTime);
-    void updateEdges(const std::vector<Vec2>& nodes, std::vector<Vec2>& edges);
-    void updateNormals(const std::vector<Vec2>& edges,
-                       std::vector<Vec2>& normals);
+
     void updateNodes();
     void updateNodes(const Time& timeFront, const Time& temporalLength,
                      const std::vector<Vec2>& relativePosistion,
-                     std::vector<Vec2>& nodeVector, uint32_t nSegments = 1);
+                     std::vector<Vec2>& nodeVector);
 
     static const double s_nominalSpeed;  // px/s
     double m_angle;  // degrees, clockwise since y-axis is downwards

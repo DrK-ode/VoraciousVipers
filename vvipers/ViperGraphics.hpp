@@ -20,7 +20,8 @@ class ViperGraphics : public sf::Drawable {
     void updateVertices(const std::vector<Vec2>& nodes,
                         const std::vector<Vec2>& relativePositions,
                         const sf::Texture& texture,
-                        std::vector<sf::Vertex>& vertices);
+                        std::vector<sf::Vertex>::iterator& vertices,
+                        int numberOfNodes, int segmentIndex = 0);
 
     // Atm, the same color will be applied to the whole viper
     sf::Color m_color;

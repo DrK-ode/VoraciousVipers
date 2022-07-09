@@ -1,6 +1,7 @@
 configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
 set(INC_FILES
+    Collidable.hpp
     config.hpp
     debug.hpp
     Controller.hpp
@@ -21,6 +22,7 @@ set(INC_FILES
 )
 
 set(SRC_FILES
+    Collidable.cpp
     Controller.cpp
     Game.cpp
     GameWindow.cpp
