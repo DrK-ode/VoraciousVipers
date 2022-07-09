@@ -108,6 +108,8 @@ void ViperPhysics::updateNodes() {
     // HEAD
     CollidablePart& head = m_collidableParts.front();
     head.label = "Head";
+    head.isActive = true;  // Head is the only part of the Viper that can move
+                           // into other parts.
     updateNodes(headFront, headLength, ViperSketch::headNodes(), head.nodes);
     // BODY
     if (numberOfBodySegments > 0) {
@@ -140,11 +142,9 @@ void ViperPhysics::updateNodes(const Time& timeFront,
     auto iterNode = nodeVector.begin();
     auto iterRel = relativePosition.cbegin();
     while (iterRel != relativePosition.end()) {
-        Time time =
-            timeFront - (*iterRel).y * temporalLength;
+        Time time = timeFront - (*iterRel).y * temporalLength;
         Vec2 mid = m_track.position(time);
-        Vec2 perp = m_track.direction(time).perpVec() *
-                         (width * (*iterRel).x);
+        Vec2 perp = m_track.direction(time).perpVec() * (width * (*iterRel).x);
         (*iterNode++) = mid + perp;
         ++iterRel;
     }

@@ -8,12 +8,17 @@ namespace VVipers {
 
 class CollidablePart {
   public:
-    CollidablePart() : isSymmetric(false) {}
+    CollidablePart() : isActive(false), isSymmetric(false) {}
     void updateEdgesAndNormals() {
         updateEdges();
         updateNormals();
     }
 
+    /** Only collisions involving at least one active colliding part are tried.
+      * Passive parts are, e.g. walls, and other parts that won't move into other
+      * parts.
+      **/
+    bool isActive;
     bool isSymmetric;
     std::string label;
     std::vector<Vec2> edges;
