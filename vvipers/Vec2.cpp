@@ -1,4 +1,5 @@
 #include <vvipers/Vec2.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -16,5 +17,12 @@ Vec2& Vec2::normalize(double norm) {
 }
 
 Vec2 Vec2::perpVec() const { return Vec2(-this->y, this->x); }
+
+Vec2 Vec2::projection(Vec2 v) const {
+    double vAbs = v.abs();
+    if (vAbs == 0.)
+        return v;
+    return v * this->dot(v) / (vAbs * vAbs);
+}
 
 }  // namespace VVipers
