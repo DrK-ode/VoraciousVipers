@@ -33,20 +33,25 @@ class CollidablePart {
 
 class Collidable {
   public:
+    Collidable() : m_hasActivePart(false) {}
     virtual const std::vector<CollidablePart>& parts() const {
         return m_collidableParts;
     }
-    static bool collision(const Collidable&, const Collidable&);
+    static std::vector< std::pair<CollidablePart const *, CollidablePart const *> > collision(const Collidable&, const Collidable&);
 
   protected:
     virtual void updateCollidable() {
         updateNodes();
-        for (auto& part : m_collidableParts)
+        for (auto& part : m_collidableParts) {
+            if (part.isActive)
+                m_hasActivePart = true;
             part.updateEdgesAndNormals();
+        }
     }
     virtual void updateNodes() = 0;
 
     std::vector<CollidablePart> m_collidableParts;
+    bool m_hasActivePart;
 };
 
 }  // namespace VVipers

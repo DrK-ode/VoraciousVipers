@@ -50,17 +50,20 @@ void CollidablePart::updateNormals() {
         normals[i] = edges[i].perpVec().normalize();
 }
 
-bool Collidable::collision(const Collidable& obj1, const Collidable& obj2) {
+std::vector<std::pair<CollidablePart const*, CollidablePart const*> >
+Collidable::collision(const Collidable& obj1, const Collidable& obj2) {
+    std::vector<std::pair<CollidablePart const*, CollidablePart const*> >
+        collidingParts;
     for (const auto& part1 : obj1.parts()) {
         for (const auto& part2 : obj2.parts()) {
-            if (part1.isActive || part2.isActive){
+            if (part1.isActive || part2.isActive) {
                 logInfo("is active", " ", part1.isActive, " ", part2.isActive);
                 if (CollidablePart::collision(part1, part2))
-                    return true;
+                    collidingParts.push_back(std::pair(&part1, &part2));
             }
         }
     }
-    return false;
+    return collidingParts;
 }
 
 }  // namespace VVipers

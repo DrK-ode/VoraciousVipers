@@ -107,18 +107,18 @@ TEST_F(CollidablePartTest, trianglePartsTest) {
 }
 
 TEST_F(CollidableTest, collisionTest) {
-    EXPECT_FALSE(Collidable::collision(obj1, obj2));
+    EXPECT_FALSE(Collidable::collision(obj1, obj2).size() > 0);
     obj1.getParts()[1].isActive = true;
-    EXPECT_FALSE(Collidable::collision(obj1, obj2));
+    EXPECT_FALSE(Collidable::collision(obj1, obj2).size() > 0);
     obj1.getParts()[1].isActive = false;
     obj1.getParts()[0].isActive = true;
-    EXPECT_TRUE(Collidable::collision(obj1, obj2));
+    EXPECT_TRUE(Collidable::collision(obj1, obj2).size() > 0);
     obj1.getParts()[0].isActive = false;
     obj2.getParts()[0].isActive = true;
-    EXPECT_FALSE(Collidable::collision(obj1, obj2));
+    EXPECT_FALSE(Collidable::collision(obj1, obj2).size() > 0);
     obj2.getParts()[0].isActive = false;
     obj2.getParts()[1].isActive = true;
-    EXPECT_TRUE(Collidable::collision(obj1, obj2));
+    EXPECT_TRUE(Collidable::collision(obj1, obj2).size() > 0);
 }
 
 }  // namespace
