@@ -18,6 +18,7 @@ Game::Game() {
         v->setup({400., 100.+300*i}, 0.-90*i, 5s);
         m_collisionDetector.registerCollidable(&v->getPhysicalViper());
     }
+    m_collisionDetector.addObserver(&m_GM);
 }
 
 Game::~Game() {

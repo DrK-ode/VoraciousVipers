@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <vvipers/CollisionDetector.hpp>
+#include <vvipers/GameMaster.hpp>
 #include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
@@ -17,6 +18,7 @@ class Game : public sf::Drawable {
     void update(Time elapsedTime);
 
   private:
+    GameMaster m_GM;
     CollisionDetector m_collisionDetector;
     std::vector<Controller*> m_controllers;
     std::vector<Player*> m_players;
