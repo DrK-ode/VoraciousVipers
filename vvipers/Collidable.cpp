@@ -4,12 +4,12 @@
 
 namespace VVipers {
 
-void projectionsMinMax(const std::vector<Vec2>& vectors, const Vec2& axis,
+void projectionsMinMax(const CollidablePart& part, const Vec2& axis,
                        double& minimum, double& maximum) {
     minimum = std::numeric_limits<double>::max();
     maximum = std::numeric_limits<double>::lowest();
-    for (const auto& v : vectors) {
-        double projection = v.projectionScalar(axis);
+    for (int i = 0; i < part.numberOfNodes(); ++i) {
+        double projection = part.node(i).projectionScalar(axis);
         minimum = projection < minimum ? projection : minimum;
         maximum = projection > maximum ? projection : maximum;
     }
@@ -17,13 +17,13 @@ void projectionsMinMax(const std::vector<Vec2>& vectors, const Vec2& axis,
 
 bool CollidablePart::collision(const CollidablePart& part1,
                                const CollidablePart& part2) {
-    const auto axes = part1.normals.size() < part2.normals.size()
-                          ? part1.normals
-                          : part2.normals;
+    const auto axes = part1.m_normals.size() < part2.m_normals.size()
+                          ? part1.m_normals
+                          : part2.m_normals;
     for (auto& axis : axes) {
         double min1, max1, min2, max2;
-        projectionsMinMax(part1.nodes, axis, min1, max1);
-        projectionsMinMax(part2.nodes, axis, min2, max2);
+        projectionsMinMax(part1, axis, min1, max1);
+        projectionsMinMax(part2, axis, min2, max2);
         if (max1 < min2 || max2 < min1)
             return false;
     }
@@ -32,22 +32,21 @@ bool CollidablePart::collision(const CollidablePart& part1,
 
 void CollidablePart::updateEdges() {
     // Stores the edges in clockwise order starting from the top-right
-    edges.resize(nodes.size());
-    auto node1 = nodes.cbegin();
+    auto node1 = m_nodes.cbegin();
     auto node2 = node1 + 1;
-    auto edge = edges.begin();
-    while (node2 != nodes.end())
+    auto edge = m_edges.begin();
+    while (node2 != m_nodes.end())
         *edge++ = *node2++ - *node1++;
-    *edge = nodes.front() - nodes.back();
+    *edge = m_nodes.front() - m_nodes.back();
 }
 
 void CollidablePart::updateNormals() {
-    if (isSymmetric)
-        normals.resize(edges.size() / 2);
+    if (m_isSymmetric)
+        m_normals.resize(m_edges.size() / 2);
     else
-        normals.resize(edges.size());
-    for (int i = 0; i < normals.size(); ++i)
-        normals[i] = edges[i].perpVec().normalize();
+        m_normals.resize(m_edges.size());
+    for (int i = 0; i < m_normals.size(); ++i)
+        m_normals[i] = m_edges[i].perpVec().normalize();
 }
 
 std::vector<std::pair<CollidablePart const*, CollidablePart const*> >
@@ -56,8 +55,8 @@ Collidable::collision(const Collidable& obj1, const Collidable& obj2) {
         collidingParts;
     for (const auto& part1 : obj1.parts()) {
         for (const auto& part2 : obj2.parts()) {
-            if (part1.isActive || part2.isActive) {
-                logInfo("is active", " ", part1.isActive, " ", part2.isActive);
+            if (part1.active() || part2.active()) {
+                logInfo("is active", " ", part1.active(), " ", part2.active());
                 if (CollidablePart::collision(part1, part2))
                     collidingParts.push_back(std::pair(&part1, &part2));
             }

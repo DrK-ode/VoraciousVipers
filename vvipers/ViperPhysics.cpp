@@ -107,45 +107,45 @@ void ViperPhysics::updateNodes() {
     m_collidableParts.resize(numberOfBodySegments + 2);
     // HEAD
     CollidablePart& head = m_collidableParts.front();
-    head.label = "Head";
-    head.isActive = true;  // Head is the only part of the Viper that can move
+    head.label("ViperHead");
+    head.active(true);  // Head is the only part of the Viper that can move
                            // into other parts.
-    updateNodes(headFront, headLength, ViperSketch::headNodes(), head.nodes);
+    updateNodes(headFront, headLength, ViperSketch::headNodes(), head);
     // BODY
     if (numberOfBodySegments > 0) {
         const Time segmentLength = bodyLength / numberOfBodySegments;
         for (int i = 0; i < numberOfBodySegments; ++i) {
             CollidablePart& bodyPart = m_collidableParts[i + 1];
-            bodyPart.label = "Body";
+            bodyPart.label("ViperBody");
             updateNodes(bodyFront - segmentLength * i, segmentLength,
-                        ViperSketch::bodyNodes(), bodyPart.nodes);
+                        ViperSketch::bodyNodes(), bodyPart);
         }
     }
     // TAIL
     CollidablePart& tail = m_collidableParts.back();
-    tail.label = "Tail";
-    updateNodes(tailFront, tailLength, ViperSketch::tailNodes(), tail.nodes);
+    tail.label("ViperTail");
+    updateNodes(tailFront, tailLength, ViperSketch::tailNodes(), tail);
 }
 
 // Helper function since the prepare methods share most of the code
 void ViperPhysics::updateNodes(const Time& timeFront,
                                const Time& temporalLength,
                                const std::vector<Vec2>& relativePosition,
-                               std::vector<Vec2>& nodeVector) {
+                               CollidablePart& part) {
     const size_t nVertices = relativePosition.size();
 
-    nodeVector.resize(nVertices);
+    part.resize(nVertices);
 
     double width = 20;  // TODO:Adapt width depending on how streched the
                         // segment is, i.e., dL/dt
 
-    auto iterNode = nodeVector.begin();
+    int nodeIndex = 0;
     auto iterRel = relativePosition.cbegin();
     while (iterRel != relativePosition.end()) {
         Time time = timeFront - (*iterRel).y * temporalLength;
         Vec2 mid = m_track.position(time);
         Vec2 perp = m_track.direction(time).perpVec() * (width * (*iterRel).x);
-        (*iterNode++) = mid + perp;
+        part.node( nodeIndex++, mid + perp );
         ++iterRel;
     }
 }

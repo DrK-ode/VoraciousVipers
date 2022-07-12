@@ -50,7 +50,7 @@ class ViperPhysics : public Collidable {
     void updateNodes();
     void updateNodes(const Time& timeFront, const Time& temporalLength,
                      const std::vector<Vec2>& relativePosistion,
-                     std::vector<Vec2>& nodeVector);
+                     CollidablePart& part);
 
     static const double s_nominalSpeed;  // px/s
     double m_angle;  // degrees, clockwise since y-axis is downwards
@@ -60,15 +60,6 @@ class ViperPhysics : public Collidable {
     Time m_growth;
     TrackPoint* m_head;
     Track m_track;
-    std::vector<Vec2> m_headNodes;
-    std::vector<Vec2> m_bodyNodes;
-    std::vector<Vec2> m_tailNodes;
-    std::vector<Vec2> m_headEdges;
-    std::vector<Vec2> m_bodyEdges;
-    std::vector<Vec2> m_tailEdges;
-    std::vector<Vec2> m_headNormals;
-    std::vector<Vec2> m_bodyNormals;
-    std::vector<Vec2> m_tailNormals;
 };
 
 }  // namespace VVipers

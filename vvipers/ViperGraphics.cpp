@@ -68,16 +68,16 @@ void ViperGraphics::update(const ViperPhysics& viperPhys) {
     auto tailVertex = m_tailVertices.begin();
 
     for (const auto& part : viperPhys.parts()) {
-        if (part.label == "Head") {
-            updateVertices(part.nodes, ViperSketch::headNodes(), m_headTexture,
+        if (part.label() == "ViperHead") {
+            updateVertices(part, ViperSketch::headNodes(), m_headTexture,
                            headVertex, numberOfHeadNodes);
-        } else if (part.label == "Body") {
-            updateVertices(part.nodes, ViperSketch::bodyNodes(), m_bodyTexture,
+        } else if (part.label() == "ViperBody") {
+            updateVertices(part, ViperSketch::bodyNodes(), m_bodyTexture,
                            bodyVertex, numberOfBodyNodes, bodyIndex++);
             // All subsequent body segments will add two less vertices
             numberOfBodyNodes = ViperSketch::bodyNodes().size() - 2;
-        } else if (part.label == "Tail") {
-            updateVertices(part.nodes, ViperSketch::tailNodes(), m_tailTexture,
+        } else if (part.label() == "ViperTail") {
+            updateVertices(part, ViperSketch::tailNodes(), m_tailTexture,
                            tailVertex, numberOfTailNodes);
         }
     }
@@ -85,33 +85,33 @@ void ViperGraphics::update(const ViperPhysics& viperPhys) {
 
 // Helper function since the prepare methods share most of the code
 void ViperGraphics::updateVertices(
-    const std::vector<Vec2>& nodes, const std::vector<Vec2>& relativePositions,
+    const CollidablePart& part, const std::vector<Vec2>& relativePositions,
     const sf::Texture& texture, std::vector<sf::Vertex>::iterator& iterVertex,
     int numberOfNodes, int segmentIndex) {
     Vec2 textureSize = texture.getSize();
 
-    auto iterNodeRight = nodes.cbegin();
-    auto iterNodeLeft = nodes.crbegin();
+    int nodeIndexRight = 0;
+    int nodeIndexLeft = part.numberOfNodes() - 1;
     auto iterRelRight = relativePositions.cbegin();
     auto iterRelLeft = relativePositions.crbegin();
 
     for (int i = numberOfNodes; i < relativePositions.size(); i += 2) {
         ++iterRelRight;
         ++iterRelLeft;
-        ++iterNodeRight;
-        ++iterNodeLeft;
+        ++nodeIndexRight;
+        --nodeIndexLeft;
     }
 
     while (iterRelRight < iterRelLeft.base()) {
-        iterVertex->position = sf::Vector2f(*iterNodeLeft++);
-        iterVertex->color = m_color;
-        iterVertex->texCoords =
-            (Vec2(0.5f, segmentIndex) + *iterRelLeft++) * textureSize;
-        ++iterVertex;
-        iterVertex->position = sf::Vector2f(*iterNodeRight++);
+        iterVertex->position = sf::Vector2f(part.node(nodeIndexRight++));
         iterVertex->color = m_color;
         iterVertex->texCoords =
             (Vec2(0.5f, segmentIndex) + *iterRelRight++) * textureSize;
+        ++iterVertex;
+        iterVertex->position = sf::Vector2f(part.node(nodeIndexLeft--));
+        iterVertex->color = m_color;
+        iterVertex->texCoords =
+            (Vec2(0.5f, segmentIndex) + *iterRelLeft++) * textureSize;
         ++iterVertex;
     }
 }
