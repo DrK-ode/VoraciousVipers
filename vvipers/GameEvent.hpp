@@ -8,8 +8,9 @@ namespace VVipers {
 
 class GameEvent {
   public:
+    virtual GameEvent* clone() const = 0;
     std::string type() const { return m_type; }
-    virtual ~GameEvent() {};
+    virtual ~GameEvent(){};
 
   protected:
     GameEvent(std::string type) : m_type(type) {}
@@ -23,6 +24,7 @@ class CollisionEvent : public GameEvent {
     CollisionEvent(const Collidable* cA, const CollidablePart* pA,
                    const Collidable* cB, const CollidablePart* pB)
         : GameEvent("Collision"), A(cA), B(cB), A_part(pA), B_part(pB) {}
+    GameEvent* clone() const override { return new CollisionEvent(*this); }
     const Collidable* const A;
     const Collidable* const B;
     const CollidablePart* const A_part;
@@ -30,8 +32,9 @@ class CollisionEvent : public GameEvent {
 };
 
 class SteeringEvent : public GameEvent {
-    public:
-    SteeringEvent( double dA ) : GameEvent("Steering"), deltaAngle(dA) {}
+  public:
+    SteeringEvent(double dA) : GameEvent("Steering"), deltaAngle(dA) {}
+    GameEvent* clone() const override { return new SteeringEvent(*this); }
     const double deltaAngle;
 };
 
