@@ -8,7 +8,7 @@ namespace VVipers {
 
 class Observer {
   public:
-    virtual void onNotify(const GameEvent& event) {}
+    virtual void onNotify(const GameEvent& event) = 0;
 };
 
 class Observable {
@@ -17,7 +17,7 @@ class Observable {
     void removeObserver(Observer* observer);
 
   protected:
-    void notify(const GameEvent event) const {
+    void notify(const GameEvent& event) const {
         for (auto& observer : m_observers)
             observer->onNotify(event);
     }

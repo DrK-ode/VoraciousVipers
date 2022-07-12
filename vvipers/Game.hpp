@@ -1,7 +1,8 @@
 #ifndef VVIPERS_GAME_HPP
 #define VVIPERS_GAME_HPP
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <vvipers/CollisionDetector.hpp>
 #include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
@@ -16,7 +17,10 @@ class Game : public sf::Drawable {
     void update(Time elapsedTime);
 
   private:
-    std::map<Player*, Viper*> m_players;
+    CollisionDetector m_collisionDetector;
+    std::vector<Controller*> m_controllers;
+    std::vector<Player*> m_players;
+    std::vector<Viper*> m_vipers;
 };
 
 }  // namespace VVipers

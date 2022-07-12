@@ -9,6 +9,7 @@ namespace VVipers {
 class GameEvent {
   public:
     std::string type() const { return m_type; }
+    virtual ~GameEvent() {};
 
   protected:
     GameEvent(std::string type) : m_type(type) {}
@@ -26,6 +27,12 @@ class CollisionEvent : public GameEvent {
     const Collidable* const B;
     const CollidablePart* const A_part;
     const CollidablePart* const B_part;
+};
+
+class SteeringEvent : public GameEvent {
+    public:
+    SteeringEvent( double dA ) : GameEvent("Steering"), deltaAngle(dA) {}
+    const double deltaAngle;
 };
 
 }  // namespace VVipers
