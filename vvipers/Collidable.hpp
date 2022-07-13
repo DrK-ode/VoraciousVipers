@@ -6,41 +6,39 @@
 
 namespace VVipers {
 
-class CollidablePart {
+class CollidablePartInterface {
   public:
-    CollidablePart()
+    CollidablePartInterface()
         : m_hasBeenModified(true), m_isActive(false), m_isSymmetric(false) {}
+    /** Only set needed parts as active for performance reasons. **/
     void active(bool active) { m_isActive = active; }
+    /** An active object might move in to things. A passive object will not be
+     * checked for collisions with other passive objects. **/
     bool active() const { return m_isActive; }
+    /** A label helps identify the part in a multi-part object **/
     void label(const std::string& label) { m_label = label; }
+    /** A label helps identify the part in a multi-part object **/
     std::string label() const { return m_label; }
-    size_t numberOfNodes() const { return m_nodes.size(); }
-    void symmetric(bool symmetric) { m_isSymmetric = symmetric; }
-    bool symmetric() const { return m_isSymmetric; }
-    void resize(size_t s) {
-        m_edges.resize(s);
-        m_nodes.resize(s);
-        m_normals.resize(s);
-    }
-    void node(int index, const Vec2& node) {
-        m_nodes[index] = node;
-        m_hasBeenModified = true;
-    }
+    /** Only getter is available from the base class **/
     Vec2 node(int index) const { return m_nodes[index]; }
-    void update() {
-        if (m_hasBeenModified) {
-            updateEdges();
-            updateNormals();
-            m_hasBeenModified = false;
-        }
-    }
-    static bool collision(const CollidablePart&, const CollidablePart&);
-
+    /** The number of nodes will depend on the derived class **/
+    size_t numberOfNodes() const { return m_nodes.size(); }
+    /** If the part is symmetric only half the number of normals are needed. **/
+    bool symmetric() const { return m_isSymmetric; }
+    /** the update method must make sure that the edges and normals (and
+     * possibly other members) are in sync with the nodes. **/
+    virtual void update();
     /** Only collisions involving at least one active colliding part are tried.
      * Passive parts are, e.g. walls, and other parts that won't move into other
-     * parts.
-     **/
+     * parts. **/
+    static bool collision(const CollidablePartInterface*,
+                          const CollidablePartInterface*);
+
   protected:
+    void resize(size_t s);
+    void node(int index, const Vec2& node);
+    void symmetric(bool symmetric);
+
     bool m_hasBeenModified;
     bool m_isActive;
     bool m_isSymmetric;
@@ -53,32 +51,44 @@ class CollidablePart {
     virtual void updateNormals();
 };
 
-class CollidableRect : public CollidablePart {
+class CollidableNodes : public CollidablePartInterface {
   public:
-    CollidableRect(const Vec2& pos, const Vec2& size);
+    using CollidablePartInterface::node;
+    using CollidablePartInterface::resize;
+    using CollidablePartInterface::symmetric;
+};
+
+class CollidableRect : public CollidableNodes {
+  public:
+    CollidableRect(const Vec2& pos, const Vec2& size,
+                   std::string = "Rectangle");
+    void move(const Vec2& delta) { m_position += delta; }
+    Vec2 size() const { return m_size; }
+    void size(const Vec2& size) { m_size = size; }
+    Vec2 position() const { return m_position; }
+    void position(const Vec2& position) { m_position = position; }
+    void update();
+
+  protected:
+    Vec2 m_position;
+    Vec2 m_size;
 };
 
 class Collidable {
   public:
     Collidable() : m_hasActivePart(false) {}
-    virtual const std::vector<CollidablePart>& parts() const {
+    virtual const std::vector<CollidablePartInterface*>& parts() const {
         return m_collidableParts;
     }
-    static std::vector<std::pair<CollidablePart const*, CollidablePart const*> >
+    static std::vector<std::pair<const CollidablePartInterface*,
+                                 const CollidablePartInterface*> >
     collision(const Collidable&, const Collidable&);
 
   protected:
-    virtual void updateCollidable() {
-        updateNodes();
-        for (auto& part : m_collidableParts) {
-            if (part.active())
-                m_hasActivePart = true;
-            part.update();
-        }
-    }
+    virtual void updateCollidable();
     virtual void updateNodes() = 0;
 
-    std::vector<CollidablePart> m_collidableParts;
+    std::vector<CollidablePartInterface*> m_collidableParts;
     bool m_hasActivePart;
 };
 

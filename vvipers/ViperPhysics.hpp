@@ -50,7 +50,7 @@ class ViperPhysics : public Collidable {
     void updateNodes();
     void updateNodes(const Time& timeFront, const Time& temporalLength,
                      const std::vector<Vec2>& relativePosistion,
-                     CollidablePart& part);
+                     CollidableNodes& part);
 
     static const double s_nominalSpeed;  // px/s
     double m_angle;  // degrees, clockwise since y-axis is downwards
@@ -60,6 +60,11 @@ class ViperPhysics : public Collidable {
     Time m_growth;
     TrackPoint* m_head;
     Track m_track;
+    /** Keeping a separate vector for the CollidableNodes rather then directly
+     * storing the in Collidable::m_collidableParts avoid a lot of casting as
+     * well as making it easier not to recreate the parts every update. Each
+     * updateNodes() will end by copying all ptrs to m_collidableParts **/
+    std::vector<CollidableNodes> m_bodyParts;
 };
 
 }  // namespace VVipers

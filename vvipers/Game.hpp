@@ -4,6 +4,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <vvipers/CollisionDetector.hpp>
 #include <vvipers/GameMaster.hpp>
+#include <vvipers/Level.hpp>
 #include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
@@ -20,6 +21,7 @@ class Game : public sf::Drawable {
   private:
     GameMaster m_GM;
     CollisionDetector m_collisionDetector;
+    Level* m_currentLevel;
     std::vector<Controller*> m_controllers;
     std::vector<Player*> m_players;
     std::vector<Viper*> m_vipers;

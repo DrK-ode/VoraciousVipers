@@ -67,17 +67,18 @@ void ViperGraphics::update(const ViperPhysics& viperPhys) {
     m_tailVertices.resize(numberOfTailNodes);
     auto tailVertex = m_tailVertices.begin();
 
-    for (const auto& part : viperPhys.parts()) {
-        if (part.label() == "ViperHead") {
-            updateVertices(part, ViperSketch::headNodes(), m_headTexture,
+    for (const auto p : viperPhys.parts()) {
+        auto part = static_cast<const CollidableNodes*>(p);
+        if (part->label() == "ViperHead") {
+            updateVertices(*part, ViperSketch::headNodes(), m_headTexture,
                            headVertex, numberOfHeadNodes);
-        } else if (part.label() == "ViperBody") {
-            updateVertices(part, ViperSketch::bodyNodes(), m_bodyTexture,
+        } else if (part->label() == "ViperBody") {
+            updateVertices(*part, ViperSketch::bodyNodes(), m_bodyTexture,
                            bodyVertex, numberOfBodyNodes, bodyIndex++);
             // All subsequent body segments will add two less vertices
             numberOfBodyNodes = ViperSketch::bodyNodes().size() - 2;
-        } else if (part.label() == "ViperTail") {
-            updateVertices(part, ViperSketch::tailNodes(), m_tailTexture,
+        } else if (part->label() == "ViperTail") {
+            updateVertices(*part, ViperSketch::tailNodes(), m_tailTexture,
                            tailVertex, numberOfTailNodes);
         }
     }
@@ -85,7 +86,7 @@ void ViperGraphics::update(const ViperPhysics& viperPhys) {
 
 // Helper function since the prepare methods share most of the code
 void ViperGraphics::updateVertices(
-    const CollidablePart& part, const std::vector<Vec2>& relativePositions,
+    const CollidableNodes& part, const std::vector<Vec2>& relativePositions,
     const sf::Texture& texture, std::vector<sf::Vertex>::iterator& iterVertex,
     int numberOfNodes, int segmentIndex) {
     Vec2 textureSize = texture.getSize();

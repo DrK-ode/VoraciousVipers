@@ -21,14 +21,14 @@ class GameEvent {
 
 class CollisionEvent : public GameEvent {
   public:
-    CollisionEvent(const Collidable* cA, const CollidablePart* pA,
-                   const Collidable* cB, const CollidablePart* pB)
+    CollisionEvent(const Collidable* cA, const CollidablePartInterface* pA,
+                   const Collidable* cB, const CollidablePartInterface* pB)
         : GameEvent("Collision"), A(cA), B(cB), A_part(pA), B_part(pB) {}
     GameEvent* clone() const override { return new CollisionEvent(*this); }
     const Collidable* const A;
     const Collidable* const B;
-    const CollidablePart* const A_part;
-    const CollidablePart* const B_part;
+    const CollidablePartInterface* const A_part;
+    const CollidablePartInterface* const B_part;
 };
 
 class SteeringEvent : public GameEvent {

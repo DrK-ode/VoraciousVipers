@@ -104,9 +104,9 @@ void ViperPhysics::updateNodes() {
     Time bodyFront = headFront - headLength;
     Time tailFront = bodyFront - bodyLength;
 
-    m_collidableParts.resize(numberOfBodySegments + 2);
+    m_bodyParts.resize(numberOfBodySegments + 2);
     // HEAD
-    CollidablePart& head = m_collidableParts.front();
+    CollidableNodes& head = m_bodyParts.front();
     head.label("ViperHead");
     head.active(true);  // Head is the only part of the Viper that can move
                            // into other parts.
@@ -115,23 +115,28 @@ void ViperPhysics::updateNodes() {
     if (numberOfBodySegments > 0) {
         const Time segmentLength = bodyLength / numberOfBodySegments;
         for (int i = 0; i < numberOfBodySegments; ++i) {
-            CollidablePart& bodyPart = m_collidableParts[i + 1];
+            CollidableNodes& bodyPart = m_bodyParts[i + 1];
             bodyPart.label("ViperBody");
             updateNodes(bodyFront - segmentLength * i, segmentLength,
                         ViperSketch::bodyNodes(), bodyPart);
         }
     }
     // TAIL
-    CollidablePart& tail = m_collidableParts.back();
+    CollidableNodes& tail = m_bodyParts.back();
     tail.label("ViperTail");
     updateNodes(tailFront, tailLength, ViperSketch::tailNodes(), tail);
+    // Copy the pointers over to the Collidable:: container
+    m_collidableParts.resize( m_bodyParts.size() );
+    int i = 0;
+    for( auto& p : m_bodyParts )
+        m_collidableParts[i++] = &p;
 }
 
 // Helper function since the prepare methods share most of the code
 void ViperPhysics::updateNodes(const Time& timeFront,
                                const Time& temporalLength,
                                const std::vector<Vec2>& relativePosition,
-                               CollidablePart& part) {
+                               CollidableNodes& part) {
     const size_t nVertices = relativePosition.size();
 
     part.resize(nVertices);

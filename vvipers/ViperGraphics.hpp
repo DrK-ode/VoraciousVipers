@@ -17,7 +17,7 @@ class ViperGraphics : public sf::Drawable {
 
   private:
     void loadTextures();
-    void updateVertices(const CollidablePart& part,
+    void updateVertices(const CollidableNodes& part,
                         const std::vector<Vec2>& relativePositions,
                         const sf::Texture& texture,
                         std::vector<sf::Vertex>::iterator& vertices,

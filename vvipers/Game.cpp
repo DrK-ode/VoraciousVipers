@@ -18,6 +18,8 @@ Game::Game() {
         v->setup({400., 100.+300*i}, 0.-90*i, 5s);
         m_collisionDetector.registerCollidable(&v->getPhysicalViper());
     }
+    m_currentLevel = new Level("The first and only level");
+    m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(&m_GM);
 }
 
@@ -32,6 +34,7 @@ Game::~Game() {
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw( *m_currentLevel, states );
     for (const auto& v : m_vipers)
         target.draw(*v, states);
 }
