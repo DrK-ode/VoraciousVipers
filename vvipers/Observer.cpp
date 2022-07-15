@@ -2,8 +2,8 @@
 
 namespace VVipers {
 
-Observable::~Observable(){
-    for( auto observer : m_observers )
+Observable::~Observable() {
+    for (auto observer : m_observers)
         removeObserver(observer.first);
 }
 
@@ -24,8 +24,10 @@ void Observable::notify(const GameEvent* event) const {
             observer.first->onNotify(event);
 }
 
-Observer::~Observer(){
-    for( auto observable : m_observing )
+Observer::~Observer() {
+    // Need to iterate over a copy since the iterator might become invalidated
+    auto clone = m_observing;
+    for (auto observable : clone)
         observable->removeObserver(this);
 }
 
