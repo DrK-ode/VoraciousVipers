@@ -14,8 +14,9 @@ class Controller;
 class GameEvent {
   public:
     enum class EventType {
-      Application,
+        Application,
         Collision,
+        Destroyed,
         Keyboard,
         Mouse,
         Steering,
@@ -35,8 +36,8 @@ class GameEvent {
 
 class ApplicationEvent : public GameEvent {
   public:
-  enum class ApplicationEventType{Exit};
-    ApplicationEvent( ApplicationEventType type)
+    enum class ApplicationEventType { Exit };
+    ApplicationEvent(ApplicationEventType type)
         : GameEvent(EventType::Application), eventType(type) {}
     GameEvent* clone() const override { return new ApplicationEvent(*this); }
     const ApplicationEventType eventType;
@@ -56,6 +57,14 @@ class CollisionEvent : public GameEvent {
     const Collidable* const B;
     const CollidablePartInterface* const A_part;
     const CollidablePartInterface* const B_part;
+};
+
+class DestroyedEvent : public GameEvent {
+  public:
+    DestroyedEvent(const void* optr)
+        : GameEvent(EventType::Destroyed), objectPtr(optr) {}
+    GameEvent* clone() const override { return new DestroyedEvent(*this); }
+    const void* objectPtr;
 };
 
 class KeyboardEvent : public GameEvent {
