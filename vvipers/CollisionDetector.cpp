@@ -13,7 +13,8 @@ void CollisionDetector::checkForCollisions() const {
             const Collidable* B = *c2;
             const auto& partCollisions = Collidable::collision(*A, *B);
             for ( auto& partCollision : partCollisions ){
-                notify( CollisionEvent( A, partCollision.first, B, partCollision.second ) );
+                CollisionEvent event( A, partCollision.first, B, partCollision.second );
+                notify( &event );
             }
             ++c2;
         }

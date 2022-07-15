@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <vvipers/Collidable.hpp>
+#include <vvipers/GameEvent.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
 
@@ -32,6 +33,8 @@ class ViperPhysics : public Collidable {
     void setup(const Vec2& from, double angle, const Time& length);
     /** @return current speed. **/
     double speed() const { return m_speed; }
+    // Adjust speed, angle, etc. according to the SteeringEvent
+    void steer( const SteeringEvent* orders );
     /** The temporal length of the Viper.
      * It is the time it takes for the tail to reach the current position of the
      * head. **/

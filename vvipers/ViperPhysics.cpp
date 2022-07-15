@@ -83,6 +83,10 @@ void ViperPhysics::grow(const Time& elapsedTime) {
     m_growth -= actualGrowth;
 }
 
+void ViperPhysics::steer( const SteeringEvent* orders ){
+    m_angle += orders->deltaAngle;
+}
+
 void ViperPhysics::update(const Time& elapsedTime) {
     m_head = createNextHeadTrackPoint(elapsedTime);
     grow(elapsedTime);

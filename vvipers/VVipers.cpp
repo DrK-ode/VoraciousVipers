@@ -7,14 +7,10 @@
 namespace VVipers {
 
 VVipers::VVipers() {
-    m_window = new GameWindow;
-    m_game = new Game;
+    m_window.addObserver(&m_game, {GameEvent::EventType::Window, GameEvent::EventType::Keyboard});
 }
 
-VVipers::~VVipers() {
-    delete m_window;
-    delete m_game;
-}
+VVipers::~VVipers() {}
 
 void VVipers::startGame() {
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
@@ -29,11 +25,11 @@ void VVipers::startGame() {
     Stopwatch clock;
     clock.start();
     bool firstFrame = true;
-    while (m_window->isOpen()) {
+    while (!m_game.exit()) {
         tickDuration = clock.restart();
 
         // If not first tick
-        if ( !firstFrame ) {
+        if (!firstFrame) {
             // Analyze last event
             debtDuration = frameDuration - tickDuration;
             frameDuration = nominalFrameDuration + debtDuration;
@@ -58,22 +54,18 @@ void VVipers::startGame() {
         }
         debugDuration = clock.split();
 
-        if ( !firstFrame )
-            m_game->update(tickDuration);
+        if (!firstFrame)
+            m_game.update(tickDuration);
 
         updateDuration = clock.split();
 
-        sf::Event event;
-        while (m_window->pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                m_window->close();
-        }
+        m_window.processEvents();
 
         eventDuration = clock.split();
 
-        m_window->clear(sf::Color::Black);
-        m_window->draw(*m_game);
-        m_window->display();
+        m_window.clear(sf::Color::Black);
+        m_window.draw(m_game);
+        m_window.display();
 
         drawDuration = clock.split();
         sleepDuration =

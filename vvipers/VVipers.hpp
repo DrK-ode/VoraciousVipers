@@ -23,8 +23,8 @@ class VVipers {
     void startGame();
 
   private:
-    GameWindow* m_window;
-    Game* m_game;
+    GameWindow m_window;
+    Game m_game;
 };
 
 }  // namespace VVipers
