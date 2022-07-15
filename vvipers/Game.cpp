@@ -93,14 +93,6 @@ void Game::onNotify(const GameEvent* event) {
             }
             break;
         }
-        case GameEvent::EventType::Steering: {
-            const SteeringEvent* steeringEvent =
-                static_cast<const SteeringEvent*>(event);
-            Viper* viper = belongsTo(steeringEvent->controller);
-            if (viper)
-                viper->getPhysicalViper().steer(steeringEvent);
-            break;
-        }
         case GameEvent::EventType::Window: {
             switch (static_cast<const WindowEvent*>(event)->eventType) {
                 case sf::Event::EventType::Closed: {
@@ -112,12 +104,14 @@ void Game::onNotify(const GameEvent* event) {
             }
             break;
         }
-        default:
+        default: {
+            // Otherwise save it for later
+            m_eventsToBeProcessed.insert(
+                std::pair<GameEvent::EventType, GameEvent*>(event->type(),
+                                                            event->clone()));
             break;
+        }
     }
-    // Otherwise save it for later
-    m_eventsToBeProcessed.insert(std::pair<GameEvent::EventType, GameEvent*>(
-        event->type(), event->clone()));
 }
 
 void Game::processEvents() {
@@ -130,7 +124,13 @@ void Game::processEvents() {
     auto [beginSteeringEvents, endSteeringEvent] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);
     for (auto iter = beginSteeringEvents; iter != endSteeringEvent; ++iter) {
-        // Do stuff
+        // In the future different event might be combined and/or altered before
+        // sending them to the viper.
+        const SteeringEvent* steeringEvent =
+            static_cast<const SteeringEvent*>(iter->second);
+        Viper* viper = belongsTo(steeringEvent->controller);
+        if (viper)
+            viper->getPhysicalViper().steer(steeringEvent);
     }
     // Delete fully processed events?
     // For now just delete all...
