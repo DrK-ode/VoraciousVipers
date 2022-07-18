@@ -223,15 +223,15 @@ void Viper::updateBody(ViperPart part, const Time& timeFront,
     // Prepare CollisionParts
     switch (part) {
         case ViperPart::Head: {
-            body->assignBodyParts(0, 4, "ViperTip", 4, 0, true);
-            body->assignBodyParts(2, body->size() - 2, "ViperHead", 4, 2);
+            body->assignBodyParts(0, 4, 4, "ViperTip", 0, true);
+            body->assignBodyParts(2, body->size() - 2, 4, "ViperHead", 2);
             break;
         }
         case ViperPart::Body:
         case ViperPart::Tail: {
             body->assignBodyParts(
-                0, body->size(),
-                (part == ViperPart::Body) ? "ViperBody" : "ViperTail", 4, 2);
+                0, body->size(), 4,
+                (part == ViperPart::Body) ? "ViperBody" : "ViperTail", 2);
             break;
         }
     }

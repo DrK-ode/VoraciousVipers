@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <vvipers/CollisionBody.hpp>
+#include <vvipers/BodyPart.hpp>
+#include <vvipers/Collidable.hpp>
 #include <vvipers/debug.hpp>
 
 using namespace VVipers;

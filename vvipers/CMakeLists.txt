@@ -12,9 +12,10 @@ set(INC_FILES
     GameEvent.hpp
     GameWindow.hpp
     Level.hpp
+    Math.hpp
     Observer.hpp
     Player.hpp
-    Math.hpp
+    RectBody.hpp
     Vec2.hpp
     Viper.hpp
     ViperSketch.hpp
@@ -35,6 +36,7 @@ set(SRC_FILES
     Level.cpp
     Observer.cpp
     Player.cpp
+    RectBody.cpp
     Vec2.cpp
     Viper.cpp
     ViperSketch.cpp

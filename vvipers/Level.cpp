@@ -1,39 +1,50 @@
+#include <SFML/Graphics/RenderTarget.hpp>
 #include <vvipers/Level.hpp>
 #include <vvipers/debug.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
+#include <vvipers/RectBody.hpp>
 
 namespace VVipers {
 
+Level::Level(std::string name) : m_name(name) { constructLevel(); }
+
+Level::~Level() {
+    for (auto body : m_collisionBodies)
+        delete body;
+}
+
+std::vector<const CollisionBody*> Level::collisionBodies() const {
+    return m_collisionBodies;
+}
+
 void Level::constructLevel() {
-    m_collisionBody.resize(16);
+    RectBody* body;
 
-    m_collisionBody.vertex(0, sf::Vertex(Vec2(0, 0), sf::Color::Red));
-    m_collisionBody.vertex(1, sf::Vertex(Vec2(800, 0), sf::Color::Red));
-    m_collisionBody.vertex(2, sf::Vertex(Vec2(800, 5), sf::Color::Red));
-    m_collisionBody.vertex(3, sf::Vertex(Vec2(0, 5), sf::Color::Red));
+    m_collisionBodies.push_back(body = new RectBody(Vec2(0, 0), Vec2(800, 5)));
+    body->setColor(sf::Color::Red);
+    body->setBodyPart("TopWall");
 
-    m_collisionBody.vertex(4, sf::Vertex(Vec2(0, 5), sf::Color::Red));
-    m_collisionBody.vertex(5, sf::Vertex(Vec2(5, 5), sf::Color::Red));
-    m_collisionBody.vertex(6, sf::Vertex(Vec2(5, 595), sf::Color::Red));
-    m_collisionBody.vertex(7, sf::Vertex(Vec2(0, 595), sf::Color::Red));
+    m_collisionBodies.push_back(body =
+                                    new RectBody(Vec2(795, 5), Vec2(5, 590)));
+    body->setColor(sf::Color::Blue);
+    body->setBodyPart("RightWall");
 
-    m_collisionBody.vertex(8, sf::Vertex(Vec2(795, 5), sf::Color::Red));
-    m_collisionBody.vertex(9, sf::Vertex(Vec2(800, 5), sf::Color::Red));
-    m_collisionBody.vertex(10, sf::Vertex(Vec2(800, 595), sf::Color::Red));
-    m_collisionBody.vertex(11, sf::Vertex(Vec2(795, 595), sf::Color::Red));
+    m_collisionBodies.push_back(body =
+                                    new RectBody(Vec2(0, 595), Vec2(800, 5)));
+    body->setColor(sf::Color::Yellow);
+    body->setBodyPart("BottomWall");
 
-    m_collisionBody.vertex(12, sf::Vertex(Vec2(0, 595), sf::Color::Red));
-    m_collisionBody.vertex(13, sf::Vertex(Vec2(800, 595), sf::Color::Red));
-    m_collisionBody.vertex(14, sf::Vertex(Vec2(800, 600), sf::Color::Red));
-    m_collisionBody.vertex(15, sf::Vertex(Vec2(0, 600), sf::Color::Red));
+    m_collisionBodies.push_back(body = new RectBody(Vec2(0, 5), Vec2(5, 590)));
+    body->setColor(sf::Color::Green);
+    body->setBodyPart("LeftWall");
 
-    m_collisionBody.assignBodyParts(0, m_collisionBody.size(), "Wall", 4, 0,
-                                    false, true);
-                                    tagInfo( m_collisionBody.bodyParts().size() );
+    m_collisionBodies.push_back(body = new RectBody(Vec2(300, 250), Vec2(200, 100)));
+    body->setColor(sf::Color::Red, sf::Color::Green, sf::Color::Magenta, sf::Color::Blue);
+    body->setBodyPart("MiddleWall");
 }
 
 void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(m_collisionBody, states);
+    for (auto body : m_collisionBodies)
+        target.draw(*body, states);
 }
 
 }  // namespace VVipers

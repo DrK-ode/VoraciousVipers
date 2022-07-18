@@ -1,22 +1,20 @@
 #ifndef VVIPERS_BODYPART_HPP
 #define VVIPERS_BODYPART_HPP
 
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <string>
 #include <vector>
 #include <vvipers/Vec2.hpp>
 
 namespace VVipers {
 
+/** Objects of this type cannot change past creation since the
+ * normal axes are calculated at birth. **/
 class BodyPart {
   public:
     BodyPart(const std::vector<Vec2>& nodes, const std::string& label = "",
-             bool active = false, bool symmetric = false)
-        : m_nodes(nodes),
-          m_label(label),
-          m_isActive(active),
-          m_isSymmetric(symmetric) {
-        updateAxes();
-    }
+             bool active = false, bool symmetric = false,
+             sf::PrimitiveType vertexOrder = sf::PrimitiveType::TriangleStrip);
 
     static bool collision(const BodyPart&, const BodyPart&);
 
@@ -29,7 +27,9 @@ class BodyPart {
     bool symmetric() const { return m_isSymmetric; }
 
   private:
-    void updateAxes();
+    void updateAxes(sf::PrimitiveType vertexOrder);
+    void updateAxesTriangleFan();
+    void updateAxesTriangleStrip();
 
     bool m_isActive;
     bool m_isSymmetric;
