@@ -3,7 +3,8 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <string>
-#include <vvipers/Collision.hpp>
+#include <vvipers/Collidable.hpp>
+#include <vvipers/CollisionBody.hpp>
 
 namespace VVipers {
 

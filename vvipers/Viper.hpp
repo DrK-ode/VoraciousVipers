@@ -3,10 +3,12 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
-#include <vvipers/Collision.hpp>
+#include <vvipers/Collidable.hpp>
+#include <vvipers/CollisionBody.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
+#include <vvipers/Observer.hpp>
 
 namespace VVipers {
 /**
