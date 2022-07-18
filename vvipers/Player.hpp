@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vvipers/Score.hpp>
-#include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {

@@ -1,9 +1,9 @@
 #ifndef VVIPERS_VECTORMATH_HPP
 #define VVIPERS_VECTORMATH_HPP
 
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <iostream>
+#include <SFML/System/Vector2.hpp>
 #include <vvipers/Math.hpp>
 
 namespace VVipers {

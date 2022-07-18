@@ -1,10 +1,9 @@
 #ifndef VVIPERS_TRACK_HPP
 #define VVIPERS_TRACK_HPP
 
-#include <deque>
+#include <vvipers/debug.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Vec2.hpp>
-#include <vvipers/debug.hpp>
 
 namespace VVipers {
 

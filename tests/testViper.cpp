@@ -2,7 +2,7 @@
 
 #include <vvipers/Time.hpp>
 
-#include <vvipers/ViperPhysics.hpp>
+#include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
 
 using namespace VVipers;
@@ -16,7 +16,7 @@ class ViperTest : public ::testing::Test {
         viper.setup(Vec2(0, 0), 180.f, seconds(3));
     }
 
-    ViperPhysics viper;
+    Viper viper;
 };
 
 TEST_F(ViperTest, angleTest) {
@@ -31,18 +31,6 @@ TEST_F(ViperTest, angleTest) {
 
 TEST_F(ViperTest, lengthTest) {
     EXPECT_DOUBLE_EQ(viper.length(), 3.f * viper.speed() );
-}
-
-TEST_F(ViperTest, growthTest) {
-    // No growth
-    /*for( int i = 0; i < 10*viper.getTrackPointsPerSegment(); ++i )
-    viper.tick( sf::seconds(1 / 60.0) );
-    EXPECT_NEAR(viper.length(), 3.f * ViperVertices::getNominalSegmentLength(), 0.01f );
-
-    viper.growSegment(10);
-    for( int i = 0; i < 10*viper.getTrackPointsPerSegment(); ++i )
-    viper.tick( sf::seconds(1 / 60.0) );
-    EXPECT_NEAR(viper.length() / (13.f * ViperVertices::getNominalSegmentLength()), 1.f, 0.001f);*/
 }
 
 }  // namespace

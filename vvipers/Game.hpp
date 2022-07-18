@@ -2,15 +2,17 @@
 #define VVIPERS_GAME_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <vvipers/CollisionDetector.hpp>
+#include <vvipers/Collision.hpp>
 #include <vvipers/GameEvent.hpp>
-#include <vvipers/Level.hpp>
 #include <vvipers/Observer.hpp>
-#include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
-#include <vvipers/Viper.hpp>
 
 namespace VVipers {
+
+class Controller;
+class Level;
+class Viper;
+class Player;
 
 class Game : public sf::Drawable, public Observer, Observable {
   public:

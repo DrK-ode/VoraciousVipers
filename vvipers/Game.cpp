@@ -1,5 +1,10 @@
-#include <vvipers/Game.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <vvipers/Controller.hpp>
 #include <vvipers/debug.hpp>
+#include <vvipers/Game.hpp>
+#include <vvipers/Level.hpp>
+#include <vvipers/Player.hpp>
+#include <vvipers/Viper.hpp>
 
 namespace VVipers {
 
@@ -10,7 +15,7 @@ Game::Game() : m_exit(false) {
     Viper* v1 = new Viper;
     v1->setup({400., 100.}, 0., 5s);
     this->addObserver(v1, {GameEvent::EventType::Update});
-    m_collisionDetector.registerCollidable(&v1->getPhysicalViper());
+    m_collisionDetector.registerCollidable(v1);
     Controller* c1 = new ControllerGoingInCircles(45);
     c1->addObserver(this, {GameEvent::EventType::Steering});
     this->addObserver(c1, {GameEvent::EventType::Update});
@@ -24,7 +29,7 @@ Game::Game() : m_exit(false) {
     Player* p2 = new Player("DefaultPlayerName");
     Viper* v2 = new Viper;
     v2->setup({400., 300.}, 0., 5s);
-    m_collisionDetector.registerCollidable(&v2->getPhysicalViper());
+    m_collisionDetector.registerCollidable(v2);
     this->addObserver(v2, {GameEvent::EventType::Update});
     Controller* c2 = new KeyboardController(sf::Keyboard::A, sf::Keyboard::D);
     c2->addObserver(this, {GameEvent::EventType::Steering});
@@ -37,7 +42,7 @@ Game::Game() : m_exit(false) {
     connect(c2, v2);
 
     m_currentLevel = new Level("The first and only level");
-    m_collisionDetector.registerCollidable(m_currentLevel);
+    //m_collisionDetector.registerCollisionBody(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
 
@@ -130,7 +135,7 @@ void Game::processEvents() {
             static_cast<const SteeringEvent*>(iter->second);
         Viper* viper = belongsTo(steeringEvent->controller);
         if (viper)
-            viper->getPhysicalViper().steer(steeringEvent);
+            viper->steer(steeringEvent);
     }
     // Delete fully processed events?
     // For now just delete all...

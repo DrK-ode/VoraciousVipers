@@ -9,12 +9,10 @@ namespace VVipers {
 
 class Controller : public Observable, public Observer {
   public:
-    Controller() : m_connected(false) {}
     virtual void onNotify(const GameEvent* event);
 
   protected:
     virtual void update(const Time& elapsedTime) {}
-    bool m_connected;
 };
 
 class KeyboardController : public Controller {

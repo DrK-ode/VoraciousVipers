@@ -2,14 +2,13 @@
 #define VVIPERS_GAMEEVENT_HPP
 
 #include <SFML/Window/Event.hpp>
-#include <string>
-#include <vvipers/Collidable.hpp>
 #include <vvipers/Time.hpp>
 
 namespace VVipers {
 
-// Class Controller also uses GameEvent
 class Controller;
+class CollisionBody;
+class BodyPart;
 
 class GameEvent {
   public:
@@ -45,18 +44,18 @@ class ApplicationEvent : public GameEvent {
 
 class CollisionEvent : public GameEvent {
   public:
-    CollisionEvent(const Collidable* cA, const CollidablePartInterface* pA,
-                   const Collidable* cB, const CollidablePartInterface* pB)
+    CollisionEvent(const CollisionBody* cA, const BodyPart* pA,
+                   const CollisionBody* cB, const BodyPart* pB)
         : GameEvent(EventType::Collision),
           A(cA),
           B(cB),
           A_part(pA),
           B_part(pB) {}
     GameEvent* clone() const override { return new CollisionEvent(*this); }
-    const Collidable* const A;
-    const Collidable* const B;
-    const CollidablePartInterface* const A_part;
-    const CollidablePartInterface* const B_part;
+    const CollisionBody* A;
+    const CollisionBody* B;
+    const BodyPart* A_part;
+    const BodyPart* B_part;
 };
 
 class DestroyedEvent : public GameEvent {
