@@ -167,7 +167,7 @@ void Viper::updateBody(ViperPart part, const Time& timeFront,
                        const Time& temporalLength) {
     double width = 20;  // TODO:Adapt width depending on how streched the
                         // segment is, i.e., dL/dt
-    CollisionBody* body;
+    CollisionVertices* body;
     const std::vector<Vec2>* sketch;
     Vec2 textureSize;
     int numberOfSegments = 1;

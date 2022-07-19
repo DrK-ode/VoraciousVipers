@@ -3,10 +3,13 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <string>
+#include <vector>
 #include <vvipers/Collidable.hpp>
 #include <vvipers/CollisionBody.hpp>
 
 namespace VVipers {
+
+class RectBody;
 
 class Level : public sf::Drawable, public Collidable {
   public:
@@ -20,7 +23,7 @@ class Level : public sf::Drawable, public Collidable {
 
   private:
     std::string m_name;
-    std::vector<const CollisionBody*> m_collisionBodies;
+    std::vector<const RectBody*> m_rects;
 };
 
 }  // namespace VVipers

@@ -2,9 +2,11 @@
 #define VVIPERS_VIPERPHYSICS_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <vector>
 #include <vvipers/Collidable.hpp>
-#include <vvipers/CollisionBody.hpp>
+#include <vvipers/CollisionVertices.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
@@ -74,9 +76,9 @@ class Viper : public Collidable, public sf::Drawable, public Observer {
     Time m_growth;
     TrackPoint* m_headPoint;
     Track m_track;
-    CollisionBody m_headBody;
-    CollisionBody m_bodyBody;
-    CollisionBody m_tailBody;
+    CollisionVertices m_headBody;
+    CollisionVertices m_bodyBody;
+    CollisionVertices m_tailBody;
     sf::Color m_mainColor;
     sf::Texture m_headTexture;
     sf::Texture m_bodyTexture;

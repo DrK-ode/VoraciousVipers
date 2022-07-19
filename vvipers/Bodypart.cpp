@@ -1,10 +1,11 @@
 #include <limits>
-#include <vvipers/BodyPart.hpp>
+#include <tuple>
+#include <vvipers/Bodypart.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {
 
-BodyPart::BodyPart(const std::vector<Vec2>& nodes, const std::string& label,
+Bodypart::Bodypart(const std::vector<Vec2>& nodes, const std::string& label,
                    bool active, bool symmetric, sf::PrimitiveType vertexOrder)
     : m_nodes(nodes),
       m_label(label),
@@ -13,7 +14,7 @@ BodyPart::BodyPart(const std::vector<Vec2>& nodes, const std::string& label,
     updateAxes(vertexOrder);
 }
 
-void BodyPart::updateAxes(sf::PrimitiveType vertexOrder) {
+void Bodypart::updateAxes(sf::PrimitiveType vertexOrder) {
     switch (vertexOrder) {
         case sf::PrimitiveType::TriangleStrip:
             updateAxesTriangleStrip();
@@ -36,17 +37,17 @@ void BodyPart::updateAxes(sf::PrimitiveType vertexOrder) {
  * first node being the centre is ignored. The edges themselves are not
  * stored, it's the normal vectors we need.
  **/
-void BodyPart::updateAxesTriangleFan() {
+void Bodypart::updateAxesTriangleFan() {
     m_axes.resize(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
 
     // Special case in the beginning
-    m_axes.push_back((m_nodes[1] - m_nodes.back()).perpVec());
+    m_axes.push_back((m_nodes.back() - m_nodes[1]).perpVec());
     // If the shape is symmetric, only half of the edges are needed.
     auto nodeStop = m_isSymmetric ? m_nodes.begin() + 1 + m_nodes.size() / 2
                                   : m_nodes.end();
     // Edge connecting consequetive nodes
     for (auto node = m_nodes.begin() + 1; node != nodeStop; ++node)
-        m_axes.push_back((*(node + 1) - *node).perpVec());
+        m_axes.push_back((*node - *(node + 1)).perpVec());
 }
 
 /** Assuming N nodes are stored in TriangleStrip order, the edges needed are
@@ -58,44 +59,57 @@ void BodyPart::updateAxesTriangleFan() {
  * beginning and the end. The edges themselves are not stored, it's the
  * normal vectors we need.
  **/
-void BodyPart::updateAxesTriangleStrip() {
-    m_axes.resize(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
+void Bodypart::updateAxesTriangleStrip() {
+    m_axes.clear();
+    m_axes.reserve(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
+    tagInfo(m_isSymmetric, " ", m_nodes.size());
     // Special case in the beginning
-    m_axes.push_back((m_nodes[1] - m_nodes[0]).perpVec());
+    m_axes.push_back((m_nodes[0] - m_nodes[1]).perpVec());
     // Edge connecting odd nodes
     for (auto node = m_nodes.begin() + 3; node < m_nodes.end(); node += 2)
-        m_axes.push_back((*node - *(node - 2)).perpVec());
+        m_axes.push_back((*(node - 2) - *node).perpVec());
     /** If the shape is marked as symmetric, only half of the edges are needed.
      * **/
     if (m_isSymmetric)
         return;
     // Edge connecting even nodes
     for (auto node = m_nodes.begin() + 2; node < m_nodes.end(); node += 2)
-        m_axes.push_back((*node - *(node - 2)).perpVec());
+        m_axes.push_back((*(node - 2) - *node).perpVec());
     // Special case in the end
     m_axes.push_back(*(m_nodes.rbegin() + 1) - m_nodes.back());
 }
 
-void projectionsMinMax(const BodyPart& part, const Vec2& axis, double& minimum,
-                       double& maximum) {
-    minimum = std::numeric_limits<double>::max();
-    maximum = std::numeric_limits<double>::lowest();
-    auto nodes = part.nodes();
-    for (int i = 0; i < part.numberOfNodes(); ++i) {
+std::tuple<double, double> projectionsMinMax(const Bodypart* part,
+                                            const Vec2& axis) {
+    double minimum = std::numeric_limits<double>::max();
+    double maximum = std::numeric_limits<double>::lowest();
+    auto nodes = part->nodes();
+    for (int i = 0; i < part->numberOfNodes(); ++i) {
         double projection = nodes[i].projectionScalar(axis);
         minimum = projection < minimum ? projection : minimum;
         maximum = projection > maximum ? projection : maximum;
     }
+    return {minimum, maximum};
 }
 
-bool BodyPart::collision(const BodyPart& part1, const BodyPart& part2) {
-    const auto& axes =
-        part1.axes().size() < part2.axes().size() ? part1.axes() : part2.axes();
+bool Bodypart::collision(const Bodypart* part1, const Bodypart* part2) {
+    const auto& axes = part1->axes().size() < part2->axes().size()
+                           ? part1->axes()
+                           : part2->axes();
     for (auto& axis : axes) {
-        double min1, max1, min2, max2;
-        projectionsMinMax(part1, axis, min1, max1);
-        projectionsMinMax(part2, axis, min2, max2);
+        auto [min1, max1] = projectionsMinMax(part1, axis);
+        auto [min2, max2] = projectionsMinMax(part2, axis);
         if (max1 < min2 || max2 < min1)
+            return false;
+    }
+    return true;
+}
+
+bool Bodypart::inside(const Vec2& point) const {
+    for (auto& axis : m_axes) {
+        auto [minimum, maximum] = projectionsMinMax(this, axis);
+        double projection = point.projectionScalar(axis);
+        if (maximum < projection || projection < minimum)
             return false;
     }
     return true;

@@ -1,38 +1,33 @@
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <vector>
 #include <vvipers/RectBody.hpp>
 
-namespace VVipers{
+namespace VVipers {
 
-RectBody::RectBody(Vec2 topLeft, Vec2 size) {
-    m_vertices.append(sf::Vertex(topLeft));
-    m_vertices.append(sf::Vertex(topLeft + Vec2(size.x, 0)));
-    m_vertices.append(sf::Vertex(topLeft + Vec2(0, size.y)));
-    m_vertices.append(sf::Vertex(topLeft + size));
-
-    setBodyPart();
+RectBody::RectBody(Vec2 topLeft, Vec2 size, const std::string& label, bool active )
+    : rectangleShape(size), m_bodypart(nullptr) {
+    rectangleShape.setPosition(topLeft);
+    updateBodyPart(label, active);
 }
 
-void RectBody::setColor(sf::Color color) {
-    setColor(color, color, color, color);
+const std::vector<const Bodypart*> RectBody::bodyParts() const {
+    return std::vector<const Bodypart*>(1, m_bodypart);
 }
 
-void RectBody::setColor(sf::Color c1, sf::Color c2, sf::Color c3,
-                        sf::Color c4) {
-    m_vertices[0].color = c1;
-    m_vertices[1].color = c2;
-    m_vertices[2].color = c4;
-    m_vertices[3].color = c3;
+void RectBody::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw(rectangleShape, states);
 }
 
-void RectBody::setTextureCoords(Vec2 topLeft, Vec2 size) {
-    m_vertices[0] = sf::Vertex(topLeft);
-    m_vertices[1] = sf::Vertex(topLeft + Vec2(size.x, 0));
-    m_vertices[2] = sf::Vertex(topLeft + Vec2(0, size.y));
-    m_vertices[3] = sf::Vertex(topLeft + size);
+void RectBody::updateBodyPart(const std::string& label, bool active) {
+    auto transform = rectangleShape.getTransform();
+    std::vector<Vec2> nodes;
+    // Save the nodes in an order corresponding to TriangleStrip
+    nodes.push_back(transform.transformPoint(rectangleShape.getPoint(0)));
+    nodes.push_back(transform.transformPoint(rectangleShape.getPoint(1)));
+    nodes.push_back(transform.transformPoint(rectangleShape.getPoint(3)));
+    nodes.push_back(transform.transformPoint(rectangleShape.getPoint(2)));
+    delete m_bodypart;
+    m_bodypart = new Bodypart(nodes, label, active, true, sf::PrimitiveType::TriangleStrip);
 }
 
-void RectBody::setBodyPart(const std::string& label, bool active) {
-    m_bodyParts.clear();
-    assignBodyParts(0, 4, 4, label, 0, active, true);
-}
-
-}
+}  // namespace VVipers

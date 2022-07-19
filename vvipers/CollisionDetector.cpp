@@ -1,34 +1,22 @@
-#include <vvipers/CollisionDetector.hpp>
 #include <vvipers/Collidable.hpp>
+#include <vvipers/CollisionDetector.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
 void CollisionDetector::checkForCollisions() const {
-    // Collect all the bodies from the collidables
-    std::vector<const CollisionBody*> bodies;
-    for (auto c : m_collidables) {
-        for (auto& b : c->collisionBodies()) {
-            bodies.push_back(b);
-        }
-    }
+    /** A collidable has several CollisionBodies that might collide with each
+     * other. A Collidable can collide with itself but a CollisionBody cannot.
+     * **/
 
-    auto b1 = bodies.cbegin();
-    while (b1 != bodies.cend()) {
-        auto b2 = b1;
-        ++b2;
-        while (b2 != bodies.cend()) {
-            const CollisionBody* A = *b1;
-            const CollisionBody* B = *b2;
-            const auto& partCollisions = CollisionBody::collision(*A, *B);
-            for (auto partCollision : partCollisions) {
-                CollisionEvent event(A, partCollision.first, B,
-                                     partCollision.second);
+    for (auto coll1 = m_collidables.begin(); coll1 != m_collidables.end();
+         ++coll1)
+        for (auto coll2 = coll1; coll2 != m_collidables.end(); ++coll2) {
+            for (auto colliders : Collidable::collision(*coll1, *coll2)) {
+                CollisionEvent event(colliders);
                 notify(&event);
             }
-            ++b2;
         }
-        ++b1;
-    }
 }
 
 }  // namespace VVipers

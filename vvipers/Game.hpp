@@ -2,7 +2,6 @@
 #define VVIPERS_GAME_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <vvipers/CollisionBody.hpp>
 #include <vvipers/CollisionDetector.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/Observer.hpp>

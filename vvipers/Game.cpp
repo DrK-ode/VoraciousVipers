@@ -28,7 +28,7 @@ Game::Game() : m_exit(false) {
 
     Player* p2 = new Player("DefaultPlayerName");
     Viper* v2 = new Viper;
-    v2->setup({400., 300.}, 0., 5s);
+    v2->setup({400., 500.}, 0., 5s);
     m_collisionDetector.registerCollidable(v2);
     this->addObserver(v2, {GameEvent::EventType::Update});
     Controller* c2 = new KeyboardController(sf::Keyboard::A, sf::Keyboard::D);
@@ -42,7 +42,7 @@ Game::Game() : m_exit(false) {
     connect(c2, v2);
 
     m_currentLevel = new Level("The first and only level");
-    //m_collisionDetector.registerCollisionBody(m_currentLevel);
+    m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
 
