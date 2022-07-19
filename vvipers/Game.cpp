@@ -124,7 +124,8 @@ void Game::processEvents() {
     auto [beginCollisionEvents, endCollisionEvent] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Collision);
     for (auto iter = beginCollisionEvents; iter != endCollisionEvent; ++iter) {
-        // Do stuff
+        const CollisionEvent* event = static_cast<const CollisionEvent*>(iter->second);
+        logInfo( event->colliders );
     }
     auto [beginSteeringEvents, endSteeringEvent] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);

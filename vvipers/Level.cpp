@@ -5,7 +5,9 @@
 
 namespace VVipers {
 
-Level::Level(std::string name) : m_name(name) { constructLevel(); }
+Level::Level(const std::string& name) : Collidable("Level"), m_name(name) {
+    constructLevel();
+}
 
 Level::~Level() {
     for (auto body : m_rects)
@@ -22,25 +24,16 @@ std::vector<const CollisionBody*> Level::collisionBodies() const {
 void Level::constructLevel() {
     RectBody* body;
 
-    m_rects.push_back(body = new RectBody(Vec2(0, 0), Vec2(800, 5)));
-    body->rectangleShape.setFillColor(sf::Color::Red);
-    body->updateBodyPart("TopWall");
-
-    m_rects.push_back(body = new RectBody(Vec2(795, 5), Vec2(5, 590)));
-    body->rectangleShape.setFillColor(sf::Color::Blue);
-    body->updateBodyPart("RightWall");
-
-    m_rects.push_back(body = new RectBody(Vec2(0, 595), Vec2(800, 5)));
-    body->rectangleShape.setFillColor(sf::Color::Yellow);
-    body->updateBodyPart("BottomWall");
-
-    m_rects.push_back(body = new RectBody(Vec2(0, 5), Vec2(5, 590)));
-    body->rectangleShape.setFillColor(sf::Color::Green);
-    body->updateBodyPart("LeftWall");
-
-    m_rects.push_back(body = new RectBody(Vec2(300, 250), Vec2(200, 100)));
+    m_rects.push_back(body = new RectBody("TopWall", Vec2(0, 0), Vec2(800, 5)));
+    m_rects.push_back(
+        body = new RectBody("RightWall", Vec2(795, 5), Vec2(5, 590)));
+    m_rects.push_back(
+        body = new RectBody("BottomWall", Vec2(0, 595), Vec2(800, 5)));
+    m_rects.push_back(body =
+                          new RectBody("LeftWall", Vec2(0, 5), Vec2(5, 590)));
+    m_rects.push_back(
+        body = new RectBody("MiddleWall", Vec2(300, 250), Vec2(200, 100)));
     body->rectangleShape.setFillColor(sf::Color::Magenta);
-    body->updateBodyPart("MiddleWall");
 }
 
 void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const {

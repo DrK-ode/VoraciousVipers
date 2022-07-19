@@ -7,6 +7,7 @@
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/CollisionBody.hpp>
 #include <vvipers/Vec2.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -14,7 +15,7 @@ class Bodypart;
 
 class RectBody : public CollisionBody, public sf::Drawable {
   public:
-    RectBody(Vec2 topLeft, Vec2 size, const std::string& label = "",
+    RectBody(const std::string id, Vec2 topLeft, Vec2 size,
              bool active = false);
 
     virtual const std::vector<const Bodypart*> bodyparts() const override;
@@ -24,16 +25,8 @@ class RectBody : public CollisionBody, public sf::Drawable {
      * rectangle but also to change the label or active state. These four
      * versions of the update function makes sure that no unspecified properties
      * are changed. **/
-    void updateBodyPart() {
-        updateBodyPart(m_bodypart->label(), m_bodypart->active());
-    }
-    void updateBodyPart(const std::string& label) {
-        updateBodyPart(label, m_bodypart->active());
-    }
-    void updateBodyPart(bool active) {
-        updateBodyPart(m_bodypart->label(), active);
-    }
-    void updateBodyPart(const std::string& label, bool active);
+    void updateBodyPart() { updateBodyPart(m_bodypart->active()); }
+    void updateBodyPart(bool active);
     sf::Rect<double> rectangularBounds() const override {
         return sf::Rect<double>(rectangleShape.getGlobalBounds());
     }

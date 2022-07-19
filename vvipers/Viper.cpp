@@ -16,7 +16,8 @@ const Time Viper::s_tailTemporalLength(1s);
 const double Viper::s_nominalSpeed(60.);
 
 Viper::Viper()
-    : m_acc(0.),
+    : Collidable("Viper"),
+      m_acc(0.),
       m_speed(s_nominalSpeed),
       m_growth(0),
       m_headPoint(nullptr),

@@ -1,6 +1,7 @@
 #ifndef VVIPERS_COLLISIONBODY_HPP
 #define VVIPERS_COLLISIONBODY_HPP
 
+#include <string>
 #include <vector>
 #include <SFML/Graphics/Rect.hpp>
 
@@ -17,12 +18,16 @@ class Bodypart;
 
 class CollisionBody {
   public:
+    CollisionBody( const std::string id) : CBID(id) {}
+
     static std::vector<std::pair<const Bodypart*, const Bodypart*> > collision(
         const CollisionBody*, const CollisionBody*);
 
     virtual const std::vector<const Bodypart*> bodyparts() const = 0;
 
     virtual sf::Rect<double> rectangularBounds() const;
+
+    const std::string CBID;
 };
 
 }  // namespace VVipers

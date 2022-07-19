@@ -1,18 +1,18 @@
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <vvipers/Bodypart.hpp>
 #include <vvipers/CollisionVertices.hpp>
 #include <vvipers/GameEvent.hpp>
-#include <vvipers/debug.hpp>
 #include <vvipers/Vec2.hpp>
-#include <vvipers/Bodypart.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
 CollisionVertices::CollisionVertices()
-    : m_texture(nullptr), m_vertices(sf::PrimitiveType::TriangleStrip) {}
+    : CollisionBody("Vertices"),
+      m_texture(nullptr),
+      m_vertices(sf::PrimitiveType::TriangleStrip) {}
 
-CollisionVertices::~CollisionVertices(){
-    clearBodyParts();
-}
+CollisionVertices::~CollisionVertices() { clearBodyParts(); }
 
 void CollisionVertices::clear() {
     m_vertices.clear();
@@ -26,9 +26,10 @@ void CollisionVertices::clearBodyParts() {
 }
 
 void CollisionVertices::assignBodyParts(size_t beginIndex, size_t length,
-                                    size_t nodesPerBodyPart,
-                                    const std::string& label, int sharedNodes,
-                                    bool active, bool symmetric) {
+                                        size_t nodesPerBodyPart,
+                                        const std::string& label,
+                                        int sharedNodes, bool active,
+                                        bool symmetric) {
     if (m_vertices.getVertexCount() - beginIndex - length < 0)
         throw std::out_of_range("Out of bounds when assigning body parts.");
     auto index1 = beginIndex;
@@ -47,7 +48,7 @@ void CollisionVertices::assignBodyParts(size_t beginIndex, size_t length,
 }
 
 void CollisionVertices::draw(sf::RenderTarget& target,
-                         sf::RenderStates states) const {
+                             sf::RenderStates states) const {
     states.texture = m_texture;
     target.draw(m_vertices, states);
 }

@@ -5,10 +5,10 @@
 
 namespace VVipers {
 
-Bodypart::Bodypart(const std::vector<Vec2>& nodes, const std::string& label,
+Bodypart::Bodypart(const std::vector<Vec2>& nodes, const std::string& id,
                    bool active, bool symmetric, sf::PrimitiveType vertexOrder)
     : m_nodes(nodes),
-      m_label(label),
+      BPID(id),
       m_isActive(active),
       m_isSymmetric(symmetric) {
     update(vertexOrder);

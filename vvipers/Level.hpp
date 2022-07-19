@@ -13,7 +13,7 @@ class RectBody;
 
 class Level : public sf::Drawable, public Collidable {
   public:
-    Level(std::string name);
+    Level(const std::string& name);
     ~Level();
     std::vector<const CollisionBody*> collisionBodies() const override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

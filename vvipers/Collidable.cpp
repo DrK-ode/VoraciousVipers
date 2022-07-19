@@ -1,10 +1,18 @@
 #include <limits>
-#include <tuple>
+#include <vvipers/Bodypart.hpp>
 #include <vvipers/Collidable.hpp>
 #include <vvipers/CollisionBody.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {
+
+std::ostream& operator<<(std::ostream& os, const CollisionTriplet& ct ) {
+    return os << ct.collidable->CID << " -> " << ct.collisionBody->CBID << " -> " << ct.bodypart->BPID;
+}
+
+std::ostream& operator<<(std::ostream& os, const Colliders& c ) {
+    return os << "Collider A: " << c.first << ", Collider B: " << c.second;
+}
 
 std::vector<Colliders> Collidable::collision(const Collidable* coll1,
                                              const Collidable* coll2) {
@@ -33,8 +41,8 @@ std::vector<Colliders> Collidable::collision(const Collidable* coll1,
                 CollisionBody::collision(*body1, *body2);
             for (auto collision : bodypartCollisions) {
                 colliders.emplace_back(
-                    CollisionTuple(coll1, *body1, collision.first),
-                    CollisionTuple(coll2, *body2, collision.second));
+                    CollisionTriplet(coll1, *body1, collision.first),
+                    CollisionTriplet(coll2, *body2, collision.second));
             }
         }
     }
