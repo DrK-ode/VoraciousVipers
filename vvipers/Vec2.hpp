@@ -3,8 +3,10 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 #include <SFML/System/Vector2.hpp>
 #include <vvipers/Math.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {
 
@@ -62,6 +64,8 @@ inline std::ostream& operator<<(std::ostream& os, const sf::Vector2<T>& v) {
 inline double abs(const Vec2& v) { return v.abs(); }
 
 inline double distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
+
+sf::Rect<double> rectangularBounds( const std::vector<Vec2>& coords );
 
 }  // namespace VVipers
 

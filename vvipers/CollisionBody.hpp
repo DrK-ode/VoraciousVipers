@@ -2,6 +2,7 @@
 #define VVIPERS_COLLISIONBODY_HPP
 
 #include <vector>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {
 
@@ -19,7 +20,9 @@ class CollisionBody {
     static std::vector<std::pair<const Bodypart*, const Bodypart*> > collision(
         const CollisionBody*, const CollisionBody*);
 
-    virtual const std::vector<const Bodypart*> bodyParts() const = 0;
+    virtual const std::vector<const Bodypart*> bodyparts() const = 0;
+
+    virtual sf::Rect<double> rectangularBounds() const;
 };
 
 }  // namespace VVipers

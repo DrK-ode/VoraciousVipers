@@ -17,7 +17,7 @@ class RectBody : public CollisionBody, public sf::Drawable {
     RectBody(Vec2 topLeft, Vec2 size, const std::string& label = "",
              bool active = false);
 
-    virtual const std::vector<const Bodypart*> bodyParts() const override;
+    virtual const std::vector<const Bodypart*> bodyparts() const override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     /** updateBodyPart must be called after changing the geometry of the
@@ -34,6 +34,9 @@ class RectBody : public CollisionBody, public sf::Drawable {
         updateBodyPart(m_bodypart->label(), active);
     }
     void updateBodyPart(const std::string& label, bool active);
+    sf::Rect<double> rectangularBounds() const override {
+        return sf::Rect<double>(rectangleShape.getGlobalBounds());
+    }
 
     sf::RectangleShape rectangleShape;
 

@@ -10,7 +10,7 @@ RectBody::RectBody(Vec2 topLeft, Vec2 size, const std::string& label, bool activ
     updateBodyPart(label, active);
 }
 
-const std::vector<const Bodypart*> RectBody::bodyParts() const {
+const std::vector<const Bodypart*> RectBody::bodyparts() const {
     return std::vector<const Bodypart*>(1, m_bodypart);
 }
 

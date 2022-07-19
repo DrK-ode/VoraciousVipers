@@ -47,7 +47,7 @@ TEST_F(CollidableTest, RectTest) {
     EXPECT_EQ(CollisionBody::collision(object1[1], object2[0]).size(), 1);
     EXPECT_EQ(CollisionBody::collision(object1[0], object2[1]).size(), 1);
     EXPECT_EQ(CollisionBody::collision(object1[1], object2[1]).size(), 0);
-    EXPECT_EQ(object1[0]->bodyParts()[0]->label(), "obj1part0");
+    EXPECT_EQ(object1[0]->bodyparts()[0]->label(), "obj1part0");
     EXPECT_EQ(
         CollisionBody::collision(object1[0], object2[1]).front().first->label(),
         "obj1part0");
@@ -60,13 +60,13 @@ TEST_F(CollidableTest, RectTest) {
 TEST_F(CollidableTest, CollidableTest) {
     EXPECT_EQ(Collidable::collision(&object1, &object2).size(), 2);
     EXPECT_EQ(Collidable::collision(&object1, &object2).front().first,
-              CollisionTuple(&object1, object1[0], object1[0]->bodyParts()[0]));
+              CollisionTuple(&object1, object1[0], object1[0]->bodyparts()[0]));
     EXPECT_EQ(Collidable::collision(&object1, &object2).back().first,
-              CollisionTuple(&object1, object1[1], object1[1]->bodyParts()[0]));
+              CollisionTuple(&object1, object1[1], object1[1]->bodyparts()[0]));
     EXPECT_EQ(Collidable::collision(&object2, &object2).front().first,
-              CollisionTuple(&object2, object2[0], object2[0]->bodyParts()[0]));
+              CollisionTuple(&object2, object2[0], object2[0]->bodyparts()[0]));
     EXPECT_EQ(Collidable::collision(&object2, &object2).front().second,
-              CollisionTuple(&object2, object2[1], object2[1]->bodyParts()[0]));
+              CollisionTuple(&object2, object2[1], object2[1]->bodyparts()[0]));
 }
 
 }  // namespace

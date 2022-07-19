@@ -2,6 +2,7 @@
 #define VVIPERS_BODYPART_HPP
 
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <string>
 #include <vector>
 #include <vvipers/Vec2.hpp>
@@ -25,10 +26,11 @@ class Bodypart {
     std::vector<Vec2> nodes() const { return m_nodes; }
     size_t numberOfNodes() const { return m_nodes.size(); }
     size_t numberOfAxes() const { return m_axes.size(); }
+    sf::Rect<double> rectangularBounds() const {return m_boundingRect;}
     bool symmetric() const { return m_isSymmetric; }
 
   private:
-    void updateAxes(sf::PrimitiveType vertexOrder);
+    void update(sf::PrimitiveType vertexOrder);
     void updateAxesTriangleFan();
     void updateAxesTriangleStrip();
 
@@ -37,6 +39,7 @@ class Bodypart {
     std::string m_label;
     std::vector<Vec2> m_nodes;
     std::vector<Vec2> m_axes;
+    sf::Rect<double> m_boundingRect;
 };
 
 }  // namespace VVipers

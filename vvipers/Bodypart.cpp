@@ -11,10 +11,10 @@ Bodypart::Bodypart(const std::vector<Vec2>& nodes, const std::string& label,
       m_label(label),
       m_isActive(active),
       m_isSymmetric(symmetric) {
-    updateAxes(vertexOrder);
+    update(vertexOrder);
 }
 
-void Bodypart::updateAxes(sf::PrimitiveType vertexOrder) {
+void Bodypart::update(sf::PrimitiveType vertexOrder) {
     switch (vertexOrder) {
         case sf::PrimitiveType::TriangleStrip:
             updateAxesTriangleStrip();
@@ -27,6 +27,7 @@ void Bodypart::updateAxes(sf::PrimitiveType vertexOrder) {
                 "Illegal PrimitiveType for determining the vertex order.");
             break;
     }
+    m_boundingRect = VVipers::rectangularBounds( m_nodes );
 }
 
 /** Assuming N nodes are stored in TriangleFan order, the edges needed are
@@ -62,7 +63,6 @@ void Bodypart::updateAxesTriangleFan() {
 void Bodypart::updateAxesTriangleStrip() {
     m_axes.clear();
     m_axes.reserve(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
-    tagInfo(m_isSymmetric, " ", m_nodes.size());
     // Special case in the beginning
     m_axes.push_back((m_nodes[0] - m_nodes[1]).perpVec());
     // Edge connecting odd nodes
@@ -93,6 +93,9 @@ std::tuple<double, double> projectionsMinMax(const Bodypart* part,
 }
 
 bool Bodypart::collision(const Bodypart* part1, const Bodypart* part2) {
+    // Rough check with rectangular bounds
+    if( ! part1->rectangularBounds().intersects( part2->rectangularBounds() ))
+        return false;
     const auto& axes = part1->axes().size() < part2->axes().size()
                            ? part1->axes()
                            : part2->axes();

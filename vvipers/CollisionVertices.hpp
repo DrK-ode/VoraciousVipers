@@ -37,8 +37,9 @@ class CollisionVertices : public sf::Drawable, public CollisionBody {
                          size_t nodesPerBodyPart, const std::string& label = "",
                          int sharedNodes = 0, bool active = false,
                          bool symmetric = false);
-    const std::vector<const Bodypart*> bodyParts() const {
-        return m_bodyParts;
+    const std::vector<const Bodypart*> bodyparts() const { return m_bodyParts; }
+    sf::Rect<double> rectangularBounds() const override {
+        return sf::Rect<double>(m_vertices.getBounds());
     }
 
   protected:
