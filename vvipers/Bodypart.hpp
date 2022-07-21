@@ -9,13 +9,13 @@
 
 namespace VVipers {
 
-typedef uint64_t BPID_type;
+typedef uint64_t PartID_t;
 
 /** Objects of this type cannot change past creation since the
  * normal axes are calculated at birth. **/
 class Bodypart {
   public:
-    Bodypart(const std::vector<Vec2>& nodes, BPID_type id,
+    Bodypart(const std::vector<Vec2>& nodes, PartID_t id,
              bool active = false, bool symmetric = false,
              sf::PrimitiveType vertexOrder = sf::PrimitiveType::TriangleStrip);
 
@@ -30,7 +30,7 @@ class Bodypart {
     sf::Rect<double> rectangularBounds() const {return m_boundingRect;}
     bool symmetric() const { return m_isSymmetric; }
 
-    const BPID_type BPID;
+    const PartID_t partID;
 
   private:
     void update(sf::PrimitiveType vertexOrder);

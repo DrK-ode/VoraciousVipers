@@ -7,7 +7,7 @@
 namespace VVipers {
 
 std::ostream& operator<<(std::ostream& os, const CollisionTriplet& ct ) {
-    return os << ct.collidable->CID << " -> " << ct.collisionBody->CBID << " -> " << ct.bodypart->BPID;
+    return os << "<Collidable> -> " << ct.collisionBody->partID << " -> " << ct.bodypart->partID;
 }
 
 std::ostream& operator<<(std::ostream& os, const Colliders& c ) {

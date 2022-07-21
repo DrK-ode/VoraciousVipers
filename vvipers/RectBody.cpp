@@ -4,7 +4,7 @@
 
 namespace VVipers {
 
-RectBody::RectBody( CBID_type id, Vec2 topLeft, Vec2 size, bool active)
+RectBody::RectBody( PartID_t id, Vec2 topLeft, Vec2 size, bool active)
     : CollisionBody( id ), rectangleShape(size), m_bodypart(nullptr) {
     rectangleShape.setPosition(topLeft);
     updateBodyPart(active);
@@ -27,7 +27,7 @@ void RectBody::updateBodyPart(bool active) {
     nodes.push_back(transform.transformPoint(rectangleShape.getPoint(3)));
     nodes.push_back(transform.transformPoint(rectangleShape.getPoint(2)));
     delete m_bodypart;
-    m_bodypart = new Bodypart(nodes, CBID, active, true,
+    m_bodypart = new Bodypart(nodes, partID, active, true,
                               sf::PrimitiveType::TriangleStrip);
 }
 

@@ -19,7 +19,7 @@ namespace VVipers {
 
 class CollisionVertices : public sf::Drawable, public CollisionBody {
   public:
-    CollisionVertices(CBID_type id);
+    CollisionVertices(PartID_t id);
     ~CollisionVertices();
 
     void clear();
@@ -33,7 +33,7 @@ class CollisionVertices : public sf::Drawable, public CollisionBody {
     void appendVertex(const sf::Vertex& v) { m_vertices.append(v); }
 
     void assignBodyParts(size_t beginIndex, size_t length,
-                         size_t nodesPerBodyPart, BPID_type id,
+                         size_t nodesPerBodyPart, PartID_t id,
                          int sharedNodes = 0, bool active = false,
                          bool symmetric = false);
     const std::vector<const Bodypart*> bodyparts() const { return m_bodyParts; }

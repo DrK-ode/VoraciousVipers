@@ -9,24 +9,29 @@
 namespace VVipers {
 
 using namespace std::chrono_literals;
-const Time Viper::s_headTemporalLength(1s);
-const Time Viper::s_bodyTemporalLength(1s);
-const Time Viper::s_tailTemporalLength(1s);
+const Time Viper::s_headTemporalLength(0.5s);
+const Time Viper::s_bodyTemporalLength(0.5s);
+const Time Viper::s_tailTemporalLength(0.5s);
 
 const double Viper::s_nominalSpeed(60.);
 
-Viper::Viper(CID_type id)
-    : Collidable(id),
-      m_state(ViperState::Alive),
+Viper::Viper()
+    : m_state(ViperAlive),
       m_acc(0.),
       m_speed(s_nominalSpeed),
       m_growth(0),
       m_headPoint(nullptr),
       m_mainColor(sf::Color::Green),
-      m_headBody(CBID_type(ViperPart::Head)),
-      m_bodyBody(CBID_type(ViperPart::Body)),
-      m_tailBody(CBID_type(ViperPart::Tail)) {
+      m_headBody(ViperHead),
+      m_bodyBody(ViperBody),
+      m_tailBody(ViperTail) {
     loadTextures();
+}
+
+void Viper::die(const Time& elapsedTime) {
+    m_temporalLength -= elapsedTime;
+    if (m_temporalLength <= seconds(0))
+        m_state = ViperDead;
 }
 
 void Viper::growth(const Time& g) { m_growth += g; }
@@ -83,9 +88,13 @@ void Viper::cleanUpTrailingTrackPoints() {
     TrackPoint* afterTail = m_track.back();
     while (afterTail && afterTail->getTime() <= tailTime)
         afterTail = afterTail->prev();
-    if (!afterTail)
-        throw std::runtime_error(
-            "About to remove all TrackPoints, this cannot be right.");
+    if (!afterTail) {
+        m_track.clear();
+        if (m_state & ViperAlive)
+            throw std::runtime_error(
+                "About to remove all TrackPoints, this cannot be right.");
+        return;
+    }
     TrackPoint* beforeTail = afterTail->next();
 
     // Remove the rest
@@ -138,25 +147,25 @@ void Viper::steer(const SteeringEvent* orders) {
 }
 
 void Viper::update(const Time& elapsedTime) {
-    if( m_state == ViperState::Dying)
-        m_state = ViperState::Dead;
-    if( m_state == ViperState::Dead){
+    if (m_state == ViperDead) {
         DestroyMeEvent event(this);
         notify(&event);
         return;
     }
-    m_headPoint = createNextHeadTrackPoint(elapsedTime);
-    grow(elapsedTime);
+    if (m_state == ViperDying)
+        die(elapsedTime);  // Allow the viper to die for a while
+    else {
+        m_headPoint = createNextHeadTrackPoint(elapsedTime);
+        grow(elapsedTime);
+    }
     updateBodies();
     cleanUpTrailingTrackPoints();
 }
 
 void Viper::updateBodies() {
-    if (m_temporalLength < s_headTemporalLength + s_tailTemporalLength)
-        throw std::runtime_error("Viper is too small");
-
-    Time headLength = s_headTemporalLength;
-    Time tailLength = s_tailTemporalLength;
+    Time headLength = std::min(m_temporalLength, s_headTemporalLength);
+    Time tailLength =
+        std::min(m_temporalLength - headLength, s_tailTemporalLength);
     Time bodyLength = m_temporalLength - headLength - tailLength;
 
     Time headFront = m_headPoint->getTime();
@@ -177,26 +186,30 @@ void Viper::updateBodies() {
 
 void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
                        const Time& temporalLength) {
+    body.clear();
+    if (temporalLength <= seconds(0))
+        return;
     double width = 20;  // TODO:Adapt width depending on how streched the
                         // segment is, i.e., dL/dt
     const std::vector<Vec2>* sketch;
     Vec2 textureSize;
     int numberOfSegments = 1;
     Time segmentLength = temporalLength;
-    switch (body.CBID) {
-        case CBID_type(ViperPart::Head): {
+    switch (body.partID) {
+        case ViperHead: {
             sketch = &ViperSketch::headNodes();
             textureSize = m_headTexture.getSize();
             break;
         }
-        case CBID_type(ViperPart::Body): {
+        case ViperBody: {
             sketch = &ViperSketch::bodyNodes();
             textureSize = m_bodyTexture.getSize();
             segmentLength = s_bodyTemporalLength;
-            numberOfSegments = temporalLength / segmentLength;
+            // Rounded upwards to allow for a fraction of a full segment
+            numberOfSegments = temporalLength / segmentLength + 1;
             break;
         }
-        case CBID_type(ViperPart::Tail): {
+        case ViperTail: {
             sketch = &ViperSketch::tailNodes();
             textureSize = m_tailTexture.getSize();
             break;
@@ -204,12 +217,11 @@ void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
     }
     // Used to extend a segment when, e.g., growing
     Time leftOverLength = temporalLength - segmentLength * numberOfSegments;
-    body.clear();
     int sketchIndex = 0;
     for (int segmentIndex = 0; segmentIndex < numberOfSegments;
          ++segmentIndex) {
         while (sketchIndex < sketch->size()) {
-            Time L = (body.CBID == CBID_type(ViperPart::Body) and
+            Time L = (body.partID == ViperBody and
                       (segmentIndex == numberOfSegments - 1))
                          ? segmentLength + leftOverLength
                          : segmentLength;
@@ -229,21 +241,20 @@ void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
     }
 
     // Prepare CollisionParts
-    switch (body.CBID) {
-        case CBID_type(ViperPart::Head): {
-            body.assignBodyParts(
-                0, 4, 4,
-                BPID_type(ViperPart::Head) | BPID_type(ViperPart::Sensitive), 0,
-                true);
-            body.assignBodyParts(2, body.size() - 2, 4, body.CBID, 2);
+    switch (body.partID) {
+        case ViperHead: {
+            body.assignBodyParts(0, 4, 4, ViperHead | ViperSensitivePart, 0,
+                                 true);
+            body.assignBodyParts(2, body.size() - 2, 4, body.partID, 2);
             break;
         }
-        case CBID_type(ViperPart::Body):
-        case CBID_type(ViperPart::Tail): {
-            body.assignBodyParts(0, body.size(), 4, body.CBID, 2);
+        case ViperBody:
+        case ViperTail: {
+            body.assignBodyParts(0, body.size(), 4, body.partID, 2);
             break;
         }
     }
+    infoTag();
 }
 
 }  // namespace VVipers

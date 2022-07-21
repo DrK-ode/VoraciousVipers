@@ -3,6 +3,8 @@
 
 namespace VVipers {
 
+/** The main purpose of this calss is to make sure all objects inherit from one
+ * common virtual class to make typeinfo work properly **/
 class GameObject {
   public:
     virtual ~GameObject() {}

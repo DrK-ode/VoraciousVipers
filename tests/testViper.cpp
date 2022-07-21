@@ -9,9 +9,6 @@ using namespace VVipers;
 namespace {
 
 class ViperTest : public ::testing::Test {
-  public:
-    ViperTest() : viper(0) {}
-
   protected:
     void SetUp() override {
         logLevel = LogLevel::onlyErrors;

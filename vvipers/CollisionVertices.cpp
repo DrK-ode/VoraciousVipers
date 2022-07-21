@@ -7,7 +7,7 @@
 
 namespace VVipers {
 
-CollisionVertices::CollisionVertices(CBID_type id)
+CollisionVertices::CollisionVertices(PartID_t id)
     : CollisionBody( id ),
       m_texture(nullptr),
       m_vertices(sf::PrimitiveType::TriangleStrip) {}
@@ -27,7 +27,7 @@ void CollisionVertices::clearBodyParts() {
 
 void CollisionVertices::assignBodyParts(size_t beginIndex, size_t length,
                                         size_t nodesPerBodyPart,
-                                        BPID_type id,
+                                        PartID_t id,
                                         int sharedNodes, bool active,
                                         bool symmetric) {
     if (m_vertices.getVertexCount() - beginIndex - length < 0)

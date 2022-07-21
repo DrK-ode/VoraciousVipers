@@ -1,5 +1,5 @@
-#include <typeinfo>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <typeinfo>
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/Controller.hpp>
 #include <vvipers/Game.hpp>
@@ -37,8 +37,8 @@ void Game::deletePlayer(Player* player) {
 }
 
 Viper* Game::addViper(/* startConditions? */) {
-    Viper* viper = new Viper(CID_type(GameObjects::Viper));
-    viper->setup({400., 100.}, 0., 5s);
+    Viper* viper = new Viper();
+    viper->setup({400., 100.}, 0., 2s);
     this->addObserver(viper, {GameEvent::EventType::Update});
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper);
@@ -52,12 +52,7 @@ void Game::deleteViper(Viper* viper) {
     delete viper;
 }
 
-void Game::kill(Viper* viper) {
-    auto player = findPlayerWith(viper);
-    if( player )
-        player->viper(nullptr);
-    viper->state( Viper::ViperState::Dying );
-}
+void Game::killViper(Viper* viper) { viper->state(Viper::ViperDying); }
 
 Player* Game::findPlayerWith(const Controller* controller) const {
     for (auto player : m_players)
@@ -80,7 +75,7 @@ Game::Game() : m_exit(false) {
     auto player = addPlayer("Playername", controller, viper);
 
     m_currentLevel =
-        new Level(CID_type(GameObjects::Level), "The first and only level");
+        new Level("The first and only level");
     m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
@@ -148,20 +143,21 @@ void Game::processEvents() {
         const CollisionTriplet& A = event->colliders.first;
         const CollisionTriplet& B = event->colliders.second;
         for (auto& ct : {A, B}) {
-            if( ct.collidable->CID == CID_type(GameObjects::Viper) ) {
+            if ( typeid(*ct.collidable) == typeid(Viper)) {
                 Viper* viper = (Viper*)(ct.collidable);
-                if (viper->state() == Viper::ViperState::Alive && ((ct.bodypart->BPID) &
-                              BPID_type(Viper::ViperPart::Sensitive)))
-                    kill(viper);}
+                if (viper->state() == Viper::ViperAlive &&
+                    ((ct.bodypart->partID) & Viper::ViperSensitivePart))
+                    killViper(viper);
+            }
         }
     }
     auto [beginDestroyEvents, endDestroyEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
-    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter){
+    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter) {
         const DestroyMeEvent* destroyMeEvent =
             static_cast<const DestroyMeEvent*>(iter->second);
-            if( typeid(*destroyMeEvent->objectPtr) == typeid(Viper) )
-                deleteViper( (Viper*)(destroyMeEvent->objectPtr));
+        if (typeid(*destroyMeEvent->objectPtr) == typeid(Viper))
+            deleteViper((Viper*)(destroyMeEvent->objectPtr));
     }
     auto [beginSteeringEvents, endSteeringEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);

@@ -15,8 +15,6 @@ class Level;
 class Viper;
 class Player;
 
-enum class GameObjects : CID_type { Level, Mouse, Viper, Wall };
-
 class Game : public sf::Drawable, public Observer, Observable {
   public:
     Game();
@@ -35,7 +33,7 @@ class Game : public sf::Drawable, public Observer, Observable {
     void deletePlayer(Player* player);
     Viper* addViper(/* Start conditions */);
     void deleteViper(Viper* viper);
-    void kill(Viper* viper);
+    void killViper(Viper* viper);
 
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;

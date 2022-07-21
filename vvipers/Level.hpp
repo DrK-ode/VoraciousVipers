@@ -6,17 +6,18 @@
 #include <vector>
 #include <vvipers/Collidable.hpp>
 #include <vvipers/CollisionBody.hpp>
+#include <vvipers/GameObject.hpp>
 
 namespace VVipers {
 
 class RectBody;
 
-class Level : public sf::Drawable, public Collidable {
+class Level : public GameObject, public sf::Drawable, public Collidable {
   public:
-    Level(CID_type id, const std::string& name);
+    Level(const std::string& name);
     ~Level();
 
-    enum class LevelObject : CBID_type {Wall};
+    enum LevelObject : PartID_t {LevelWall};
 
     std::vector<const CollisionBody*> collisionBodies() const override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

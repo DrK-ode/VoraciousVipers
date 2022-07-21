@@ -9,10 +9,10 @@
 #include <vvipers/Collidable.hpp>
 #include <vvipers/CollisionVertices.hpp>
 #include <vvipers/GameEvent.hpp>
+#include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
-#include <vvipers/GameObject.hpp>
 
 namespace VVipers {
 /**
@@ -20,17 +20,27 @@ namespace VVipers {
  * Handles all aspects of the Viper that is not related to the graphical
  * representation.
  */
-class Viper : public GameObject, public Collidable, public sf::Drawable, public Observer, public Observable {
+class Viper : public GameObject,
+              public Collidable,
+              public sf::Drawable,
+              public Observer,
+              public Observable {
   public:
-    Viper(CID_type id);
+    Viper();
 
-    enum class ViperPart : BPID_type {
-        Head = 0x01,
-        Body = 0x02,
-        Tail = 0x04,
-        Sensitive = 0x10
+    enum ViperPart : PartID_t {
+        ViperHead = 1 << 0,
+        ViperBody = 1 << 1,
+        ViperTail = 1 << 3,
+        ViperSensitivePart = 1 << 16
     };
-    enum class ViperState {Alive, Dead, Dying, Statis};
+    typedef uint64_t ViperState_t;
+    enum ViperState : ViperState_t {
+        ViperAlive = 1 << 0,
+        ViperDead = 1 << 1,
+        ViperStasis = 1 << 2,
+        ViperDying = ViperAlive | ViperDead
+    };
 
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
@@ -38,7 +48,7 @@ class Viper : public GameObject, public Collidable, public sf::Drawable, public 
         return std::vector<const CollisionBody*>(
             {&m_headBody, &m_bodyBody, &m_tailBody});
     }
-    void die() {m_state = ViperState::Dead;}
+    void die(const Time& elapsedTime);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     /** @return The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
@@ -58,8 +68,8 @@ class Viper : public GameObject, public Collidable, public sf::Drawable, public 
     void speed(double s) { m_speed = s; }
     /** @return current speed. **/
     double speed() const { return m_speed; }
-    ViperState state() const {return m_state;}
-    void state(ViperState state){m_state = state;}
+    ViperState_t state() const { return m_state; }
+    void state(ViperState state) { m_state = state; }
     // Adjust speed, angle, etc. according to the SteeringEvent
     void steer(const SteeringEvent* orders);
     /** The temporal length of the Viper.
@@ -82,7 +92,7 @@ class Viper : public GameObject, public Collidable, public sf::Drawable, public 
     void updateBody(CollisionVertices&, const Time& timeFront,
                     const Time& temporalLength);
 
-    ViperState m_state;
+    ViperState_t m_state;
     static const double s_nominalSpeed;  // px/s
     double m_angle;  // degrees, clockwise since y-axis is downwards
     double m_speed;  // px/s

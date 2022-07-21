@@ -13,7 +13,7 @@ namespace {
 
 class SimpleCollidable : public Collidable {
   public:
-    SimpleCollidable() : Collidable(0) {}
+    SimpleCollidable() {}
     const CollisionBody* operator[](int i) const { return m_bodies[i]; }
     void addBody(CollisionBody* b) { m_bodies.push_back(b); }
     std::vector<const CollisionBody*> collisionBodies() const override {
@@ -48,12 +48,12 @@ TEST_F(CollidableTest, RectTest) {
     EXPECT_EQ(CollisionBody::collision(object1[1], object2[0]).size(), 1);
     EXPECT_EQ(CollisionBody::collision(object1[0], object2[1]).size(), 1);
     EXPECT_EQ(CollisionBody::collision(object1[1], object2[1]).size(), 0);
-    EXPECT_EQ(object1[0]->bodyparts()[0]->BPID, 10);
+    EXPECT_EQ(object1[0]->bodyparts()[0]->partID, 10);
     EXPECT_EQ(
-        CollisionBody::collision(object1[0], object2[1]).front().first->BPID,
+        CollisionBody::collision(object1[0], object2[1]).front().first->partID,
         10);
     EXPECT_EQ(
-        CollisionBody::collision(object1[0], object2[1]).front().second->BPID,
+        CollisionBody::collision(object1[0], object2[1]).front().second->partID,
         21);
 }
 

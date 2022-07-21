@@ -4,18 +4,15 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <string>
 #include <vector>
+#include <vvipers/Bodypart.hpp>
 
 namespace VVipers {
-
-class Bodypart;
-
-typedef uint64_t CBID_type;
 
 /** A CollisionBody has a collection of bodyparts. No parts of a CollisionBody
  * will ever be checked for collisions between each other. **/
 class CollisionBody {
   public:
-    CollisionBody(CBID_type id) : CBID(id) {}
+    CollisionBody(PartID_t id) : partID(id) {}
 
     static std::vector<std::pair<const Bodypart*, const Bodypart*> > collision(
         const CollisionBody*, const CollisionBody*);
@@ -24,7 +21,7 @@ class CollisionBody {
 
     virtual sf::Rect<double> rectangularBounds() const;
 
-    const CBID_type CBID;
+    const PartID_t partID;
 };
 
 }  // namespace VVipers
