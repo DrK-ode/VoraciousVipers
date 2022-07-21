@@ -11,6 +11,7 @@ set(INC_FILES
     Controller.hpp
     Game.hpp
     GameEvent.hpp
+    GameObject.hpp
     GameWindow.hpp
     Level.hpp
     Math.hpp
