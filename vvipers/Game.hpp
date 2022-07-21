@@ -6,6 +6,7 @@
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
+#include <vvipers/GameObject.hpp>
 
 namespace VVipers {
 
@@ -14,32 +15,40 @@ class Level;
 class Viper;
 class Player;
 
+enum class GameObjects : CID_type { Level, Mouse, Viper, Wall };
+
 class Game : public sf::Drawable, public Observer, Observable {
   public:
     Game();
     ~Game();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    bool exit() const {return m_exit;}
+    bool exit() const { return m_exit; }
     void onNotify(const GameEvent* event) override;
     void processEvents();
     void update(Time elapsedTime);
 
   private:
-    void connect(Controller*, Viper*);
-    void connect(Viper*, Player*);
-    Viper* belongsTo(const Controller*);
-    Player* belongsTo(const Viper*);
+    Controller* addController(Controller* controller);
+    void deleteController(Controller* controller);
+    Player* addPlayer(const std::string& name, Controller* controller,
+                      Viper* viper);
+    void deletePlayer(Player* player);
+    Viper* addViper(/* Start conditions */);
+    void deleteViper(Viper* viper);
+    void kill(Viper* viper);
+
+    Player* findPlayerWith(const Viper*) const;
+    Player* findPlayerWith(const Controller*) const;
+
     void signalExit();
 
     bool m_exit;
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
-    std::map<const Viper*, Player*> m_mapViperPlayer;
-    std::map<const Controller*, Viper*> m_mapControllerViper;
     CollisionDetector m_collisionDetector;
     Level* m_currentLevel;
-    std::vector<Controller*> m_controllers;
-    std::vector<Player*> m_players;
-    std::vector<Viper*> m_vipers;
+    std::set<Controller*> m_controllers;
+    std::set<Player*> m_players;
+    std::set<Viper*> m_vipers;
 };
 
 }  // namespace VVipers

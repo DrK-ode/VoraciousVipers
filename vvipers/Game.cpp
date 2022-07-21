@@ -1,79 +1,98 @@
+#include <typeinfo>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <vvipers/Bodypart.hpp>
 #include <vvipers/Controller.hpp>
-#include <vvipers/debug.hpp>
 #include <vvipers/Game.hpp>
 #include <vvipers/Level.hpp>
 #include <vvipers/Player.hpp>
 #include <vvipers/Viper.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
 using namespace std::chrono_literals;
 
+Controller* Game::addController(Controller* controller) {
+    controller->addObserver(this, {GameEvent::EventType::Steering});
+    this->addObserver(controller, {GameEvent::EventType::Update});
+    m_controllers.insert(controller);
+    return controller;
+}
+
+void Game::deleteController(Controller* controller) {
+    m_controllers.erase(controller);
+    delete controller;
+}
+
+Player* Game::addPlayer(const std::string& name, Controller* controller,
+                        Viper* viper) {
+    Player* player = new Player(name, controller, viper);
+    m_players.insert(player);
+    return player;
+}
+
+void Game::deletePlayer(Player* player) {
+    m_players.erase(player);
+    delete player;
+}
+
+Viper* Game::addViper(/* startConditions? */) {
+    Viper* viper = new Viper(CID_type(GameObjects::Viper));
+    viper->setup({400., 100.}, 0., 5s);
+    this->addObserver(viper, {GameEvent::EventType::Update});
+    viper->addObserver(this, {GameEvent::EventType::Destroy});
+    m_collisionDetector.registerCollidable(viper);
+    m_vipers.insert(viper);
+    return viper;
+}
+
+void Game::deleteViper(Viper* viper) {
+    m_collisionDetector.deRegisterCollidable(viper);
+    m_vipers.erase(viper);
+    delete viper;
+}
+
+void Game::kill(Viper* viper) {
+    auto player = findPlayerWith(viper);
+    if( player )
+        player->viper(nullptr);
+    viper->state( Viper::ViperState::Dying );
+}
+
+Player* Game::findPlayerWith(const Controller* controller) const {
+    for (auto player : m_players)
+        if (player->controller() == controller)
+            return player;
+    return nullptr;
+}
+
+Player* Game::findPlayerWith(const Viper* viper) const {
+    for (auto player : m_players)
+        if (player->viper() == viper)
+            return player;
+    return nullptr;
+}
+
 Game::Game() : m_exit(false) {
-    Player* p1 = new Player("DefaultPlayerName");
-    Viper* v1 = new Viper;
-    v1->setup({400., 100.}, 0., 5s);
-    this->addObserver(v1, {GameEvent::EventType::Update});
-    m_collisionDetector.registerCollidable(v1);
-    Controller* c1 = new ControllerGoingInCircles(45);
-    c1->addObserver(this, {GameEvent::EventType::Steering});
-    this->addObserver(c1, {GameEvent::EventType::Update});
+    auto controller =
+        addController(new KeyboardController(sf::Keyboard::A, sf::Keyboard::D));
+    auto viper = addViper();
+    auto player = addPlayer("Playername", controller, viper);
 
-    m_controllers.push_back(c1);
-    m_players.push_back(p1);
-    m_vipers.push_back(v1);
-    connect(v1, p1);
-    connect(c1, v1);
-
-    Player* p2 = new Player("DefaultPlayerName");
-    Viper* v2 = new Viper;
-    v2->setup({400., 500.}, 0., 5s);
-    m_collisionDetector.registerCollidable(v2);
-    this->addObserver(v2, {GameEvent::EventType::Update});
-    Controller* c2 = new KeyboardController(sf::Keyboard::A, sf::Keyboard::D);
-    c2->addObserver(this, {GameEvent::EventType::Steering});
-    this->addObserver(c2, {GameEvent::EventType::Update});
-
-    m_controllers.push_back(c2);
-    m_players.push_back(p2);
-    m_vipers.push_back(v2);
-    connect(v2, p2);
-    connect(c2, v2);
-
-    m_currentLevel = new Level("The first and only level");
+    m_currentLevel =
+        new Level(CID_type(GameObjects::Level), "The first and only level");
     m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
 
 Game::~Game() {
-    for (auto& p : m_players)
+    for (auto p : m_players)
         delete p;
-    for (auto& v : m_vipers)
+    for (auto v : m_vipers)
         delete v;
-    for (auto& c : m_controllers)
+    for (auto c : m_controllers)
         delete c;
 }
-
-Viper* Game::belongsTo(const Controller* c) {
-    if (m_mapControllerViper.contains(c))
-        return m_mapControllerViper[c];
-    else
-        return nullptr;
-}
-
-Player* Game::belongsTo(const Viper* v) {
-    if (m_mapViperPlayer.contains(v))
-        return m_mapViperPlayer[v];
-    else
-        return nullptr;
-}
-
-void Game::connect(Controller* c, Viper* v) {
-    m_mapControllerViper.insert({c, v});
-}
-
-void Game::connect(Viper* v, Player* p) { m_mapViperPlayer.insert({v, p}); }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(*m_currentLevel, states);
@@ -121,20 +140,42 @@ void Game::onNotify(const GameEvent* event) {
 
 void Game::processEvents() {
     // Find all collision events
-    auto [beginCollisionEvents, endCollisionEvent] =
+    auto [beginCollisionEvents, endCollisionEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Collision);
-    for (auto iter = beginCollisionEvents; iter != endCollisionEvent; ++iter) {
-        const CollisionEvent* event = static_cast<const CollisionEvent*>(iter->second);
-        logInfo( event->colliders );
+    for (auto iter = beginCollisionEvents; iter != endCollisionEvents; ++iter) {
+        const CollisionEvent* event =
+            static_cast<const CollisionEvent*>(iter->second);
+        const CollisionTriplet& A = event->colliders.first;
+        const CollisionTriplet& B = event->colliders.second;
+        for (auto& ct : {A, B}) {
+            if( ct.collidable->CID == CID_type(GameObjects::Viper) ) {
+                Viper* viper = (Viper*)(ct.collidable);
+                if (viper->state() == Viper::ViperState::Alive && ((ct.bodypart->BPID) &
+                              BPID_type(Viper::ViperPart::Sensitive)))
+                    kill(viper);}
+        }
     }
-    auto [beginSteeringEvents, endSteeringEvent] =
+    auto [beginDestroyEvents, endDestroyEvents] =
+        m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
+    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter){
+        const DestroyMeEvent* destroyMeEvent =
+            static_cast<const DestroyMeEvent*>(iter->second);
+            if( typeid(*destroyMeEvent->objectPtr) == typeid(Viper) )
+                deleteViper( (Viper*)(destroyMeEvent->objectPtr));
+    }
+    auto [beginSteeringEvents, endSteeringEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);
-    for (auto iter = beginSteeringEvents; iter != endSteeringEvent; ++iter) {
+    for (auto iter = beginSteeringEvents; iter != endSteeringEvents; ++iter) {
         // In the future different event might be combined and/or altered before
         // sending them to the viper.
         const SteeringEvent* steeringEvent =
             static_cast<const SteeringEvent*>(iter->second);
-        Viper* viper = belongsTo(steeringEvent->controller);
+        Player* player = findPlayerWith(steeringEvent->controller);
+        if (!player) {
+            tagError("Controller not attached to any player.");
+            continue;
+        }
+        Viper* viper = player->viper();
         if (viper)
             viper->steer(steeringEvent);
     }

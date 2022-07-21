@@ -5,7 +5,8 @@
 
 namespace VVipers {
 
-Level::Level(const std::string& name) : Collidable("Level"), m_name(name) {
+Level::Level(CID_type id, const std::string& name)
+    : Collidable(id), m_name(name) {
     constructLevel();
 }
 
@@ -24,15 +25,16 @@ std::vector<const CollisionBody*> Level::collisionBodies() const {
 void Level::constructLevel() {
     RectBody* body;
 
-    m_rects.push_back(body = new RectBody("TopWall", Vec2(0, 0), Vec2(800, 5)));
-    m_rects.push_back(
-        body = new RectBody("RightWall", Vec2(795, 5), Vec2(5, 590)));
-    m_rects.push_back(
-        body = new RectBody("BottomWall", Vec2(0, 595), Vec2(800, 5)));
-    m_rects.push_back(body =
-                          new RectBody("LeftWall", Vec2(0, 5), Vec2(5, 590)));
-    m_rects.push_back(
-        body = new RectBody("MiddleWall", Vec2(300, 250), Vec2(200, 100)));
+    m_rects.push_back(body = new RectBody(CBID_type(LevelObject::Wall),
+                                          Vec2(0, 0), Vec2(800, 5)));
+    m_rects.push_back(body = new RectBody(CBID_type(LevelObject::Wall),
+                                          Vec2(795, 5), Vec2(5, 590)));
+    m_rects.push_back(body = new RectBody(CBID_type(LevelObject::Wall),
+                                          Vec2(0, 595), Vec2(800, 5)));
+    m_rects.push_back(body = new RectBody(CBID_type(LevelObject::Wall),
+                                          Vec2(0, 5), Vec2(5, 590)));
+    m_rects.push_back(body = new RectBody(CBID_type(LevelObject::Wall),
+                                          Vec2(300, 250), Vec2(200, 100)));
     body->rectangleShape.setFillColor(sf::Color::Magenta);
 }
 

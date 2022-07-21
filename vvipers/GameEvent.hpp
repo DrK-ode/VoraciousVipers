@@ -2,8 +2,8 @@
 #define VVIPERS_GAMEEVENT_HPP
 
 #include <SFML/Window/Event.hpp>
-#include <tuple>
 #include <vvipers/Collidable.hpp>
+#include <vvipers/GameObject.hpp>
 #include <vvipers/Time.hpp>
 
 namespace VVipers {
@@ -17,7 +17,7 @@ class GameEvent {
     enum class EventType {
         Application,
         Collision,
-        Destroyed,
+        Destroy,
         Keyboard,
         Mouse,
         Steering,
@@ -52,12 +52,12 @@ class CollisionEvent : public GameEvent {
     const Colliders colliders;
 };
 
-class DestroyedEvent : public GameEvent {
+class DestroyMeEvent : public GameEvent {
   public:
-    DestroyedEvent(const void* optr)
-        : GameEvent(EventType::Destroyed), objectPtr(optr) {}
-    GameEvent* clone() const override { return new DestroyedEvent(*this); }
-    const void* objectPtr;
+    DestroyMeEvent(const GameObject* optr)
+        : GameEvent(EventType::Destroy), objectPtr(optr) {}
+    GameEvent* clone() const override { return new DestroyMeEvent(*this); }
+    const GameObject* objectPtr;
 };
 
 class KeyboardEvent : public GameEvent {

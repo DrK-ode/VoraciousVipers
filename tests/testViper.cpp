@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <vvipers/Time.hpp>
-
 #include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
 
@@ -10,6 +9,9 @@ using namespace VVipers;
 namespace {
 
 class ViperTest : public ::testing::Test {
+  public:
+    ViperTest() : viper(0) {}
+
   protected:
     void SetUp() override {
         logLevel = LogLevel::onlyErrors;
@@ -30,7 +32,7 @@ TEST_F(ViperTest, angleTest) {
 }
 
 TEST_F(ViperTest, lengthTest) {
-    EXPECT_DOUBLE_EQ(viper.length(), 3.f * viper.speed() );
+    EXPECT_DOUBLE_EQ(viper.length(), 3.f * viper.speed());
 }
 
 }  // namespace

@@ -5,7 +5,7 @@
 
 namespace VVipers {
 
-Bodypart::Bodypart(const std::vector<Vec2>& nodes, const std::string& id,
+Bodypart::Bodypart(const std::vector<Vec2>& nodes, BPID_type id,
                    bool active, bool symmetric, sf::PrimitiveType vertexOrder)
     : m_nodes(nodes),
       BPID(id),

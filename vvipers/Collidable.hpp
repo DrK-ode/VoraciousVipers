@@ -12,6 +12,8 @@ class CollisionBody;
 class Collidable;
 class Bodypart;
 
+typedef uint64_t CID_type;
+
 struct CollisionTriplet {
     const Collidable* collidable;
     const CollisionBody* collisionBody;
@@ -33,14 +35,14 @@ std::ostream& operator<<(std::ostream& os, const Colliders& c );
 
 class Collidable {
   public:
-    Collidable(const std::string& id) : CID(id) {}
+    Collidable(CID_type id) : CID(id) {}
     virtual std::vector<const CollisionBody*> collisionBodies() const = 0;
     virtual sf::Rect<double> rectangularBounds() const;
 
     static std::vector<Colliders> collision(const Collidable* coll1,
                                             const Collidable* coll2);
 
-    const std::string CID;
+    const CID_type CID;
 };
 
 }  // namespace VVipers

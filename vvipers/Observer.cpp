@@ -3,8 +3,9 @@
 namespace VVipers {
 
 Observable::~Observable() {
-    for (auto observer : m_observers)
-        removeObserver(observer.first);
+    /** The actual removal is only done by Observable::removeObserver() **/
+    while( m_observers.begin() != m_observers.end() )
+        removeObserver( m_observers.begin()->first );
 }
 
 void Observable::addObserver(Observer* observer,
@@ -25,10 +26,10 @@ void Observable::notify(const GameEvent* event) const {
 }
 
 Observer::~Observer() {
-    // Need to iterate over a copy since the iterator might become invalidated
-    auto clone = m_observing;
-    for (auto observable : clone)
-        observable->removeObserver(this);
+    /** The actual removal is only done by Observable::removeObserver() **/
+    // m_observing will change during the while-loop
+    while( m_observing.size() > 0 )
+        (*m_observing.begin())->removeObserver(this);
 }
 
 }  // namespace VVipers

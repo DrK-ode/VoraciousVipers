@@ -6,10 +6,9 @@
 #include <string>
 #include <vector>
 #include <vvipers/CollisionBody.hpp>
+#include <vvipers/Bodypart.hpp>
 
 namespace VVipers {
-
-class Bodypart;
 
 /** CollisionVertices is built around a VertexArray and implements
  * CollisionBody. It also also divides the vertices into BodyParts which must be
@@ -20,7 +19,7 @@ class Bodypart;
 
 class CollisionVertices : public sf::Drawable, public CollisionBody {
   public:
-    CollisionVertices();
+    CollisionVertices(CBID_type id);
     ~CollisionVertices();
 
     void clear();
@@ -34,7 +33,7 @@ class CollisionVertices : public sf::Drawable, public CollisionBody {
     void appendVertex(const sf::Vertex& v) { m_vertices.append(v); }
 
     void assignBodyParts(size_t beginIndex, size_t length,
-                         size_t nodesPerBodyPart, const std::string& label = "",
+                         size_t nodesPerBodyPart, BPID_type id,
                          int sharedNodes = 0, bool active = false,
                          bool symmetric = false);
     const std::vector<const Bodypart*> bodyparts() const { return m_bodyParts; }

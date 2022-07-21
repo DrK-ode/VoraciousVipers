@@ -4,8 +4,8 @@
 
 namespace VVipers {
 
-RectBody::RectBody(const std::string id, Vec2 topLeft, Vec2 size, bool active)
-    : CollisionBody(id), rectangleShape(size), m_bodypart(nullptr) {
+RectBody::RectBody( CBID_type id, Vec2 topLeft, Vec2 size, bool active)
+    : CollisionBody( id ), rectangleShape(size), m_bodypart(nullptr) {
     rectangleShape.setPosition(topLeft);
     updateBodyPart(active);
 }

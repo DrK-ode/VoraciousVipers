@@ -1,24 +1,21 @@
 #ifndef VVIPERS_COLLISIONBODY_HPP
 #define VVIPERS_COLLISIONBODY_HPP
 
+#include <SFML/Graphics/Rect.hpp>
 #include <string>
 #include <vector>
-#include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {
 
 class Bodypart;
 
-/** CollisionBody is built around a VertexArray but also divides the vertices
- * into BodyParts which must be convex in order for the collision detection to
- * work. The vertices can be set arbitrarily and the body parts are later
- * assigned by specifying which consequetive range of vertices are one body
- * part. No parts of a CollisionBody will ever be checked for collisions between
- * each other. **/
+typedef uint64_t CBID_type;
 
+/** A CollisionBody has a collection of bodyparts. No parts of a CollisionBody
+ * will ever be checked for collisions between each other. **/
 class CollisionBody {
   public:
-    CollisionBody( const std::string id) : CBID(id) {}
+    CollisionBody(CBID_type id) : CBID(id) {}
 
     static std::vector<std::pair<const Bodypart*, const Bodypart*> > collision(
         const CollisionBody*, const CollisionBody*);
@@ -27,7 +24,7 @@ class CollisionBody {
 
     virtual sf::Rect<double> rectangularBounds() const;
 
-    const std::string CBID;
+    const CBID_type CBID;
 };
 
 }  // namespace VVipers

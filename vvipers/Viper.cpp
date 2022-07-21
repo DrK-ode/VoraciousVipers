@@ -15,13 +15,17 @@ const Time Viper::s_tailTemporalLength(1s);
 
 const double Viper::s_nominalSpeed(60.);
 
-Viper::Viper()
-    : Collidable("Viper"),
+Viper::Viper(CID_type id)
+    : Collidable(id),
+      m_state(ViperState::Alive),
       m_acc(0.),
       m_speed(s_nominalSpeed),
       m_growth(0),
       m_headPoint(nullptr),
-      m_mainColor(sf::Color::Green) {
+      m_mainColor(sf::Color::Green),
+      m_headBody(CBID_type(ViperPart::Head)),
+      m_bodyBody(CBID_type(ViperPart::Body)),
+      m_tailBody(CBID_type(ViperPart::Tail)) {
     loadTextures();
 }
 
@@ -134,6 +138,13 @@ void Viper::steer(const SteeringEvent* orders) {
 }
 
 void Viper::update(const Time& elapsedTime) {
+    if( m_state == ViperState::Dying)
+        m_state = ViperState::Dead;
+    if( m_state == ViperState::Dead){
+        DestroyMeEvent event(this);
+        notify(&event);
+        return;
+    }
     m_headPoint = createNextHeadTrackPoint(elapsedTime);
     grow(elapsedTime);
     updateBodies();
@@ -157,39 +168,35 @@ void Viper::updateBodies() {
     const size_t nTailNodes = ViperSketch::tailNodes().size();
 
     // HEAD
-    updateBody(ViperPart::Head, headFront, headLength);
+    updateBody(m_headBody, headFront, headLength);
     // BODY
-    updateBody(ViperPart::Body, bodyFront, bodyLength);
+    updateBody(m_bodyBody, bodyFront, bodyLength);
     // TAIL
-    updateBody(ViperPart::Tail, tailFront, tailLength);
+    updateBody(m_tailBody, tailFront, tailLength);
 }
 
-void Viper::updateBody(ViperPart part, const Time& timeFront,
+void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
                        const Time& temporalLength) {
     double width = 20;  // TODO:Adapt width depending on how streched the
                         // segment is, i.e., dL/dt
-    CollisionVertices* body;
     const std::vector<Vec2>* sketch;
     Vec2 textureSize;
     int numberOfSegments = 1;
     Time segmentLength = temporalLength;
-    switch (part) {
-        case ViperPart::Head: {
-            body = &m_headBody;
+    switch (body.CBID) {
+        case CBID_type(ViperPart::Head): {
             sketch = &ViperSketch::headNodes();
             textureSize = m_headTexture.getSize();
             break;
         }
-        case ViperPart::Body: {
-            body = &m_bodyBody;
+        case CBID_type(ViperPart::Body): {
             sketch = &ViperSketch::bodyNodes();
             textureSize = m_bodyTexture.getSize();
             segmentLength = s_bodyTemporalLength;
             numberOfSegments = temporalLength / segmentLength;
             break;
         }
-        case ViperPart::Tail: {
-            body = &m_tailBody;
+        case CBID_type(ViperPart::Tail): {
             sketch = &ViperSketch::tailNodes();
             textureSize = m_tailTexture.getSize();
             break;
@@ -197,15 +204,15 @@ void Viper::updateBody(ViperPart part, const Time& timeFront,
     }
     // Used to extend a segment when, e.g., growing
     Time leftOverLength = temporalLength - segmentLength * numberOfSegments;
-    body->clear();
+    body.clear();
     int sketchIndex = 0;
     for (int segmentIndex = 0; segmentIndex < numberOfSegments;
          ++segmentIndex) {
         while (sketchIndex < sketch->size()) {
-            Time L =
-                part == ViperPart::Body and segmentIndex == numberOfSegments - 1
-                    ? segmentLength + leftOverLength
-                    : segmentLength;
+            Time L = (body.CBID == CBID_type(ViperPart::Body) and
+                      (segmentIndex == numberOfSegments - 1))
+                         ? segmentLength + leftOverLength
+                         : segmentLength;
             Time time = timeFront - segmentIndex * segmentLength -
                         (*sketch)[sketchIndex].y * L;
             Vec2 mid = m_track.position(time);
@@ -215,24 +222,25 @@ void Viper::updateBody(ViperPart part, const Time& timeFront,
             Vec2 textCoords =
                 (Vec2(0.5f, segmentIndex) + (*sketch)[sketchIndex]) *
                 textureSize;
-            body->appendVertex(sf::Vertex(position, m_mainColor, textCoords));
+            body.appendVertex(sf::Vertex(position, m_mainColor, textCoords));
             ++sketchIndex;
         }
         sketchIndex = 2;
     }
 
     // Prepare CollisionParts
-    switch (part) {
-        case ViperPart::Head: {
-            body->assignBodyParts(0, 4, 4, "ViperTip", 0, true);
-            body->assignBodyParts(2, body->size() - 2, 4, "ViperHead", 2);
+    switch (body.CBID) {
+        case CBID_type(ViperPart::Head): {
+            body.assignBodyParts(
+                0, 4, 4,
+                BPID_type(ViperPart::Head) | BPID_type(ViperPart::Sensitive), 0,
+                true);
+            body.assignBodyParts(2, body.size() - 2, 4, body.CBID, 2);
             break;
         }
-        case ViperPart::Body:
-        case ViperPart::Tail: {
-            body->assignBodyParts(
-                0, body->size(), 4,
-                (part == ViperPart::Body) ? "ViperBody" : "ViperTail", 2);
+        case CBID_type(ViperPart::Body):
+        case CBID_type(ViperPart::Tail): {
+            body.assignBodyParts(0, body.size(), 4, body.CBID, 2);
             break;
         }
     }

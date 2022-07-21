@@ -8,14 +8,13 @@
 #include <vvipers/CollisionBody.hpp>
 #include <vvipers/Vec2.hpp>
 #include <vvipers/debug.hpp>
+#include <vvipers/Bodypart.hpp>
 
 namespace VVipers {
 
-class Bodypart;
-
 class RectBody : public CollisionBody, public sf::Drawable {
   public:
-    RectBody(const std::string id, Vec2 topLeft, Vec2 size,
+    RectBody( CBID_type cid, Vec2 topLeft, Vec2 size,
              bool active = false);
 
     virtual const std::vector<const Bodypart*> bodyparts() const override;

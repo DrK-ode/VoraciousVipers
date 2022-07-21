@@ -4,12 +4,12 @@
 namespace VVipers {
 
 void Controller::onNotify(const GameEvent* event) {
-    if( event->type() != GameEvent::EventType::Update )
+    if (event->type() != GameEvent::EventType::Update)
         throw std::runtime_error("Wrong event type sent to Controller.");
-    update( static_cast<const UpdateEvent*>(event)->elapsedTime );
+    update(static_cast<const UpdateEvent*>(event)->elapsedTime);
 }
 
-void KeyboardController::update( const Time& elapsedTime ) {
+void KeyboardController::update(const Time& elapsedTime) {
     const double angularSpeed = 180;
     double deltaAngle = 0;
     if (sf::Keyboard::isKeyPressed(m_left)) {
@@ -18,8 +18,10 @@ void KeyboardController::update( const Time& elapsedTime ) {
     if (sf::Keyboard::isKeyPressed(m_right)) {
         deltaAngle += angularSpeed * toSeconds(elapsedTime);
     }
-    SteeringEvent event(this, deltaAngle);
-    notify(&event);
+    if (deltaAngle != 0) {
+        SteeringEvent event(this, deltaAngle);
+        notify(&event);
+    }
 }
 
 void ControllerGoingInCircles::update(const Time& elapsedTime) {
