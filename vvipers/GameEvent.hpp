@@ -52,11 +52,11 @@ class CollisionEvent : public GameEvent {
     const Colliders colliders;
 };
 
-class DestroyMeEvent : public GameEvent {
+class DestroyEvent : public GameEvent {
   public:
-    DestroyMeEvent(const GameObject* optr)
+    DestroyEvent(const GameObject* optr)
         : GameEvent(EventType::Destroy), objectPtr(optr) {}
-    GameEvent* clone() const override { return new DestroyMeEvent(*this); }
+    GameEvent* clone() const override { return new DestroyEvent(*this); }
     const GameObject* objectPtr;
 };
 

@@ -158,7 +158,7 @@ void Viper::steer(const SteeringEvent* orders) {
 
 void Viper::update(const Time& elapsedTime) {
     if (m_state == ViperDead) {
-        DestroyMeEvent event(this);
+        DestroyEvent event(this);
         notify(&event);
         return;
     }
@@ -264,7 +264,6 @@ void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
             break;
         }
     }
-    infoTag();
 }
 
 }  // namespace VVipers
