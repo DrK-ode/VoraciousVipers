@@ -1,3 +1,4 @@
+#include <vvipers/GameEvent.hpp>
 #include <vvipers/GameWindow.hpp>
 
 namespace VVipers {
@@ -7,4 +8,23 @@ GameWindow::GameWindow()
 
 GameWindow::~GameWindow() {}
 
+void GameWindow::processEvents() {
+    sf::Event event;
+    while (pollEvent(event)) {
+        switch (event.type) {
+            case sf::Event::Closed:
+            case sf::Event::Resized: {
+                WindowEvent wEvent(event.type);
+                notify(&wEvent);
+                break;
+            }
+            case sf::Event::KeyPressed: {
+                KeyboardEvent keyEvent(event.key);
+                notify(&keyEvent);
+                break;
+            }
+        }
+    }
 }
+
+}  // namespace VVipers

@@ -1,10 +1,12 @@
 #ifndef VVIPERS_VECTORMATH_HPP
 #define VVIPERS_VECTORMATH_HPP
 
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <iostream>
+#include <vector>
+#include <SFML/System/Vector2.hpp>
 #include <vvipers/Math.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {
 
@@ -18,6 +20,8 @@ class Vec2 : public sf::Vector2<double> {
     double dot(const Vec2& v) const;
     Vec2& normalize(double norm = 1);
     Vec2 perpVec() const;
+    double projectionScalar( Vec2 v ) const;
+    Vec2 projectionVector( Vec2 v ) const;
     operator sf::Vector2f() { return sf::Vector2f(x, y); }
 };
 
@@ -60,6 +64,8 @@ inline std::ostream& operator<<(std::ostream& os, const sf::Vector2<T>& v) {
 inline double abs(const Vec2& v) { return v.abs(); }
 
 inline double distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
+
+sf::Rect<double> rectangularBounds( const std::vector<Vec2>& coords );
 
 }  // namespace VVipers
 

@@ -7,7 +7,7 @@
 
 namespace VVipers {
 
-enum class LogLevel { onlyErrors = 0, errorsAndWarnings = 1, all = 2 };
+enum class LogLevel { silent = 0, onlyErrors, errorsAndWarnings, all };
 inline LogLevel logLevel = LogLevel::all;
 
 #ifndef __INTELLISENSE__  // Because intellisense bugs on
@@ -102,9 +102,9 @@ inline void _implLogError(bool doTag, const std::source_location loc,
     _implLogError(false, std::source_location(), __VA_ARGS__)
 #define tagInfo(...) \
     _implLogInfo(true, std::source_location(), __VA_ARGS__)
-#define tagWarn(...) \
+#define tagWarning(...) \
     _implLogWarning(true, std::source_location(), __VA_ARGS__)
-#define tagErr(...) \
+#define tagError(...) \
     _implLogError(true, std::source_location(), __VA_ARGS__)
 #endif
 

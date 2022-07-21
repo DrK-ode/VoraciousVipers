@@ -73,14 +73,17 @@ size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
 }
 
 Vec2 Track::direction(const Time& t) const {
-    if (m_size < 2)
+    if (m_size < 2) {
+        tagError("Cannot compute direction with < 2 TrackPoints.");
         throw std::runtime_error(
             "Cannot compute direction with < 2 TrackPoints.");
+    }
     if (t > m_front->getTime() || t < m_back->getTime()) {
         std::stringstream msg;
         msg << "Requesting direction at t=" << t
             << "s, which is outside viper time interval(" << m_back->getTime()
             << "s - " << m_front->getTime() << "s).";
+        tagError(msg.str());
         throw std::runtime_error(msg.str());
     }
 
@@ -107,9 +110,10 @@ double Track::length(const Time& t1, const Time& t2) const {
     // t1 or t2 o0utside the track's range
     if (t1 > m_front->getTime() || t2 < m_back->getTime()) {
         std::stringstream msg;
-        msg << "Requesting length between t1 = " << t1 << "s and t2 = " << t2
-            << "s, which is outside viper time interval(" << m_back->getTime()
-            << "s - " << m_front->getTime() << "s).";
+        msg << "Requesting length between t1 = " << t1 << " and t2 = " << t2
+            << ", which is outside viper time interval(" << m_back->getTime()
+            << " - " << m_front->getTime() << ").";
+        tagError(msg.str());
         throw std::runtime_error(msg.str());
     }
     // Or if a zero time interval has been passed to the method
@@ -136,7 +140,8 @@ double Track::length(const Time& t1, const Time& t2) const {
     // The full distance between p1 and p2 was added to L, this must be
     // corrected for.
     p1 = p2->prev();
-    L -= p1->distanceToNext() * ( (p2->getTime() - t2) / (p2->getTime() - p1->getTime()) );
+    L -= p1->distanceToNext() *
+         ((p2->getTime() - t2) / (p2->getTime() - p1->getTime()));
 
     return L;
 }
@@ -145,8 +150,8 @@ Vec2 Track::position(const Time& t) const {
     if (t > m_front->getTime() || t < m_back->getTime()) {
         std::stringstream msg;
         msg << "Requesting position at t=" << t
-            << "s, which is outside viper time interval(" << m_back->getTime()
-            << "s - " << m_front->getTime() << "s).";
+            << ", which is outside viper time interval(" << m_back->getTime()
+            << " - " << m_front->getTime() << ").";
         throw std::runtime_error(msg.str());
     }
 
@@ -161,8 +166,8 @@ Vec2 Track::position(const Time& t) const {
 
     TrackPoint* p1 = p2->prev();
     // The sought position lies between p1 and p2, linear interpolation
-    return *p1 +
-           (*p2 - *p1) * (  (t - p1->getTime()) / (p2->getTime() - p1->getTime()) );
+    return *p1 + (*p2 - *p1) *
+                     ((t - p1->getTime()) / (p2->getTime() - p1->getTime()));
 }
 
 void Track::pop_back() {

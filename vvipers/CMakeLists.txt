@@ -1,18 +1,24 @@
 configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
 set(INC_FILES
+    Bodypart.hpp
+    Collidable.hpp
+    CollisionBody.hpp
+    CollisionDetector.hpp
+    CollisionVertices.hpp
     config.hpp
     debug.hpp
     Controller.hpp
     Game.hpp
+    GameEvent.hpp
     GameWindow.hpp
     Level.hpp
-    Player.hpp
     Math.hpp
+    Observer.hpp
+    Player.hpp
+    RectBody.hpp
     Vec2.hpp
     Viper.hpp
-    ViperGraphics.hpp
-    ViperPhysics.hpp
     ViperSketch.hpp
     VVipers.hpp
     Score.hpp
@@ -21,15 +27,21 @@ set(INC_FILES
 )
 
 set(SRC_FILES
+    Bodypart.cpp
+    Collidable.cpp
+    CollisionBody.cpp
+    CollisionDetector.cpp
+    CollisionVertices.cpp
     Controller.cpp
     Game.cpp
+    GameEvent.cpp
     GameWindow.cpp
     Level.cpp
+    Observer.cpp
     Player.cpp
+    RectBody.cpp
     Vec2.cpp
     Viper.cpp
-    ViperGraphics.cpp
-    ViperPhysics.cpp
     ViperSketch.cpp
     VVipers.cpp
     Score.cpp

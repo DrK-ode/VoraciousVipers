@@ -11,6 +11,7 @@ class ViperSketch{
     static const std::vector<Vec2>& headNodes() { return getInstance().m_headNodes;}
     static const std::vector<Vec2>& bodyNodes() { return getInstance().m_bodyNodes;}
     static const std::vector<Vec2>& tailNodes() { return getInstance().m_tailNodes;}
+    
     private:
     ViperSketch();
     static ViperSketch& getInstance();

@@ -13,7 +13,7 @@ ViperSketch::ViperSketch() {
     m_headNodes.push_back({0.2, 0.95});
     m_headNodes.push_back({-0.2, 1});
     m_headNodes.push_back({0.2, 1});
-
+    
     m_bodyNodes.push_back({-0.2, 0});
     m_bodyNodes.push_back({0.2, 0});
     m_bodyNodes.push_back({-0.4, 0.25});

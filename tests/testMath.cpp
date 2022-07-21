@@ -11,6 +11,7 @@ TEST(VectorMathTest, dotProductTest) {
     EXPECT_EQ(Vec2(0, 1).dot(Vec2(1, 0)), 0);
     EXPECT_EQ(Vec2(1, 1).dot(Vec2(1, 1)), 2);
     EXPECT_EQ(Vec2(1, -1).dot(Vec2(1, 1)), 0);
+    EXPECT_EQ(Vec2(1, 1).dot(Vec2(-1, -1)), -2);
 }
 
 TEST(VectorMathTest, absTest) {
@@ -31,6 +32,21 @@ TEST(VectorMathTest, normalizeVecTest) {
     EXPECT_EQ(Vec2(2, 0).normalize(), Vec2(1, 0.));
     EXPECT_DOUBLE_EQ(Vec2(1, 1).normalize(3).abs(), 3.);
     EXPECT_EQ(Vec2(2, 0).normalize(3), Vec2(3, 0.));
+    EXPECT_EQ(Vec2(1, 0).normalize(-1), Vec2(-1, 0));
+}
+
+TEST(VectorMathTest, projectionVecTest) {
+    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(1, 0)), Vec2(1, 0));
+    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(0, 0)), Vec2(0, 0));
+    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(-1, 0)), Vec2(1, 0));
+    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(0, -1)), Vec2(0, 1));
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(1, 0)), 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(0, 0)), 0.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(-1, 0)), -1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(0, -1)), -1.);
+    // Rounding errors unless you compare x and y separately
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionVector(Vec2(-1, -1)).x, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionVector(Vec2(-1, -1)).y, 1.);
 }
 
 TEST(VectorMathTest, radToDegTest) {

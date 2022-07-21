@@ -2,24 +2,28 @@
 #define VVIPERS_PLAYER_HPP
 
 #include <string>
-#include <vvipers/Controller.hpp>
 #include <vvipers/Score.hpp>
-#include <vvipers/Viper.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {
 
+class Controller;
+class Viper;
+
 class Player {
   public:
-    Player(std::string name);
-    ~Player();
-    void setController(Controller* ctrl) { m_controller = ctrl; }
-    Controller* getController() const { return m_controller; }
+    Player(const std::string& name, Controller* c, Viper* v);
+    std::string name() const { return m_name; }
+    Viper* viper() const { return m_viper; }
+    void viper(Viper* v) { m_viper = v; }
+    const Controller* controller() const { return m_controller; }
+    void controller(Controller* c) { m_controller = c; }
 
   private:
-    Controller* m_controller;
     std::string m_name;
     Score m_score;
+    Viper* m_viper;
+    Controller* m_controller;
 };
 
 }  // namespace VVipers
