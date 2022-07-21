@@ -2,11 +2,10 @@
 
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
-
-using namespace VVipers;
+#include <vvipers/debug.hpp>
 
 namespace {
-
+using namespace VVipers;
 using namespace sf;
 
 class TrackTest : public ::testing::Test {
@@ -26,6 +25,7 @@ TEST_F(TrackTest, LengthTestBasic) {
 }
 
 TEST_F(TrackTest, LengthTestOverFlow) {
+    VVipers::logLevel = VVipers::LogLevel::silent;
     EXPECT_THROW(track.length(seconds(6), seconds(0)), std::runtime_error);
 }
 

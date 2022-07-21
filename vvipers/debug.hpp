@@ -7,7 +7,7 @@
 
 namespace VVipers {
 
-enum class LogLevel { onlyErrors = 0, errorsAndWarnings = 1, all = 2 };
+enum class LogLevel { silent = 0, onlyErrors, errorsAndWarnings, all };
 inline LogLevel logLevel = LogLevel::all;
 
 #ifndef __INTELLISENSE__  // Because intellisense bugs on

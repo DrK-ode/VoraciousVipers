@@ -19,17 +19,20 @@ class ViperTest : public ::testing::Test {
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_DOUBLE_EQ(viper.angle(), 180.f);
-    viper.setAngle(90.f);
-    EXPECT_DOUBLE_EQ(viper.angle(), 90.f);
-    viper.setAngle(-90.f);
-    EXPECT_DOUBLE_EQ(viper.angle(), -90.f);
-    viper.setAngle(270.f);
-    EXPECT_DOUBLE_EQ(viper.angle(), -90.f);
+    EXPECT_DOUBLE_EQ(viper.angle(), 180.);
+    viper.setAngle(90.);
+    EXPECT_DOUBLE_EQ(viper.angle(), 90.);
+    viper.setAngle(-90.);
+    EXPECT_DOUBLE_EQ(viper.angle(), -90.);
+    viper.setAngle(270.);
+    EXPECT_DOUBLE_EQ(viper.angle(), -90.);
 }
 
 TEST_F(ViperTest, lengthTest) {
-    EXPECT_DOUBLE_EQ(viper.length(), 3.f * viper.speed());
+    viper.update(seconds(3.0)); // Let it grow
+    EXPECT_DOUBLE_EQ(viper.length(), 3. * viper.speed());
+    viper.update(seconds(3.0)); // Let it grow more
+    EXPECT_DOUBLE_EQ(viper.length(), 3. * viper.speed());
 }
 
 }  // namespace
