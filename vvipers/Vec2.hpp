@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <SFML/System/Vector2.hpp>
-#include <vvipers/Math.hpp>
+#include <vvipers/VVMath.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {

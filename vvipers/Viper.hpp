@@ -44,39 +44,45 @@ class Viper : public GameObject,
 
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
+    /** Sets the direction of the head and keeps the angle stored within ±180
+     * degrees. **/
+    void angle(double a) { m_angle = mod180Deg(a); }
+    /** Collidable override. @returns a list of all owned CollidableBody which
+     * for a Viper is the head, body and tail. **/
     std::vector<const CollisionBody*> collisionBodies() const override {
         return std::vector<const CollisionBody*>(
             {&m_headBody, &m_bodyBody, &m_tailBody});
     }
     void die(const Time& elapsedTime);
+    /** Drawable override. Draws all parts of the viper to the target **/
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    /** @return The track the viper follows. **/
+    /** @returns The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
     /** Adds time the Viper should spend growing. **/
     void growth(const Time& g);
-    /** @return The first (front) point on the track the Viper is following. **/
+    /** @returns The first (front) point on the track the Viper is following.
+     * **/
     const TrackPoint* head() const { return m_headPoint; }
-    /** @return Normal (spatial) length of the Viper. **/
+    /** @returns Normal (spatial) length of the Viper. **/
     double length() const;
-    // Listen to update events
+    /** Observer override. Listens to update events **/
     virtual void onNotify(const GameEvent* event) override;
-    /** Sets the direction of the head. **/
-    void setAngle(double a) { m_angle = mod180Deg(a); }
     /** Initiliazes the position and direction of the Viper given the specified
      * length. **/
     void setup(const Vec2& from, double angle, const Time& length);
+    /** Sets the speed. **/
     void speed(double s) { m_speed = s; }
-    /** @return current speed. **/
+    /** @returns current speed. **/
     double speed() const { return m_speed; }
     ViperState_t state() const { return m_state; }
     void state(ViperState state) { m_state = state; }
     // Adjust speed, angle, etc. according to the SteeringEvent
     void steer(const SteeringEvent* orders);
-    /** The temporal length of the Viper.
+    /** @returns The temporal length of the Viper.
      * It is the time it takes for the tail to reach the current position of the
      * head. **/
     Time temporalLength() const { return m_temporalLength; }
-    /** Updates state of the Viper. Should be called every frame. **/
+    /** Updates state of the Viper. Should normally be called by the onNotify member function. **/
     void update(const Time& elapsedTime);
 
   private:

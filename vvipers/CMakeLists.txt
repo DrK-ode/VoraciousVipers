@@ -14,7 +14,7 @@ set(INC_FILES
     GameObject.hpp
     GameWindow.hpp
     Level.hpp
-    Math.hpp
+    VVMath.hpp
     Observer.hpp
     Player.hpp
     RectBody.hpp

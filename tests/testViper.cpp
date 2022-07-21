@@ -20,11 +20,11 @@ class ViperTest : public ::testing::Test {
 
 TEST_F(ViperTest, angleTest) {
     EXPECT_DOUBLE_EQ(viper.angle(), 180.);
-    viper.setAngle(90.);
+    viper.angle(90.);
     EXPECT_DOUBLE_EQ(viper.angle(), 90.);
-    viper.setAngle(-90.);
+    viper.angle(-90.);
     EXPECT_DOUBLE_EQ(viper.angle(), -90.);
-    viper.setAngle(270.);
+    viper.angle(270.);
     EXPECT_DOUBLE_EQ(viper.angle(), -90.);
 }
 

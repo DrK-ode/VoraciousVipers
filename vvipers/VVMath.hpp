@@ -1,5 +1,5 @@
-#ifndef VVIPERS_MATH_HPP
-#define VVIPERS_MATH_HPP
+#ifndef VVIPERS_VVMATH_HPP
+#define VVIPERS_VVMATH_HPP
 
 #include <cmath>
 
@@ -29,4 +29,4 @@ inline double modPiRad(double rad) {
 
 }  // namespace VVipers
 
-#endif
+#endif // VVIPERS_VVMATH_HPP
