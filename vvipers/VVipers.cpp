@@ -54,8 +54,13 @@ void VVipers::startGame() {
         }
         debugDuration = clock.split();
 
-        if (!firstFrame)
+        if (!firstFrame){
+            while( tickDuration > 2*nominalFrameDuration ){
+                m_game.update(nominalFrameDuration);
+                tickDuration -= nominalFrameDuration;
+            }
             m_game.update(tickDuration);
+        }
 
         updateDuration = clock.split();
 
