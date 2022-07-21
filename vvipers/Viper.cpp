@@ -50,26 +50,36 @@ void Viper::onNotify(const GameEvent* event) {
 // Each initial segment will get the same length and be setup in a line from the
 // start coordinates to the end coordinates. The track will be prepared assuming
 // nominal speed. Tail at from-vector, head at to-vector.
+// void Viper::setup(const Vec2& headPosition, double angle,
+//                   const Time& viperTemporalLength) {
+//     const double viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
+//     m_angle = angle;
+//     Vec2 vipVec =
+//         viperLength * Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
+//     Vec2 dL = vipVec / viperLength;
+//     Time tailTime = seconds(0);
+//     Time headTime = tailTime + viperTemporalLength;
+//     m_temporalLength = (headTime - tailTime);
+//     size_t numberOfPoints = 60 * toSeconds(m_temporalLength) + 1;  // 60 FPS
+
+//     // Find all the positions the Viper segments will move through
+//     m_track.clear();
+//     for (int i = 0; i < numberOfPoints; ++i) {
+//         m_track.create_back(
+//             headPosition - dL * i,
+//             headTime - (m_temporalLength * i) / (numberOfPoints - 1));
+//     }
+
+//     m_headPoint = m_track.front();
+// }
+
 void Viper::setup(const Vec2& headPosition, double angle,
                   const Time& viperTemporalLength) {
-    const double viperLength = toSeconds(viperTemporalLength) * s_nominalSpeed;
     m_angle = angle;
-    Vec2 vipVec =
-        viperLength * Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
-    Vec2 dL = vipVec / viperLength;
-    Time tailTime = seconds(0);
-    Time headTime = tailTime + viperTemporalLength;
-    m_temporalLength = (headTime - tailTime);
-    size_t numberOfPoints = 60 * toSeconds(m_temporalLength) + 1;  // 60 FPS
-
-    // Find all the positions the Viper segments will move through
-    m_track.clear();
-    for (int i = 0; i < numberOfPoints; ++i) {
-        m_track.create_back(
-            headPosition - dL * i,
-            headTime - (m_temporalLength * i) / (numberOfPoints - 1));
-    }
-
+    //Vec2 vipVec = Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
+    m_temporalLength = seconds(0);
+    growth(viperTemporalLength);
+    m_track.create_back( headPosition, seconds(0));
     m_headPoint = m_track.front();
 }
 
