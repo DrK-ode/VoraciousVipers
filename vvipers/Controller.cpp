@@ -12,20 +12,27 @@ void Controller::onNotify(const GameEvent* event) {
 void KeyboardController::update(const Time& elapsedTime) {
     const double angularSpeed = 180;
     double deltaAngle = 0;
-    if (sf::Keyboard::isKeyPressed(m_left)) {
-        deltaAngle -= angularSpeed * toSeconds(elapsedTime);
+    SteeringEvent event(this);
+    bool send_event = false;
+    if (sf::Keyboard::isKeyPressed(m_keys.left)) {
+        event.deltaAngle -= angularSpeed * toSeconds(elapsedTime);
+        send_event = true;
     }
-    if (sf::Keyboard::isKeyPressed(m_right)) {
-        deltaAngle += angularSpeed * toSeconds(elapsedTime);
+    if (sf::Keyboard::isKeyPressed(m_keys.right)) {
+        event.deltaAngle += angularSpeed * toSeconds(elapsedTime);
+        send_event = true;
     }
-    if (deltaAngle != 0) {
-        SteeringEvent event(this, deltaAngle);
+    if (sf::Keyboard::isKeyPressed(m_keys.boost)) {
+        event.boost = true;
+        send_event = true;
+    }
+    if (send_event)
         notify(&event);
-    }
 }
 
 void ControllerGoingInCircles::update(const Time& elapsedTime) {
-    SteeringEvent event(this, m_da * toSeconds(elapsedTime));
+    SteeringEvent event(this);
+    event.deltaAngle = m_da * toSeconds(elapsedTime);
     notify(&event);
 }
 

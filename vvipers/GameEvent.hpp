@@ -70,11 +70,12 @@ class KeyboardEvent : public GameEvent {
 
 class SteeringEvent : public GameEvent {
   public:
-    SteeringEvent(const Controller* c, double dA)
-        : GameEvent(EventType::Steering), controller(c), deltaAngle(dA) {}
+    SteeringEvent(const Controller* c)
+        : GameEvent(EventType::Steering), controller(c), deltaAngle(0), boost(false) {}
     GameEvent* clone() const override { return new SteeringEvent(*this); }
     const Controller* controller;
-    const double deltaAngle;
+    double deltaAngle;
+    bool boost;
 };
 
 class UpdateEvent : public GameEvent {

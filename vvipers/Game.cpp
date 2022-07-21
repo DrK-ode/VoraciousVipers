@@ -69,8 +69,12 @@ Player* Game::findPlayerWith(const Viper* viper) const {
 }
 
 Game::Game() : m_exit(false) {
+    KeyboardController::KeyboardControls keys;
+    keys.left = sf::Keyboard::A;
+    keys.right = sf::Keyboard::D;
+    keys.boost = sf::Keyboard::Space;
     auto controller =
-        addController(new KeyboardController(sf::Keyboard::A, sf::Keyboard::D));
+        addController(new KeyboardController(keys));
     auto viper = addViper();
     auto player = addPlayer("Playername", controller, viper);
 

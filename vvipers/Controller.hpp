@@ -17,13 +17,16 @@ class Controller : public Observable, public Observer {
 
 class KeyboardController : public Controller {
   public:
-    KeyboardController(sf::Keyboard::Key left, sf::Keyboard::Key right)
-        : m_left(left), m_right(right) {}
+    struct KeyboardControls {
+        sf::Keyboard::Key left;
+        sf::Keyboard::Key right;
+        sf::Keyboard::Key boost;
+    };
+    KeyboardController(const KeyboardControls& keys) : m_keys(keys) {}
 
   private:
-    virtual void update( const Time& elapsedTime) override;
-    sf::Keyboard::Key m_left;
-    sf::Keyboard::Key m_right;
+    virtual void update(const Time& elapsedTime) override;
+    KeyboardControls m_keys;
 };
 
 class ControllerGoingInCircles : public Controller {
@@ -31,7 +34,7 @@ class ControllerGoingInCircles : public Controller {
     ControllerGoingInCircles(double da) : m_da(da) {}
 
   private:
-  virtual void update( const Time& elapsedTime) override;
+    virtual void update(const Time& elapsedTime) override;
     double m_da;
 };
 
