@@ -55,9 +55,9 @@ void KeyboardController::update(const Time& elapsedTime) {
 
 void MouseController::update( const Time& elapsedTime ){
     const sf::Vector2i windowHalfSize(m_window->getSize().x/2, m_window->getSize().y/2);
-    const double angularSpeed = 180;
+    const double degPerPx = 1; // Essentially the mouse sensitivity
     SteeringEvent event(this);
-    event.turn = angularSpeed * (sf::Mouse::getPosition(*m_window).x - windowHalfSize.x) / windowHalfSize.x;
+    event.turn = degPerPx * (sf::Mouse::getPosition(*m_window).x - windowHalfSize.x);
     event.boost = sf::Mouse::isButtonPressed( sf::Mouse::Left );
     notify(&event);
     // This might cause problems if anything else uses the mouse

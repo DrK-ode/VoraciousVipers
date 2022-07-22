@@ -68,22 +68,32 @@ Player* Game::findPlayerWith(const Viper* viper) const {
     return nullptr;
 }
 
-Game::Game()
-    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers"),
-      m_exit(false) {
+Controller* Game::addMouseController() {
     setMouseCursorGrabbed(true);
     setMouseCursorVisible(false);
     sf::Mouse::setPosition(sf::Vector2i(getSize().x / 2, getSize().y / 2),
                            *this);
-    auto controller =
-        addController(new MouseController(this));
-    /*KeyboardController::KeyboardControls keys;
+    return addController(new MouseController(this));
+}
+
+Controller* Game::addKeyboardController() {
+    KeyboardController::KeyboardControls keys;
     keys.left = sf::Keyboard::A;
     keys.right = sf::Keyboard::D;
     keys.boost = sf::Keyboard::Space;
-    auto controller = addController(new KeyboardController(keys));*/
-    auto viper = addViper();
-    auto player = addPlayer("Playername", controller, viper);
+    return addController(new KeyboardController(keys));
+}
+
+Game::Game()
+    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers"),
+      m_exit(false) {
+    auto controllerM = addMouseController();
+    auto viperM = addViper();
+    auto playerM = addPlayer("PlayerM", controllerM, viperM);
+
+    // auto controllerK = addKeyboardController();
+    // auto viperK = addViper();
+    // auto playerK = addPlayer("PlayerK", controllerK, viperK);
 
     m_currentLevel = new Level("The first and only level");
     m_collisionDetector.registerCollidable(m_currentLevel);
@@ -168,11 +178,11 @@ void Game::handleDestruction(const DestroyEvent* event) {
         deleteViper((Viper*)(event->objectPtr));
 }
 
-void Game::processWindowEvents(){
+void Game::processWindowEvents() {
     sf::Event event;
     while (pollEvent(event)) {
         switch (event.type) {
-            case sf::Event::Closed:{
+            case sf::Event::Closed: {
                 signalExit();
                 break;
             }
@@ -180,8 +190,8 @@ void Game::processWindowEvents(){
                 break;
             }
             case sf::Event::KeyPressed: {
-                switch( event.key.code){
-                    case sf::Keyboard::Escape:{
+                switch (event.key.code) {
+                    case sf::Keyboard::Escape: {
                         signalExit();
                         break;
                     }

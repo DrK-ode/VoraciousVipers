@@ -29,6 +29,9 @@ class Game : public sf::RenderWindow, public Observer, Observable {
   private:
     Controller* addController(Controller* controller);
     void deleteController(Controller* controller);
+    Controller* addMouseController();
+    Controller* addKeyboardController();
+
     Player* addPlayer(const std::string& name, Controller* controller,
                       Viper* viper);
     void deletePlayer(Player* player);
