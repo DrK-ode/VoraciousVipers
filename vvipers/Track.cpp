@@ -78,20 +78,14 @@ Vec2 Track::direction(const Time& t) const {
         throw std::runtime_error(
             "Cannot compute direction with < 2 TrackPoints.");
     }
-    if (t > m_front->getTime() || t < m_back->getTime()) {
-        std::stringstream msg;
-        msg << "Requesting direction at t=" << t
-            << "s, which is outside viper time interval(" << m_back->getTime()
-            << "s - " << m_front->getTime() << "s).";
-        tagError(msg.str());
-        throw std::runtime_error(msg.str());
-    }
 
     TrackPoint* p2 = m_front->next();
     while (p2 && p2->getTime() > t)
         p2 = p2->next();
-    if (!p2)
-        logError("This should not happen?");
+    if (!p2)  // t < time at end of track
+        p2 = m_back;
+    else if (p2 == m_front)  // t >= time at start of track
+        p2 = m_front->next();
     TrackPoint* p1 = p2->prev();
     return (*p1 - *p2).normalize();
 }
@@ -107,7 +101,7 @@ double Track::length(const Time& t1, const Time& t2) const {
     // But if t2 > t1 we return a negative length
     if (t1 < t2)
         return -length(t2, t1);
-    // t1 or t2 o0utside the track's range
+    // t1 or t2 outside the track's range
     if (t1 > m_front->getTime() || t2 < m_back->getTime()) {
         std::stringstream msg;
         msg << "Requesting length between t1 = " << t1 << " and t2 = " << t2
@@ -147,25 +141,17 @@ double Track::length(const Time& t1, const Time& t2) const {
 }
 
 Vec2 Track::position(const Time& t) const {
-    if (t > m_front->getTime() || t < m_back->getTime()) {
-        std::stringstream msg;
-        msg << "Requesting position at t=" << t
-            << ", which is outside viper time interval(" << m_back->getTime()
-            << " - " << m_front->getTime() << ").";
-        throw std::runtime_error(msg.str());
-    }
-
     TrackPoint* p2 = m_front;
     while (p2 && p2->getTime() > t)
         p2 = p2->next();
-    if (!p2)
-        logError("This should not happen?");
-
-    if (p2 == m_front)  // t corresponds to the first time in the track
-        return *m_front;
+    if (!p2)  // t < time at end of track
+        p2 = m_back;
+    else if (p2 == m_front)  // t >= time at start of track
+        p2 = m_front->next();
 
     TrackPoint* p1 = p2->prev();
-    // The sought position lies between p1 and p2, linear interpolation
+    // The sought position lies between p1 and p2, linear interpolation (or
+    // extrapolation)
     return *p1 + (*p2 - *p1) *
                      ((t - p1->getTime()) / (p2->getTime() - p1->getTime()));
 }
