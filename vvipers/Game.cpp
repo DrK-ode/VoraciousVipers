@@ -70,7 +70,7 @@ Player* Game::findPlayerWith(const Viper* viper) const {
 
 Game::Game() : m_exit(false) {
     auto controller =
-        addController(new MouseController);
+        addController(new MouseController(&m_mouseMove));
     auto viper = addViper();
     auto player = addPlayer("Playername", controller, viper);
 
@@ -121,6 +121,11 @@ void Game::onNotify(const GameEvent* event) {
                 default:
                     break;
             }
+            break;
+        }
+        case GameEvent::EventType::MouseMove: {
+            // Store the last move in order to forward it to other objects that need the information
+            m_mouseMove = static_cast<const MouseMoveEvent*>(event)->relativeMove;
             break;
         }
         default: {

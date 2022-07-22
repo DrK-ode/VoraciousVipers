@@ -1,6 +1,7 @@
 #include <SFML/Window/Mouse.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameWindow.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -37,6 +38,7 @@ void GameWindow::processEvents() {
                 MouseMoveEvent mouseMoveEvent(relativeMouseMove);
                 notify(&mouseMoveEvent);
                 sf::Mouse::setPosition(sf::Vector2i(getSize().x / 2, getSize().y/2), *this);
+                tagInfo("move");
                 break;
             }
         }

@@ -26,11 +26,9 @@ void KeyboardController::update(const Time& elapsedTime) {
 
 void MouseController::update( const Time& elapsedTime ){
     const double angularSpeed = 180;
-    tagInfo(sf::Mouse::getPosition().x - 400);
-    double dA = angularSpeed * ((sf::Mouse::getPosition().x - 400) / 400.) * toSeconds(elapsedTime);
+    double dA = angularSpeed * m_mouseMovement->x * toSeconds(elapsedTime);
     SteeringEvent event(this, dA);
     notify(&event);
-    sf::Mouse::setPosition( {400,300} );
 }
 
 void ControllerGoingInCircles::update(const Time& elapsedTime) {

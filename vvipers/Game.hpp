@@ -44,6 +44,7 @@ class Game : public sf::Drawable, public Observer, Observable {
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
     CollisionDetector m_collisionDetector;
     Level* m_currentLevel;
+    Vec2 m_mouseMove;
     std::set<Controller*> m_controllers;
     std::set<Player*> m_players;
     std::set<Viper*> m_vipers;

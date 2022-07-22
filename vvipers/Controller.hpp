@@ -21,14 +21,20 @@ class KeyboardController : public Controller {
         : m_left(left), m_right(right) {}
 
   private:
-    virtual void update( const Time& elapsedTime) override;
+    virtual void update(const Time& elapsedTime) override;
     sf::Keyboard::Key m_left;
     sf::Keyboard::Key m_right;
 };
 
 class MouseController : public Controller {
+  public:
+    MouseController(const Vec2* mouseMovement)
+        : m_mouseMovement(mouseMovement) {}
+
   private:
-  virtual void update( const Time& elapsedTime ) override;
+    virtual void update(const Time& elapsedTime) override;
+
+    const Vec2* m_mouseMovement;
 };
 
 class ControllerGoingInCircles : public Controller {
@@ -36,7 +42,7 @@ class ControllerGoingInCircles : public Controller {
     ControllerGoingInCircles(double da) : m_da(da) {}
 
   private:
-  virtual void update( const Time& elapsedTime) override;
+    virtual void update(const Time& elapsedTime) override;
     double m_da;
 };
 
