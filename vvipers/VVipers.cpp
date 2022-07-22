@@ -27,6 +27,7 @@ void VVipers::startGame() {
     Stopwatch clock;
     clock.start();
     bool firstFrame = true;
+    // Main game loop
     while (!m_game.exit()) {
         tickDuration = clock.restart();
 
@@ -45,14 +46,14 @@ void VVipers::startGame() {
             if (sampleIndex == sampleSize)
                 sampleIndex = 0;
             // Print some info
-            logInfo("Last frame took ", tickDuration, " (on average ",
+            /*logInfo("Last frame took ", tickDuration, " (on average ",
                     fpsAverage, " FPS)");
             logInfo("  Debug:   ", debugDuration);
             logInfo("  Update:  ", updateDuration);
             logInfo("  Events:  ", eventDuration);
             logInfo("  Drawing: ", drawDuration);
             logInfo("  Sleep:   ", sleepDuration);
-            logInfo("  We owe the next frame: ", debtDuration);
+            logInfo("  We owe the next frame: ", debtDuration);*/
         }
         debugDuration = clock.split();
 

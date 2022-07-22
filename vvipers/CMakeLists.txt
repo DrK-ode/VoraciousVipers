@@ -7,24 +7,24 @@ set(INC_FILES
     CollisionDetector.hpp
     CollisionVertices.hpp
     config.hpp
-    debug.hpp
     Controller.hpp
+    debug.hpp
     Game.hpp
     GameEvent.hpp
     GameObject.hpp
     GameWindow.hpp
     Level.hpp
-    VVMath.hpp
     Observer.hpp
     Player.hpp
     RectBody.hpp
+    Score.hpp
+    Time.hpp
+    Track.hpp
     Vec2.hpp
     Viper.hpp
     ViperSketch.hpp
     VVipers.hpp
-    Score.hpp
-    Time.hpp
-    Track.hpp
+    VVMath.hpp
 )
 
 set(SRC_FILES
@@ -41,12 +41,12 @@ set(SRC_FILES
     Observer.cpp
     Player.cpp
     RectBody.cpp
+    Score.cpp
+    Track.cpp
     Vec2.cpp
     Viper.cpp
     ViperSketch.cpp
     VVipers.cpp
-    Score.cpp
-    Track.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)

@@ -52,11 +52,11 @@ class CollisionEvent : public GameEvent {
     const Colliders colliders;
 };
 
-class DestroyMeEvent : public GameEvent {
+class DestroyEvent : public GameEvent {
   public:
-    DestroyMeEvent(const GameObject* optr)
+    DestroyEvent(const GameObject* optr)
         : GameEvent(EventType::Destroy), objectPtr(optr) {}
-    GameEvent* clone() const override { return new DestroyMeEvent(*this); }
+    GameEvent* clone() const override { return new DestroyEvent(*this); }
     const GameObject* objectPtr;
 };
 
@@ -78,11 +78,14 @@ class MouseMoveEvent : public GameEvent {
 
 class SteeringEvent : public GameEvent {
   public:
-    SteeringEvent(const Controller* c, double dA)
-        : GameEvent(EventType::Steering), controller(c), deltaAngle(dA) {}
+    SteeringEvent(const Controller* c)
+        : GameEvent(EventType::Steering), controller(c), turn(0), boost(false) {}
     GameEvent* clone() const override { return new SteeringEvent(*this); }
     const Controller* controller;
-    const double deltaAngle;
+    // Instruct the viper to turn from -1 to 1 (full left to full right)
+    double turn;
+    // Instruct the viper to trigger the boost
+    bool boost;
 };
 
 class UpdateEvent : public GameEvent {

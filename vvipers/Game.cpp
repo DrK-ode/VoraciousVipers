@@ -69,13 +69,17 @@ Player* Game::findPlayerWith(const Viper* viper) const {
 }
 
 Game::Game() : m_exit(false) {
-    auto controller =
-        addController(new MouseController(&m_mouseMove));
+    /*auto controller =
+        addController(new MouseController(&m_mouseMove));*/
+    KeyboardController::KeyboardControls keys;
+    keys.left = sf::Keyboard::A;
+    keys.right = sf::Keyboard::D;
+    keys.boost = sf::Keyboard::Space;
+    auto controller = addController(new KeyboardController(keys));
     auto viper = addViper();
     auto player = addPlayer("Playername", controller, viper);
 
-    m_currentLevel =
-        new Level("The first and only level");
+    m_currentLevel = new Level("The first and only level");
     m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
@@ -138,48 +142,68 @@ void Game::onNotify(const GameEvent* event) {
     }
 }
 
+void Game::handleCollisions(const CollisionEvent* event) {
+    const CollisionTriplet& A = event->colliders.first;
+    const CollisionTriplet& B = event->colliders.second;
+    for (auto& ct : {A, B}) {
+        if (typeid(*ct.collidable) == typeid(Viper)) {
+            Viper* viper = (Viper*)(ct.collidable);
+            if (viper->state() == Viper::ViperAlive &&
+                ((ct.bodypart->partID) & Viper::ViperSensitivePart))
+                killViper(viper);
+        }
+    }
+}
+
+void Game::handleSteering(const SteeringEvent* event) {
+    Player* player = findPlayerWith(event->controller);
+    if (!player) {
+        tagError("Controller not attached to any player.");
+        return;
+    }
+    Viper* viper = player->viper();
+    if (viper) {
+        // Boost if the steering event says so and either:
+        //    1) Boost in inactive and the boost power is full
+        //    2) Boost is active and the boost power is not depleted
+
+        // This allows the viper a turning radius of twice its width
+        const double maxAngularSpeed = degPerRad * Viper::viperNominalSpeed /
+                                       Viper::viperNominalSegmentWidth;
+        double angularSpeed = event->turn * maxAngularSpeed;
+        // Protect against erroneous input from controller
+        if (std::abs(event->turn) > 1)
+            angularSpeed /= std::abs(event->turn);
+        double boost = 0.;
+        if (event->boost &&
+            ((viper->boost() > 0 and viper->boostCharge() > seconds(0)) or
+             (viper->boost() == 0.0 and viper->boostCharge() == Viper::viperMaxBoostTime)))
+            boost = 1.;
+        viper->steer(angularSpeed, boost);
+    }
+}
+
+void Game::handleDestruction(const DestroyEvent* event) {
+    if (typeid(*event->objectPtr) == typeid(Viper))
+        // we could retrieve the non-const ptr from hte player but this is
+        // easier
+        deleteViper((Viper*)(event->objectPtr));
+}
+
 void Game::processEvents() {
     // Find all collision events
     auto [beginCollisionEvents, endCollisionEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Collision);
-    for (auto iter = beginCollisionEvents; iter != endCollisionEvents; ++iter) {
-        const CollisionEvent* event =
-            static_cast<const CollisionEvent*>(iter->second);
-        const CollisionTriplet& A = event->colliders.first;
-        const CollisionTriplet& B = event->colliders.second;
-        for (auto& ct : {A, B}) {
-            if ( typeid(*ct.collidable) == typeid(Viper)) {
-                Viper* viper = (Viper*)(ct.collidable);
-                if (viper->state() == Viper::ViperAlive &&
-                    ((ct.bodypart->partID) & Viper::ViperSensitivePart))
-                    killViper(viper);
-            }
-        }
-    }
+    for (auto iter = beginCollisionEvents; iter != endCollisionEvents; ++iter)
+        handleCollisions(static_cast<const CollisionEvent*>(iter->second));
     auto [beginDestroyEvents, endDestroyEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
-    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter) {
-        const DestroyMeEvent* destroyMeEvent =
-            static_cast<const DestroyMeEvent*>(iter->second);
-        if (typeid(*destroyMeEvent->objectPtr) == typeid(Viper))
-            deleteViper((Viper*)(destroyMeEvent->objectPtr));
-    }
+    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter)
+        handleDestruction(static_cast<const DestroyEvent*>(iter->second));
     auto [beginSteeringEvents, endSteeringEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);
-    for (auto iter = beginSteeringEvents; iter != endSteeringEvents; ++iter) {
-        // In the future different event might be combined and/or altered before
-        // sending them to the viper.
-        const SteeringEvent* steeringEvent =
-            static_cast<const SteeringEvent*>(iter->second);
-        Player* player = findPlayerWith(steeringEvent->controller);
-        if (!player) {
-            tagError("Controller not attached to any player.");
-            continue;
-        }
-        Viper* viper = player->viper();
-        if (viper)
-            viper->steer(steeringEvent);
-    }
+    for (auto iter = beginSteeringEvents; iter != endSteeringEvents; ++iter)
+        handleSteering(static_cast<const SteeringEvent*>(iter->second));
     // Delete fully processed events?
     // For now just delete all...
     for (auto& event : m_eventsToBeProcessed)

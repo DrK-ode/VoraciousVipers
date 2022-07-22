@@ -38,6 +38,10 @@ class Game : public sf::Drawable, public Observer, Observable {
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
+    void handleCollisions(const CollisionEvent* event);
+    void handleSteering(const SteeringEvent* event);
+    void handleDestruction( const DestroyEvent* event);
+
     void signalExit();
 
     bool m_exit;
