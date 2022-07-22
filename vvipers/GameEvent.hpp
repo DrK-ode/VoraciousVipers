@@ -19,7 +19,7 @@ class GameEvent {
         Collision,
         Destroy,
         Keyboard,
-        Mouse,
+        MouseMove,
         Steering,
         Update,
         Window
@@ -68,6 +68,14 @@ class KeyboardEvent : public GameEvent {
     const sf::Event::KeyEvent keyInfo;
 };
 
+class MouseMoveEvent : public GameEvent {
+  public:
+    MouseMoveEvent(const Vec2 relMove)
+        : GameEvent(EventType::MouseMove), relativeMove(relMove) {}
+    GameEvent* clone() const override { return new MouseMoveEvent(*this); }
+    const Vec2 relativeMove;
+};
+
 class SteeringEvent : public GameEvent {
   public:
     SteeringEvent(const Controller* c, double dA)
@@ -95,4 +103,4 @@ class WindowEvent : public GameEvent {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_GAMEEVENT_HPP
+#endif  // VVIPERS_GAMEEVENT_HPP

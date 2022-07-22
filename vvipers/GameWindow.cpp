@@ -1,3 +1,4 @@
+#include <SFML/Window/Mouse.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameWindow.hpp>
 
@@ -5,10 +6,10 @@ namespace VVipers {
 
 GameWindow::GameWindow()
     : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers") {
-        setMouseCursorGrabbed(true);
-        setMouseCursorVisible(false);
-        sf::Mouse::setPosition( {400,300} );
-    }
+    setMouseCursorGrabbed(true);
+    setMouseCursorVisible(false);
+    sf::Mouse::setPosition( sf::Vector2i(getSize().x / 2, getSize().y/2), *this );
+}
 
 GameWindow::~GameWindow() {}
 
@@ -25,6 +26,17 @@ void GameWindow::processEvents() {
             case sf::Event::KeyPressed: {
                 KeyboardEvent keyEvent(event.key);
                 notify(&keyEvent);
+                break;
+            }
+            case sf::Event::MouseMoved: {
+                const Vec2 screenHalfSize = getSize() / 2;
+                const Vec2 relativeMouseMove =
+                    (Vec2(event.mouseMove.x, event.mouseMove.y) -
+                     screenHalfSize) /
+                    screenHalfSize;
+                MouseMoveEvent mouseMoveEvent(relativeMouseMove);
+                notify(&mouseMoveEvent);
+                sf::Mouse::setPosition(sf::Vector2i(getSize().x / 2, getSize().y/2), *this);
                 break;
             }
         }

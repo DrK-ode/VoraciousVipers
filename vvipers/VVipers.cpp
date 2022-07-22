@@ -7,7 +7,9 @@
 namespace VVipers {
 
 VVipers::VVipers() {
-    m_window.addObserver(&m_game, {GameEvent::EventType::Window, GameEvent::EventType::Keyboard});
+    m_window.addObserver(
+        &m_game, {GameEvent::EventType::Window, GameEvent::EventType::Keyboard,
+                  GameEvent::EventType::MouseMove});
 }
 
 VVipers::~VVipers() {}
@@ -54,8 +56,8 @@ void VVipers::startGame() {
         }
         debugDuration = clock.split();
 
-        if (!firstFrame){
-            while( tickDuration > 2*nominalFrameDuration ){
+        if (!firstFrame) {
+            while (tickDuration > 2 * nominalFrameDuration) {
                 m_game.update(nominalFrameDuration);
                 tickDuration -= nominalFrameDuration;
             }
