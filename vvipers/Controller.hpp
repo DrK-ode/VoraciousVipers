@@ -4,6 +4,7 @@
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 namespace VVipers {
 
@@ -31,13 +32,13 @@ class KeyboardController : public Controller {
 
 class MouseController : public Controller {
   public:
-    MouseController(const Vec2* mouseMovement)
-        : m_mouseMovement(mouseMovement) {}
+    MouseController(const sf::RenderWindow* window)
+        : m_window(window) {}
 
   private:
     virtual void update(const Time& elapsedTime) override;
 
-    const Vec2* m_mouseMovement;
+    const sf::RenderWindow* m_window;
 };
 
 class ControllerGoingInCircles : public Controller {

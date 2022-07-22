@@ -2,7 +2,6 @@
 #define VVIPERS_VVIPERS_HPP
 
 #include <vvipers/Game.hpp>
-#include <vvipers/GameWindow.hpp>
 
 namespace VVipers {
 
@@ -13,17 +12,12 @@ namespace VVipers {
  */
 class VVipers {
   public:
-    VVipers();
-    ~VVipers();
-
-    /**
-     * Starts the game loop.
+    /** Starts the game loop.
      * Currently hardcoded to 60 FPS.
      */
     void startGame();
 
   private:
-    GameWindow m_window;
     Game m_game;
 };
 

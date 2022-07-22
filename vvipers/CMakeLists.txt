@@ -12,7 +12,6 @@ set(INC_FILES
     Game.hpp
     GameEvent.hpp
     GameObject.hpp
-    GameWindow.hpp
     Level.hpp
     Observer.hpp
     Player.hpp
@@ -36,7 +35,6 @@ set(SRC_FILES
     Controller.cpp
     Game.cpp
     GameEvent.cpp
-    GameWindow.cpp
     Level.cpp
     Observer.cpp
     Player.cpp

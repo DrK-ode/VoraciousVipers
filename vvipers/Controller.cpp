@@ -1,5 +1,6 @@
 #include <vvipers/Controller.hpp>
 #include <vvipers/debug.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 namespace VVipers {
 
@@ -53,10 +54,14 @@ void KeyboardController::update(const Time& elapsedTime) {
 }
 
 void MouseController::update( const Time& elapsedTime ){
+    const sf::Vector2i windowHalfSize(m_window->getSize().x/2, m_window->getSize().y/2);
     const double angularSpeed = 180;
-    double dA = angularSpeed * m_mouseMovement->x * toSeconds(elapsedTime);
-    SteeringEvent event(this, dA);
+    SteeringEvent event(this);
+    event.turn = angularSpeed * (sf::Mouse::getPosition(*m_window).x - windowHalfSize.x) / windowHalfSize.x;
+    event.boost = sf::Mouse::isButtonPressed( sf::Mouse::Left );
     notify(&event);
+    // This might cause problems if anything else uses the mouse
+    sf::Mouse::setPosition(windowHalfSize, *m_window);
 }
 
 void ControllerGoingInCircles::update(const Time& elapsedTime) {

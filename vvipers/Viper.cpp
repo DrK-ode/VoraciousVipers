@@ -176,7 +176,6 @@ void Viper::updateSpeed(const Time& elapsedTime) {
                                                         toSeconds(elapsedTime));
     }
     m_speed += acceleration * toSeconds(elapsedTime);
-    tagInfo("Boost is now: ", m_boostCharge);
 }
 
 void Viper::updateAngle(const Time& elapsedTime) {

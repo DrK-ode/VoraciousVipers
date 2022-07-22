@@ -6,14 +6,6 @@
 
 namespace VVipers {
 
-VVipers::VVipers() {
-    m_window.addObserver(
-        &m_game, {GameEvent::EventType::Window, GameEvent::EventType::Keyboard,
-                  GameEvent::EventType::MouseMove});
-}
-
-VVipers::~VVipers() {}
-
 void VVipers::startGame() {
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
         sleepDuration(0), debtDuration(0), debugDuration(0);
@@ -46,14 +38,14 @@ void VVipers::startGame() {
             if (sampleIndex == sampleSize)
                 sampleIndex = 0;
             // Print some info
-            /*logInfo("Last frame took ", tickDuration, " (on average ",
+            logInfo("Last frame took ", tickDuration, " (on average ",
                     fpsAverage, " FPS)");
             logInfo("  Debug:   ", debugDuration);
             logInfo("  Update:  ", updateDuration);
             logInfo("  Events:  ", eventDuration);
             logInfo("  Drawing: ", drawDuration);
             logInfo("  Sleep:   ", sleepDuration);
-            logInfo("  We owe the next frame: ", debtDuration);*/
+            logInfo("  We owe the next frame: ", debtDuration);
         }
         debugDuration = clock.split();
 
@@ -67,13 +59,12 @@ void VVipers::startGame() {
 
         updateDuration = clock.split();
 
-        m_window.processEvents();
+        m_game.processEvents();
 
         eventDuration = clock.split();
 
-        m_window.clear(sf::Color::Black);
-        m_window.draw(m_game);
-        m_window.display();
+        m_game.draw();
+        m_game.display();
 
         drawDuration = clock.split();
         sleepDuration =

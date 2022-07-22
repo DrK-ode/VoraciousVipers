@@ -68,14 +68,20 @@ Player* Game::findPlayerWith(const Viper* viper) const {
     return nullptr;
 }
 
-Game::Game() : m_exit(false) {
-    /*auto controller =
-        addController(new MouseController(&m_mouseMove));*/
-    KeyboardController::KeyboardControls keys;
+Game::Game()
+    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers"),
+      m_exit(false) {
+    setMouseCursorGrabbed(true);
+    setMouseCursorVisible(false);
+    sf::Mouse::setPosition(sf::Vector2i(getSize().x / 2, getSize().y / 2),
+                           *this);
+    auto controller =
+        addController(new MouseController(this));
+    /*KeyboardController::KeyboardControls keys;
     keys.left = sf::Keyboard::A;
     keys.right = sf::Keyboard::D;
     keys.boost = sf::Keyboard::Space;
-    auto controller = addController(new KeyboardController(keys));
+    auto controller = addController(new KeyboardController(keys));*/
     auto viper = addViper();
     auto player = addPlayer("Playername", controller, viper);
 
@@ -93,45 +99,16 @@ Game::~Game() {
         delete c;
 }
 
-void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(*m_currentLevel, states);
+void Game::draw() {
+    clear(sf::Color::Black);
+    RenderWindow::draw(*m_currentLevel);
     for (const auto& v : m_vipers)
-        target.draw(*v, states);
+        RenderWindow::draw(*v);
 }
 
 void Game::onNotify(const GameEvent* event) {
     // If directly processable, do it!
     switch (event->type()) {
-        case GameEvent::EventType::Keyboard: {
-            switch (static_cast<const KeyboardEvent*>(event)->keyInfo.code) {
-                // Check for game global keys
-                case sf::Keyboard::Key::Escape: {
-                    // Bring up menu
-                    // But for now exit
-                    signalExit();
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case GameEvent::EventType::Window: {
-            switch (static_cast<const WindowEvent*>(event)->eventType) {
-                case sf::Event::EventType::Closed: {
-                    signalExit();
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case GameEvent::EventType::MouseMove: {
-            // Store the last move in order to forward it to other objects that need the information
-            m_mouseMove = static_cast<const MouseMoveEvent*>(event)->relativeMove;
-            break;
-        }
         default: {
             // Otherwise save it for later
             m_eventsToBeProcessed.insert(
@@ -163,9 +140,9 @@ void Game::handleSteering(const SteeringEvent* event) {
     }
     Viper* viper = player->viper();
     if (viper) {
-        // Boost if the steering event says so and either:
-        //    1) Boost in inactive and the boost power is full
-        //    2) Boost is active and the boost power is not depleted
+        /* Boost if the steering event says so and either:
+         *    1) Boost in inactive and the boost power is full
+         *    2) Boost is active and the boost power is not depleted */
 
         // This allows the viper a turning radius of twice its width
         const double maxAngularSpeed = degPerRad * Viper::viperNominalSpeed /
@@ -177,7 +154,8 @@ void Game::handleSteering(const SteeringEvent* event) {
         double boost = 0.;
         if (event->boost &&
             ((viper->boost() > 0 and viper->boostCharge() > seconds(0)) or
-             (viper->boost() == 0.0 and viper->boostCharge() == Viper::viperMaxBoostTime)))
+             (viper->boost() == 0.0 and
+              viper->boostCharge() == Viper::viperMaxBoostTime)))
             boost = 1.;
         viper->steer(angularSpeed, boost);
     }
@@ -190,7 +168,32 @@ void Game::handleDestruction(const DestroyEvent* event) {
         deleteViper((Viper*)(event->objectPtr));
 }
 
+void Game::processWindowEvents(){
+    sf::Event event;
+    while (pollEvent(event)) {
+        switch (event.type) {
+            case sf::Event::Closed:{
+                signalExit();
+                break;
+            }
+            case sf::Event::Resized: {
+                break;
+            }
+            case sf::Event::KeyPressed: {
+                switch( event.key.code){
+                    case sf::Keyboard::Escape:{
+                        signalExit();
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
 void Game::processEvents() {
+    processWindowEvents();
     // Find all collision events
     auto [beginCollisionEvents, endCollisionEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Collision);
@@ -221,7 +224,6 @@ void Game::update(Time elapsedTime) {
     UpdateEvent updateEvent(elapsedTime);
     notify(&updateEvent);
     m_collisionDetector.checkForCollisions();
-    processEvents();
 }
 
 }  // namespace VVipers

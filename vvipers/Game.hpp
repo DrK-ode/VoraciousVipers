@@ -2,11 +2,12 @@
 #define VVIPERS_GAME_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <vvipers/CollisionDetector.hpp>
 #include <vvipers/GameEvent.hpp>
+#include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
-#include <vvipers/GameObject.hpp>
 
 namespace VVipers {
 
@@ -15,11 +16,11 @@ class Level;
 class Viper;
 class Player;
 
-class Game : public sf::Drawable, public Observer, Observable {
+class Game : public sf::RenderWindow, public Observer, Observable {
   public:
     Game();
     ~Game();
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void draw();
     bool exit() const { return m_exit; }
     void onNotify(const GameEvent* event) override;
     void processEvents();
@@ -42,6 +43,7 @@ class Game : public sf::Drawable, public Observer, Observable {
     void handleSteering(const SteeringEvent* event);
     void handleDestruction( const DestroyEvent* event);
 
+    void processWindowEvents();
     void signalExit();
 
     bool m_exit;
