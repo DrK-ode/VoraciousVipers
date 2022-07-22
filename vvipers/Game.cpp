@@ -155,14 +155,32 @@ void Game::handleSteering(const SteeringEvent* event) {
         return;
     }
     Viper* viper = player->viper();
-    if (viper)
-        viper->steer(event);
+    if (viper) {
+        // Boost if the steering event says so and either:
+        //    1) Boost in inactive and the boost power is full
+        //    2) Boost is active and the boost power is not depleted
+
+        // This allows the viper a turning radius of twice its width
+        const double maxAngularSpeed = degPerRad * Viper::viperNominalSpeed /
+                                       Viper::viperNominalSegmentWidth;
+        double angularSpeed = event->turn * maxAngularSpeed;
+        // Protect against erroneous input from controller
+        if (std::abs(event->turn) > 1)
+            angularSpeed /= std::abs(event->turn);
+        double boost = 0.;
+        if (event->boost &&
+            ((viper->boost() > 0 and viper->boostCharge() > seconds(0)) or
+             (viper->boost() == 0.0 and viper->boostCharge() == Viper::viperMaxBoostTime)))
+            boost = 1.;
+        viper->steer(angularSpeed, boost);
+    }
 }
 
-void Game::handleDestruction( const DestroyEvent* event ){
-        if (typeid(*event->objectPtr) == typeid(Viper))
-        // we could retrieve the non-const ptr from hte player but this is easier
-            deleteViper((Viper*)(event->objectPtr));
+void Game::handleDestruction(const DestroyEvent* event) {
+    if (typeid(*event->objectPtr) == typeid(Viper))
+        // we could retrieve the non-const ptr from hte player but this is
+        // easier
+        deleteViper((Viper*)(event->objectPtr));
 }
 
 void Game::processEvents() {
@@ -174,8 +192,7 @@ void Game::processEvents() {
     auto [beginDestroyEvents, endDestroyEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
     for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter)
-        handleDestruction(
-            static_cast<const DestroyEvent*>(iter->second));
+        handleDestruction(static_cast<const DestroyEvent*>(iter->second));
     auto [beginSteeringEvents, endSteeringEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Steering);
     for (auto iter = beginSteeringEvents; iter != endSteeringEvents; ++iter)

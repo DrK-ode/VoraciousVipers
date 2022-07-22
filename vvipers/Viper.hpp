@@ -41,12 +41,25 @@ class Viper : public GameObject,
         ViperStasis = 1 << 2,
         ViperDying = ViperAlive | ViperDead
     };
+    static const double viperNominalSpeed;          // px/s
+    static const double viperNominalSegmentLength;  // px
+    static const double viperNominalSegmentWidth;   // px
+    static const Time viperSegmentTemporalLength;   // s
+    static const Time viperMaxBoostTime;            // s
+    static const double viperBoostRechargeRate;     // s per s
+    static const Time viperBoostRechargeCooldown;   // Countdown start
 
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
      * degrees. **/
     void angle(double a) { m_angle = mod180Deg(a); }
+    Time boostCharge() const { return m_boostCharge; }
+    /** @returns the amount of boost the Viper is currently receiving **/
+    double boost() const { return m_boostInc; }
+    /** Sets the relative amount the speed should be increased by.
+     * Typically values around 1.0. **/
+    void boost(double relativeSpeedIncrease);
     /** Collidable override. @returns a list of all owned CollidableBody which
      * for a Viper is the head, body and tail. **/
     std::vector<const CollisionBody*> collisionBodies() const override {
@@ -60,8 +73,7 @@ class Viper : public GameObject,
     const Track& getTrack() const { return m_track; }
     /** Adds time the Viper should spend growing. **/
     void growth(const Time& g);
-    /** @returns The first (front) point on the track the Viper is following.
-     * **/
+    /** @returns The first point on the track the Viper is following. **/
     const TrackPoint* head() const { return m_headPoint; }
     /** @returns Normal (spatial) length of the Viper. **/
     double length() const;
@@ -76,19 +88,19 @@ class Viper : public GameObject,
     double speed() const { return m_speed; }
     ViperState_t state() const { return m_state; }
     void state(ViperState state) { m_state = state; }
-    // Adjust speed, angle, etc. according to the SteeringEvent
-    void steer(const SteeringEvent* orders);
+    void steer(double angularSpeed, double boost) {
+        m_angularSpeed = angularSpeed;
+        m_boostInc = boost;
+    }
     /** @returns The temporal length of the Viper.
      * It is the time it takes for the tail to reach the current position of the
      * head. **/
     Time temporalLength() const { return m_temporalLength; }
-    /** Updates state of the Viper. Should normally be called by the onNotify member function. **/
+    /** Updates state of the Viper. Should normally be called by the onNotify
+     * member function. **/
     void update(const Time& elapsedTime);
 
   private:
-    static const Time s_headTemporalLength;
-    static const Time s_bodyTemporalLength;
-    static const Time s_tailTemporalLength;  // A minimum, can be larger
     TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
     void grow(const Time& elapsedTime);
@@ -97,14 +109,20 @@ class Viper : public GameObject,
     void updateBodies();
     void updateBody(CollisionVertices&, const Time& timeFront,
                     const Time& temporalLength);
+    void updateMotion(const Time& elapsedTime);
+    void updateSpeed(const Time& elapsedTime);
+    void updateAngle(const Time& elapsedTime);
 
     ViperState_t m_state;
-    static const double s_nominalSpeed;  // px/s
-    double m_angle;  // degrees, clockwise since y-axis is downwards
-    double m_speed;  // px/s
-    double m_acc;    // px/s²
-    Time m_temporalLength;
-    Time m_growth;
+    double m_angle;         // degrees, clockwise since y-axis is downwards
+    double m_angularSpeed;  // degrees/s
+    double m_speed;         // px/s
+    double m_targetSpeed;   // px/s
+    double m_boostInc;      // Boost speed = (1 + m_boost) * nominal speed
+    Time m_boostCharge;     // fraction [0., 1.]
+    Time m_boostRechargeCooldown;  // Countdown from viperBoostChargeCooldown
+    Time m_temporalLength;         // s
+    Time m_growth;                 // s
     TrackPoint* m_headPoint;
     Track m_track;
     CollisionVertices m_headBody;

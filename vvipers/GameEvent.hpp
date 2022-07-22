@@ -71,10 +71,12 @@ class KeyboardEvent : public GameEvent {
 class SteeringEvent : public GameEvent {
   public:
     SteeringEvent(const Controller* c)
-        : GameEvent(EventType::Steering), controller(c), deltaAngle(0), boost(false) {}
+        : GameEvent(EventType::Steering), controller(c), turn(0), boost(false) {}
     GameEvent* clone() const override { return new SteeringEvent(*this); }
     const Controller* controller;
-    double deltaAngle;
+    // Instruct the viper to turn from -1 to 1 (full left to full right)
+    double turn;
+    // Instruct the viper to trigger the boost
     bool boost;
 };
 
