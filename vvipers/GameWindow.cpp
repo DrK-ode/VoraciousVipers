@@ -4,7 +4,11 @@
 namespace VVipers {
 
 GameWindow::GameWindow()
-    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers") {}
+    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers") {
+        setMouseCursorGrabbed(true);
+        setMouseCursorVisible(false);
+        sf::Mouse::setPosition( {400,300} );
+    }
 
 GameWindow::~GameWindow() {}
 

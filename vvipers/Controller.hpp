@@ -26,6 +26,11 @@ class KeyboardController : public Controller {
     sf::Keyboard::Key m_right;
 };
 
+class MouseController : public Controller {
+  private:
+  virtual void update( const Time& elapsedTime ) override;
+};
+
 class ControllerGoingInCircles : public Controller {
   public:
     ControllerGoingInCircles(double da) : m_da(da) {}

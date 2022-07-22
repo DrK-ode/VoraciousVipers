@@ -264,7 +264,6 @@ void Viper::updateBody(CollisionVertices& body, const Time& timeFront,
             break;
         }
     }
-    infoTag();
 }
 
 }  // namespace VVipers
