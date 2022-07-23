@@ -1,39 +1,41 @@
 #include <vvipers/ViperSketch.hpp>
+#include <vvipers/config.hpp>
+#include <json/json.h>
+#include <fstream>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
-ViperSketch::ViperSketch() {
-    m_headNodes.push_back({-0.125, 0});
-    m_headNodes.push_back({0.125, 0});
-    m_headNodes.push_back({-0.45, 0.625});
-    m_headNodes.push_back({0.45, 0.625});
-    m_headNodes.push_back({-0.45, 0.8});
-    m_headNodes.push_back({0.45, 0.8});
-    m_headNodes.push_back({-0.2, 0.95});
-    m_headNodes.push_back({0.2, 0.95});
-    m_headNodes.push_back({-0.2, 1});
-    m_headNodes.push_back({0.2, 1});
-    
-    m_bodyNodes.push_back({-0.2, 0});
-    m_bodyNodes.push_back({0.2, 0});
-    m_bodyNodes.push_back({-0.4, 0.25});
-    m_bodyNodes.push_back({0.4, 0.25});
-    m_bodyNodes.push_back({-0.4, 0.75});
-    m_bodyNodes.push_back({0.4, 0.75});
-    m_bodyNodes.push_back({-0.2, 1});
-    m_bodyNodes.push_back({0.2, 1});
+ViperSketch* ViperSketch::m_instance(nullptr);
 
-    m_tailNodes.push_back({-0.2, 0});
-    m_tailNodes.push_back({0.2, 0});
-    m_tailNodes.push_back({-0.1, 0.5});
-    m_tailNodes.push_back({0.1, 0.5});
-    m_tailNodes.push_back({-0.01, 1});
-    m_tailNodes.push_back({0.01, 1});
+ViperSketch::ViperSketch() {
+    Json::Value viperValues;
+    std::ifstream inputStream(VIPER_MODEL_FILE_PATH);
+    Json::Reader reader;
+    reader.parse(inputStream, viperValues, true);
+
+    Json::Value nodes;
+    nodes = viperValues["ViperHead"]["nodes"];
+    for( int i = 0; i < nodes.size(); ++i ){
+        auto node = nodes[i];
+        m_headNodes.push_back( {node[0].asDouble(), node[1].asDouble()} );
+    }
+    nodes = viperValues["ViperBody"]["nodes"];
+    for( int i = 0; i < nodes.size(); ++i ){
+        auto node = nodes[i];
+        m_bodyNodes.push_back( {node[0].asDouble(), node[1].asDouble()} );
+    }
+    nodes = viperValues["ViperTail"]["nodes"];
+    for( int i = 0; i < nodes.size(); ++i ){
+        auto node = nodes[i];
+        m_tailNodes.push_back( {node[0].asDouble(), node[1].asDouble()} );
+    }
 }
 
-ViperSketch& ViperSketch::getInstance() {
-    static ViperSketch viperSketch;
-    return viperSketch;
+const ViperSketch& ViperSketch::getInstance() {
+    if( !m_instance )
+        m_instance = new ViperSketch();
+    return *m_instance;
 }
 
 }  // namespace VVipers
