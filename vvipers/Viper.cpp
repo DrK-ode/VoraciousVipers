@@ -112,7 +112,7 @@ void Viper::grow(const Time& elapsedTime) {
 void Viper::loadTextures() {
     // Load image and split it into the different textures.
     sf::Image combinedTextureImage;
-    combinedTextureImage.loadFromFile(VIPER_FILE_PATH);
+    combinedTextureImage.loadFromFile(VIPER_TEXTURE_FILE_PATH);
     sf::Vector2i imgSize(combinedTextureImage.getSize());
     sf::Vector2i upperLeft;
     sf::Vector2i rectSize(imgSize.x, imgSize.y / 3);

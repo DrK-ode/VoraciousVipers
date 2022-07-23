@@ -12,6 +12,31 @@ namespace VVipers {
 
 using namespace std::chrono_literals;
 
+Game::Game(Vec2 windowSize)
+    : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y), "VoraciousVipers"),
+      m_exit(false) {
+    // auto controllerM = addMouseController();
+    // auto viperM = addViper();
+    // auto playerM = addPlayer("PlayerM", controllerM, viperM);
+
+    auto controllerK = addKeyboardController();
+    auto viperK = addViper();
+    auto playerK = addPlayer("PlayerK", controllerK, viperK);
+
+    m_currentLevel = new Level("The first and only level");
+    m_collisionDetector.registerCollidable(m_currentLevel);
+    m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
+}
+
+Game::~Game() {
+    for (auto p : m_players)
+        delete p;
+    for (auto v : m_vipers)
+        delete v;
+    for (auto c : m_controllers)
+        delete c;
+}
+
 Controller* Game::addController(Controller* controller) {
     controller->addObserver(this, {GameEvent::EventType::Steering});
     this->addObserver(controller, {GameEvent::EventType::Update});
@@ -84,31 +109,6 @@ Controller* Game::addKeyboardController() {
     return addController(new KeyboardController(keys));
 }
 
-Game::Game()
-    : sf::RenderWindow(sf::VideoMode(800, 600), "VoraciousVipers"),
-      m_exit(false) {
-    auto controllerM = addMouseController();
-    auto viperM = addViper();
-    auto playerM = addPlayer("PlayerM", controllerM, viperM);
-
-    // auto controllerK = addKeyboardController();
-    // auto viperK = addViper();
-    // auto playerK = addPlayer("PlayerK", controllerK, viperK);
-
-    m_currentLevel = new Level("The first and only level");
-    m_collisionDetector.registerCollidable(m_currentLevel);
-    m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
-}
-
-Game::~Game() {
-    for (auto p : m_players)
-        delete p;
-    for (auto v : m_vipers)
-        delete v;
-    for (auto c : m_controllers)
-        delete c;
-}
-
 void Game::draw() {
     clear(sf::Color::Black);
     RenderWindow::draw(*m_currentLevel);
@@ -154,9 +154,8 @@ void Game::handleSteering(const SteeringEvent* event) {
          *    1) Boost in inactive and the boost power is full
          *    2) Boost is active and the boost power is not depleted */
 
-        // This allows the viper a turning radius of twice its width
-        const double maxAngularSpeed = degPerRad * Viper::viperNominalSpeed /
-                                       Viper::viperNominalSegmentWidth;
+        // This allows the viper a turning radius equal to its width
+        const double maxAngularSpeed = degPerRad * viper->turningRadius();
         double angularSpeed = event->turn * maxAngularSpeed;
         // Protect against erroneous input from controller
         if (std::abs(event->turn) > 1)
@@ -165,7 +164,7 @@ void Game::handleSteering(const SteeringEvent* event) {
         if (event->boost &&
             ((viper->boost() > 0 and viper->boostCharge() > seconds(0)) or
              (viper->boost() == 0.0 and
-              viper->boostCharge() == Viper::viperMaxBoostTime)))
+              viper->boostCharge() == viper->boostMax())))
             boost = 1.;
         viper->steer(angularSpeed, boost);
     }

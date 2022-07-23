@@ -18,7 +18,7 @@ class Player;
 
 class Game : public sf::RenderWindow, public Observer, Observable {
   public:
-    Game();
+    Game(Vec2 windowSize);
     ~Game();
     void draw();
     bool exit() const { return m_exit; }

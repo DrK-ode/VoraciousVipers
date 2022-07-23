@@ -1,5 +1,5 @@
-#ifndef VVIPERS_VIPERPHYSICS_HPP
-#define VVIPERS_VIPERPHYSICS_HPP
+#ifndef VVIPERS_VIPER_HPP
+#define VVIPERS_VIPER_HPP
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -41,6 +41,8 @@ class Viper : public GameObject,
         ViperStasis = 1 << 2,
         ViperDying = ViperAlive | ViperDead
     };
+
+  private:
     static const double viperNominalSpeed;          // px/s
     static const double viperNominalSegmentLength;  // px
     static const double viperNominalSegmentWidth;   // px
@@ -49,17 +51,21 @@ class Viper : public GameObject,
     static const double viperBoostRechargeRate;     // s per s
     static const Time viperBoostRechargeCooldown;   // Countdown start
 
+  public:
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
      * degrees. **/
     void angle(double a) { m_angle = mod180Deg(a); }
-    Time boostCharge() const { return m_boostCharge; }
     /** @returns the amount of boost the Viper is currently receiving **/
     double boost() const { return m_boostInc; }
     /** Sets the relative amount the speed should be increased by.
      * Typically values around 1.0. **/
     void boost(double relativeSpeedIncrease);
+    /** @returns the current stored boost duration **/
+    Time boostCharge() const { return m_boostCharge; }
+    /** @returns the maximum stored boost duration **/
+    Time boostMax() const { return viperMaxBoostTime; }
     /** Collidable override. @returns a list of all owned CollidableBody which
      * for a Viper is the head, body and tail. **/
     std::vector<const CollisionBody*> collisionBodies() const override {
@@ -96,6 +102,10 @@ class Viper : public GameObject,
      * It is the time it takes for the tail to reach the current position of the
      * head. **/
     Time temporalLength() const { return m_temporalLength; }
+    /** @returns the minimum turning radius **/
+    double turningRadius() const {
+        return viperNominalSpeed / viperNominalSegmentWidth;
+    }
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
     void update(const Time& elapsedTime);
@@ -135,4 +145,4 @@ class Viper : public GameObject,
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_VIPERPHYSICS_HPP
+#endif  // VVIPERS_VIPER_HPP

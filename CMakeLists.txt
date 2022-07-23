@@ -24,7 +24,7 @@ if( BUILD_DOCS )
   add_subdirectory(./docs)
 endif( BUILD_DOCS )
 
-add_executable(voraciousvipers "./vvipers/VVipers.hpp" "./vvipers/main.cpp")
+add_executable(voraciousvipers "./vvipers/main.cpp")
 target_include_directories(voraciousvipers PRIVATE "./")
 target_link_libraries(voraciousvipers libvvipers)
 

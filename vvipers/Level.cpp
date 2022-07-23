@@ -20,6 +20,8 @@ std::vector<const CollisionBody*> Level::collisionBodies() const {
 }
 
 void Level::constructLevel() {
+    //TODO: Be aware of the window size
+    //TODO: Provide starting points
     RectBody* body;
 
     m_rects.push_back(body = new RectBody(LevelWall,

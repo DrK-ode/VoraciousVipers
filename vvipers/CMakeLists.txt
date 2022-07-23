@@ -10,6 +10,7 @@ set(INC_FILES
     Controller.hpp
     debug.hpp
     Game.hpp
+    GameConfiguration.hpp
     GameEvent.hpp
     GameObject.hpp
     Level.hpp
@@ -22,7 +23,6 @@ set(INC_FILES
     Vec2.hpp
     Viper.hpp
     ViperSketch.hpp
-    VVipers.hpp
     VVMath.hpp
 )
 
@@ -34,6 +34,7 @@ set(SRC_FILES
     CollisionVertices.cpp
     Controller.cpp
     Game.cpp
+    GameConfiguration.cpp
     GameEvent.cpp
     Level.cpp
     Observer.cpp
@@ -44,7 +45,6 @@ set(SRC_FILES
     Vec2.cpp
     Viper.cpp
     ViperSketch.cpp
-    VVipers.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
@@ -54,4 +54,4 @@ target_include_directories(libvvipers
     PRIVATE
     ${PROJECT_SOURCE_DIR}
 )
-target_link_libraries(libvvipers sfml-graphics)
+target_link_libraries(libvvipers sfml-graphics jsoncpp)
