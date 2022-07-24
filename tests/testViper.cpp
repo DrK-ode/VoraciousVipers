@@ -2,6 +2,7 @@
 
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
+#include <vvipers/ViperConfig.hpp>
 #include <vvipers/debug.hpp>
 
 using namespace VVipers;
@@ -12,7 +13,7 @@ class ViperTest : public ::testing::Test {
   protected:
     void SetUp() override {
         logLevel = LogLevel::onlyErrors;
-        viper.setup(Vec2(0, 0), 180.f, seconds(3));
+        viper.setup(Vec2(0, 0), 180.f, 1.5);
     }
 
     Viper viper;
@@ -29,10 +30,15 @@ TEST_F(ViperTest, angleTest) {
 }
 
 TEST_F(ViperTest, lengthTest) {
-    viper.update(seconds(3.0)); // Let it grow
-    EXPECT_DOUBLE_EQ(viper.length(), 3. * viper.speed());
-    viper.update(seconds(3.0)); // Let it grow more
-    EXPECT_DOUBLE_EQ(viper.length(), 3. * viper.speed());
+    double expectedLength =
+        toSeconds(ViperConfig::properties().headDuration +
+                  1.5 * ViperConfig::properties().bodyDuration +
+                  ViperConfig::properties().tailDuration) *
+        viper.speed();
+    viper.update(seconds(3.0));  // Let it grow
+    EXPECT_DOUBLE_EQ(viper.length(), expectedLength);
+    viper.update(seconds(3.0));  // Let it grow more
+    EXPECT_DOUBLE_EQ(viper.length(), expectedLength);
 }
 
 }  // namespace

@@ -79,7 +79,7 @@ class Viper : public GameObject,
     virtual void onNotify(const GameEvent* event) override;
     /** Initiliazes the position and direction of the Viper given the specified
      * length. **/
-    void setup(const Vec2& from, double angle, const Time& length);
+    void setup(const Vec2& from, double angle, double numberOfBodySegments);
     /** Sets the speed. **/
     void speed(double s) { m_speed = s; }
     /** @returns current speed. **/

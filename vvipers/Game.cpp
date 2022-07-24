@@ -63,7 +63,7 @@ void Game::deletePlayer(Player* player) {
 
 Viper* Game::addViper(/* startConditions? */) {
     Viper* viper = new Viper();
-    viper->setup({400., 100.}, 0., 5s);
+    viper->setup({400., 100.}, 0., 2.5);
     this->addObserver(viper, {GameEvent::EventType::Update});
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper);

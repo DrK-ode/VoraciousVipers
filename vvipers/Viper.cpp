@@ -48,11 +48,13 @@ void Viper::onNotify(const GameEvent* event) {
 }
 
 void Viper::setup(const Vec2& headPosition, double angle,
-                  const Time& viperTemporalLength) {
+                  double numberOfBodySegments) {
     m_angle = angle;
     // Vec2 vipVec = Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
     m_temporalLength = seconds(0);
-    growth(viperTemporalLength);
+    growth(ViperConfig::properties().headDuration +
+           numberOfBodySegments * ViperConfig::properties().bodyDuration +
+           ViperConfig::properties().tailDuration);
     m_track.create_back(headPosition, seconds(0));
     m_headPoint = m_track.front();
 }
@@ -184,10 +186,10 @@ void Viper::updateMotion(const Time& elapsedTime) {
 }
 
 void Viper::updateBodies() {
-    Time headLength = std::min(m_temporalLength,
-                               ViperConfig::properties().segmentTemporalLength);
+    Time headLength =
+        std::min(m_temporalLength, ViperConfig::properties().headDuration);
     Time tailLength = std::min(m_temporalLength - headLength,
-                               ViperConfig::properties().segmentTemporalLength);
+                               ViperConfig::properties().tailDuration);
     Time bodyLength = m_temporalLength - headLength - tailLength;
 
     Time headFront = m_headPoint->getTime();
@@ -247,25 +249,24 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
     Vec2 textureSize;
     int numberOfSegments = 1;
     Time segmentLength = temporalLength;
-    const Time nominalSegmentLength =
-        ViperConfig::properties().segmentTemporalLength;
     switch (body.partID) {
         case ViperHead: {
             sketch = &ViperConfig::properties().headNodes;
             textureSize = m_headTexture.getSize();
+            ;
             break;
         }
         case ViperBody: {
             sketch = &ViperConfig::properties().bodyNodes;
             textureSize = m_bodyTexture.getSize();
-            segmentLength = std::min(temporalLength, nominalSegmentLength);
+            const Time nominalSegmentDuration =
+                ViperConfig::properties().bodyDuration;
+            segmentLength = std::min(temporalLength, nominalSegmentDuration);
             // OPTION 1: The growing segment starts from 0 and has a fraction of
             // the nominal segment length
-            numberOfSegments = temporalLength / nominalSegmentLength + 1;
+            numberOfSegments = temporalLength / nominalSegmentDuration + 1;
             // OPTION 2: Unless it's the only segment the last segment grows
             // until it splits in half
-            /*numberOfSegments =
-                std::max(1, int(temporalLength / nominalSegmentLength + 0.5));*/
             break;
         }
         case ViperTail: {
