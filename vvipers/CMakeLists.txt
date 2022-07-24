@@ -22,7 +22,7 @@ set(INC_FILES
     Track.hpp
     Vec2.hpp
     Viper.hpp
-    ViperSketch.hpp
+    ViperConfig.hpp
     VVMath.hpp
 )
 
@@ -44,7 +44,7 @@ set(SRC_FILES
     Track.cpp
     Vec2.cpp
     Viper.cpp
-    ViperSketch.cpp
+    ViperConfig.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)

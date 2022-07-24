@@ -13,6 +13,7 @@
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
+#include <vvipers/ViperConfig.hpp>
 
 namespace VVipers {
 /**
@@ -42,15 +43,6 @@ class Viper : public GameObject,
         ViperDying = ViperAlive | ViperDead
     };
 
-  private:
-    static const double viperNominalSpeed;          // px/s
-    static const double viperNominalSegmentLength;  // px
-    static const double viperNominalSegmentWidth;   // px
-    static const Time viperSegmentTemporalLength;   // s
-    static const Time viperMaxBoostTime;            // s
-    static const double viperBoostRechargeRate;     // s per s
-    static const Time viperBoostRechargeCooldown;   // Countdown start
-
   public:
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
@@ -65,7 +57,7 @@ class Viper : public GameObject,
     /** @returns the current stored boost duration **/
     Time boostCharge() const { return m_boostCharge; }
     /** @returns the maximum stored boost duration **/
-    Time boostMax() const { return viperMaxBoostTime; }
+    Time boostMax() const { return ViperConfig::properties().boostMaxCharge; }
     /** Collidable override. @returns a list of all owned CollidableBody which
      * for a Viper is the head, body and tail. **/
     std::vector<const CollisionBody*> collisionBodies() const override {
@@ -104,7 +96,8 @@ class Viper : public GameObject,
     Time temporalLength() const { return m_temporalLength; }
     /** @returns the minimum turning radius **/
     double turningRadius() const {
-        return viperNominalSpeed / viperNominalSegmentWidth;
+        return ViperConfig::properties().nominalSpeed /
+               ViperConfig::properties().nominalSegmentWidth;
     }
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
