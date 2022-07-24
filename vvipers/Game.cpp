@@ -23,7 +23,7 @@ Game::Game(Vec2 windowSize)
     auto viperK = addViper();
     auto playerK = addPlayer("PlayerK", controllerK, viperK);
 
-    m_currentLevel = new Level("The first and only level");
+    m_currentLevel = new Level("The first and only level", windowSize);
     m_collisionDetector.registerCollidable(m_currentLevel);
     m_collisionDetector.addObserver(this, {GameEvent::EventType::Collision});
 }
@@ -63,7 +63,7 @@ void Game::deletePlayer(Player* player) {
 
 Viper* Game::addViper(/* startConditions? */) {
     Viper* viper = new Viper();
-    viper->setup({400., 100.}, 0., 20s);
+    viper->setup({400., 100.}, 0., 5s);
     this->addObserver(viper, {GameEvent::EventType::Update});
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper);

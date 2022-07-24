@@ -32,7 +32,7 @@ class Viper : public GameObject,
     enum ViperPart : PartID_t {
         ViperHead = 1 << 0,
         ViperBody = 1 << 1,
-        ViperTail = 1 << 3,
+        ViperTail = 1 << 2,
         ViperSensitivePart = 1 << 16
     };
     typedef uint64_t ViperState_t;
@@ -110,7 +110,7 @@ class Viper : public GameObject,
     void loadTextures();
 
     void updateBodies();
-    void updateBody(CollisionVertices&, const Time& timeFront,
+    void updateBody(CollisionVertices&, Time timeFront,
                     const Time& temporalLength);
     void updateMotion(const Time& elapsedTime);
     void updateSpeed(const Time& elapsedTime);

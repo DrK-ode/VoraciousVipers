@@ -14,7 +14,7 @@ class RectBody;
 
 class Level : public GameObject, public sf::Drawable, public Collidable {
   public:
-    Level(const std::string& name);
+    Level(const std::string& name, Vec2 levelSize);
     ~Level();
 
     enum LevelObject : PartID_t {LevelWall};
@@ -23,7 +23,7 @@ class Level : public GameObject, public sf::Drawable, public Collidable {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
   protected:
-    virtual void constructLevel();
+    virtual void constructLevel(Vec2 levelSize);
 
   private:
     std::string m_name;

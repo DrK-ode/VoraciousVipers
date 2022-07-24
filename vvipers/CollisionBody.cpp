@@ -8,7 +8,7 @@ CollisionBody::collision(const CollisionBody* body1,
                          const CollisionBody* body2) {
     std::vector<std::pair<const Bodypart*, const Bodypart*> > collidingParts;
     // Rough check before doing it properly
-    if( !body1->rectangularBounds().intersects(body2->rectangularBounds()))
+    if( body1 == body2 or !body1->rectangularBounds().intersects(body2->rectangularBounds()))
         return collidingParts;
 
     for (const auto part1 : body1->bodyparts()) {

@@ -5,7 +5,7 @@
 
 namespace VVipers {
 
-Level::Level(const std::string& name) : m_name(name) { constructLevel(); }
+Level::Level(const std::string& name, Vec2 levelSize) : m_name(name) { constructLevel(levelSize); }
 
 Level::~Level() {
     for (auto body : m_rects)
@@ -19,22 +19,24 @@ std::vector<const CollisionBody*> Level::collisionBodies() const {
     return bodies;
 }
 
-void Level::constructLevel() {
-    //TODO: Be aware of the window size
+void Level::constructLevel(Vec2 levelSize) {
+    const double width = levelSize.x;
+    const double height = levelSize.y;
+    const double edge = 5;
     //TODO: Provide starting points
     RectBody* body;
 
     m_rects.push_back(body = new RectBody(LevelWall,
-                                          Vec2(0, 0), Vec2(800, 5)));
+                                          Vec2(0, 0), Vec2(width, edge)));
     m_rects.push_back(body = new RectBody(LevelWall,
-                                          Vec2(795, 5), Vec2(5, 590)));
+                                          Vec2(width - edge, edge), Vec2(edge, height - 2*edge)));
     m_rects.push_back(body = new RectBody(LevelWall,
-                                          Vec2(0, 595), Vec2(800, 5)));
+                                          Vec2(0, height - edge), Vec2(width, edge)));
     m_rects.push_back(body = new RectBody(LevelWall,
-                                          Vec2(0, 5), Vec2(5, 590)));
+                                          Vec2(0, edge), Vec2(edge, height-2*edge)));
     m_rects.push_back(body = new RectBody(LevelWall,
-                                          Vec2(300, 250), Vec2(200, 100)));
-    body->rectangleShape.setFillColor(sf::Color::Magenta);
+                                          Vec2(width/4, height*3/8), Vec2(width/2, height/4)));
+    body->rectangleShape.setFillColor(sf::Color(0x80,0x80,0x80,255));
 }
 
 void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const {
