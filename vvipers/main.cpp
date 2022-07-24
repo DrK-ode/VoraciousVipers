@@ -14,15 +14,18 @@ GameConfiguration* readGameConfig(const std::string& cfgFile) {
 
 void startGame(const GameConfiguration* cfg) {
     Vec2 windowSize = cfg->getValueAsVec2("windowSize");
+    double FPS = cfg->getValueAsDouble("FPS");
+    if (FPS == 0.)
+        FPS = 60.0;  // Default
 
     Game theGame(windowSize);
 
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
         sleepDuration(0), debtDuration(0), debugDuration(0);
-    const Time nominalFrameDuration = seconds(1. / 60);
+    const Time nominalFrameDuration = seconds(1. / FPS);
     Time frameDuration = nominalFrameDuration;
     double fpsAverage = 0.;
-    const size_t sampleSize = 60;
+    const size_t sampleSize = FPS;
     std::vector<double> durationSamples(sampleSize, 0.);
     size_t sampleIndex = 0;
 
@@ -32,7 +35,6 @@ void startGame(const GameConfiguration* cfg) {
     // Main game loop
     while (!theGame.exit()) {
         tickDuration = clock.restart();
-
         // If not first tick
         if (!firstFrame) {
             // Analyze last event
@@ -58,7 +60,6 @@ void startGame(const GameConfiguration* cfg) {
             logInfo("  We owe the next frame: ", debtDuration);
         }
         debugDuration = clock.split();
-
         if (!firstFrame) {
             while (tickDuration > 2 * nominalFrameDuration) {
                 theGame.update(nominalFrameDuration);
@@ -66,16 +67,11 @@ void startGame(const GameConfiguration* cfg) {
             }
             theGame.update(tickDuration);
         }
-
         updateDuration = clock.split();
-
         theGame.processEvents();
-
         eventDuration = clock.split();
-
         theGame.draw();
         theGame.display();
-
         drawDuration = clock.split();
         sleepDuration =
             frameDuration -
@@ -88,7 +84,7 @@ void startGame(const GameConfiguration* cfg) {
 
 }  // namespace VVipers
 
-int main(int argc, const char* argv) {
+int main(int argc, const char** argv) {
     // Handle input arguments
     auto cfg = VVipers::readGameConfig(USER_CONFIGURATION_FILE_PATH);
     VVipers::startGame(cfg);
