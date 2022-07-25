@@ -17,10 +17,7 @@ Viper::Viper()
       m_boostCharge(0.),
       m_growth(0.),
       m_headPoint(nullptr),
-      m_mainColor(sf::Color::Green),
-      m_headBody(ViperHead),
-      m_bodyBody(ViperBody),
-      m_tailBody(ViperTail) {
+      m_mainColor(sf::Color::Green) {
     loadTextures();
 }
 
@@ -100,6 +97,11 @@ void Viper::grow(const Time& elapsedTime) {
     Time actualGrowth = std::min(m_growth, elapsedTime);
     m_temporalLength += actualGrowth;
     m_growth -= actualGrowth;
+}
+
+bool Viper::isSensitive(const Bodypart* bp) const {
+    return std::find(m_sensitiveParts.begin(), m_sensitiveParts.end(), bp) !=
+           m_sensitiveParts.end();
 }
 
 void Viper::loadTextures() {
@@ -186,26 +188,29 @@ void Viper::updateMotion(const Time& elapsedTime) {
 }
 
 void Viper::updateBodies() {
-    Time headLength =
+    Time headDuration =
         std::min(m_temporalLength, ViperConfig::properties().headDuration);
-    Time tailLength = std::min(m_temporalLength - headLength,
-                               ViperConfig::properties().tailDuration);
-    Time bodyLength = m_temporalLength - headLength - tailLength;
+    Time tailDuration = std::min(m_temporalLength - headDuration,
+                                 ViperConfig::properties().tailDuration);
+    Time bodyDuration = m_temporalLength - headDuration - tailDuration;
 
     Time headFront = m_headPoint->getTime();
-    Time bodyFront = headFront - headLength;
-    Time tailFront = bodyFront - bodyLength;
+    Time bodyFront = headFront - headDuration;
+    Time tailFront = bodyFront - bodyDuration;
 
     const size_t nHeadNodes = ViperConfig::properties().headNodes.size();
     const size_t nBodyNodes = ViperConfig::properties().bodyNodes.size();
     const size_t nTailNodes = ViperConfig::properties().tailNodes.size();
 
     // HEAD
-    updateBody(m_headBody, headFront, headLength);
+    m_headBody.clear();
+    updateBody(ViperPart::Head, headFront, headDuration);
     // BODY
-    updateBody(m_bodyBody, bodyFront, bodyLength);
+    m_bodyBody.clear();
+    updateBody(ViperPart::Body, bodyFront, bodyDuration);
     // TAIL
-    updateBody(m_tailBody, tailFront, tailLength);
+    m_tailBody.clear();
+    updateBody(ViperPart::Tail, tailFront, tailDuration);
 }
 
 // Helper function for updateBody
@@ -222,7 +227,7 @@ int findMaxWidthIndex(const std::vector<Vec2>& v) {
 }
 
 // I hate this code. It needs to be divided into smaller manageble pieces.
-void Viper::updateBody(CollisionVertices& body, Time timeFront,
+void Viper::updateBody(ViperPart part, Time timeFront,
                        const Time& temporalLength) {
     /* This code does the following in order to calculate the vertices for one
      * parts of the viper. It does mainly the same thing but not exactly
@@ -239,9 +244,10 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
      * 3) Assigns bodyparts to be used by the collision system. Only the first
      *    parts of the head are "active".
      */
-    body.clear();
     if (temporalLength <= seconds(0))
         return;
+
+    CollisionVertices* body;
     // TODO:Adapt width depending on how streched the segment is, i.e., dL/dt
     double width = ViperConfig::properties().nominalSegmentWidth;
     // Determining model, texture and lengths depending on the type of segments
@@ -249,14 +255,15 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
     Vec2 textureSize;
     int numberOfSegments = 1;
     Time segmentLength = temporalLength;
-    switch (body.partID) {
-        case ViperHead: {
+    switch (part) {
+        case ViperPart::Head: {
+            body = &m_headBody;
             sketch = &ViperConfig::properties().headNodes;
             textureSize = m_headTexture.getSize();
-            ;
             break;
         }
-        case ViperBody: {
+        case ViperPart::Body: {
+            body = &m_bodyBody;
             sketch = &ViperConfig::properties().bodyNodes;
             textureSize = m_bodyTexture.getSize();
             const Time nominalSegmentDuration =
@@ -269,7 +276,8 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
             // until it splits in half
             break;
         }
-        case ViperTail: {
+        case ViperPart::Tail: {
+            body = &m_tailBody;
             sketch = &ViperConfig::properties().tailNodes;
             textureSize = m_tailTexture.getSize();
             break;
@@ -299,7 +307,7 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
             Vec2 textCoords =
                 (Vec2(0.5f, iSeg) + sketch->at(iNode)) * textureSize;
             // All vertices have the same color atm
-            body.appendVertex(sf::Vertex(position, m_mainColor, textCoords));
+            body->appendVertex(sf::Vertex(position, m_mainColor, textCoords));
         }
         timeFront -= actualLength;  // Next segment will start here
     }
@@ -307,27 +315,24 @@ void Viper::updateBody(CollisionVertices& body, Time timeFront,
     // Prepare bodyparts
     const int sharedNodes = 2;
     const int nodesPerBodypart = 4;
-    switch (body.partID) {
-        case ViperHead: {
-            // Looks for the widest part. If two parts have the same width we
-            // want the last one.
-            int iMax = findMaxWidthIndex(*sketch);
-            int sensitiveVertices = iMax + 1;
-            body.assignBodyParts(0, sensitiveVertices, nodesPerBodypart,
-                                 ViperHead | ViperSensitivePart, sharedNodes,
-                                 true);
-            body.assignBodyParts(sensitiveVertices - 2,
-                                 body.size() - sensitiveVertices,
-                                 nodesPerBodypart, body.partID, sharedNodes);
-            break;
-        }
-        case ViperBody:
-        case ViperTail: {
-            body.assignBodyParts(0, body.size(), nodesPerBodypart, body.partID,
-                                 sharedNodes);
-            break;
-        }
-    }
+
+    if (part == ViperPart::Head) {
+        // Looks for the widest part. If two parts have the same width we
+        // want the last one.
+        const int iMax = findMaxWidthIndex(*sketch);
+        int sensitiveVertices = iMax + 1;  // This must be >= 4
+        body->assignBodyParts(0, sensitiveVertices, nodesPerBodypart,
+                              sharedNodes, true);
+        body->assignBodyParts(sensitiveVertices - 2,
+                              body->size() - sensitiveVertices,
+                              nodesPerBodypart, sharedNodes);
+
+        const int sensitiveParts = (sensitiveVertices + 2) / 4;
+        m_sensitiveParts.resize(sensitiveParts);
+        for (int i = 0; i < sensitiveParts; ++i)
+            m_sensitiveParts[i] = body->bodyparts()[i];
+    } else
+        body->assignBodyParts(0, body->size(), nodesPerBodypart, sharedNodes);
 }
 
 }  // namespace VVipers

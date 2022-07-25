@@ -11,13 +11,15 @@
 
 namespace VVipers {
 
+/** A semi-ugly wrapper around the sf::ConvexShape class to provide collision
+ * detection **/
 class ConvexBody : public CollisionBody, public sf::Drawable {
   public:
-    ConvexBody(PartID_t id, Vec2 position, const std::vector<Vec2>& nodes,
+    ConvexBody(Vec2 position, const std::vector<Vec2>& nodes,
                bool active = false);
-    static ConvexBody* createCircle(PartID_t id, Vec2 position, double r,
-                                    size_t n, bool active = false);
-    static ConvexBody* createRectangle(PartID_t id, Vec2 topLeft, Vec2 size,
+    static ConvexBody* createCircle(Vec2 position, double r, size_t n,
+                                    bool active = false);
+    static ConvexBody* createRectangle(Vec2 topLeft, Vec2 size,
                                        bool active = false);
 
     virtual const std::vector<const Bodypart*> bodyparts() const override;

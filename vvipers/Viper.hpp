@@ -29,12 +29,6 @@ class Viper : public GameObject,
   public:
     Viper();
 
-    enum ViperPart : PartID_t {
-        ViperHead = 1 << 0,
-        ViperBody = 1 << 1,
-        ViperTail = 1 << 2,
-        ViperSensitivePart = 1 << 16
-    };
     typedef uint64_t ViperState_t;
     enum ViperState : ViperState_t {
         ViperAlive = 1 << 0,
@@ -73,6 +67,8 @@ class Viper : public GameObject,
     void growth(const Time& g);
     /** @returns The first point on the track the Viper is following. **/
     const TrackPoint* head() const { return m_headPoint; }
+    /** @returns true if the Bodypart is one of the Vipers vulnerable parts **/
+    bool isSensitive(const Bodypart*) const;
     /** @returns Normal (spatial) length of the Viper. **/
     double length() const;
     /** Observer override. Listens to update events **/
@@ -104,13 +100,14 @@ class Viper : public GameObject,
     void update(const Time& elapsedTime);
 
   private:
+    enum class ViperPart { Head, Body, Tail };
     TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
     void grow(const Time& elapsedTime);
     void loadTextures();
 
     void updateBodies();
-    void updateBody(CollisionVertices&, Time timeFront,
+    void updateBody(ViperPart, Time timeFront,
                     const Time& temporalLength);
     void updateMotion(const Time& elapsedTime);
     void updateSpeed(const Time& elapsedTime);
@@ -131,6 +128,7 @@ class Viper : public GameObject,
     CollisionVertices m_headBody;
     CollisionVertices m_bodyBody;
     CollisionVertices m_tailBody;
+    std::vector<const Bodypart*> m_sensitiveParts;
     sf::Color m_mainColor;
     sf::Texture m_headTexture;
     sf::Texture m_bodyTexture;

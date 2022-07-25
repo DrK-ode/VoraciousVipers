@@ -1,6 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <vvipers/Level.hpp>
 #include <vvipers/ConvexBody.hpp>
+#include <vvipers/Level.hpp>
 #include <vvipers/VVMath.hpp>
 #include <vvipers/debug.hpp>
 
@@ -30,20 +30,18 @@ void Level::constructLevel() {
     // TODO: Textures
     ConvexBody* body;
 
-    m_rects.push_back(body = ConvexBody::createRectangle(LevelWall, Vec2(0, 0),
-                                                         Vec2(width, edge)));
     m_rects.push_back(
-        body = ConvexBody::createRectangle(LevelWall, Vec2(width - edge, edge),
-                                           Vec2(edge, height - 2 * edge)));
-    m_rects.push_back(body = ConvexBody::createRectangle(LevelWall,
-                                                         Vec2(0, height - edge),
-                                                         Vec2(width, edge)));
+        body = ConvexBody::createRectangle(Vec2(0, 0), Vec2(width, edge)));
     m_rects.push_back(
-        body = ConvexBody::createRectangle(LevelWall, Vec2(0, edge),
+        body = ConvexBody::createRectangle(Vec2(width - edge, edge),
                                            Vec2(edge, height - 2 * edge)));
+    m_rects.push_back(body = ConvexBody::createRectangle(Vec2(0, height - edge),
+                                                         Vec2(width, edge)));
     m_rects.push_back(body = ConvexBody::createRectangle(
-                          LevelWall, Vec2(width / 4, height * 3 / 8),
-                          Vec2(width / 2, height / 4)));
+                          Vec2(0, edge), Vec2(edge, height - 2 * edge)));
+    m_rects.push_back(
+        body = ConvexBody::createRectangle(Vec2(width / 4, height * 3 / 8),
+                                           Vec2(width / 2, height / 4)));
 
     body->convexShape.setFillColor(sf::Color(0x80, 0x80, 0x80, 255));
 }
@@ -60,8 +58,8 @@ Vec2 Level::findEmptyArea(Vec2 rectSize) const {
     for (int i = 0; i < maxTries; ++i) {
         Vec2 position(Random::getDouble(0., m_levelSize.x - rectSize.x),
                       Random::getDouble(0., m_levelSize.y - rectSize.y));
-        ConvexBody* testBody = ConvexBody::createRectangle(
-            PlacementTest, position, rectSize, true);
+        ConvexBody* testBody =
+            ConvexBody::createRectangle(position, rectSize, true);
         bool spaceFree = true;
         for (const auto cb : m_rects) {
             if (!CollisionBody::collision(testBody, cb).empty()) {

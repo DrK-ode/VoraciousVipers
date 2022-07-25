@@ -17,8 +17,6 @@ class Level : public GameObject, public sf::Drawable, public Collidable {
     Level(const std::string& name, Vec2 levelSize);
     ~Level();
 
-    enum LevelObject : PartID_t {LevelWall, PlacementTest};
-
     std::vector<const CollisionBody*> collisionBodies() const override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     Vec2 findEmptyArea( Vec2 rectSize ) const;

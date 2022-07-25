@@ -28,9 +28,6 @@ struct CollisionTriplet {
 };
 typedef std::pair<CollisionTriplet, CollisionTriplet> Colliders;
 
-std::ostream& operator<<(std::ostream& os, const CollisionTriplet& ct );
-std::ostream& operator<<(std::ostream& os, const Colliders& c );
-
 class Collidable {
   public:
     virtual std::vector<const CollisionBody*> collisionBodies() const = 0;

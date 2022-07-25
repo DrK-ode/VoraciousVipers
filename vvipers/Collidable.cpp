@@ -6,14 +6,6 @@
 
 namespace VVipers {
 
-std::ostream& operator<<(std::ostream& os, const CollisionTriplet& ct ) {
-    return os << "<Collidable> -> " << ct.collisionBody->partID << " -> " << ct.bodypart->partID;
-}
-
-std::ostream& operator<<(std::ostream& os, const Colliders& c ) {
-    return os << "Collider A: " << c.first << ", Collider B: " << c.second;
-}
-
 std::vector<Colliders> Collidable::collision(const Collidable* coll1,
                                              const Collidable* coll2) {
     std::vector<Colliders> colliders;

@@ -137,7 +137,7 @@ void Game::handleCollisions(const CollisionEvent* event) {
         if (typeid(*ct.collidable) == typeid(Viper)) {
             Viper* viper = (Viper*)(ct.collidable);
             if (viper->state() == Viper::ViperAlive &&
-                ((ct.bodypart->partID) & Viper::ViperSensitivePart))
+                viper->isSensitive(ct.bodypart))
                 killViper(viper);
         }
     }

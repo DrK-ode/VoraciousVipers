@@ -4,9 +4,9 @@
 
 namespace VVipers {
 
-ConvexBody::ConvexBody(PartID_t id, Vec2 position,
-                       const std::vector<Vec2>& nodes, bool active)
-    : CollisionBody(id), m_bodypart(nullptr) {
+ConvexBody::ConvexBody(Vec2 position, const std::vector<Vec2>& nodes,
+                       bool active)
+    : m_bodypart(nullptr) {
     convexShape.setPointCount(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
         convexShape.setPoint(i, sf::Vector2f(nodes[i]));
@@ -18,8 +18,8 @@ ConvexBody::ConvexBody(PartID_t id, Vec2 position,
     updateBodyPart(active);
 }
 
-ConvexBody* ConvexBody::createCircle(PartID_t id, Vec2 position, double r,
-                                     size_t n, bool active) {
+ConvexBody* ConvexBody::createCircle(Vec2 position, double r, size_t n,
+                                     bool active) {
     std::vector<Vec2> nodes;
     nodes.reserve(n);
     for (int i = 0; i < n; + i) {
@@ -27,18 +27,17 @@ ConvexBody* ConvexBody::createCircle(PartID_t id, Vec2 position, double r,
         nodes.push_back({r * std::cos(angle), r * std::sin(angle)});
     }
 
-    return new ConvexBody(id, position, nodes, active);
+    return new ConvexBody(position, nodes, active);
 }
 
-ConvexBody* ConvexBody::createRectangle(PartID_t id, Vec2 topLeft, Vec2 size,
-                                        bool active) {
+ConvexBody* ConvexBody::createRectangle(Vec2 topLeft, Vec2 size, bool active) {
     std::vector<Vec2> nodes;
     nodes.push_back({0, 0});
     nodes.push_back({size.x, 0});
     nodes.push_back(size);
     nodes.push_back({0, size.y});
 
-    return new ConvexBody(id, topLeft, nodes, active);
+    return new ConvexBody(topLeft, nodes, active);
 }
 
 const std::vector<const Bodypart*> ConvexBody::bodyparts() const {
@@ -58,8 +57,8 @@ void ConvexBody::updateBodyPart(bool active) {
     for (int i = 1; i < convexShape.getPointCount(); ++i)
         nodes.push_back(convexShape.getPoint(i));
     delete m_bodypart;
-    m_bodypart = new Bodypart(nodes, partID, active, true,
-                              sf::PrimitiveType::TriangleFan);
+    m_bodypart =
+        new Bodypart(nodes, active, true, sf::PrimitiveType::TriangleFan);
 }
 
 }  // namespace VVipers
