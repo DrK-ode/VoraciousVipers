@@ -15,7 +15,10 @@ class ConvexBody : public CollisionBody, public sf::Drawable {
   public:
     ConvexBody(PartID_t id, Vec2 position, const std::vector<Vec2>& nodes,
                bool active = false);
-    static ConvexBody* createRectangle(PartID_t id, Vec2 topLeft, Vec2 size, bool active = false);
+    static ConvexBody* createCircle(PartID_t id, Vec2 position, double r,
+                                    size_t n, bool active = false);
+    static ConvexBody* createRectangle(PartID_t id, Vec2 topLeft, Vec2 size,
+                                       bool active = false);
 
     virtual const std::vector<const Bodypart*> bodyparts() const override;
 
@@ -37,4 +40,4 @@ class ConvexBody : public CollisionBody, public sf::Drawable {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_CONVEXBODY_HPP
+#endif  // VVIPERS_CONVEXBODY_HPP
