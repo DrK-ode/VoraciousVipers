@@ -10,7 +10,7 @@
 
 namespace VVipers {
 
-class RectBody;
+class ConvexBody;
 
 class Level : public GameObject, public sf::Drawable, public Collidable {
   public:
@@ -29,7 +29,7 @@ class Level : public GameObject, public sf::Drawable, public Collidable {
   private:
     std::string m_name;
     Vec2 m_levelSize;
-    std::vector<const RectBody*> m_rects;
+    std::vector<const ConvexBody*> m_rects;
 };
 
 }  // namespace VVipers

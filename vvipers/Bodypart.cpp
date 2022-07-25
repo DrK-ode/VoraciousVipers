@@ -39,7 +39,7 @@ void Bodypart::update(sf::PrimitiveType vertexOrder) {
  * stored, it's the normal vectors we need.
  **/
 void Bodypart::updateAxesTriangleFan() {
-    m_axes.resize(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
+    m_axes.resize(m_isSymmetric ? (m_nodes.size() - 1) / 2 : m_nodes.size() - 1);
 
     // Special case in the beginning
     m_axes.push_back((m_nodes.back() - m_nodes[1]).perpVec());

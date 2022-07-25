@@ -6,6 +6,7 @@ set(INC_FILES
     CollisionBody.hpp
     CollisionDetector.hpp
     CollisionVertices.hpp
+    ConvexBody.hpp
     config.hpp
     Controller.hpp
     debug.hpp
@@ -16,7 +17,6 @@ set(INC_FILES
     Level.hpp
     Observer.hpp
     Player.hpp
-    RectBody.hpp
     Score.hpp
     Time.hpp
     Track.hpp
@@ -33,13 +33,13 @@ set(SRC_FILES
     CollisionDetector.cpp
     CollisionVertices.cpp
     Controller.cpp
+    ConvexBody.cpp
     Game.cpp
     GameConfiguration.cpp
     GameEvent.cpp
     Level.cpp
     Observer.cpp
     Player.cpp
-    RectBody.cpp
     Score.cpp
     Track.cpp
     Vec2.cpp

@@ -4,7 +4,7 @@
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/Collidable.hpp>
 #include <vvipers/CollisionBody.hpp>
-#include <vvipers/RectBody.hpp>
+#include <vvipers/ConvexBody.hpp>
 #include <vvipers/debug.hpp>
 
 using namespace VVipers;
@@ -25,18 +25,18 @@ class SimpleCollidable : public Collidable {
 class CollidableTest : public ::testing::Test {
   protected:
     void SetUp() override {
-        RectBody* body;
-        object1.addBody(body =
-                            new RectBody(10, Vec2(0, 0), Vec2(100, 100), true));
-        object1.addBody(
-            body = new RectBody(11, Vec2(200, 0), Vec2(100, 100), false));
-        object2.addBody(
-            body = new RectBody(20, Vec2(200, 0), Vec2(100, 100), true));
-        object2.addBody(
-            body = new RectBody(21, Vec2(0, 0), Vec2(100, 100), false));
-        body->rectangleShape.setOrigin(50, 50);
-        body->rectangleShape.setPosition(Vec2(150, 50));
-        body->rectangleShape.rotate(-45);
+        ConvexBody* body;
+        object1.addBody(body = ConvexBody::createRectangle(
+                            10, Vec2(0, 0), Vec2(100, 100), true));
+        object1.addBody(body = ConvexBody::createRectangle(
+                            11, Vec2(200, 0), Vec2(100, 100), false));
+        object2.addBody(body = ConvexBody::createRectangle(
+                            20, Vec2(200, 0), Vec2(100, 100), true));
+        object2.addBody(body = ConvexBody::createRectangle(
+                            21, Vec2(0, 0), Vec2(100, 100), false));
+        body->convexShape.setOrigin(50, 50);
+        body->convexShape.setPosition(Vec2(150, 50));
+        body->convexShape.rotate(-45);
         body->updateBodyPart();
     }
     SimpleCollidable object1;
