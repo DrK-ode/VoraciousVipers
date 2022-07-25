@@ -83,9 +83,12 @@ std::ostream& operator<<(std::ostream& os, const ViperProperties& vp) {
        << std::endl;
     os << "  Boost recharge cooldown:  " << vp.boostRechargeCooldown
        << std::endl;
-    os << "  Head nominal length:      " << vp.headNominalLength << " px" << std::endl;
-    os << "  Body nominal length:      " << vp.bodyNominalLength << " px" << std::endl;
-    os << "  Tail nominal length:      " << vp.tailNominalLength << " px" << std::endl;
+    os << "  Head nominal length:      " << vp.headNominalLength << " px"
+       << std::endl;
+    os << "  Body nominal length:      " << vp.bodyNominalLength << " px"
+       << std::endl;
+    os << "  Tail nominal length:      " << vp.tailNominalLength << " px"
+       << std::endl;
     os << "  Head duration:            " << vp.headDuration << std::endl;
     os << "  Body duration:            " << vp.bodyDuration << std::endl;
     os << "  Tail duration:            " << vp.tailDuration << std::endl;

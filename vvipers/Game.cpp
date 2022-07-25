@@ -13,7 +13,8 @@ namespace VVipers {
 using namespace std::chrono_literals;
 
 Game::Game(Vec2 windowSize)
-    : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y), "VoraciousVipers"),
+    : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y),
+                       "VoraciousVipers"),
       m_exit(false) {
     // auto controllerM = addMouseController();
     // auto viperM = addViper();

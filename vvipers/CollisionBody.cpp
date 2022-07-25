@@ -1,5 +1,6 @@
-#include <vvipers/CollisionBody.hpp>
 #include <vvipers/Bodypart.hpp>
+#include <vvipers/CollisionBody.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -8,8 +9,9 @@ CollisionBody::collision(const CollisionBody* body1,
                          const CollisionBody* body2) {
     std::vector<std::pair<const Bodypart*, const Bodypart*> > collidingParts;
     // Rough check before doing it properly
-    if( body1 == body2 or !body1->rectangularBounds().intersects(body2->rectangularBounds()))
-        return collidingParts;
+    if (body1 == body2 or
+        !body1->rectangularBounds().intersects(body2->rectangularBounds()))
+        return collidingParts; // No collision
 
     for (const auto part1 : body1->bodyparts()) {
         for (const auto part2 : body2->bodyparts()) {
@@ -28,7 +30,7 @@ sf::Rect<double> CollisionBody::rectangularBounds() const {
     double xmax = std::numeric_limits<double>::lowest();
     double ymax = std::numeric_limits<double>::lowest();
 
-    for (auto bodypart : bodyparts() ) {
+    for (auto bodypart : bodyparts()) {
         auto bounds = bodypart->rectangularBounds();
         xmin = std::min(xmin, bounds.left);
         xmax = std::max(xmax, bounds.left + bounds.width);
