@@ -3,13 +3,14 @@
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/View.hpp>
 #include <vvipers/CollisionDetector.hpp>
 #include <vvipers/Food.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
+#include <vvipers/PlayerPanel.hpp>
 #include <vvipers/Time.hpp>
-#include <SFML/Graphics/View.hpp>
 
 namespace VVipers {
 
@@ -71,6 +72,7 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     Vec2 m_mouseMove;
     std::set<Controller*> m_controllers;
     std::set<Player*> m_players;
+    std::set<PlayerPanel*> m_playerPanels;
     std::set<Viper*> m_vipers;
     std::set<Food*> m_food;
 };

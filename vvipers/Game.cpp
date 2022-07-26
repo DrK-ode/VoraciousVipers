@@ -22,7 +22,7 @@ Game::Game(Vec2 windowSize)
     m_statusBarView = new sf::View();
     m_statusBarView->setSize(statusBarSize);
     m_statusBarView->setCenter(statusBarSize / 2);
-    m_statusBarView->setViewport(sf::FloatRect({0.f, 0.f}, statusBarSize));
+    m_statusBarView->setViewport(sf::FloatRect({0.f, 0.f}, statusBarRelSize));
 
     const sf::Vector2f gameRelSize(1, 1 - statusBarRelSize.y);
     const sf::Vector2f gameSize(getSize().x * gameRelSize.x,
@@ -86,10 +86,20 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
                         Viper* viper) {
     Player* player = new Player(name, controller, viper);
     m_players.insert(player);
+    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player);
+    m_playerPanels.insert(panel);
+    this->addObserver(panel, {GameEvent::EventType::Scoring});
     return player;
 }
 
 void Game::deletePlayer(Player* player) {
+    for (auto panel : m_playerPanels) {
+        if (panel->player() == player) {
+            m_playerPanels.erase(panel);
+            delete panel;
+            break;  // Assumes only one panel per player
+        }
+    }
     m_players.erase(player);
     delete player;
 }
@@ -126,8 +136,13 @@ void Game::deleteFood(Food* food) {
 }
 
 void Game::eatFood(Viper* viper, Food* food) {
-    viper->addGrowth(1s * food->size() / 40.);
+    viper->addGrowth(1s * food->size() / Food::nominalFoodSize );
     food->state(GameObject::Dying);
+    score_t score = 100 * food->size() / Food::nominalFoodSize;
+    auto player = findPlayerWith(viper);
+    player->score(score);
+    ScoringEvent event(player, score);
+    notify(&event);
 }
 
 Player* Game::findPlayerWith(const Controller* controller) const {
@@ -166,8 +181,10 @@ Vec2 Game::findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const {
 }
 
 void Game::dispenseFood() {
-    if (m_food.empty()) {
-        double foodDiameter = Random::getDouble(20, 60);
+    while (m_food.size() < 2 ) {
+        double smallest = Food::nominalFoodSize / 2.;
+        double largest = Food::nominalFoodSize * 1.5;
+        double foodDiameter = Random::getDouble(smallest, largest);
         Food* food;
         // Find a spot, with some room to spare
         Vec2 centerPosition =
@@ -177,12 +194,15 @@ void Game::dispenseFood() {
 }
 
 void Game::draw() {
-    setView(*m_gameView);
     clear(sf::Color::Black);
+    setView(*m_statusBarView);
+    for (const auto panel : m_playerPanels)
+        RenderWindow::draw(*panel);
+    setView(*m_gameView);
     RenderWindow::draw(*m_walls);
-    for (const auto& f : m_food)
+    for (const auto f : m_food)
         RenderWindow::draw(*f);
-    for (const auto& v : m_vipers)
+    for (const auto v : m_vipers)
         RenderWindow::draw(*v);
 }
 

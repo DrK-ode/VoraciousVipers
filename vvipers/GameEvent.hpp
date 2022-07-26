@@ -4,6 +4,7 @@
 #include <SFML/Window/Event.hpp>
 #include <vvipers/Collidable.hpp>
 #include <vvipers/GameObject.hpp>
+#include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
 
 namespace VVipers {
@@ -16,13 +17,9 @@ class GameEvent {
   public:
     enum class EventType {
         Application,
-        Collision,
         Destroy,
-        Keyboard,
-        MouseMove,
-        Steering,
-        Update,
-        Window
+        Scoring,
+        Update
     };
     virtual GameEvent* clone() const = 0;
     EventType type() const { return m_type; }
@@ -50,6 +47,15 @@ class DestroyEvent : public GameEvent {
         : GameEvent(EventType::Destroy), objectPtr(optr) {}
     GameEvent* clone() const override { return new DestroyEvent(*this); }
     const GameObject* objectPtr;
+};
+
+class ScoringEvent : public GameEvent {
+  public:
+    ScoringEvent(const Player* p, score_t s)
+        : GameEvent(EventType::Scoring), player(p), score(s) {}
+    GameEvent* clone() const override { return new ScoringEvent(*this); }
+    const Player* player;
+    const score_t score;
 };
 
 class UpdateEvent : public GameEvent {

@@ -2,6 +2,8 @@
 
 namespace VVipers {
 
+const double Food::nominalFoodSize(40);
+
 void Food::decay(Time elapsedTime) {
     static Time decayTime;
     if( m_startOfDecay ){

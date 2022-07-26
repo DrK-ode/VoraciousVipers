@@ -50,14 +50,14 @@ void startGame(const GameConfiguration* cfg) {
             if (sampleIndex == sampleSize)
                 sampleIndex = 0;
             // Print some info
-            // logInfo("Last frame took ", tickDuration, " (on average ",
-            //         fpsAverage, " FPS)");
-            // logInfo("  Debug:   ", debugDuration);
-            // logInfo("  Update:  ", updateDuration);
-            // logInfo("  Events:  ", eventDuration);
-            // logInfo("  Drawing: ", drawDuration);
-            // logInfo("  Sleep:   ", sleepDuration);
-            // logInfo("  We owe the next frame: ", debtDuration);
+            logInfo("Last frame took ", tickDuration, " (on average ",
+                    fpsAverage, " FPS)");
+            logInfo("  Debug:   ", debugDuration);
+            logInfo("  Update:  ", updateDuration);
+            logInfo("  Events:  ", eventDuration);
+            logInfo("  Drawing: ", drawDuration);
+            logInfo("  Sleep:   ", sleepDuration);
+            logInfo("  We owe the next frame: ", debtDuration);
         }
         debugDuration = clock.split();
         if (!firstFrame) {

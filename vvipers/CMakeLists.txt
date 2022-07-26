@@ -17,6 +17,7 @@ set(INC_FILES
     GameObject.hpp
     Observer.hpp
     Player.hpp
+    PlayerPanel.hpp
     Score.hpp
     Time.hpp
     Track.hpp
@@ -42,6 +43,7 @@ set(SRC_FILES
     GameObject.cpp
     Observer.cpp
     Player.cpp
+    PlayerPanel.cpp
     Score.cpp
     Track.cpp
     Vec2.cpp

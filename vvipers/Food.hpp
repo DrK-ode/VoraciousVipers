@@ -32,6 +32,8 @@ class Food : public GameObject,
     void update(Time elapsedTime);
     double size() const {return m_size;}
 
+    static const double nominalFoodSize;
+
   private:
     void decay(Time elapsedTime);
     void stateChanged(ObjectState from, ObjectState into) override;
