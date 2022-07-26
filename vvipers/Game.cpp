@@ -16,11 +16,28 @@ Game::Game(Vec2 windowSize)
     : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y),
                        "VoraciousVipers"),
       m_exit(false) {
+    const sf::Vector2f statusBarRelSize(1, 0.1);
+    const sf::Vector2f statusBarSize(getSize().x * statusBarRelSize.x,
+                                     getSize().y * statusBarRelSize.y);
+    m_statusBarView = new sf::View();
+    m_statusBarView->setSize(statusBarSize);
+    m_statusBarView->setCenter(statusBarSize / 2);
+    m_statusBarView->setViewport(sf::FloatRect({0.f, 0.f}, statusBarSize));
+
+    const sf::Vector2f gameRelSize(1, 1 - statusBarRelSize.y);
+    const sf::Vector2f gameSize(getSize().x * gameRelSize.x,
+                                getSize().y * gameRelSize.y);
+    m_gameView = new sf::View();
+    m_gameView->setSize(gameSize);
+    m_gameView->setCenter(gameSize / 2);
+    m_gameView->setViewport(
+        sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
+
     // auto controllerM = addMouseController();
     // auto viperM = addViper();
     // auto playerM = addPlayer("PlayerM", controllerM, viperM);
 
-    m_walls = new Walls(windowSize);
+    m_walls = new Walls(gameSize);
     m_collisionDetector.registerCollidable(m_walls);
 
     auto controllerK = addKeyboardController();
@@ -35,6 +52,8 @@ Game::~Game() {
         delete v;
     for (auto c : m_controllers)
         delete c;
+    delete m_statusBarView;
+    delete m_gameView;
 }
 
 Controller* Game::addController(Controller* controller) {
@@ -84,9 +103,7 @@ Viper* Game::addViper(/* startConditions? */) {
     return viper;
 }
 
-void Game::killViper(Viper* viper) {
-    viper->state(GameObject::Dying);
-}
+void Game::killViper(Viper* viper) { viper->state(GameObject::Dying); }
 
 void Game::deleteViper(Viper* viper) {
     m_collisionDetector.deRegisterCollidable(viper);
@@ -160,6 +177,7 @@ void Game::dispenseFood() {
 }
 
 void Game::draw() {
+    setView(*m_gameView);
     clear(sf::Color::Black);
     RenderWindow::draw(*m_walls);
     for (const auto& f : m_food)

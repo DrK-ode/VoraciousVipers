@@ -9,6 +9,7 @@
 #include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
+#include <SFML/Graphics/View.hpp>
 
 namespace VVipers {
 
@@ -61,6 +62,8 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     void processWindowEvents();
     void signalExit();
 
+    sf::View* m_statusBarView;
+    sf::View* m_gameView;
     bool m_exit;
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
     CollisionDetector m_collisionDetector;
