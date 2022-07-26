@@ -8,7 +8,10 @@
 namespace VVipers {
 
 enum class Verbosity { silent = 0, onlyErrors, errorsAndWarnings, all };
-inline Verbosity verbosityLevel = Verbosity::all;
+
+namespace debug {
+inline Verbosity verbosity = Verbosity::all;
+}
 
 #ifndef __INTELLISENSE__  // Because intellisense bugs on
                           // std::source_location::current() and this removes
@@ -20,17 +23,17 @@ inline void tag(const std::source_location& location, std::ostream& os) {
 }
 inline void infoTag(
     const std::source_location& location = std::source_location::current()) {
-    if (logLevel >= LogLevel::all)
+    if (debug::verbosity >= Verbosity::all)
         tag(location, std::cout);
 }
 inline void warningTag(
     const std::source_location& location = std::source_location::current()) {
-    if (logLevel >= LogLevel::errorsAndWarnings)
+    if (debug::verbosity >= Verbosity::errorsAndWarnings)
         tag(location, std::cerr);
 }
 inline void errorTag(
     const std::source_location& location = std::source_location::current()) {
-    if (logLevel >= LogLevel::onlyErrors)
+    if (debug::verbosity >= Verbosity::onlyErrors)
         tag(location, std::cerr);
 }
 
@@ -54,7 +57,7 @@ inline void debugTag(
 template <typename... Args>
 inline void _implLogInfo(bool doTag, const std::source_location loc,
                          Args&&... args) {
-    if (verbosityLevel >= Verbosity::all) {
+    if (debug::verbosity >= Verbosity::all) {
         if (doTag)
             tag(loc, std::cout);
         std::cout << "   INFO   ";
@@ -65,7 +68,7 @@ inline void _implLogInfo(bool doTag, const std::source_location loc,
 template <typename... Args>
 inline void _implLogWarning(bool doTag, const std::source_location loc,
                             Args&&... args) {
-    if (verbosityLevel >= Verbosity::errorsAndWarnings) {
+    if (debug::verbosity >= Verbosity::errorsAndWarnings) {
         if (doTag)
             tag(loc, std::cerr);
         std::cerr << "   WARN   ";
@@ -76,7 +79,7 @@ inline void _implLogWarning(bool doTag, const std::source_location loc,
 template <typename... Args>
 inline void _implLogError(bool doTag, const std::source_location loc,
                           Args&&... args) {
-    if (verbosityLevel >= Verbosity::onlyErrors) {
+    if (debug::verbosity >= Verbosity::onlyErrors) {
         if (doTag)
             tag(loc, std::cerr);
         std::cerr << "   ERR    ";

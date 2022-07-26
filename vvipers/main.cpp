@@ -85,7 +85,7 @@ void startGame(const GameConfiguration* cfg) {
 }  // namespace VVipers
 
 int main(int argc, const char** argv) {
-    VVipers::verbosityLevel = VVipers::Verbosity::errorsAndWarnings;
+    VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
     // Handle input arguments
     auto cfg = VVipers::readGameConfig(USER_CONFIGURATION_FILE_PATH);
     VVipers::startGame(cfg);
