@@ -16,7 +16,7 @@ namespace VVipers {
 class ConvexBody : public CollisionBody, public sf::Drawable {
   public:
     ConvexBody(Vec2 position, const std::vector<Vec2>& nodes,
-               bool active = false);
+               bool active = false, bool symmetric = false);
     static ConvexBody* createCircle(Vec2 position, double r, size_t n,
                                     bool active = false);
     static ConvexBody* createRectangle(Vec2 topLeft, Vec2 size,
@@ -27,8 +27,8 @@ class ConvexBody : public CollisionBody, public sf::Drawable {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     /** updateBodyPart must be called after changing the geometry of the
      * rectangle but also to change the active state. **/
-    void updateBodyPart() { updateBodyPart(m_bodypart->active()); }
-    void updateBodyPart(bool active);
+    void updateBodyPart() { updateBodyPart(m_bodypart->active(), m_bodypart->symmetric()); }
+    void updateBodyPart(bool active, bool symmetric);
     sf::Rect<double> rectangularBounds() const override {
         return sf::Rect<double>(convexShape.getGlobalBounds());
     }

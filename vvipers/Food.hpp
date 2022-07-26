@@ -7,26 +7,37 @@
 #include <vvipers/Collidable.hpp>
 #include <vvipers/ConvexBody.hpp>
 #include <vvipers/GameObject.hpp>
+#include <vvipers/Observer.hpp>
+#include <vvipers/Time.hpp>
 #include <vvipers/Vec2.hpp>
 
 namespace VVipers {
 
-class Food : public GameObject, public sf::Drawable, public Collidable {
+class Food : public GameObject,
+             public sf::Drawable,
+             public MonoBodyCollidable,
+             public Observable {
   public:
-    Food(Vec2 position, double size) {
-        m_body = ConvexBody::createCircle(position, size, 6, true);
+    Food(Vec2 position, double size)
+        : MonoBodyCollidable(
+              ConvexBody::createCircle(position, size / 2, 7, true)),
+          m_startOfDecay(false), m_size(size) {
+        m_body = (ConvexBody*)body();
         m_body->convexShape.setFillColor(sf::Color::Cyan);
-    };
-    ~Food() { delete m_body; }
-    std::vector<const CollisionBody*> collisionBodies() const override {
-        return std::vector<const CollisionBody*>(1, m_body);
     }
     void draw(sf::RenderTarget& target,
               sf::RenderStates states) const override {
         target.draw(*m_body, states);
     }
+    void update(Time elapsedTime);
+    double size() const {return m_size;}
 
   private:
+    void decay(Time elapsedTime);
+    void stateChanged(ObjectState from, ObjectState into) override;
+
+    bool m_startOfDecay;
+    double m_size;
     ConvexBody* m_body;
 };
 

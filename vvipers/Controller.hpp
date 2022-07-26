@@ -1,19 +1,22 @@
-#ifndef CONTROLLER_HPP
-#define CONTROLLER_HPP
+#ifndef VVIPERS_CONTROLLER_HPP
+#define VVIPERS_CONTROLLER_HPP
 
-#include <vvipers/GameEvent.hpp>
-#include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 namespace VVipers {
 
-class Controller : public Observable, public Observer {
-  public:
-    virtual void onNotify(const GameEvent* event);
+struct SteeringCommand {
+  bool enable = true;
+  double turn = 0.;
+  bool boost = false;
+};
 
-  protected:
-    virtual void update(const Time& elapsedTime) {}
+class Controller {
+  public:
+    virtual SteeringCommand control() const { return SteeringCommand(); }
 };
 
 class KeyboardController : public Controller {
@@ -26,7 +29,7 @@ class KeyboardController : public Controller {
     KeyboardController(const KeyboardControls& keys) : m_keys(keys) {}
 
   private:
-    virtual void update(const Time& elapsedTime) override;
+    virtual SteeringCommand control() const override;
     KeyboardControls m_keys;
 };
 
@@ -36,19 +39,10 @@ class MouseController : public Controller {
         : m_window(window) {}
 
   private:
-    virtual void update(const Time& elapsedTime) override;
+    virtual SteeringCommand control() const override;
 
     const sf::RenderWindow* m_window;
 };
 
-class ControllerGoingInCircles : public Controller {
-  public:
-    ControllerGoingInCircles(double da) : m_da(da) {}
-
-  private:
-    virtual void update(const Time& elapsedTime) override;
-    double m_da;
-};
-
 }  // namespace VVipers
-#endif
+#endif // VVIPERS_CONTROLLER_HPP

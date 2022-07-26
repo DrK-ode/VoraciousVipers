@@ -4,6 +4,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <vvipers/CollisionDetector.hpp>
+#include <vvipers/Food.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
@@ -12,7 +13,7 @@
 namespace VVipers {
 
 class Controller;
-class Level;
+class Walls;
 class Viper;
 class Player;
 
@@ -38,13 +39,24 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     Viper* addViper(/* Start conditions */);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
+    void addFood(Vec2 position, double diameter);
+    void eatFood(Viper*, Food*);
+    void deleteFood(Food* food);
 
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
-    void handleCollisions(const CollisionEvent* event);
-    void handleSteering(const SteeringEvent* event);
-    void handleDestruction( const DestroyEvent* event);
+    Vec2 findFreeRect(Vec2 rectSize) const {
+      return findFreeRect( rectSize, sf::Rect<double>(0,0,getSize().x, getSize().y ) );
+    }
+    Vec2 findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const;
+    void dispenseFood();
+
+    void handleCollision(const Colliders& c);
+    void handleCollisions();
+    void handleSteering();
+    void handleDestruction(const DestroyEvent* event);
+    void handleObjectUpdates(Time elapsedTime);
 
     void processWindowEvents();
     void signalExit();
@@ -52,11 +64,12 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     bool m_exit;
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
     CollisionDetector m_collisionDetector;
-    Level* m_currentLevel;
+    Walls* m_walls;
     Vec2 m_mouseMove;
     std::set<Controller*> m_controllers;
     std::set<Player*> m_players;
     std::set<Viper*> m_vipers;
+    std::set<Food*> m_food;
 };
 
 }  // namespace VVipers

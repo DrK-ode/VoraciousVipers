@@ -2,9 +2,9 @@
 #define VVIPERS_COLLIDABLE_HPP
 
 #include <SFML/Graphics/Rect.hpp>
+#include <ostream>
 #include <string>
 #include <vector>
-#include <ostream>
 #include <vvipers/CollisionBody.hpp>
 
 namespace VVipers {
@@ -35,6 +35,22 @@ class Collidable {
 
     static std::vector<Colliders> collision(const Collidable* coll1,
                                             const Collidable* coll2);
+};
+
+/** Collidable wrapper around a CollisionBody **/
+class MonoBodyCollidable : public Collidable {
+  public:
+    MonoBodyCollidable(CollisionBody* cb) { m_bodies.push_back(m_body = cb); }
+    ~MonoBodyCollidable() { delete m_body;}
+    CollisionBody* body() const { return m_body; }
+    void body(CollisionBody* cb) { m_bodies[0] = m_body = cb; }
+    std::vector<const CollisionBody*> collisionBodies() const override {
+        return m_bodies;
+    }
+
+  private:
+    CollisionBody* m_body;
+    std::vector<const CollisionBody*> m_bodies;
 };
 
 }  // namespace VVipers

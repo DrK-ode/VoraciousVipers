@@ -14,12 +14,6 @@ std::vector<Colliders> Collidable::collision(const Collidable* coll1,
         return colliders;
         
     const auto& bodies1 = coll1->collisionBodies();
-    /* Make sure to use the same vector if the Collidables are the same since
-     * its a copy that is returned. Important for iterator logic further down.
-     WHY DOESN'T THIS WORK?
-     const auto& bodies2 = (coll1 == coll2) ? bodies1 :
-     coll2->collisionBodies();
-     */
     const auto& bodies2 = coll2->collisionBodies();
     int count1 = 0;
     for (auto body1 = bodies1.cbegin(); body1 != bodies1.cend(); ++body1) {

@@ -5,11 +5,9 @@
 
 namespace VVipers {
 
-Bodypart::Bodypart(const std::vector<Vec2>& nodes, 
-                   bool active, bool symmetric, sf::PrimitiveType vertexOrder)
-    : m_nodes(nodes),
-      m_isActive(active),
-      m_isSymmetric(symmetric) {
+Bodypart::Bodypart(const std::vector<Vec2>& nodes, bool active, bool symmetric,
+                   sf::PrimitiveType vertexOrder)
+    : m_nodes(nodes), m_isActive(active), m_isSymmetric(symmetric) {
     update(vertexOrder);
 }
 
@@ -26,27 +24,31 @@ void Bodypart::update(sf::PrimitiveType vertexOrder) {
                 "Illegal PrimitiveType for determining the vertex order.");
             break;
     }
-    m_boundingRect = VVipers::rectangularBounds( m_nodes );
+    m_boundingRect = VVipers::rectangularBounds(m_nodes);
 }
 
 /** Assuming N nodes are stored in TriangleFan order, the edges needed are
  * those connecting nodes:
- * N - 1
+ * N - 0
  * (n) - (n+1),
- * i.e. the edges between every node + the edge case in the beginning. The
- * first node being the centre is ignored. The edges themselves are not
- * stored, it's the normal vectors we need.
+ * i.e. the edges between every node + the edge case in the beginning. The edges
+ *themselves are not stored, it's the normal vectors we need.
  **/
 void Bodypart::updateAxesTriangleFan() {
-    m_axes.resize(m_isSymmetric ? (m_nodes.size() - 1) / 2 : m_nodes.size() - 1);
+    Vec2 center;
+    for (auto node : m_nodes)
+        center += node;
+    center = center / m_nodes.size();
 
+    m_axes.clear();
+    m_axes.reserve(m_isSymmetric ? m_nodes.size() / 2 : m_nodes.size());
     // Special case in the beginning
-    m_axes.push_back((m_nodes.back() - m_nodes[1]).perpVec());
+    m_axes.push_back((m_nodes.back() - m_nodes[0]).perpVec());
     // If the shape is symmetric, only half of the edges are needed.
-    auto nodeStop = m_isSymmetric ? m_nodes.begin() + 1 + m_nodes.size() / 2
-                                  : m_nodes.end();
+    auto nodeStop =
+        m_isSymmetric ? m_nodes.begin() + m_nodes.size() / 2 - 1 : m_nodes.end() - 1;
     // Edge connecting consequetive nodes
-    for (auto node = m_nodes.begin() + 1; node != nodeStop; ++node)
+    for (auto node = m_nodes.begin(); node != nodeStop; ++node)
         m_axes.push_back((*node - *(node + 1)).perpVec());
 }
 
@@ -79,7 +81,7 @@ void Bodypart::updateAxesTriangleStrip() {
 }
 
 std::tuple<double, double> projectionsMinMax(const Bodypart* part,
-                                            const Vec2& axis) {
+                                             const Vec2& axis) {
     double minimum = std::numeric_limits<double>::max();
     double maximum = std::numeric_limits<double>::lowest();
     auto nodes = part->nodes();
@@ -93,7 +95,7 @@ std::tuple<double, double> projectionsMinMax(const Bodypart* part,
 
 bool Bodypart::collision(const Bodypart* part1, const Bodypart* part2) {
     // Rough check with rectangular bounds
-    if( ! part1->rectangularBounds().intersects( part2->rectangularBounds() ))
+    if (!part1->rectangularBounds().intersects(part2->rectangularBounds()))
         return false;
     const auto& axes = part1->axes().size() < part2->axes().size()
                            ? part1->axes()

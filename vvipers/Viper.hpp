@@ -24,20 +24,11 @@ namespace VVipers {
 class Viper : public GameObject,
               public Collidable,
               public sf::Drawable,
-              public Observer,
               public Observable {
   public:
     Viper();
-
-    typedef uint64_t ViperState_t;
-    enum ViperState : ViperState_t {
-        ViperAlive = 1 << 0,
-        ViperDead = 1 << 1,
-        ViperStasis = 1 << 2,
-        ViperDying = ViperAlive | ViperDead
-    };
-
-  public:
+    /** Adds time the Viper should spend growing. **/
+    void addGrowth(const Time& g);
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
@@ -58,21 +49,18 @@ class Viper : public GameObject,
         return std::vector<const CollisionBody*>(
             {&m_headBody, &m_bodyBody, &m_tailBody});
     }
+    /** Changes state to Dying and will evntually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     /** @returns The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
-    /** Adds time the Viper should spend growing. **/
-    void growth(const Time& g);
     /** @returns The first point on the track the Viper is following. **/
     const TrackPoint* head() const { return m_headPoint; }
     /** @returns true if the Bodypart is one of the Vipers vulnerable parts **/
     bool isSensitive(const Bodypart*) const;
     /** @returns Normal (spatial) length of the Viper. **/
     double length() const;
-    /** Observer override. Listens to update events **/
-    virtual void onNotify(const GameEvent* event) override;
     /** Initiliazes the position and direction of the Viper given the specified
      * length. **/
     void setup(const Vec2& from, double angle, double numberOfBodySegments);
@@ -80,8 +68,6 @@ class Viper : public GameObject,
     void speed(double s) { m_speed = s; }
     /** @returns current speed. **/
     double speed() const { return m_speed; }
-    ViperState_t state() const { return m_state; }
-    void state(ViperState state) { m_state = state; }
     void steer(double angularSpeed, double boost) {
         m_angularSpeed = angularSpeed;
         m_boostInc = boost;
@@ -97,7 +83,7 @@ class Viper : public GameObject,
     }
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
-    void update(const Time& elapsedTime);
+    void update(Time elapsedTime);
 
   private:
     enum class ViperPart { Head, Body, Tail };
@@ -107,13 +93,11 @@ class Viper : public GameObject,
     void loadTextures();
 
     void updateBodies();
-    void updateBody(ViperPart, Time timeFront,
-                    const Time& temporalLength);
+    void updateBody(ViperPart, Time timeFront, const Time& temporalLength);
     void updateMotion(const Time& elapsedTime);
     void updateSpeed(const Time& elapsedTime);
     void updateAngle(const Time& elapsedTime);
 
-    ViperState_t m_state;
     double m_angle;         // degrees, clockwise since y-axis is downwards
     double m_angularSpeed;  // degrees/s
     double m_speed;         // px/s

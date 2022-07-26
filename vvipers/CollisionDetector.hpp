@@ -3,15 +3,14 @@
 
 #include <set>
 #include <vvipers/CollisionBody.hpp>
-#include <vvipers/Observer.hpp>
+#include <vvipers/Collidable.hpp>
 
 namespace VVipers{
 
-class Collidable;
-
-class CollisionDetector : public Observable {
+class CollisionDetector  {
   public:
-    void checkForCollisions() const;
+    std::vector<Colliders> checkForCollisions() const;
+    std::vector<Colliders> checkForCollisions(const Collidable* c) const;
     void deRegisterCollidable(Collidable* c) {
         // If present remove it
         m_collidables.erase(c);

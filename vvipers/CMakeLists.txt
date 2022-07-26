@@ -15,7 +15,6 @@ set(INC_FILES
     GameConfiguration.hpp
     GameEvent.hpp
     GameObject.hpp
-    Level.hpp
     Observer.hpp
     Player.hpp
     Score.hpp
@@ -25,6 +24,7 @@ set(INC_FILES
     Viper.hpp
     ViperConfig.hpp
     VVMath.hpp
+    Walls.hpp
 )
 
 set(SRC_FILES
@@ -39,7 +39,7 @@ set(SRC_FILES
     Game.cpp
     GameConfiguration.cpp
     GameEvent.cpp
-    Level.cpp
+    GameObject.cpp
     Observer.cpp
     Player.cpp
     Score.cpp
@@ -47,6 +47,7 @@ set(SRC_FILES
     Vec2.cpp
     Viper.cpp
     ViperConfig.cpp
+    Walls.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics network audio REQUIRED)

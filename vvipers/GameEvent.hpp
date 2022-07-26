@@ -44,14 +44,6 @@ class ApplicationEvent : public GameEvent {
     const ApplicationEventType eventType;
 };
 
-class CollisionEvent : public GameEvent {
-  public:
-    CollisionEvent(const Colliders& c)
-        : GameEvent(EventType::Collision), colliders(c) {}
-    GameEvent* clone() const override { return new CollisionEvent(*this); }
-    const Colliders colliders;
-};
-
 class DestroyEvent : public GameEvent {
   public:
     DestroyEvent(const GameObject* optr)
@@ -60,48 +52,12 @@ class DestroyEvent : public GameEvent {
     const GameObject* objectPtr;
 };
 
-class KeyboardEvent : public GameEvent {
-  public:
-    KeyboardEvent(const sf::Event::KeyEvent& keyEvent)
-        : GameEvent(EventType::Keyboard), keyInfo(keyEvent) {}
-    GameEvent* clone() const override { return new KeyboardEvent(*this); }
-    const sf::Event::KeyEvent keyInfo;
-};
-
-class MouseMoveEvent : public GameEvent {
-  public:
-    MouseMoveEvent(const Vec2 relMove)
-        : GameEvent(EventType::MouseMove), relativeMove(relMove) {}
-    GameEvent* clone() const override { return new MouseMoveEvent(*this); }
-    const Vec2 relativeMove;
-};
-
-class SteeringEvent : public GameEvent {
-  public:
-    SteeringEvent(const Controller* c)
-        : GameEvent(EventType::Steering), controller(c), turn(0), boost(false) {}
-    GameEvent* clone() const override { return new SteeringEvent(*this); }
-    const Controller* controller;
-    // Instruct the viper to turn from -1 to 1 (full left to full right)
-    double turn;
-    // Instruct the viper to trigger the boost
-    bool boost;
-};
-
 class UpdateEvent : public GameEvent {
   public:
     UpdateEvent(const Time& time)
         : GameEvent(EventType::Update), elapsedTime(time) {}
     GameEvent* clone() const override { return new UpdateEvent(*this); }
     const Time elapsedTime;
-};
-
-class WindowEvent : public GameEvent {
-  public:
-    WindowEvent(sf::Event::EventType type)
-        : GameEvent(EventType::Window), eventType(type) {}
-    GameEvent* clone() const override { return new WindowEvent(*this); }
-    const sf::Event::EventType eventType;
 };
 
 }  // namespace VVipers

@@ -7,7 +7,18 @@ namespace VVipers {
  * common virtual class to make typeinfo work properly **/
 class GameObject {
   public:
-    virtual ~GameObject() {}
+    enum ObjectState { Alive, Dying, Dead };
+
+    GameObject() : m_state(Alive) {}
+
+    ObjectState state() const { return m_state; }
+    void state(ObjectState state);
+
+  protected:
+    virtual void stateChanged(ObjectState from, ObjectState into) {}
+
+  private:
+    ObjectState m_state;
 };
 
 }  // namespace VVipers

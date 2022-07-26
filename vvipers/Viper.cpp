@@ -11,8 +11,7 @@ namespace VVipers {
 using namespace std::chrono_literals;
 
 Viper::Viper()
-    : m_state(ViperAlive),
-      m_speed(ViperConfig::properties().nominalSpeed),
+    : m_speed(ViperConfig::properties().nominalSpeed),
       m_boostInc(0.),
       m_boostCharge(0.),
       m_growth(0.),
@@ -26,22 +25,16 @@ void Viper::boost(double relativeSpeedIncrease) {
 }
 
 void Viper::die(const Time& elapsedTime) {
-    m_temporalLength -= elapsedTime;
+    m_temporalLength -= 3*elapsedTime;
     if (m_temporalLength <= seconds(0))
-        m_state = ViperDead;
+        state(Dead);
 }
 
-void Viper::growth(const Time& g) { m_growth += g; }
+void Viper::addGrowth(const Time& g) { m_growth += g; }
 
 double Viper::length() const {
     return m_track.length(m_headPoint->getTime(),
                           m_headPoint->getTime() - m_temporalLength);
-}
-
-void Viper::onNotify(const GameEvent* event) {
-    if (event->type() != GameEvent::EventType::Update)
-        throw std::runtime_error("Wrong event type sent to Viper.");
-    update(static_cast<const UpdateEvent*>(event)->elapsedTime);
 }
 
 void Viper::setup(const Vec2& headPosition, double angle,
@@ -49,9 +42,9 @@ void Viper::setup(const Vec2& headPosition, double angle,
     m_angle = angle;
     // Vec2 vipVec = Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
     m_temporalLength = seconds(0);
-    growth(ViperConfig::properties().headDuration +
-           numberOfBodySegments * ViperConfig::properties().bodyDuration +
-           ViperConfig::properties().tailDuration);
+    addGrowth(ViperConfig::properties().headDuration +
+              numberOfBodySegments * ViperConfig::properties().bodyDuration +
+              ViperConfig::properties().tailDuration);
     m_track.create_back(headPosition, seconds(0));
     m_headPoint = m_track.front();
 }
@@ -73,7 +66,7 @@ void Viper::cleanUpTrailingTrackPoints() {
         afterTail = afterTail->prev();
     if (!afterTail) {
         m_track.clear();
-        if (m_state & ViperAlive)
+        if (state() == Alive or state() == Dying )
             throw std::runtime_error(
                 "About to remove all TrackPoints, this cannot be right.");
         return;
@@ -130,13 +123,13 @@ void Viper::loadTextures() {
     m_tailBody.setTexture(&m_tailTexture);
 }
 
-void Viper::update(const Time& elapsedTime) {
-    if (m_state == ViperDead) {
+void Viper::update(Time elapsedTime) {
+    if (state() == Dead) {
         DestroyEvent event(this);
         notify(&event);
         return;
     }
-    if (m_state == ViperDying)
+    if (state() == Dying)
         die(elapsedTime);  // Allow the viper to die for a while
     else {
         m_headPoint = createNextHeadTrackPoint(elapsedTime);
