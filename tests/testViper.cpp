@@ -12,7 +12,7 @@ namespace {
 class ViperTest : public ::testing::Test {
   protected:
     void SetUp() override {
-        logLevel = LogLevel::onlyErrors;
+        verbosityLevel = Verbosity::onlyErrors;
         viper.setup(Vec2(0, 0), 180.f, 1.5);
     }
 

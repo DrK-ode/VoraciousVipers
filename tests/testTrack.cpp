@@ -25,7 +25,7 @@ TEST_F(TrackTest, LengthTestBasic) {
 }
 
 TEST_F(TrackTest, LengthTestOverFlow) {
-    VVipers::logLevel = VVipers::LogLevel::silent;
+    VVipers::verbosityLevel = VVipers::Verbosity::silent;
     EXPECT_THROW(track.length(seconds(6), seconds(0)), std::runtime_error);
 }
 
