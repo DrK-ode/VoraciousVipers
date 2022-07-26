@@ -36,7 +36,7 @@ void Food::update(Time elapsedTime) {
     if (state() == Dying)
         decay(elapsedTime);
     else {
-        m_body->convexShape.rotate(1);
+        m_body->convexShape.rotate(2*nominalFoodSize/m_size);
     }
 }
 
