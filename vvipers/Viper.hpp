@@ -49,6 +49,8 @@ class Viper : public GameObject,
         return std::vector<const CollisionBody*>(
             {&m_headBody, &m_bodyBody, &m_tailBody});
     }
+    sf::Color color() const { return m_color; }
+    void color(sf::Color c) { m_color = c; }
     /** Changes state to Dying and will evntually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
@@ -113,7 +115,7 @@ class Viper : public GameObject,
     CollisionVertices m_bodyBody;
     CollisionVertices m_tailBody;
     std::vector<const Bodypart*> m_sensitiveParts;
-    sf::Color m_mainColor;
+    sf::Color m_color;
     sf::Texture m_headTexture;
     sf::Texture m_bodyTexture;
     sf::Texture m_tailTexture;

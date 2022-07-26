@@ -16,7 +16,7 @@ Viper::Viper()
       m_boostCharge(0.),
       m_growth(0.),
       m_headPoint(nullptr),
-      m_mainColor(sf::Color::Green) {
+      m_color(sf::Color::Green) {
     loadTextures();
 }
 
@@ -300,7 +300,7 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             Vec2 textCoords =
                 (Vec2(0.5f, iSeg) + sketch->at(iNode)) * textureSize;
             // All vertices have the same color atm
-            body->appendVertex(sf::Vertex(position, m_mainColor, textCoords));
+            body->appendVertex(sf::Vertex(position, m_color, textCoords));
         }
         timeFront -= actualLength;  // Next segment will start here
     }

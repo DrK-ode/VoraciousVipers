@@ -43,6 +43,7 @@ Game::Game(Vec2 windowSize)
     auto controllerK = addKeyboardController();
     auto viperK = addViper();
     auto playerK = addPlayer("PlayerK", controllerK, viperK);
+    playerK->color(sf::Color::Red);
 }
 
 Game::~Game() {
