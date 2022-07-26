@@ -5,6 +5,7 @@ namespace VVipers {
 
 PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     : m_size(size), m_player(player) {
+    tagDebug(size);
     // Load font
     m_font.loadFromFile(FONT_FILE_PATH);
     // Set font
@@ -17,17 +18,18 @@ PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     const int characterSize = size.y / 3;  // px
     m_nameText.setCharacterSize(characterSize);
     m_scoreText.setCharacterSize(characterSize);
-    // Set position
-    // Set the strings
-    m_nameText.setString("A");   // Dummy text to get default bounds
-    m_scoreText.setString("A");  // Dummy text to get default bounds
-    m_nameText.setOrigin(0, m_nameText.getLocalBounds().height / 2);
-    m_scoreText.setOrigin(0, m_scoreText.getLocalBounds().height / 2);
-    m_nameText.setPosition(0, size.y / 3);
-    m_scoreText.setPosition(0, size.y * 2 / 3.);
+    tagDebug(characterSize);
     // Set the strings
     updateName();
     updateScore();
+    // Set position
+    // The bounds are assuming the tallest possible character but needs a string in order to compute non-zero
+    auto lbn = m_nameText.getLocalBounds();
+    m_nameText.setOrigin(0, (lbn.height + lbn.top) / 2.);
+    m_nameText.setPosition(10, size.y / 3.);
+    auto lbs = m_scoreText.getLocalBounds();
+    m_scoreText.setOrigin(0, (lbs.height + lbs.top) / 2);
+    m_scoreText.setPosition(10, size.y * 2 / 3.);
 }
 
 void PlayerPanel::draw(sf::RenderTarget& target,
@@ -43,7 +45,7 @@ void PlayerPanel::onNotify(const GameEvent* event) {
     }
 }
 
-void PlayerPanel::updateName(){
+void PlayerPanel::updateName() {
     m_nameText.setString(m_player->name());
 }
 
