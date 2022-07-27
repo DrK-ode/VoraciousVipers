@@ -1,21 +1,22 @@
 #ifndef VVIPERS_CONTROLLER_HPP
 #define VVIPERS_CONTROLLER_HPP
 
-#include <vvipers/Time.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <vvipers/Time.hpp>
 
 namespace VVipers {
 
 struct SteeringCommand {
-  bool enable = true;
-  double turn = 0.;
-  bool boost = false;
+    bool enable = true;
+    double turn = 0.;
+    bool boost = false;
 };
 
 class Controller {
   public:
+    virtual ~Controller() {};
     virtual SteeringCommand control() const { return SteeringCommand(); }
 };
 
@@ -35,8 +36,7 @@ class KeyboardController : public Controller {
 
 class MouseController : public Controller {
   public:
-    MouseController(const sf::RenderWindow* window)
-        : m_window(window) {}
+    MouseController(const sf::RenderWindow* window) : m_window(window) {}
 
   private:
     virtual SteeringCommand control() const override;
@@ -45,4 +45,4 @@ class MouseController : public Controller {
 };
 
 }  // namespace VVipers
-#endif // VVIPERS_CONTROLLER_HPP
+#endif  // VVIPERS_CONTROLLER_HPP

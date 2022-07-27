@@ -34,9 +34,9 @@ void CollisionVertices::assignBodyParts(size_t beginIndex, size_t length,
     auto numberOfBodyParts =
         (length - sharedNodes) / (nodesPerBodyPart - sharedNodes);
     m_bodyParts.reserve(m_bodyParts.size() + numberOfBodyParts);
-    for (int i = 0; i < numberOfBodyParts; ++i) {
+    for (size_t i = 0; i < numberOfBodyParts; ++i) {
         std::vector<Vec2> nodes;
-        for (int j = index1; j < index2; ++j)
+        for (size_t j = index1; j < index2; ++j)
             nodes.push_back(m_vertices[j].position);
         m_bodyParts.push_back(new Bodypart(nodes, active, symmetric));
         index1 = index2 - sharedNodes;

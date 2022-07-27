@@ -5,6 +5,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <vvipers/CollisionDetector.hpp>
+#include <vvipers/FlyingScore.hpp>
 #include <vvipers/Food.hpp>
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameObject.hpp>
@@ -45,6 +46,7 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     void eatFood(Viper*, Food*);
     void deleteFood(Food* food);
 
+    PlayerPanel* findPlayerPanel(const Player* player) const;
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
@@ -77,6 +79,7 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     std::set<PlayerPanel*> m_playerPanels;
     std::set<Viper*> m_vipers;
     std::set<Food*> m_food;
+    std::set<FlyingScore*> m_flyingScores;
 };
 
 }  // namespace VVipers

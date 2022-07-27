@@ -34,7 +34,7 @@ ViperConfig::ViperConfig(const std::string& viperFile) {
     m_properties.headDuration = seconds(m_properties.headNominalLength /
                                         m_properties.nominalSpeed);  // s
     nodes = part["nodes"];
-    for (int i = 0; i < nodes.size(); ++i) {
+    for (int i = 0; size_t(i) < nodes.size(); ++i) {
         auto node = nodes[i];
         m_properties.headNodes.push_back(
             {node[0].asDouble(), node[1].asDouble()});
@@ -45,7 +45,7 @@ ViperConfig::ViperConfig(const std::string& viperFile) {
     m_properties.bodyDuration = seconds(m_properties.bodyNominalLength /
                                         m_properties.nominalSpeed);  // s
     nodes = part["nodes"];
-    for (int i = 0; i < nodes.size(); ++i) {
+    for (int i = 0; size_t(i) < nodes.size(); ++i) {
         auto node = nodes[i];
         m_properties.bodyNodes.push_back(
             {node[0].asDouble(), node[1].asDouble()});
@@ -56,7 +56,7 @@ ViperConfig::ViperConfig(const std::string& viperFile) {
     m_properties.tailDuration = seconds(m_properties.tailNominalLength /
                                         m_properties.nominalSpeed);  // s
     nodes = part["nodes"];
-    for (int i = 0; i < nodes.size(); ++i) {
+    for (int i = 0; size_t(i) < nodes.size(); ++i) {
         auto node = nodes[i];
         m_properties.tailNodes.push_back(
             {node[0].asDouble(), node[1].asDouble()});

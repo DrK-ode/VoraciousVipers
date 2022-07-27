@@ -89,14 +89,13 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
     m_players.insert(player);
     PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player);
     m_playerPanels.insert(panel);
-    this->addObserver(panel, {GameEvent::EventType::Scoring});
     viper->addObserver(panel, {GameEvent::EventType::Boost});
     return player;
 }
 
 void Game::deletePlayer(Player* player) {
     for (auto panel : m_playerPanels) {
-        if (panel->player() == player) {
+        if (panel->getPlayer() == player) {
             m_playerPanels.erase(panel);
             delete panel;
             break;  // Assumes only one panel per player
@@ -138,13 +137,28 @@ void Game::deleteFood(Food* food) {
 }
 
 void Game::eatFood(Viper* viper, Food* food) {
-    viper->addGrowth(1s * food->size() / Food::nominalFoodSize );
+    viper->addGrowth(1s * food->getSize() / Food::nominalFoodSize);
     food->state(GameObject::Dying);
-    score_t score = 100 * food->size() / Food::nominalFoodSize;
+    score_t score = 100 * food->getSize() / Food::nominalFoodSize;
     auto player = findPlayerWith(viper);
     player->score(score);
-    ScoringEvent event(player, score);
-    notify(&event);
+
+    PlayerPanel* panel = findPlayerPanel(player);
+    FlyingScore* flyingScore = new FlyingScore(
+        Vec2(mapCoordsToPixel(food->getPosition(), *m_gameView)),
+        viper->velocity(),
+        Vec2(mapCoordsToPixel(panel->getScoreTarget(), *m_statusBarView)), 1s,
+        score);
+    flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
+    flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
+    m_flyingScores.insert(flyingScore);
+}
+
+PlayerPanel* Game::findPlayerPanel(const Player* player) const {
+    for (auto panel : m_playerPanels)
+        if (player == panel->getPlayer())
+            return panel;
+    return nullptr;
 }
 
 Player* Game::findPlayerWith(const Controller* controller) const {
@@ -183,11 +197,10 @@ Vec2 Game::findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const {
 }
 
 void Game::dispenseFood() {
-    while (m_food.size() < 2 ) {
+    while (m_food.size() < 2) {
         double smallest = Food::nominalFoodSize / 2.;
         double largest = Food::nominalFoodSize * 1.5;
         double foodDiameter = Random::getDouble(smallest, largest);
-        Food* food;
         // Find a spot, with some room to spare
         Vec2 centerPosition =
             findFreeRect(Vec2(2 * foodDiameter, 2 * foodDiameter));
@@ -206,6 +219,9 @@ void Game::draw() {
         RenderWindow::draw(*f);
     for (const auto v : m_vipers)
         RenderWindow::draw(*v);
+    setView( getDefaultView() );
+    for( const auto s : m_flyingScores)
+        RenderWindow::draw(*s);
 }
 
 void Game::handleCollisions() {
@@ -275,7 +291,10 @@ void Game::handleDestruction(const DestroyEvent* event) {
         deleteViper((Viper*)event->objectPtr);
     else if (typeid(*event->objectPtr) == typeid(Food))
         deleteFood((Food*)event->objectPtr);
-    else
+    else if (typeid(*event->objectPtr) == typeid(FlyingScore)) {
+        delete event->objectPtr;
+        m_flyingScores.erase((FlyingScore*)event->objectPtr);
+    } else
         throw std::runtime_error("Unknown object sending DestroyEvent.");
 }
 
@@ -284,6 +303,8 @@ void Game::handleObjectUpdates(Time elapsedTime) {
         v->update(elapsedTime);
     for (auto f : m_food)
         f->update(elapsedTime);
+    for (auto s : m_flyingScores)
+        s->update(elapsedTime);
 }
 
 void Game::onNotify(const GameEvent* event) {
@@ -316,7 +337,13 @@ void Game::processWindowEvents() {
                         signalExit();
                         break;
                     }
+                    default: {
+                        break;
+                    }
                 }
+                break;
+            }
+            default: {
                 break;
             }
         }

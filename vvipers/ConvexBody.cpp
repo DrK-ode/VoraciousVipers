@@ -8,7 +8,7 @@ ConvexBody::ConvexBody(Vec2 position, const std::vector<Vec2>& nodes,
                        bool active, bool symmetric)
     : m_bodypart(nullptr) {
     convexShape.setPointCount(nodes.size());
-    for (int i = 0; i < nodes.size(); ++i)
+    for (size_t i = 0; i < nodes.size(); ++i)
         convexShape.setPoint(i, sf::Vector2f(nodes[i]));
 
     convexShape.setPosition(position);
@@ -19,7 +19,7 @@ ConvexBody* ConvexBody::createCircle(Vec2 position, double r, size_t n,
                                      bool active) {
     std::vector<Vec2> nodes;
     nodes.reserve(n);
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         double angle = twopi * i / n;
         nodes.push_back({r * std::cos(angle), r * std::sin(angle)});
     }
@@ -52,7 +52,7 @@ void ConvexBody::updateBodyPart(bool active, bool symmetric) {
     auto transform = convexShape.getTransform();
     std::vector<Vec2> nodes;
     // Save the nodes in an order corresponding to TriangleFan
-    for (int i = 0; i < convexShape.getPointCount(); ++i)
+    for (size_t i = 0; i < convexShape.getPointCount(); ++i)
         nodes.push_back(transform.transformPoint(convexShape.getPoint(i)));
     delete m_bodypart;
     m_bodypart =

@@ -10,6 +10,7 @@ set(INC_FILES
     config.hpp
     Controller.hpp
     debug.hpp
+    FlyingScore.hpp
     Food.hpp
     Game.hpp
     GameConfiguration.hpp
@@ -37,6 +38,7 @@ set(SRC_FILES
     CollisionVertices.cpp
     Controller.cpp
     ConvexBody.cpp
+    FlyingScore.cpp
     Food.cpp
     Game.cpp
     GameConfiguration.cpp

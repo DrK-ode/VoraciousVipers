@@ -42,8 +42,8 @@ class CollisionVertices : public sf::Drawable, public CollisionBody {
 
   protected:
     std::vector<const Bodypart*> m_bodyParts;
-    sf::VertexArray m_vertices;
     const sf::Texture* m_texture;
+    sf::VertexArray m_vertices;
 };
 
 }  // namespace VVipers

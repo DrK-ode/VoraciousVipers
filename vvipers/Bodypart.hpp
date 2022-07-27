@@ -33,9 +33,9 @@ class Bodypart {
     void updateAxesTriangleFan();
     void updateAxesTriangleStrip();
 
+    std::vector<Vec2> m_nodes;
     bool m_isActive;
     bool m_isSymmetric;
-    std::vector<Vec2> m_nodes;
     std::vector<Vec2> m_axes;
     sf::Rect<double> m_boundingRect;
 };

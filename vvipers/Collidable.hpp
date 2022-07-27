@@ -30,6 +30,7 @@ typedef std::pair<CollisionTriplet, CollisionTriplet> Colliders;
 
 class Collidable {
   public:
+    virtual ~Collidable() {};
     virtual std::vector<const CollisionBody*> collisionBodies() const = 0;
     virtual sf::Rect<double> rectangularBounds() const;
 

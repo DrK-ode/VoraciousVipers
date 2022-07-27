@@ -64,7 +64,7 @@ class TrackPoint : public Vec2 {
         return m_time > right.m_time;
     }
     bool operator!=(const TrackPoint& right) const {
-        return m_time != right.m_time || x != right.x && y != right.y;
+        return m_time != right.m_time or x != right.x or y != right.y;
     }
     bool operator==(const TrackPoint& right) const { return !(*this != right); }
 

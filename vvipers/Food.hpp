@@ -30,7 +30,8 @@ class Food : public GameObject,
         target.draw(*m_body, states);
     }
     void update(Time elapsedTime);
-    double size() const {return m_size;}
+    Vec2 getPosition() const {return m_body->convexShape.getPosition();}
+    double getSize() const {return m_size;}
 
     static const double nominalFoodSize;
 

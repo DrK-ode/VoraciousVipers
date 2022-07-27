@@ -12,6 +12,7 @@ namespace VVipers {
  * will ever be checked for collisions between each other. **/
 class CollisionBody {
   public:
+    virtual ~CollisionBody() {}
     static std::vector<std::pair<const Bodypart*, const Bodypart*> > collision(
         const CollisionBody*, const CollisionBody*);
 

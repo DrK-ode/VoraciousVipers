@@ -17,14 +17,17 @@ class PlayerPanel : public sf::Drawable, public Observer {
     PlayerPanel(Vec2 size, const Player* player);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
-    const Player* player() const {return m_player;}
+    const Player* getPlayer() const { return m_player; }
+    Vec2 getScoreTarget() const;
 
   private:
     void updateNameString();
     void updateScoreString();
+    void addScore(score_t score);
 
-    const Player* m_player;
     Vec2 m_size;
+    const Player* m_player;
+    score_t m_score;
     sf::Text m_nameText;
     sf::Text m_scoreText;
     sf::Font m_font;

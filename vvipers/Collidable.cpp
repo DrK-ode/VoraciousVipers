@@ -15,11 +15,9 @@ std::vector<Colliders> Collidable::collision(const Collidable* coll1,
         
     const auto& bodies1 = coll1->collisionBodies();
     const auto& bodies2 = coll2->collisionBodies();
-    int count1 = 0;
     for (auto body1 = bodies1.cbegin(); body1 != bodies1.cend(); ++body1) {
         /** Avoid double checking (and counting) if were looking at
          * internal collisions within a Collidable **/
-        int count2 = 0;
         auto body2start = (coll1 == coll2) ? body1 + 1 : bodies2.cbegin();
         auto body2end = (coll1 == coll2) ? bodies1.cend() : bodies2.cend();
         for (auto body2 = body2start; body2 != body2end; ++body2) {

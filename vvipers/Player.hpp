@@ -30,9 +30,9 @@ class Player {
   private:
     std::string m_name;
     sf::Color m_color;
+    Controller* m_controller;
     score_t m_score;
     Viper* m_viper;
-    Controller* m_controller;
 };
 
 }  // namespace VVipers

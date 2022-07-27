@@ -201,10 +201,6 @@ void Viper::updateBodies() {
     Time bodyFront = headFront - headDuration;
     Time tailFront = bodyFront - bodyDuration;
 
-    const size_t nHeadNodes = ViperConfig::properties().headNodes.size();
-    const size_t nBodyNodes = ViperConfig::properties().bodyNodes.size();
-    const size_t nTailNodes = ViperConfig::properties().tailNodes.size();
-
     // HEAD
     m_headBody.clear();
     updateBody(ViperPart::Head, headFront, headDuration);
@@ -220,7 +216,7 @@ void Viper::updateBodies() {
 int findMaxWidthIndex(const std::vector<Vec2>& v) {
     int iMax = 0;
     double wMax = 0;
-    for (int i = 0; i < v.size(); ++i) {
+    for (size_t i = 0; i < v.size(); ++i) {
         if (std::abs(v[i].x) >= wMax) {
             iMax = i;
             wMax = std::abs(v[i].x);
@@ -251,7 +247,7 @@ void Viper::updateBody(ViperPart part, Time timeFront,
         return;
 
     CollisionVertices* body;
-    // TODO:Adapt width depending on how streched the segment is, i.e., dL/dt
+    // True width is calculated later and proportional to dL/dt
     double nominalWidth = ViperConfig::properties().nominalSegmentWidth;
     // Determining model, texture and lengths depending on the type of segments
     const std::vector<Vec2>* sketch;
@@ -293,7 +289,7 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             actualLength =
                 temporalLength - segmentLength * (numberOfSegments - 1);
         // Start on 0 if it is the first segment, otherwise on 2
-        for (int iNode = (iSeg == 0) ? 0 : 2; iNode < sketch->size(); ++iNode) {
+        for (size_t iNode = (iSeg == 0) ? 0 : 2; iNode < sketch->size(); ++iNode) {
             // How far we have come so far.
             Time time = timeFront - sketch->at(iNode).y * actualLength;
             // This is the position at the snake axis

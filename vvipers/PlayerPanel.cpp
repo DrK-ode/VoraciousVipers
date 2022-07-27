@@ -5,7 +5,7 @@
 namespace VVipers {
 
 PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
-    : m_size(size), m_player(player) {
+    : m_size(size), m_player(player), m_score(player->score()) {
     // Load and set font
     m_font.loadFromFile(FONT_FILE_PATH);
     m_nameText.setFont(m_font);
@@ -46,11 +46,13 @@ void PlayerPanel::draw(sf::RenderTarget& target,
 
 void PlayerPanel::onNotify(const GameEvent* event) {
     if (event->type() == GameEvent::EventType::Scoring) {
-        if (static_cast<const ScoringEvent*>(event)->player == m_player)
-            updateScoreString();
+        auto scoringEvent = static_cast<const ScoringEvent*>(event);
+        // We trust that nobody sends another player's score
+        addScore(scoringEvent->score);
     } else if (event->type() == GameEvent::EventType::Boost) {
         const BoostEvent* boostEvent = static_cast<const BoostEvent*>(event);
-        m_boostBar.setProgress( boostEvent->chargeCurrent / boostEvent->chargeMax );
+        m_boostBar.setProgress(boostEvent->chargeCurrent /
+                               boostEvent->chargeMax);
     }
 }
 
@@ -58,8 +60,15 @@ void PlayerPanel::updateNameString() { m_nameText.setString(m_player->name()); }
 
 void PlayerPanel::updateScoreString() {
     std::stringstream ss;
-    ss << "Score: " << m_player->score();
+    ss << "Score: " << m_score;
     m_scoreText.setString(ss.str());
+}
+
+Vec2 PlayerPanel::getScoreTarget() const { return m_scoreText.getPosition(); }
+
+void PlayerPanel::addScore(score_t score) {
+    m_score += score;
+    updateScoreString();
 }
 
 }  // namespace VVipers

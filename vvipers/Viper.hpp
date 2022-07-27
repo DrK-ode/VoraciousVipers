@@ -86,6 +86,10 @@ class Viper : public GameObject,
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
     void update(Time elapsedTime);
+    Vec2 velocity() const {
+        return m_speed *
+               Vec2(std::cos(degToRad(m_angle)), std::sin(degToRad(m_angle)));
+    }
 
   private:
     enum class ViperPart { Head, Body, Tail };

@@ -29,6 +29,10 @@ TEST_F(ViperTest, angleTest) {
     EXPECT_DOUBLE_EQ(viper.angle(), -90.);
 }
 
+TEST_F(ViperTest, velocityTest ){
+    EXPECT_DOUBLE_EQ( viper.speed(), viper.velocity().abs());
+}
+
 TEST_F(ViperTest, lengthTest) {
     double expectedLength =
         toSeconds(ViperConfig::properties().headDuration +

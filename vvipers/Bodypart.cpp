@@ -85,7 +85,7 @@ std::tuple<double, double> projectionsMinMax(const Bodypart* part,
     double minimum = std::numeric_limits<double>::max();
     double maximum = std::numeric_limits<double>::lowest();
     auto nodes = part->nodes();
-    for (int i = 0; i < part->numberOfNodes(); ++i) {
+    for (size_t i = 0; i < part->numberOfNodes(); ++i) {
         double projection = nodes[i].projectionScalar(axis);
         minimum = projection < minimum ? projection : minimum;
         maximum = projection > maximum ? projection : maximum;

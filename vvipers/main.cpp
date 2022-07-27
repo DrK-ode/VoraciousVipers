@@ -75,7 +75,7 @@ void startGame(const GameConfiguration* cfg) {
         drawDuration = clock.split();
         sleepDuration =
             frameDuration -
-            (debugDuration, updateDuration + eventDuration + drawDuration);
+            (debugDuration + updateDuration + eventDuration + drawDuration);
 
         std::this_thread::sleep_for(sleepDuration);
         firstFrame = false;

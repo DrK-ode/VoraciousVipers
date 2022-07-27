@@ -10,6 +10,7 @@ class GameObject {
     enum ObjectState { Alive, Dying, Dead };
 
     GameObject() : m_state(Alive) {}
+    virtual ~GameObject() {}
 
     ObjectState state() const { return m_state; }
     void state(ObjectState state);
