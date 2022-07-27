@@ -15,12 +15,7 @@ class Controller;
 
 class GameEvent {
   public:
-    enum class EventType {
-        Application,
-        Destroy,
-        Scoring,
-        Update
-    };
+    enum class EventType { Application, Boost, Destroy, Scoring, Update };
     virtual GameEvent* clone() const = 0;
     EventType type() const { return m_type; }
     virtual ~GameEvent(){};
@@ -39,6 +34,20 @@ class ApplicationEvent : public GameEvent {
         : GameEvent(EventType::Application), eventType(type) {}
     GameEvent* clone() const override { return new ApplicationEvent(*this); }
     const ApplicationEventType eventType;
+};
+
+class BoostEvent : public GameEvent {
+  public:
+    BoostEvent(Time change, Time current, Time maximum)
+        : GameEvent(EventType::Boost),
+          chargeChange(change),
+          chargeCurrent(current),
+          chargeMax(maximum) {}
+    GameEvent* clone() const override { return new BoostEvent(*this); }
+
+    const Time chargeChange;
+    const Time chargeCurrent;
+    const Time chargeMax;
 };
 
 class DestroyEvent : public GameEvent {

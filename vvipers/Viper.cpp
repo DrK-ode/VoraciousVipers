@@ -25,7 +25,7 @@ void Viper::boost(double relativeSpeedIncrease) {
 }
 
 void Viper::die(const Time& elapsedTime) {
-    m_temporalLength -= 3*elapsedTime;
+    m_temporalLength -= 3 * elapsedTime;
     if (m_temporalLength <= seconds(0))
         state(Dead);
 }
@@ -66,7 +66,7 @@ void Viper::cleanUpTrailingTrackPoints() {
         afterTail = afterTail->prev();
     if (!afterTail) {
         m_track.clear();
-        if (state() == Alive or state() == Dying )
+        if (state() == Alive or state() == Dying)
             throw std::runtime_error(
                 "About to remove all TrackPoints, this cannot be right.");
         return;
@@ -140,12 +140,23 @@ void Viper::update(Time elapsedTime) {
     cleanUpTrailingTrackPoints();
 }
 
+void Viper::updateBoostCharge(Time chargeChange) {
+    chargeChange = std::max(chargeChange, -m_boostCharge);
+    chargeChange = std::min(
+        chargeChange, ViperConfig::properties().boostMaxCharge - m_boostCharge);
+
+    m_boostCharge += chargeChange;
+    BoostEvent event(chargeChange, m_boostCharge,
+                     ViperConfig::properties().boostMaxCharge);
+    notify(&event);
+}
+
 void Viper::updateSpeed(const Time& elapsedTime) {
     double acceleration = 0;
-    double targetSpeed =
-        (1 + m_boostInc) * ViperConfig::properties().nominalSpeed;
+    double targetSpeed = ViperConfig::properties().nominalSpeed;
     if (m_boostInc > 0) {
-        m_boostCharge -= std::min(m_boostCharge, elapsedTime);
+        targetSpeed *= (1 + m_boostInc);
+        updateBoostCharge(-elapsedTime);
         m_boostRechargeCooldown =
             ViperConfig::properties().boostRechargeCooldown;
     } else {
@@ -153,10 +164,8 @@ void Viper::updateSpeed(const Time& elapsedTime) {
             std::min(m_boostRechargeCooldown, elapsedTime);
     }
     if (m_boostRechargeCooldown == seconds(0)) {
-        m_boostCharge = std::min(
-            m_boostCharge +
-                elapsedTime * ViperConfig::properties().boostRechargeRate,
-            ViperConfig::properties().boostMaxCharge);
+        updateBoostCharge(elapsedTime *
+                          ViperConfig::properties().boostRechargeRate);
     }
     if (m_speed < targetSpeed) {
         // 1s to increase speed by nominal speed but cap at targetSpeed
@@ -262,11 +271,9 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             const Time nominalSegmentDuration =
                 ViperConfig::properties().bodyDuration;
             segmentLength = std::min(temporalLength, nominalSegmentDuration);
-            // OPTION 1: The growing segment starts from 0 and has a fraction of
-            // the nominal segment length
+            // The growing segment starts from 0 and has a fraction of the
+            // nominal segment length
             numberOfSegments = temporalLength / nominalSegmentDuration + 1;
-            // OPTION 2: Unless it's the only segment the last segment grows
-            // until it splits in half
             break;
         }
         case ViperPart::Tail: {

@@ -90,6 +90,7 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
     PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player);
     m_playerPanels.insert(panel);
     this->addObserver(panel, {GameEvent::EventType::Scoring});
+    viper->addObserver(panel, {GameEvent::EventType::Boost});
     return player;
 }
 

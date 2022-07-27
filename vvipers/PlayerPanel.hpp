@@ -2,12 +2,13 @@
 #define VVIPERS_PLAYERPANEL_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <vvipers/Observer.hpp>
 #include <vvipers/Player.hpp>
+#include <vvipers/ProgressBar.hpp>
 #include <vvipers/Vec2.hpp>
-#include <SFML/Graphics/Font.hpp>
 
 namespace VVipers {
 
@@ -19,14 +20,15 @@ class PlayerPanel : public sf::Drawable, public Observer {
     const Player* player() const {return m_player;}
 
   private:
-    void updateName();
-    void updateScore();
+    void updateNameString();
+    void updateScoreString();
 
     const Player* m_player;
     Vec2 m_size;
     sf::Text m_nameText;
     sf::Text m_scoreText;
     sf::Font m_font;
+    ProgressBar m_boostBar;
 };
 
 }  // namespace VVipers

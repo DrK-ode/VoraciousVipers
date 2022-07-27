@@ -18,6 +18,7 @@ set(INC_FILES
     Observer.hpp
     Player.hpp
     PlayerPanel.hpp
+    ProgressBar.hpp
     Score.hpp
     Time.hpp
     Track.hpp
@@ -44,6 +45,7 @@ set(SRC_FILES
     Observer.cpp
     Player.cpp
     PlayerPanel.cpp
+    ProgressBar.cpp
     Score.cpp
     Track.cpp
     Vec2.cpp

@@ -99,6 +99,7 @@ class Viper : public GameObject,
     void updateMotion(const Time& elapsedTime);
     void updateSpeed(const Time& elapsedTime);
     void updateAngle(const Time& elapsedTime);
+    void updateBoostCharge(Time charge);
 
     double m_angle;         // degrees, clockwise since y-axis is downwards
     double m_angularSpeed;  // degrees/s

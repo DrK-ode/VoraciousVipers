@@ -1,10 +1,10 @@
 {
     "General": {
-        "nominalSpeed":         60,
+        "nominalSpeed":         100,
         "nominalSegmentWidth":  30,
-        "boostMaxCharge":        2,
-        "boostRechargeRate":     0.1,
-        "boostRechargeCooldown": 1
+        "boostMaxCharge":        3,
+        "boostRechargeRate":     0.2,
+        "boostRechargeCooldown": 0.5
     },
     "ViperHead": {
         "nominalLength": 35,
