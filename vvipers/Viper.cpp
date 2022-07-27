@@ -163,7 +163,8 @@ void Viper::updateSpeed(const Time& elapsedTime) {
         m_boostRechargeCooldown -=
             std::min(m_boostRechargeCooldown, elapsedTime);
     }
-    if (m_boostRechargeCooldown == seconds(0)) {
+    if (m_boostRechargeCooldown == seconds(0) and
+        m_boostCharge < ViperConfig::properties().boostMaxCharge) {
         updateBoostCharge(elapsedTime *
                           ViperConfig::properties().boostRechargeRate);
     }
