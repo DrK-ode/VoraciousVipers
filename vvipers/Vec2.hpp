@@ -18,7 +18,7 @@ class Vec2 : public sf::Vector2<double> {
     Vec2(const sf::Vector2<U>& v) : sf::Vector2<double>(v) {}
     double abs() const;
     double dot(const Vec2& v) const;
-    Vec2& normalize(double norm = 1);
+    Vec2 normalized(double norm = 1) const;
     Vec2 perpVec() const;
     double projectionScalar( Vec2 v ) const;
     Vec2 projectionVector( Vec2 v ) const;

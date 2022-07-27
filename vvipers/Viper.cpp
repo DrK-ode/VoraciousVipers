@@ -252,7 +252,7 @@ void Viper::updateBody(ViperPart part, Time timeFront,
 
     CollisionVertices* body;
     // TODO:Adapt width depending on how streched the segment is, i.e., dL/dt
-    double width = ViperConfig::properties().nominalSegmentWidth;
+    double nominalWidth = ViperConfig::properties().nominalSegmentWidth;
     // Determining model, texture and lengths depending on the type of segments
     const std::vector<Vec2>* sketch;
     Vec2 textureSize;
@@ -299,7 +299,9 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             // This is the position at the snake axis
             Vec2 mid = m_track.position(time);
             // This vector reaches out the the side of the snake
-            Vec2 perp = m_track.direction(time).perpVec() *
+            Vec2 gradient = m_track.gradient(time);
+            double width = nominalWidth * ViperConfig::properties().nominalSpeed / gradient.abs();
+            Vec2 perp = gradient.normalized().perpVec() *
                         (width * sketch->at(iNode).x);
             // Resulting position
             Vec2 position = mid + perp;

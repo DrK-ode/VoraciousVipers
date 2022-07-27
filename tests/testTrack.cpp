@@ -38,10 +38,10 @@ TEST_F(TrackTest, LengthTestBackwards) {
 }
 
 TEST_F(TrackTest, DirectionTest) {
-    EXPECT_EQ(track.direction(seconds(0)), Vec2(0,-1));
-    EXPECT_EQ(track.direction(seconds(2)), Vec2(0,-1));
-    EXPECT_EQ(track.direction(seconds(3)), Vec2(-1,0));
-    EXPECT_EQ(track.direction(seconds(5)), Vec2(-1,0));
+    EXPECT_EQ(track.gradient(seconds(0)).normalized(), Vec2(0,-1));
+    EXPECT_EQ(track.gradient(seconds(2)).normalized(), Vec2(0,-1));
+    EXPECT_EQ(track.gradient(seconds(3)).normalized(), Vec2(-1,0));
+    EXPECT_EQ(track.gradient(seconds(5)).normalized(), Vec2(-1,0));
 }
 
 TEST_F(TrackTest, PositionTest) {

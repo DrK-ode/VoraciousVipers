@@ -72,7 +72,7 @@ size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
     return from->stepsUntil(to);
 }
 
-Vec2 Track::direction(const Time& t) const {
+Vec2 Track::gradient(const Time& t) const {
     if (m_size < 2) {
         tagError("Cannot compute direction with < 2 TrackPoints.");
         throw std::runtime_error(
@@ -87,7 +87,7 @@ Vec2 Track::direction(const Time& t) const {
     else if (p2 == m_front)  // t >= time at start of track
         p2 = m_front->next();
     TrackPoint* p1 = p2->prev();
-    return (*p1 - *p2).normalize();
+    return (*p1 - *p2) / toSeconds(p1->getTime() - p2->getTime());
 }
 
 double Track::length() const {

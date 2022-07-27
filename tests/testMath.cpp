@@ -29,11 +29,11 @@ TEST(VectorMathTest, perpVecTest) {
 }
 
 TEST(VectorMathTest, normalizeVecTest) {
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).normalize().abs(), 1.);
-    EXPECT_EQ(Vec2(2, 0).normalize(), Vec2(1, 0.));
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).normalize(3).abs(), 3.);
-    EXPECT_EQ(Vec2(2, 0).normalize(3), Vec2(3, 0.));
-    EXPECT_EQ(Vec2(1, 0).normalize(-1), Vec2(-1, 0));
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).normalized().abs(), 1.);
+    EXPECT_EQ(Vec2(2, 0).normalized(), Vec2(1, 0.));
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).normalized(3).abs(), 3.);
+    EXPECT_EQ(Vec2(2, 0).normalized(3), Vec2(3, 0.));
+    EXPECT_EQ(Vec2(1, 0).normalized(-1), Vec2(-1, 0));
 }
 
 TEST(VectorMathTest, projectionVecTest) {

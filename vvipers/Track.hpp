@@ -18,7 +18,7 @@ class Track {
     size_t size() const { return m_size; }
     size_t size(TrackPoint const* from, TrackPoint const* to = nullptr) const;
 
-    Vec2 direction(const Time& t) const;
+    Vec2 gradient(const Time& t) const;
     double length() const;
     double length(const Time& from, const Time& to) const;
     Vec2 position(const Time& t) const;
@@ -84,4 +84,4 @@ inline std::ostream& operator<<(std::ostream& os, const TrackPoint& t) {
 }
 
 }  // namespace VVipers
-#endif
+#endif // VVIPERS_TRACK_HPP
