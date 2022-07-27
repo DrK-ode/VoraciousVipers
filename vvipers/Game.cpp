@@ -149,6 +149,8 @@ void Game::eatFood(Viper* viper, Food* food) {
         viper->velocity(),
         Vec2(mapCoordsToPixel(panel->getScoreTarget(), *m_statusBarView)), 1s,
         score);
+    flyingScore->setColor( sf::Color::Magenta, sf::Color::Red);
+    flyingScore->setFontSize( 0.03*getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
     flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
     m_flyingScores.insert(flyingScore);

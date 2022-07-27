@@ -23,10 +23,10 @@ PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     // The bounds are assuming the tallest possible character but need strings
     // in order to compute non-zero
     auto lbn = m_nameText.getLocalBounds();
-    m_nameText.setOrigin(0, (lbn.height + lbn.top) / 2.);
+    m_nameText.setOrigin(lbn.left, (lbn.height + lbn.top) / 2.);
     m_nameText.setPosition(40, m_size.y / 3.);
     auto lbs = m_scoreText.getLocalBounds();
-    m_scoreText.setOrigin(0, (lbs.height + lbs.top) / 2);
+    m_scoreText.setOrigin(lbs.left, (lbs.height + lbs.top) / 2);
     m_scoreText.setPosition(40, m_size.y * 2 / 3.);
     // Setup boost bar
     m_boostBar.setSize({20., 0.9 * size.y});
@@ -64,7 +64,11 @@ void PlayerPanel::updateScoreString() {
     m_scoreText.setString(ss.str());
 }
 
-Vec2 PlayerPanel::getScoreTarget() const { return m_scoreText.getPosition(); }
+Vec2 PlayerPanel::getScoreTarget() const {
+    auto lb = m_scoreText.getLocalBounds();
+    return m_scoreText.getPosition() +
+           0.5 * Vec2(lb.left + lb.width, lb.top + lb.height);
+}
 
 void PlayerPanel::addScore(score_t score) {
     m_score += score;

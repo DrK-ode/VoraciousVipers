@@ -17,24 +17,23 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
     m_acceleration = 2 *
                      (target - m_initialPosition - m_initialVelocity * tof) /
                      (tof * tof);
-                     // Load and set font
+    // Load and set font
     m_font.loadFromFile(FONT_FILE_PATH);
     m_text.setFont(m_font);
     updateText();
+    auto lb = m_text.getLocalBounds();
+    m_text.setOrigin(0.5 * (lb.left + lb.width), 0.5 * (lb.top + lb.height));
 }
 
 void FlyingScore::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
     target.draw(m_text, states);
-    tagDebug("Drawing ", m_text.getString().operator std::string(), " at ", Vec2(m_text.getPosition()));
 }
 
 void FlyingScore::updateText() {
     std::stringstream ss;
     ss << '+' << m_score;
     m_text.setString(ss.str());
-    m_text.setFillColor(sf::Color::Magenta);
-    m_text.setCharacterSize(20);
 }
 
 void FlyingScore::update(Time elapsedTime) {
@@ -47,11 +46,9 @@ void FlyingScore::update(Time elapsedTime) {
         state(Dead);
     else {
         m_currentTime += elapsedTime;
-        tagDebug(m_currentTime);
         auto t = toSeconds(m_currentTime);
         auto currentPosition = m_initialPosition + m_initialVelocity * t +
                                0.5 * m_acceleration * t * t;
-        tagDebug(currentPosition);
         m_text.setPosition(currentPosition);
         if (m_currentTime >= m_timeOfFlight) {
             state(Dying);
@@ -59,6 +56,17 @@ void FlyingScore::update(Time elapsedTime) {
             notify(&event);
         }
     }
+}
+
+void FlyingScore::setColor(sf::Color fillColor, sf::Color outlineColor) {
+    m_text.setFillColor(fillColor);
+    m_text.setOutlineColor(outlineColor);
+}
+
+void FlyingScore::setFontSize(unsigned int characterSize,
+                              double outlineThickness) {
+    m_text.setCharacterSize(characterSize);
+    m_text.setOutlineThickness(outlineThickness);
 }
 
 }  // namespace VVipers

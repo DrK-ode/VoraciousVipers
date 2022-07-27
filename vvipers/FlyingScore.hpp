@@ -4,25 +4,28 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <string>
-#include <vvipers/Time.hpp>
-#include <vvipers/Vec2.hpp>
+#include <vvipers/GameEvent.hpp>
 #include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
-#include <vvipers/GameEvent.hpp>
+#include <vvipers/Time.hpp>
+#include <vvipers/Vec2.hpp>
 
 namespace VVipers {
 
 class FlyingScore : public sf::Drawable, public GameObject, public Observable {
   public:
     FlyingScore(Vec2 initialPosition, Vec2 initialVelocity, Vec2 target,
-               Time timeOfFlight, const score_t score);
+                Time timeOfFlight, const score_t score);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void update(Time elapsedTime);
+    void setColor(sf::Color fillColor,
+                  sf::Color outlineColor = sf::Color::Transparent);
+    void setFontSize(unsigned int characterSize, double outlineThickness = 0.);
 
   private:
     void updateText();
-    
+
     Vec2 m_initialPosition;  // px
     Vec2 m_initialVelocity;  // px/s
     Vec2 m_acceleration;     // px/s²
@@ -35,4 +38,4 @@ class FlyingScore : public sf::Drawable, public GameObject, public Observable {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_FLYINGSCORE_HPP
+#endif  // VVIPERS_FLYINGSCORE_HPP
