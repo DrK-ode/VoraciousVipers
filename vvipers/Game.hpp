@@ -49,7 +49,9 @@ class Game : public sf::RenderWindow, public Observer, Observable {
     Player* findPlayerWith(const Controller*) const;
 
     Vec2 findFreeRect(Vec2 rectSize) const {
-      return findFreeRect( rectSize, sf::Rect<double>(0,0,getSize().x, getSize().y ) );
+        return findFreeRect(rectSize,
+                            sf::Rect<double>(0, 0, m_gameView->getSize().x,
+                                             m_gameView->getSize().y));
     }
     Vec2 findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const;
     void dispenseFood();
