@@ -15,6 +15,7 @@ set(INC_FILES
     GameConfiguration.hpp
     GameEvent.hpp
     GameObject.hpp
+    GameOptions.hpp
     Observer.hpp
     Player.hpp
     PlayerPanel.hpp
@@ -42,6 +43,7 @@ set(SRC_FILES
     GameConfiguration.cpp
     GameEvent.cpp
     GameObject.cpp
+    GameOptions.cpp
     Observer.cpp
     Player.cpp
     PlayerPanel.cpp
