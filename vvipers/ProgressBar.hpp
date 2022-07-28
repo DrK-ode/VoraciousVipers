@@ -3,13 +3,17 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <vvipers/Vec2.hpp>
 
 namespace VVipers {
 
 class ProgressBar : public sf::Drawable {
   public:
+    enum class ProgressTextStyle { Percent, IntegerRatio };
+
     ProgressBar();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -18,7 +22,11 @@ class ProgressBar : public sf::Drawable {
     void setBackgroundColor(sf::Color color) { m_mainRect.setFillColor(color); }
     void setBarColor(sf::Color color) { m_barRect.setFillColor(color); }
     void setBorderWidth(double width);
+    void setLimits(double low, double high);
+    void setShowText(bool show) { m_showText = show; }
     void setSize(Vec2 size);
+    void setTextProperties(const sf::Font& font, double sizeRatio, sf::Color color,
+                           ProgressTextStyle style);
     void setPosition(Vec2 pos);
     void setProgress(double progress);
     void setVertical(bool vertical);
@@ -32,6 +40,11 @@ class ProgressBar : public sf::Drawable {
     Vec2 m_size;
     Vec2 m_position;
     double m_progress;
+    double m_progressLow;
+    double m_progressHigh;
+    bool m_showText;
+    sf::Text m_text;
+    ProgressTextStyle m_textStyle;
     sf::RectangleShape m_mainRect;
     sf::RectangleShape m_barRect;
 };

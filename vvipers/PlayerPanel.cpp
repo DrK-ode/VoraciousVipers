@@ -35,6 +35,9 @@ PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     m_boostBar.setProgress(0.3);
     m_boostBar.setVertical(true);
     m_boostBar.setPosition({10, 0.05 * size.y});
+    m_boostBar.setTextProperties(m_font, 0.1, sf::Color::White,
+                                 ProgressBar::ProgressTextStyle::Percent);
+    m_boostBar.setShowText(true);
 }
 
 void PlayerPanel::draw(sf::RenderTarget& target,
