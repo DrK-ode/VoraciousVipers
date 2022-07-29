@@ -6,20 +6,23 @@ set(INC_FILES
     CollisionBody.hpp
     CollisionDetector.hpp
     CollisionVertices.hpp
-    ConvexBody.hpp
     config.hpp
     Controller.hpp
+    ConvexBody.hpp
     debug.hpp
     FlyingScore.hpp
+    FontFileLoader.hpp
     Food.hpp
     Game.hpp
     GameEvent.hpp
     GameObject.hpp
-    GameOptions.hpp
     Observer.hpp
+    OptionsJSON.hpp
     Player.hpp
     PlayerPanel.hpp
     ProgressBar.hpp
+    Services.hpp
+    TextureFileLoader.hpp
     Time.hpp
     Track.hpp
     Vec2.hpp
@@ -37,15 +40,18 @@ set(SRC_FILES
     Controller.cpp
     ConvexBody.cpp
     FlyingScore.cpp
+    FontFileLoader.cpp
     Food.cpp
     Game.cpp
     GameEvent.cpp
     GameObject.cpp
-    GameOptions.cpp
     Observer.cpp
+    OptionsJSON.cpp
     Player.cpp
     PlayerPanel.cpp
     ProgressBar.cpp
+    Services.cpp
+    TextureFileLoader.cpp
     Track.cpp
     Vec2.cpp
     Viper.cpp

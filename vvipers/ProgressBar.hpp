@@ -32,7 +32,7 @@ class ProgressBar : public sf::Drawable {
     void setProgressLimits(double low, double high);
     void setShowText(bool show) { m_showText = show; }
     void setSize(Vec2 size);
-    void setTextProperties(const sf::Font& font, double sizeRatio,
+    void setTextProperties(const sf::Font* font, double sizeRatio,
                            sf::Color color, ProgressTextStyle style);
     void setPosition(Vec2 pos);
     void setProgress(double progress);

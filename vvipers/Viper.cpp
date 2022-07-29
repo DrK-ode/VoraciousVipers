@@ -1,6 +1,5 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <exception>
-#include <vvipers/GameOptions.hpp>
 #include <vvipers/Vec2.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/config.hpp>
@@ -15,45 +14,45 @@ class Viper::ViperConfiguration {
     friend class Viper;
 
   private:
-    void initialize() {
-        nominalSpeed = GameOptions::getOptionDouble("Viper/nominalSpeed");
+    void initialize(const OptionsProvider* options) {
+        nominalSpeed = options->getOptionDouble("Viper/nominalSpeed");
         nominalSegmentWidth =
-            GameOptions::getOptionDouble("Viper/nominalSegmentWidth");  // px
+            options->getOptionDouble("Viper/nominalSegmentWidth");  // px
         boostMaxCharge =
-            seconds(GameOptions::getOptionDouble("Viper/boostMaxCharge"));  // s
+            seconds(options->getOptionDouble("Viper/boostMaxCharge"));  // s
         boostRechargeRate =
-            GameOptions::getOptionDouble("Viper/boostRechargeRate");  // s per s
-        boostRechargeCooldown = seconds(GameOptions::getOptionDouble(
+            options->getOptionDouble("Viper/boostRechargeRate");  // s per s
+        boostRechargeCooldown = seconds(options->getOptionDouble(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
-        headNominalLength = GameOptions::getOptionDouble(
+        headNominalLength = options->getOptionDouble(
             "ViperModel/ViperHead/nominalLength");                 // px
         headDuration = seconds(headNominalLength / nominalSpeed);  // s
         headNodes =
-            GameOptions::getOption2DVectorArray("ViperModel/ViperHead/nodes");
+            options->getOption2DVectorArray("ViperModel/ViperHead/nodes");
 
-        bodyNominalLength = GameOptions::getOptionDouble(
+        bodyNominalLength = options->getOptionDouble(
             "ViperModel/ViperBody/nominalLength");                 // px
         bodyDuration = seconds(bodyNominalLength / nominalSpeed);  // s
         bodyNodes =
-            GameOptions::getOption2DVectorArray("ViperModel/ViperBody/nodes");
+            options->getOption2DVectorArray("ViperModel/ViperBody/nodes");
 
-        tailNominalLength = GameOptions::getOptionDouble(
+        tailNominalLength = options->getOptionDouble(
             "ViperModel/ViperTail/nominalLength");                 // px
         tailDuration = seconds(tailNominalLength / nominalSpeed);  // s
         tailNodes =
-            GameOptions::getOption2DVectorArray("ViperModel/ViperTail/nodes");
+            options->getOption2DVectorArray("ViperModel/ViperTail/nodes");
 
-        loadTextures();
+        loadTextures(options);
 
         initialized = true;
     }
-    void loadTextures() {
+    void loadTextures(const OptionsProvider* options) {
         // Load image and split it into the different textures.
         sf::Image combinedTextureImage;
         std::stringstream ss;
-        ss << GameOptions::getOptionString("General/resourceDirectoryPath")
-           << GameOptions::getOptionString("ViperModel/textureFileName");
+        ss << options->getOptionString("General/resourceDirectoryPath")
+           << options->getOptionString("ViperModel/textureFileName");
         combinedTextureImage.loadFromFile(ss.str());
         sf::Vector2i imgSize(combinedTextureImage.getSize());
         sf::Vector2i upperLeft;
@@ -100,14 +99,14 @@ class Viper::ViperConfiguration {
 
 Viper::ViperConfiguration Viper::viperCfg;
 
-Viper::Viper()
+Viper::Viper(const OptionsProvider* options)
     : m_boostInc(0.),
       m_boostCharge(0.),
       m_growth(0.),
       m_headPoint(nullptr),
       m_color(sf::Color::Green) {
     if (!viperCfg.initialized)
-        viperCfg.initialize();
+        viperCfg.initialize(options);
 
     m_speed = viperCfg.nominalSpeed;
     m_headBody.setTexture(&viperCfg.headTexture);
@@ -220,7 +219,7 @@ void Viper::updateBoostCharge(Time chargeChange) {
     chargeChange =
         std::min(chargeChange, viperCfg.boostMaxCharge - m_boostCharge);
     m_boostCharge += chargeChange;
-    
+
     ObjectModifiedEvent event(this);
     notify(&event);
 }
@@ -359,7 +358,8 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             actualLength =
                 temporalLength - segmentLength * (numberOfSegments - 1);
         // Start on 0 if it is the first segment, otherwise on 2
-        for (size_t iNode = (iSeg == 0) ? 0 : 2; iNode < sketch->size(); ++iNode) {
+        for (size_t iNode = (iSeg == 0) ? 0 : 2; iNode < sketch->size();
+             ++iNode) {
             // How far we have come so far.
             Time time = timeFront - sketch->at(iNode).y * actualLength;
             // This is the position at the snake axis

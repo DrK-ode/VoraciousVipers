@@ -2,7 +2,8 @@
     "General": {
         "windowSize": [1024, 768 ],
         "FPS": 60,
-        "fontFileName": "DroidSansMono.ttf"
+        "fonts": ["DroidSansMono"],
+        "defaultFont": "DroidSansMono"
     },
     "Viper": {
         "nominalSpeed":         100,

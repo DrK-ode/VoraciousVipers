@@ -12,9 +12,11 @@
 
 namespace VVipers {
 
+class FontProvider;
+
 class PlayerPanel : public sf::Drawable, public Observer {
   public:
-    PlayerPanel(Vec2 size, const Player* player);
+    PlayerPanel(Vec2 size, const Player* player, const FontProvider* fontProvider);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
     const Player* getPlayer() const { return m_player; }
@@ -30,7 +32,7 @@ class PlayerPanel : public sf::Drawable, public Observer {
     const Player* m_player;
     score_t m_score;
     sf::Text m_nameText;
-    sf::Font m_font;
+    const sf::Font* m_font;
     ProgressBar m_boostBar;
     ProgressBar m_scoreBar;
 };

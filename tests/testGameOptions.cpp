@@ -2,7 +2,7 @@
 
 #include <fstream>
 #include <string>
-#include <vvipers/GameOptions.hpp>
+#include <vvipers/OptionsJSON.hpp>
 #include <vvipers/Vec2.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
@@ -16,14 +16,14 @@ class JsonTest : public ::testing::Test {
     JsonTest() {
         debug::verbosity = Verbosity::silent;
         std::ifstream input("test.json");
-        options = new GameOptions(input);
+        options = new OptionsJSON(input);
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->isOptionSet(resPathOptStr))
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
     }
     ~JsonTest() { delete options; }
 
-    GameOptions* options;
+    OptionsJSON* options;
 };
 
 TEST_F(JsonTest, basicReadTest) {

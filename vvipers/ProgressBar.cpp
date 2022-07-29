@@ -54,9 +54,9 @@ void ProgressBar::setSize(Vec2 size) {
     updateBar();
 }
 
-void ProgressBar::setTextProperties(const sf::Font& font, double characterSize,
+void ProgressBar::setTextProperties(const sf::Font* font, double characterSize,
                                     sf::Color color, ProgressTextStyle style) {
-    m_text.setFont(font);
+    m_text.setFont(*font);
     m_text.setCharacterSize(characterSize);
     m_text.setFillColor(color);
     m_textStyle = style;

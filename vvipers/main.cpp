@@ -1,22 +1,28 @@
 #include <fstream>
 #include <thread>
 #include <vvipers/Game.hpp>
-#include <vvipers/GameOptions.hpp>
+#include <vvipers/OptionsJSON.hpp>
+#include <vvipers/FontFileLoader.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
+#include <vvipers/Services.hpp>
 
 namespace VVipers {
 
 void startGame() {
     std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
-    GameOptions options(cfgFile);  // The one and only instance
+    OptionsJSON options(cfgFile);  // The one and only instance
     const std::string resPathOptStr("General/resourceDirectoryPath");
     if (!options.isOptionSet(resPathOptStr))
         options.setOptionString(resPathOptStr, RESOURCE_PATH);
+    FontFileLoader fontProvider(&options);
+    Services services;
+    services.setFontProvider(&fontProvider);
+    services.setOptionsProvider(&options);
 
-    Vec2 windowSize = GameOptions::getOption2DVector("General/windowSize");
-    double FPS = GameOptions::getOptionDouble("General/FPS");
+    Vec2 windowSize = options.getOption2DVector("General/windowSize");
+    double FPS = options.getOptionDouble("General/FPS");
     if (FPS == 0.)
         FPS = 60.0;  // Default
 

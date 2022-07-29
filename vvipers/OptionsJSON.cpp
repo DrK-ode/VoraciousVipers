@@ -1,25 +1,11 @@
-#include <vvipers/GameOptions.hpp>
+#include <vvipers/OptionsJSON.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {
 
-GameOptions* GameOptions::s_instance(nullptr);
-
-GameOptions::GameOptions(std::istream& input) {
-    if (s_instance)
-        throw std::runtime_error("Only one instance of GameOptions allowed.");
-    s_instance = this;
-
+OptionsJSON::OptionsJSON(std::istream& input) {
     Json::Reader reader;
     reader.parse(input, m_jsonRoot);
-}
-
-GameOptions::~GameOptions() { s_instance = nullptr; }
-
-GameOptions* GameOptions::getInstance() {
-    if (s_instance)
-        return s_instance;
-    throw std::runtime_error("GameOptions not instantiated.");
 }
 
 std::vector<std::string> tokenize(const std::string& str, const char delim) {
@@ -34,7 +20,7 @@ std::vector<std::string> tokenize(const std::string& str, const char delim) {
     return out;
 }
 
-const Json::Value GameOptions::getOptionValue(
+const Json::Value OptionsJSON::getOptionValue(
     const std::string& optionName) const {
     auto subdirs = tokenize(optionName, '/');
     // get each subdir before searching for the value
@@ -44,7 +30,7 @@ const Json::Value GameOptions::getOptionValue(
     return value;
 }
 
-const Json::Value GameOptions::getOptionArray(
+const Json::Value OptionsJSON::getOptionArray(
     const std::string& optionName) const {
     auto value = getOptionValue(optionName);
     if (!value.isArray())
@@ -52,31 +38,31 @@ const Json::Value GameOptions::getOptionArray(
     return value;
 }
 
-double GameOptions::getOptionDouble(const std::string& optionName) {
-    auto value = getInstance()->getOptionValue(optionName);
+double OptionsJSON::getOptionDouble(const std::string& optionName) const {
+    auto value = getOptionValue(optionName);
     if (!value.isDouble())
         tagError(" Value ", optionName, " is not a double.");
     return value.asDouble();
 }
 
-std::string GameOptions::getOptionString(const std::string& optionName) {
-    auto value = getInstance()->getOptionValue(optionName);
+std::string OptionsJSON::getOptionString(const std::string& optionName) const {
+    auto value = getOptionValue(optionName);
     if (!value.isString())
         tagError(" Value ", optionName, " is not a string.");
     return value.asString();
 }
 
-Vec2 GameOptions::getOption2DVector(const std::string& optionName) {
-    auto value = getInstance()->getOptionArray(optionName);
+Vec2 OptionsJSON::getOption2DVector(const std::string& optionName) const {
+    auto value = getOptionArray(optionName);
     if (value.size() != 2 or !value[0].isDouble() or !value[1].isDouble()) {
         tagError(" Value ", optionName, " is not a 2D vector.");
     }
     return Vec2(value[0].asDouble(), value[1].asDouble());
 }
 
-std::vector<std::string> GameOptions::getOptionStringArray(
-    const std::string& optionName) {
-    auto value = getInstance()->getOptionArray(optionName);
+std::vector<std::string> OptionsJSON::getOptionStringArray(
+    const std::string& optionName) const {
+    auto value = getOptionArray(optionName);
     std::vector<std::string> stringArray;
     stringArray.reserve(value.size());
     for (auto stringValue : value) {
@@ -89,9 +75,9 @@ std::vector<std::string> GameOptions::getOptionStringArray(
     return stringArray;
 }
 
-std::vector<double> GameOptions::getOptionDoubleArray(
-    const std::string& optionName) {
-    auto value = getInstance()->getOptionArray(optionName);
+std::vector<double> OptionsJSON::getOptionDoubleArray(
+    const std::string& optionName) const {
+    auto value = getOptionArray(optionName);
     std::vector<double> doubleArray;
     doubleArray.reserve(value.size());
     for (auto doubleValue : value) {
@@ -104,9 +90,9 @@ std::vector<double> GameOptions::getOptionDoubleArray(
     return doubleArray;
 }
 
-std::vector<Vec2> GameOptions::getOption2DVectorArray(
-    const std::string& optionName) {
-    auto value = getInstance()->getOptionArray(optionName);
+std::vector<Vec2> OptionsJSON::getOption2DVectorArray(
+    const std::string& optionName) const {
+    auto value = getOptionArray(optionName);
     std::vector<Vec2> vectorArray;
     vectorArray.reserve(value.size());
     for (auto vec2Value : value) {
@@ -121,7 +107,7 @@ std::vector<Vec2> GameOptions::getOption2DVectorArray(
     return vectorArray;
 }
 
-void GameOptions::setOptionValue(const std::string& optionName,
+void OptionsJSON::setOptionValue(const std::string& optionName,
                                  const Json::Value optionValue) {
     auto subdirs = tokenize(optionName, '/');
     auto actualName = subdirs.back();
@@ -134,7 +120,7 @@ void GameOptions::setOptionValue(const std::string& optionName,
 }
 
 template <typename T>
-void GameOptions::setOptionArray(const std::string& optionName,
+void OptionsJSON::setOptionArray(const std::string& optionName,
                                  const std::vector<T>& optionValue) {
     auto array = Json::Value(Json::arrayValue);
     for (auto& element : optionValue)
@@ -142,18 +128,18 @@ void GameOptions::setOptionArray(const std::string& optionName,
     setOptionValue(optionName, array);
 }
 
-void GameOptions::setOptionDoubleArray(const std::string& optionName,
+void OptionsJSON::setOptionDoubleArray(const std::string& optionName,
                                        const std::vector<double>& optionArray) {
     setOptionArray(optionName, optionArray);
 }
 
-void GameOptions::setOptionStringArray(
+void OptionsJSON::setOptionStringArray(
     const std::string& optionName,
     const std::vector<std::string>& optionArray) {
     setOptionArray(optionName, optionArray);
 }
 
-void GameOptions::setOption2DVectorArray(const std::string& optionName,
+void OptionsJSON::setOption2DVectorArray(const std::string& optionName,
                                          const std::vector<Vec2>& vectorArray) {
     auto array = Json::Value(Json::arrayValue);
     for (auto& vec : vectorArray) {
@@ -165,8 +151,8 @@ void GameOptions::setOption2DVectorArray(const std::string& optionName,
     setOptionValue(optionName, array);
 }
 
-void GameOptions::write(std::ostream& output) {
-    output << getInstance()->m_jsonRoot << std::endl;
+void OptionsJSON::write(std::ostream& output) const {
+    output << m_jsonRoot << std::endl;
 }
 
 }  // namespace VVipers

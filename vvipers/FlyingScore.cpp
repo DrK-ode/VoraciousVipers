@@ -2,12 +2,12 @@
 #include <sstream>
 #include <vvipers/FlyingScore.hpp>
 #include <vvipers/GameEvent.hpp>
-#include <vvipers/GameOptions.hpp>
+#include <vvipers/Services.hpp>
 
 namespace VVipers {
 
 FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
-                         Vec2 target, Time timeOfFlight, uint64_t score)
+                         Vec2 target, Time timeOfFlight, uint64_t score, const FontProvider* fontProvider)
     : m_initialPosition(initialPosition),
       m_initialVelocity(initialVelocity),
       m_timeOfFlight(timeOfFlight),
@@ -19,11 +19,8 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
                      (target - m_initialPosition - m_initialVelocity * tof) /
                      (tof * tof);
     // Load and set font
-    std::stringstream ss;
-        ss << GameOptions::getOptionString("General/resourceDirectoryPath")
-           << GameOptions::getOptionString("General/fontFileName");
-    m_font.loadFromFile( ss.str() );
-    m_text.setFont(m_font);
+    m_font = fontProvider->getDefaultFont();
+    m_text.setFont(*m_font);
     updateText();
     auto lb = m_text.getLocalBounds();
     m_text.setOrigin(0.5 * (lb.left + lb.width), 0.5 * (lb.top + lb.height));

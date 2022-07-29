@@ -3,11 +3,12 @@
 #include <typeinfo>
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/Controller.hpp>
+#include <vvipers/debug.hpp>
 #include <vvipers/Game.hpp>
 #include <vvipers/Player.hpp>
+#include <vvipers/Services.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/Walls.hpp>
-#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -88,7 +89,7 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
                         Viper* viper) {
     Player* player = new Player(name, controller, viper);
     m_players.insert(player);
-    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player);
+    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player, Services::getFontService());
     m_playerPanels.insert(panel);
     viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
     player->addObserver(panel, {GameEvent::EventType::ObjectModified});
@@ -108,7 +109,7 @@ void Game::deletePlayer(Player* player) {
 }
 
 Viper* Game::addViper(/* startConditions? */) {
-    Viper* viper = new Viper();
+    Viper* viper = new Viper( Services::getOptionsService() );
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper);
@@ -148,11 +149,11 @@ void Game::eatFood(Viper* viper, Food* food) {
     PlayerPanel* panel = findPlayerPanel(player);
     FlyingScore* flyingScore = new FlyingScore(
         Vec2(mapCoordsToPixel(food->getPosition(), *m_gameView)),
-        4*viper->velocity(),
+        4 * viper->velocity(),
         Vec2(mapCoordsToPixel(panel->getScoreTarget(), *m_statusBarView)), 1s,
-        score);
-    flyingScore->setColor( sf::Color::Magenta, sf::Color::Red);
-    flyingScore->setFontSize( 0.03*getSize().y, 1.0);
+        score, Services::getFontService());
+    flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
+    flyingScore->setFontSize(0.03 * getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
     flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
     m_flyingScores.insert(flyingScore);
@@ -223,8 +224,8 @@ void Game::draw() {
         RenderWindow::draw(*f);
     for (const auto v : m_vipers)
         RenderWindow::draw(*v);
-    setView( getDefaultView() );
-    for( const auto s : m_flyingScores)
+    setView(getDefaultView());
+    for (const auto s : m_flyingScores)
         RenderWindow::draw(*s);
 }
 

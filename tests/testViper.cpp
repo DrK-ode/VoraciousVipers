@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <fstream>
-#include <vvipers/GameOptions.hpp>
+#include <vvipers/OptionsJSON.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/config.hpp>
@@ -16,11 +16,11 @@ class ViperTest : public ::testing::Test {
     ViperTest() {
         debug::verbosity = Verbosity::onlyErrors;
         std::ifstream input("test.json");
-        options = new GameOptions(input);
+        options = new OptionsJSON(input);
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->isOptionSet(resPathOptStr))
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
-        viper = new Viper;
+        viper = new Viper(options);
         viper->setup(Vec2(0, 0), 180.f, 1.5);
     }
     ~ViperTest() {
@@ -29,7 +29,7 @@ class ViperTest : public ::testing::Test {
     }
 
     Viper* viper;
-    GameOptions* options;
+    OptionsJSON* options;
 };
 
 TEST_F(ViperTest, angleTest) {
@@ -48,10 +48,10 @@ TEST_F(ViperTest, velocityTest) {
 
 TEST_F(ViperTest, lengthTest) {
     double expectedLength =
-        GameOptions::getOptionDouble("ViperModel/ViperHead/nominalLength") +
+        options->getOptionDouble("ViperModel/ViperHead/nominalLength") +
         1.5 *
-            GameOptions::getOptionDouble("ViperModel/ViperBody/nominalLength") +
-        GameOptions::getOptionDouble("ViperModel/ViperTail/nominalLength");
+            options->getOptionDouble("ViperModel/ViperBody/nominalLength") +
+        options->getOptionDouble("ViperModel/ViperTail/nominalLength");
     viper->update(seconds(3.0));  // Let it grow
     EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
     viper->update(seconds(3.0));  // Let it grow more
