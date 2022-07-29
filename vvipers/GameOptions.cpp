@@ -149,6 +149,26 @@ template void GameOptions::setOption<double>(const std::string& optionName,
 template void GameOptions::setOption<std::string>(
     const std::string& optionName, const std::string optionValue);
 
+template <typename T>
+void GameOptions::setOptionArray(const std::string& optionName,
+                            const std::vector<T>& optionValue) {
+    auto subdirs = tokenize(optionName, '/');
+    auto actualName = subdirs.back();
+    subdirs.pop_back();
+    auto value = &m_jsonRoot;
+    for (auto& dir : subdirs) {
+        value = &(*value)[dir];
+    }
+    auto array = Json::Value(Json::arrayValue);
+    for( auto& element : optionValue )
+        array.append( element );
+    (*value)[actualName] = array;
+}
+template void GameOptions::setOptionArray<double>(const std::string& optionName,
+                                             const std::vector<double>& optionValue);
+template void GameOptions::setOptionArray<std::string>(
+    const std::string& optionName, const std::vector<std::string>& optionValue);
+
 void GameOptions::write(std::ostream& output) {
     output << getInstance()->m_jsonRoot << std::endl;
 }

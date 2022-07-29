@@ -48,9 +48,21 @@ TEST_F(JsonTest, subdirTest) {
 }
 
 TEST_F(JsonTest, arrayTest) {
-    debug::verbosity = Verbosity::all;
     std::vector<double> dblArray = {1, 2, 3, 4, 5, 6};
     EXPECT_EQ(options->getOptionDoubleArray("value6"), dblArray);
+}
+
+TEST_F(JsonTest, setTest) {
+    std::vector<double> dblArray = {1, 2, 3};
+    options->setOptionDouble("extra1", 1.0);
+    options->setOptionString("extra2", "two");
+    options->setOption2DVector( "extra3", Vec2(3,33) );
+    options->setOptionDoubleArray("extra4", dblArray);
+    options->write(std::cout);
+    EXPECT_DOUBLE_EQ( options->getOptionDouble("extra1"), 1.0);
+    EXPECT_EQ( options->getOptionString("extra2"), "two");
+    EXPECT_EQ(options->getOption2DVector("extra3"), Vec2(3,33) );
+    EXPECT_EQ(options->getOptionDoubleArray("extra4"), dblArray);
 }
 
 }  // namespace

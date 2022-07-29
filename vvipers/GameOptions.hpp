@@ -33,9 +33,18 @@ class GameOptions {
     void setOptionDouble(const std::string& optionName, double value) {
         setOption(optionName, value);
     }
-    // void setOption2DVector(const std::string& optionName, Vec2 value) {
-    //     setOptionDoubleArray(optionName, {value.x, value.y});
-    // }
+    void setOption2DVector(const std::string& optionName, Vec2 value) {
+        setOptionDoubleArray(optionName,
+                             std::vector<double>({value.x, value.y}));
+    }
+    void setOptionStringArray(const std::string& optionName,
+                              const std::vector<std::string>& stringArray) {
+        setOptionArray(optionName, stringArray);
+    }
+    void setOptionDoubleArray(const std::string& optionName,
+                              const std::vector<double>& doubleArray) {
+        setOptionArray(optionName, doubleArray);
+    }
 
   private:
     static GameOptions* getInstance();
@@ -47,6 +56,9 @@ class GameOptions {
     Json::Value getOptionArray(const std::string& optionName) const;
     template <typename T>
     void setOption(const std::string& optionName, const T value);
+    template <typename T>
+    void setOptionArray(const std::string& optionName,
+                        const std::vector<T>& value);
 
     static GameOptions* s_instance;
     Json::Value m_jsonRoot;
