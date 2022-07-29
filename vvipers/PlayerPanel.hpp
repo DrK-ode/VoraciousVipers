@@ -23,15 +23,16 @@ class PlayerPanel : public sf::Drawable, public Observer {
   private:
     void updateNameString();
     void updateScoreString();
+    void updateScoreLimits();
     void addScore(score_t score);
 
     Vec2 m_size;
     const Player* m_player;
     score_t m_score;
     sf::Text m_nameText;
-    sf::Text m_scoreText;
     sf::Font m_font;
     ProgressBar m_boostBar;
+    ProgressBar m_scoreBar;
 };
 
 }  // namespace VVipers

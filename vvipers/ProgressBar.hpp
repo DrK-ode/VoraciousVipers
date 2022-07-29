@@ -18,15 +18,22 @@ class ProgressBar : public sf::Drawable {
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
+    Vec2 getPosition() const { return m_position; }
+    sf::FloatRect getLocalBounds() const { return m_mainRect.getLocalBounds(); }
+    double getProgress() const {return m_progress;}
+    std::pair<double, double> getProgressLimits() const {
+        return {m_progressLow, m_progressHigh};
+    }
+
     void setBorderColor(sf::Color color) { m_mainRect.setOutlineColor(color); }
     void setBackgroundColor(sf::Color color) { m_mainRect.setFillColor(color); }
     void setBarColor(sf::Color color) { m_barRect.setFillColor(color); }
     void setBorderWidth(double width);
-    void setLimits(double low, double high);
+    void setProgressLimits(double low, double high);
     void setShowText(bool show) { m_showText = show; }
     void setSize(Vec2 size);
-    void setTextProperties(const sf::Font& font, double sizeRatio, sf::Color color,
-                           ProgressTextStyle style);
+    void setTextProperties(const sf::Font& font, double sizeRatio,
+                           sf::Color color, ProgressTextStyle style);
     void setPosition(Vec2 pos);
     void setProgress(double progress);
     void setVertical(bool vertical);

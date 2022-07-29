@@ -16,7 +16,7 @@ Game::Game(Vec2 windowSize)
     : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y),
                        "VoraciousVipers"),
       m_exit(false) {
-    const sf::Vector2f statusBarRelSize(1, 0.1);
+    const sf::Vector2f statusBarRelSize(0.5, 0.1);
     const sf::Vector2f statusBarSize(getSize().x * statusBarRelSize.x,
                                      getSize().y * statusBarRelSize.y);
     m_statusBarView = new sf::View();
@@ -146,7 +146,7 @@ void Game::eatFood(Viper* viper, Food* food) {
     PlayerPanel* panel = findPlayerPanel(player);
     FlyingScore* flyingScore = new FlyingScore(
         Vec2(mapCoordsToPixel(food->getPosition(), *m_gameView)),
-        viper->velocity(),
+        4*viper->velocity(),
         Vec2(mapCoordsToPixel(panel->getScoreTarget(), *m_statusBarView)), 1s,
         score);
     flyingScore->setColor( sf::Color::Magenta, sf::Color::Red);

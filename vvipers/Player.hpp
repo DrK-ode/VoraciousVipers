@@ -11,10 +11,16 @@ class Controller;
 class Viper;
 
 typedef uint64_t score_t;
+typedef uint64_t level_t;
 
 class Player {
   public:
     Player(const std::string& name, Controller* c, Viper* v);
+
+    static level_t calculateLevel(score_t score) { return score / 1000 + 1; }
+    static score_t calculateLevelLimit(level_t level) {
+        return (level - 1) * 1000;
+    }
 
     sf::Color color() const { return m_color; }
     void color(sf::Color c);

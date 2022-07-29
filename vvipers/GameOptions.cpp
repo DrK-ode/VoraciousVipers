@@ -41,8 +41,6 @@ const Json::Value GameOptions::getOptionValue(
     Json::Value value = m_jsonRoot;
     for (auto& subdir : subdirs)
         value = value.get(subdir, Json::nullValue);
-    if (value.isNull())
-        tagWarning(" Value ", optionName, " not found among game options.");
     return value;
 }
 

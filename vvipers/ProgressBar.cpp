@@ -30,7 +30,6 @@ void ProgressBar::draw(sf::RenderTarget& target,
 void ProgressBar::setPosition(Vec2 position) {
     m_position = position;
     m_mainRect.setPosition(position);
-    m_text.setPosition(position + 0.5 * m_size);
     updateBar();
 }
 
@@ -39,7 +38,7 @@ void ProgressBar::setBorderWidth(double width) {
     m_barRect.setOutlineThickness(width);
 }
 
-void ProgressBar::setLimits(double low, double high) {
+void ProgressBar::setProgressLimits(double low, double high) {
     m_progressLow = low;
     m_progressHigh = high;
 }
@@ -55,10 +54,10 @@ void ProgressBar::setSize(Vec2 size) {
     updateBar();
 }
 
-void ProgressBar::setTextProperties(const sf::Font& font, double sizeRatio,
+void ProgressBar::setTextProperties(const sf::Font& font, double characterSize,
                                     sf::Color color, ProgressTextStyle style) {
     m_text.setFont(font);
-    m_text.setCharacterSize(m_size.y * sizeRatio);
+    m_text.setCharacterSize(characterSize);
     m_text.setFillColor(color);
     m_textStyle = style;
 }
@@ -74,8 +73,9 @@ void ProgressBar::setInvertedBar(bool invert) {
 }
 
 void ProgressBar::updateBar() {
-    double relativeProgress = std::max(
-        0., std::min(1., (m_progress - m_progressLow) / m_progressHigh));
+    double relativeProgress =
+        std::max(0., std::min(1., (m_progress - m_progressLow) /
+                                      (m_progressHigh - m_progressLow)));
     double barStart = (m_invert xor m_vertical) ? 1. - relativeProgress : 0.;
 
     if (m_vertical) {
@@ -95,7 +95,8 @@ void ProgressBar::updateBar() {
                 break;
             }
             case ProgressTextStyle::Percent: {
-                ss << int(100 * (m_progress - m_progressLow) / m_progressHigh)
+                ss << int(100 * (m_progress - m_progressLow) /
+                          (m_progressHigh - m_progressLow))
                    << '%';
                 break;
             }
@@ -103,7 +104,8 @@ void ProgressBar::updateBar() {
         m_text.setString(ss.str());
         auto lb = m_text.getLocalBounds();
         m_text.setOrigin(0.5 * (lb.left + lb.width),
-                         0.5 * (lb.top + lb.height));
+                         0.5 * (2*lb.top + lb.height));
+        m_text.setPosition(m_position + 0.5 * m_size);
     }
 }
 
