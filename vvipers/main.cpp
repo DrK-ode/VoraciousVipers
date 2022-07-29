@@ -1,20 +1,22 @@
-//#include <algorithm>
+#include <fstream>
 #include <thread>
 #include <vvipers/Game.hpp>
-#include <vvipers/GameConfiguration.hpp>
+#include <vvipers/GameOptions.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {
 
-GameConfiguration* readGameConfig(const std::string& cfgFile) {
-    return new GameConfiguration(cfgFile);
-}
+void startGame() {
+    std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
+    GameOptions options(cfgFile);  // The one and only instance
+    const std::string resPathOptStr("General/resourceDirectoryPath");
+    if (!options.isOptionSet(resPathOptStr))
+        options.setOptionString(resPathOptStr, RESOURCE_PATH);
 
-void startGame(const GameConfiguration* cfg) {
-    Vec2 windowSize = cfg->getValueAsVec2("windowSize");
-    double FPS = cfg->getValueAsDouble("FPS");
+    Vec2 windowSize = GameOptions::getOption2DVector("General/windowSize");
+    double FPS = GameOptions::getOptionDouble("General/FPS");
     if (FPS == 0.)
         FPS = 60.0;  // Default
 
@@ -73,9 +75,8 @@ void startGame(const GameConfiguration* cfg) {
         theGame.draw();
         theGame.display();
         drawDuration = clock.split();
-        sleepDuration =
-            frameDuration -
-            (debugDuration + updateDuration + eventDuration + drawDuration);
+        sleepDuration = frameDuration - (debugDuration + updateDuration +
+                                         eventDuration + drawDuration);
 
         std::this_thread::sleep_for(sleepDuration);
         firstFrame = false;
@@ -86,8 +87,7 @@ void startGame(const GameConfiguration* cfg) {
 
 int main(int argc, const char** argv) {
     VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
-    // Handle input arguments
-    auto cfg = VVipers::readGameConfig(USER_CONFIGURATION_FILE_PATH);
-    VVipers::startGame(cfg);
+    // Handle input arguments?
+    VVipers::startGame();
     return 0;
 }

@@ -1,7 +1,8 @@
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <sstream>
 #include <vvipers/FlyingScore.hpp>
 #include <vvipers/GameEvent.hpp>
-#include <vvipers/config.hpp>
+#include <vvipers/GameOptions.hpp>
 
 namespace VVipers {
 
@@ -18,7 +19,10 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
                      (target - m_initialPosition - m_initialVelocity * tof) /
                      (tof * tof);
     // Load and set font
-    m_font.loadFromFile(FONT_FILE_PATH);
+    std::stringstream ss;
+        ss << GameOptions::getOptionString("General/resourceDirectoryPath")
+           << GameOptions::getOptionString("General/fontFileName");
+    m_font.loadFromFile( ss.str() );
     m_text.setFont(m_font);
     updateText();
     auto lb = m_text.getLocalBounds();

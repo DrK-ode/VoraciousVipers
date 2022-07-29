@@ -13,19 +13,17 @@ set(INC_FILES
     FlyingScore.hpp
     Food.hpp
     Game.hpp
-    GameConfiguration.hpp
     GameEvent.hpp
     GameObject.hpp
+    GameOptions.hpp
     Observer.hpp
     Player.hpp
     PlayerPanel.hpp
     ProgressBar.hpp
-    Score.hpp
     Time.hpp
     Track.hpp
     Vec2.hpp
     Viper.hpp
-    ViperConfig.hpp
     VVMath.hpp
     Walls.hpp
 )
@@ -41,18 +39,16 @@ set(SRC_FILES
     FlyingScore.cpp
     Food.cpp
     Game.cpp
-    GameConfiguration.cpp
     GameEvent.cpp
     GameObject.cpp
+    GameOptions.cpp
     Observer.cpp
     Player.cpp
     PlayerPanel.cpp
     ProgressBar.cpp
-    Score.cpp
     Track.cpp
     Vec2.cpp
     Viper.cpp
-    ViperConfig.cpp
     Walls.cpp
 )
 

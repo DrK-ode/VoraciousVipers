@@ -4,6 +4,7 @@ find_package(GTest REQUIRED)
 add_executable(
   vvtest
   testCollidable.cpp
+  testGameOptions.cpp
   testMath.cpp
   testViper.cpp
   testTime.cpp
@@ -16,6 +17,7 @@ target_link_libraries(
 )
 target_include_directories(vvtest PRIVATE ${PROJECT_SOURCE_DIR})
 gtest_discover_tests(vvtest)
+configure_file(test.json ${CMAKE_CURRENT_BINARY_DIR}/test.json COPYONLY)
 
 add_custom_command(TARGET vvtest 
   POST_BUILD
