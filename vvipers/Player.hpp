@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <string>
-#include <vvipers/Score.hpp>
 #include <vvipers/debug.hpp>
 
 namespace VVipers {

@@ -1,13 +1,16 @@
 #include <sstream>
 #include <vvipers/PlayerPanel.hpp>
-#include <vvipers/config.hpp>
+#include <vvipers/GameOptions.hpp>
 
 namespace VVipers {
 
 PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     : m_size(size), m_player(player), m_score(player->score()) {
     // Load and set font
-    m_font.loadFromFile(FONT_FILE_PATH);
+    std::stringstream ss;
+        ss << GameOptions::getOptionString("General/resourceDirectoryPath")
+           << GameOptions::getOptionString("General/fontFileName");
+    m_font.loadFromFile( ss.str() );
     m_nameText.setFont(m_font);
     m_scoreText.setFont(m_font);
     // Set text color
