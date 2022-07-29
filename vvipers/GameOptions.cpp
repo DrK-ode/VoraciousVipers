@@ -14,9 +14,31 @@ GameOptions::GameOptions(std::istream& input) {
     reader.parse(input, m_jsonRoot);
 }
 
+GameOptions::~GameOptions(){
+    s_instance = nullptr;
+}
+
+std::vector<std::string> tokenize( const std::string& str, const char delim)
+{
+    std::vector<std::string> out;
+    size_t start;
+    size_t end = 0;
+ 
+    while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
+    {
+        end = str.find(delim, start);
+        out.push_back(str.substr(start, end - start));
+    }
+    return out;
+}
+
 Json::Value GameOptions::getOption(const Json::Value& root,
                                    const std::string& optionName) const {
-    Json::Value value = root.get(optionName, Json::nullValue);
+    auto subdirs = tokenize(optionName, '/' );
+    // get each subdir before searching for the value
+    Json::Value value = root;
+    for( auto& subdir : subdirs )
+        value = value.get( subdir, Json::nullValue);
     if (value.isNull())
         tagWarning(" Value ", optionName, " not found among game options.");
     return value;
@@ -57,7 +79,6 @@ Vec2 GameOptions::getOption2DVector(const std::string& optionName) {
     if (!value.isArray() or value.size() != 2 or !value[0].isDouble() or
         !value[1].isDouble()) {
         tagError(" Value ", optionName, " is not a 2D vector.");
-        return Vec2();
     }
     return Vec2(value[0].asDouble(), value[1].asDouble());
 }

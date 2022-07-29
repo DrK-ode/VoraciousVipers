@@ -13,6 +13,7 @@ namespace VVipers {
 class GameOptions {
   public:
     GameOptions(std::istream& input);
+    ~GameOptions();
 
     static std::string getOptionString(const std::string& optionName);
     static double getOptionDouble(const std::string& optionName);

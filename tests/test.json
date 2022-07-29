@@ -1,0 +1,19 @@
+{
+    "value1": 1,
+    "value2": "two",
+    "value3": [
+        3,
+        33
+    ],
+    "value4": [
+        "string1",
+        "string2",
+        "string3"
+    ],
+    "value5": {
+        "value51": 51,
+        "value52": {
+            "value521": 521
+        }
+    }
+}
