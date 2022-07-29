@@ -219,9 +219,9 @@ void Viper::updateBoostCharge(Time chargeChange) {
     chargeChange = std::max(chargeChange, -m_boostCharge);
     chargeChange =
         std::min(chargeChange, viperCfg.boostMaxCharge - m_boostCharge);
-
     m_boostCharge += chargeChange;
-    BoostEvent event(chargeChange, m_boostCharge, viperCfg.boostMaxCharge);
+    
+    ObjectModifiedEvent event(this);
     notify(&event);
 }
 

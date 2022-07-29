@@ -1,6 +1,7 @@
 #include <sstream>
 #include <vvipers/GameOptions.hpp>
 #include <vvipers/PlayerPanel.hpp>
+#include <vvipers/Viper.hpp>
 
 namespace VVipers {
 
@@ -13,22 +14,31 @@ PlayerPanel::PlayerPanel(Vec2 size, const Player* player)
     m_font.loadFromFile(ss.str());
     // Set text properties
     m_nameText.setFont(m_font);
-    const int characterSize = size.y / 4;  // px
+    const int characterSize = 0.25 * size.y;  // px
     m_nameText.setCharacterSize(characterSize);
     // Set the name string and the position (dependent on string size)
     updateNameString();
     // Set positions
-    m_boostBar.setPosition(Vec2(0.025, 0.1) * size);
-    m_nameText.setPosition(Vec2(0.1, 1. / 8.) * m_size);
-    m_scoreBar.setPosition(Vec2(0.1, 5. / 8.) * m_size);
+    Vec2 spacing = Vec2(0.025, 0.1) * m_size;
+    Vec2 boostBarPos = spacing;
+    Vec2 boostBarSize = Vec2(0.05, 0.8) * m_size;
+    Vec2 scoreBarSize =
+        Vec2(m_size.x - 3 * spacing.x - boostBarSize.x, 0.25 * m_size.y);
+    Vec2 namePosition = boostBarPos + Vec2(spacing.x + boostBarSize.x,
+                                           m_nameText.getLocalBounds().top);
+    Vec2 scoreBarPos =
+        Vec2(namePosition.x, m_size.y - 2 * spacing.y - scoreBarSize.y);
+    m_boostBar.setPosition(spacing);
+    m_nameText.setPosition(namePosition);
+    m_scoreBar.setPosition(scoreBarPos);
     // Setup boost bar
-    m_boostBar.setSize(Vec2(0.05, 0.8) * m_size);
+    m_boostBar.setSize(boostBarSize);
     m_boostBar.setBorderWidth(2);
     m_boostBar.setBarColor(sf::Color::Red);
     m_boostBar.setBorderColor(player->color());
     m_boostBar.setVertical(true);
     // Setup score bar
-    m_scoreBar.setSize(Vec2(0.6, 2. / 8.) * m_size);
+    m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);
     m_scoreBar.setBarColor(sf::Color::Yellow);
     m_scoreBar.setBorderColor(sf::Color::Yellow);
@@ -51,10 +61,16 @@ void PlayerPanel::onNotify(const GameEvent* event) {
         auto scoringEvent = static_cast<const ScoringEvent*>(event);
         // We trust that nobody sends another player's score
         addScore(scoringEvent->score);
-    } else if (event->type() == GameEvent::EventType::Boost) {
-        const BoostEvent* boostEvent = static_cast<const BoostEvent*>(event);
-        m_boostBar.setProgress(boostEvent->chargeCurrent /
-                               boostEvent->chargeMax);
+    } else if (event->type() == GameEvent::EventType::ObjectModified) {
+        const ObjectModifiedEvent* boostEvent =
+            static_cast<const ObjectModifiedEvent*>(event);
+        if (typeid(*boostEvent->objectPtr) == typeid(Viper)) {
+            const Viper* viper =
+                static_cast<const Viper*>(boostEvent->objectPtr);
+            m_boostBar.setProgress(viper->boostCharge() / viper->boostMax());
+        } else if (typeid(*boostEvent->objectPtr) == typeid(Player)) {
+            updateNameString();
+        }
     }
 }
 

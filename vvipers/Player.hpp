@@ -4,6 +4,8 @@
 #include <SFML/Graphics/Color.hpp>
 #include <string>
 #include <vvipers/debug.hpp>
+#include <vvipers/Observer.hpp>
+#include <vvipers/GameObject.hpp>
 
 namespace VVipers {
 
@@ -13,7 +15,7 @@ class Viper;
 typedef uint64_t score_t;
 typedef uint64_t level_t;
 
-class Player {
+class Player : public GameObject, public Observable {
   public:
     Player(const std::string& name, Controller* c, Viper* v);
 

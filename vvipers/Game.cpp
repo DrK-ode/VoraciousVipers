@@ -1,4 +1,5 @@
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Window/Event.hpp>
 #include <typeinfo>
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/Controller.hpp>
@@ -89,7 +90,8 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
     m_players.insert(player);
     PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player);
     m_playerPanels.insert(panel);
-    viper->addObserver(panel, {GameEvent::EventType::Boost});
+    viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
+    player->addObserver(panel, {GameEvent::EventType::ObjectModified});
     return player;
 }
 

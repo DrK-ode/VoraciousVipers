@@ -7,7 +7,7 @@
 namespace VVipers {
 
 FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
-                         Vec2 target, Time timeOfFlight, score_t score)
+                         Vec2 target, Time timeOfFlight, uint64_t score)
     : m_initialPosition(initialPosition),
       m_initialVelocity(initialVelocity),
       m_timeOfFlight(timeOfFlight),

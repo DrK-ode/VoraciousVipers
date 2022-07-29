@@ -15,6 +15,8 @@ void Player::color(sf::Color c) {
     m_color = c;
     if (m_viper)
         m_viper->color(c);
+    ObjectModifiedEvent event(this);
+    notify(&event);
 }
 
 }  // namespace VVipers

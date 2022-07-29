@@ -1,10 +1,6 @@
 #ifndef VVIPERS_GAMEEVENT_HPP
 #define VVIPERS_GAMEEVENT_HPP
 
-#include <SFML/Window/Event.hpp>
-#include <vvipers/Collidable.hpp>
-#include <vvipers/GameObject.hpp>
-#include <vvipers/Player.hpp>
 #include <vvipers/Time.hpp>
 
 namespace VVipers {
@@ -12,10 +8,12 @@ namespace VVipers {
 class Bodypart;
 class CollisionBody;
 class Controller;
+class GameObject;
+class Player;
 
 class GameEvent {
   public:
-    enum class EventType { Application, Boost, Destroy, Scoring, Update };
+    enum class EventType { Application, Destroy, Scoring, Update, ObjectModified };
     virtual GameEvent* clone() const = 0;
     EventType type() const { return m_type; }
     virtual ~GameEvent(){};
@@ -36,20 +34,6 @@ class ApplicationEvent : public GameEvent {
     const ApplicationEventType eventType;
 };
 
-class BoostEvent : public GameEvent {
-  public:
-    BoostEvent(Time change, Time current, Time maximum)
-        : GameEvent(EventType::Boost),
-          chargeChange(change),
-          chargeCurrent(current),
-          chargeMax(maximum) {}
-    GameEvent* clone() const override { return new BoostEvent(*this); }
-
-    const Time chargeChange;
-    const Time chargeCurrent;
-    const Time chargeMax;
-};
-
 class DestroyEvent : public GameEvent {
   public:
     DestroyEvent(const GameObject* optr)
@@ -58,13 +42,21 @@ class DestroyEvent : public GameEvent {
     const GameObject* objectPtr;
 };
 
+class ObjectModifiedEvent : public GameEvent {
+  public:
+    ObjectModifiedEvent(const GameObject* optr)
+        : GameEvent(EventType::ObjectModified), objectPtr(optr) {}
+    GameEvent* clone() const override { return new ObjectModifiedEvent(*this); }
+    const GameObject* objectPtr;
+};
+
 class ScoringEvent : public GameEvent {
   public:
-    ScoringEvent(const Player* p, score_t s)
+    ScoringEvent(const Player* p, uint64_t s)
         : GameEvent(EventType::Scoring), player(p), score(s) {}
     GameEvent* clone() const override { return new ScoringEvent(*this); }
     const Player* player;
-    const score_t score;
+    const uint64_t score;
 };
 
 class UpdateEvent : public GameEvent {

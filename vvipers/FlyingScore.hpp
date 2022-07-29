@@ -15,7 +15,7 @@ namespace VVipers {
 class FlyingScore : public sf::Drawable, public GameObject, public Observable {
   public:
     FlyingScore(Vec2 initialPosition, Vec2 initialVelocity, Vec2 target,
-                Time timeOfFlight, const score_t score);
+                Time timeOfFlight, const uint64_t score);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void update(Time elapsedTime);
@@ -31,7 +31,7 @@ class FlyingScore : public sf::Drawable, public GameObject, public Observable {
     Vec2 m_acceleration;     // px/s²
     Time m_timeOfFlight;     // s
     Time m_currentTime;      // s
-    score_t m_score;
+    uint64_t m_score;
     sf::Text m_text;
     sf::Font m_font;
 };
