@@ -1,44 +1,55 @@
 #include <gtest/gtest.h>
 
+#include <fstream>
+#include <vvipers/GameOptions.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
-#include <vvipers/ViperConfig.hpp>
 #include <vvipers/debug.hpp>
+#include <vvipers/config.hpp>
 
 using namespace VVipers;
 
 namespace {
 
 class ViperTest : public ::testing::Test {
-  protected:
-    void SetUp() override {
+  public:
+    ViperTest() {
         debug::verbosity = Verbosity::onlyErrors;
-        viper.setup(Vec2(0, 0), 180.f, 1.5);
+        std::ifstream input("test.json");
+        options = new GameOptions(input);
+        options->setOptionString("General/resourceDirectoryPath",
+                                 RESOURCE_PATH);
+        viper = new Viper;
+        viper->setup(Vec2(0, 0), 180.f, 1.5);
+    }
+    ~ViperTest() {
+        delete options;
+        delete viper;
     }
 
-    Viper viper;
+    Viper* viper;
+    GameOptions* options;
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_DOUBLE_EQ(viper.angle(), 180.);
-    viper.angle(90.);
-    EXPECT_DOUBLE_EQ(viper.angle(), 90.);
-    viper.angle(-90.);
-    EXPECT_DOUBLE_EQ(viper.angle(), -90.);
-    viper.angle(270.);
-    EXPECT_DOUBLE_EQ(viper.angle(), -90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), 180.);
+    viper->angle(90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), 90.);
+    viper->angle(-90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
+    viper->angle(270.);
+    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
 }
 
 TEST_F(ViperTest, lengthTest) {
     double expectedLength =
-        toSeconds(ViperConfig::properties().headDuration +
-                  1.5 * ViperConfig::properties().bodyDuration +
-                  ViperConfig::properties().tailDuration) *
-        viper.speed();
-    viper.update(seconds(3.0));  // Let it grow
-    EXPECT_DOUBLE_EQ(viper.length(), expectedLength);
-    viper.update(seconds(3.0));  // Let it grow more
-    EXPECT_DOUBLE_EQ(viper.length(), expectedLength);
+        GameOptions::getOptionDouble("ViperModel/ViperHead/nominalLength") +
+         1.5 * GameOptions::getOptionDouble("ViperModel/ViperBody/nominalLength") +
+         GameOptions::getOptionDouble("ViperModel/ViperTail/nominalLength");
+    viper->update(seconds(3.0));  // Let it grow
+    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
+    viper->update(seconds(3.0));  // Let it grow more
+    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
 }
 
 }  // namespace

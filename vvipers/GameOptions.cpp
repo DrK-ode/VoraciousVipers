@@ -14,18 +14,20 @@ GameOptions::GameOptions(std::istream& input) {
     reader.parse(input, m_jsonRoot);
 }
 
-GameOptions::~GameOptions(){
-    s_instance = nullptr;
+GameOptions::~GameOptions() { s_instance = nullptr; }
+
+GameOptions* GameOptions::getInstance() {
+    if (s_instance)
+        return s_instance;
+    throw std::runtime_error("GameOptions not instantiated.");
 }
 
-std::vector<std::string> tokenize( const std::string& str, const char delim)
-{
+std::vector<std::string> tokenize(const std::string& str, const char delim) {
     std::vector<std::string> out;
     size_t start;
     size_t end = 0;
- 
-    while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
-    {
+
+    while ((start = str.find_first_not_of(delim, end)) != std::string::npos) {
         end = str.find(delim, start);
         out.push_back(str.substr(start, end - start));
     }
@@ -34,11 +36,11 @@ std::vector<std::string> tokenize( const std::string& str, const char delim)
 
 Json::Value GameOptions::getOption(const Json::Value& root,
                                    const std::string& optionName) const {
-    auto subdirs = tokenize(optionName, '/' );
+    auto subdirs = tokenize(optionName, '/');
     // get each subdir before searching for the value
     Json::Value value = root;
-    for( auto& subdir : subdirs )
-        value = value.get( subdir, Json::nullValue);
+    for (auto& subdir : subdirs)
+        value = value.get(subdir, Json::nullValue);
     if (value.isNull())
         tagWarning(" Value ", optionName, " not found among game options.");
     return value;
@@ -61,21 +63,21 @@ Json::Value GameOptions::getOptionArray(const Json::Value& root,
 }
 
 double GameOptions::getOptionDouble(const std::string& optionName) {
-    auto value = s_instance->getOption(optionName);
+    auto value = getInstance()->getOption(optionName);
     if (!value.isDouble())
         tagError(" Value ", optionName, " is not a double.");
     return value.asDouble();
 }
 
 std::string GameOptions::getOptionString(const std::string& optionName) {
-    auto value = s_instance->getOption(optionName);
+    auto value = getInstance()->getOption(optionName);
     if (!value.isString())
         tagError(" Value ", optionName, " is not a string.");
     return value.asString();
 }
 
 Vec2 GameOptions::getOption2DVector(const std::string& optionName) {
-    auto value = s_instance->getOption(optionName);
+    auto value = getInstance()->getOption(optionName);
     if (!value.isArray() or value.size() != 2 or !value[0].isDouble() or
         !value[1].isDouble()) {
         tagError(" Value ", optionName, " is not a 2D vector.");
@@ -85,11 +87,11 @@ Vec2 GameOptions::getOption2DVector(const std::string& optionName) {
 
 std::vector<std::string> GameOptions::getOptionStringArray(
     const std::string& optionName) {
-    auto value = s_instance->getOptionArray(optionName);
+    auto value = getInstance()->getOptionArray(optionName);
     std::vector<std::string> stringArray;
     stringArray.reserve(value.size());
     for (auto stringValue : value) {
-        if (!value.isString()) {
+        if (!stringValue.isString()) {
             tagError("Expected string value in array.");
             continue;
         }
@@ -100,11 +102,11 @@ std::vector<std::string> GameOptions::getOptionStringArray(
 
 std::vector<double> GameOptions::getOptionDoubleArray(
     const std::string& optionName) {
-    auto value = s_instance->getOptionArray(optionName);
+    auto value = getInstance()->getOptionArray(optionName);
     std::vector<double> doubleArray;
     doubleArray.reserve(value.size());
     for (auto doubleValue : value) {
-        if (!value.isDouble()) {
+        if (!doubleValue.isDouble()) {
             tagError("Expected double value in array.");
             continue;
         }
@@ -115,12 +117,12 @@ std::vector<double> GameOptions::getOptionDoubleArray(
 
 std::vector<Vec2> GameOptions::getOption2DVectorArray(
     const std::string& optionName) {
-    auto value = s_instance->getOptionArray(optionName);
+    auto value = getInstance()->getOptionArray(optionName);
     std::vector<Vec2> vectorArray;
     vectorArray.reserve(value.size());
     for (auto vec2Value : value) {
-        if (!value.isArray() or value.size() != 2 or !value[0].isDouble() or
-            !value[1].isDouble()) {
+        if (!vec2Value.isArray() or vec2Value.size() != 2 or
+            !vec2Value[0].isDouble() or !vec2Value[1].isDouble()) {
             tagError("Expected 2D vector value in array.");
             continue;
         }
@@ -130,8 +132,26 @@ std::vector<Vec2> GameOptions::getOption2DVectorArray(
     return vectorArray;
 }
 
+template <typename T>
+void GameOptions::setOption(const std::string& optionName,
+                            const T optionValue) {
+    auto subdirs = tokenize(optionName, '/');
+    auto actualName = subdirs.back();
+    subdirs.pop_back();
+    auto dirIter = subdirs.begin();
+    auto value = &m_jsonRoot;
+    for (auto& dir : subdirs) {
+        value = &(*value)[dir];
+    }
+    (*value)[actualName] = Json::Value(optionValue);
+}
+template void GameOptions::setOption<double>(const std::string& optionName,
+                                             const double optionValue);
+template void GameOptions::setOption<std::string>(
+    const std::string& optionName, const std::string optionValue);
+
 void GameOptions::write(std::ostream& output) {
-    output << s_instance->m_jsonRoot << std::endl;
+    output << getInstance()->m_jsonRoot << std::endl;
 }
 
 }  // namespace VVipers

@@ -12,7 +12,6 @@ set(INC_FILES
     debug.hpp
     Food.hpp
     Game.hpp
-    GameConfiguration.hpp
     GameEvent.hpp
     GameObject.hpp
     GameOptions.hpp
@@ -20,12 +19,10 @@ set(INC_FILES
     Player.hpp
     PlayerPanel.hpp
     ProgressBar.hpp
-    Score.hpp
     Time.hpp
     Track.hpp
     Vec2.hpp
     Viper.hpp
-    ViperConfig.hpp
     VVMath.hpp
     Walls.hpp
 )
@@ -40,7 +37,6 @@ set(SRC_FILES
     ConvexBody.cpp
     Food.cpp
     Game.cpp
-    GameConfiguration.cpp
     GameEvent.cpp
     GameObject.cpp
     GameOptions.cpp
@@ -48,11 +44,9 @@ set(SRC_FILES
     Player.cpp
     PlayerPanel.cpp
     ProgressBar.cpp
-    Score.cpp
     Track.cpp
     Vec2.cpp
     Viper.cpp
-    ViperConfig.cpp
     Walls.cpp
 )
 

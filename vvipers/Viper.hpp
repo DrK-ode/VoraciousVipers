@@ -13,7 +13,6 @@
 #include <vvipers/Observer.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
-#include <vvipers/ViperConfig.hpp>
 
 namespace VVipers {
 /**
@@ -42,7 +41,7 @@ class Viper : public GameObject,
     /** @returns the current stored boost duration **/
     Time boostCharge() const { return m_boostCharge; }
     /** @returns the maximum stored boost duration **/
-    Time boostMax() const { return ViperConfig::properties().boostMaxCharge; }
+    Time boostMax() const;
     /** Collidable override. @returns a list of all owned CollidableBody which
      * for a Viper is the head, body and tail. **/
     std::vector<const CollisionBody*> collisionBodies() const override {
@@ -79,20 +78,19 @@ class Viper : public GameObject,
      * head. **/
     Time temporalLength() const { return m_temporalLength; }
     /** @returns the minimum turning radius **/
-    double turningRadius() const {
-        return ViperConfig::properties().nominalSpeed /
-               ViperConfig::properties().nominalSegmentWidth;
-    }
+    double turningRadius() const;
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
     void update(Time elapsedTime);
 
   private:
+    struct ViperConfiguration;
+    static ViperConfiguration viperCfg;
+
     enum class ViperPart { Head, Body, Tail };
     TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
     void grow(const Time& elapsedTime);
-    void loadTextures();
 
     void updateBodies();
     void updateBody(ViperPart, Time timeFront, const Time& temporalLength);
@@ -117,9 +115,6 @@ class Viper : public GameObject,
     CollisionVertices m_tailBody;
     std::vector<const Bodypart*> m_sensitiveParts;
     sf::Color m_color;
-    sf::Texture m_headTexture;
-    sf::Texture m_bodyTexture;
-    sf::Texture m_tailTexture;
 };
 
 }  // namespace VVipers
