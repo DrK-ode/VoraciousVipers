@@ -54,15 +54,18 @@ TEST_F(JsonTest, arrayTest) {
 
 TEST_F(JsonTest, setTest) {
     std::vector<double> dblArray = {1, 2, 3};
+    std::vector<Vec2> vec2Array = {Vec2(1,11), Vec2(2,22), Vec2(3,33)};
     options->setOptionDouble("extra1", 1.0);
     options->setOptionString("extra2", "two");
     options->setOption2DVector( "extra3", Vec2(3,33) );
     options->setOptionDoubleArray("extra4", dblArray);
+    options->setOption2DVectorArray("extra5", vec2Array);
     options->write(std::cout);
     EXPECT_DOUBLE_EQ( options->getOptionDouble("extra1"), 1.0);
     EXPECT_EQ( options->getOptionString("extra2"), "two");
     EXPECT_EQ(options->getOption2DVector("extra3"), Vec2(3,33) );
     EXPECT_EQ(options->getOptionDoubleArray("extra4"), dblArray);
+    EXPECT_EQ(options->getOption2DVectorArray("extra5"), vec2Array);
 }
 
 }  // namespace

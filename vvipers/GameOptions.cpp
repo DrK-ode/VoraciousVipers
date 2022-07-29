@@ -34,11 +34,11 @@ std::vector<std::string> tokenize(const std::string& str, const char delim) {
     return out;
 }
 
-Json::Value GameOptions::getOption(const Json::Value& root,
-                                   const std::string& optionName) const {
+const Json::Value GameOptions::getOptionValue(
+    const std::string& optionName) const {
     auto subdirs = tokenize(optionName, '/');
     // get each subdir before searching for the value
-    Json::Value value = root;
+    Json::Value value = m_jsonRoot;
     for (auto& subdir : subdirs)
         value = value.get(subdir, Json::nullValue);
     if (value.isNull())
@@ -46,40 +46,31 @@ Json::Value GameOptions::getOption(const Json::Value& root,
     return value;
 }
 
-Json::Value GameOptions::getOption(const std::string& optionName) const {
-    return getOption(m_jsonRoot, optionName);
-}
-
-Json::Value GameOptions::getOptionArray(const Json::Value& root,
-                                        const std::string& optionName) const {
-    auto value = getOption(root, optionName);
+const Json::Value GameOptions::getOptionArray(
+    const std::string& optionName) const {
+    auto value = getOptionValue(optionName);
     if (!value.isArray())
         tagError(" Value ", optionName, " is not an array.");
     return value;
 }
 
-Json::Value GameOptions::getOptionArray(const std::string& optionName) const {
-    return getOptionArray(m_jsonRoot, optionName);
-}
-
 double GameOptions::getOptionDouble(const std::string& optionName) {
-    auto value = getInstance()->getOption(optionName);
+    auto value = getInstance()->getOptionValue(optionName);
     if (!value.isDouble())
         tagError(" Value ", optionName, " is not a double.");
     return value.asDouble();
 }
 
 std::string GameOptions::getOptionString(const std::string& optionName) {
-    auto value = getInstance()->getOption(optionName);
+    auto value = getInstance()->getOptionValue(optionName);
     if (!value.isString())
         tagError(" Value ", optionName, " is not a string.");
     return value.asString();
 }
 
 Vec2 GameOptions::getOption2DVector(const std::string& optionName) {
-    auto value = getInstance()->getOption(optionName);
-    if (!value.isArray() or value.size() != 2 or !value[0].isDouble() or
-        !value[1].isDouble()) {
+    auto value = getInstance()->getOptionArray(optionName);
+    if (value.size() != 2 or !value[0].isDouble() or !value[1].isDouble()) {
         tagError(" Value ", optionName, " is not a 2D vector.");
     }
     return Vec2(value[0].asDouble(), value[1].asDouble());
@@ -132,9 +123,8 @@ std::vector<Vec2> GameOptions::getOption2DVectorArray(
     return vectorArray;
 }
 
-template <typename T>
-void GameOptions::setOption(const std::string& optionName,
-                            const T optionValue) {
+void GameOptions::setOptionValue(const std::string& optionName,
+                                 const Json::Value optionValue) {
     auto subdirs = tokenize(optionName, '/');
     auto actualName = subdirs.back();
     subdirs.pop_back();
@@ -142,32 +132,40 @@ void GameOptions::setOption(const std::string& optionName,
     for (auto& dir : subdirs) {
         value = &(*value)[dir];
     }
-    (*value)[actualName] = Json::Value(optionValue);
+    (*value)[actualName] = optionValue;
 }
-template void GameOptions::setOption<double>(const std::string& optionName,
-                                             const double optionValue);
-template void GameOptions::setOption<std::string>(
-    const std::string& optionName, const std::string optionValue);
 
 template <typename T>
 void GameOptions::setOptionArray(const std::string& optionName,
-                            const std::vector<T>& optionValue) {
-    auto subdirs = tokenize(optionName, '/');
-    auto actualName = subdirs.back();
-    subdirs.pop_back();
-    auto value = &m_jsonRoot;
-    for (auto& dir : subdirs) {
-        value = &(*value)[dir];
-    }
+                                 const std::vector<T>& optionValue) {
     auto array = Json::Value(Json::arrayValue);
-    for( auto& element : optionValue )
-        array.append( element );
-    (*value)[actualName] = array;
+    for (auto& element : optionValue)
+        array.append(element);
+    setOptionValue(optionName, array);
 }
-template void GameOptions::setOptionArray<double>(const std::string& optionName,
-                                             const std::vector<double>& optionValue);
-template void GameOptions::setOptionArray<std::string>(
-    const std::string& optionName, const std::vector<std::string>& optionValue);
+
+void GameOptions::setOptionDoubleArray(const std::string& optionName,
+                                       const std::vector<double>& optionArray) {
+    setOptionArray(optionName, optionArray);
+}
+
+void GameOptions::setOptionStringArray(
+    const std::string& optionName,
+    const std::vector<std::string>& optionArray) {
+    setOptionArray(optionName, optionArray);
+}
+
+void GameOptions::setOption2DVectorArray(const std::string& optionName,
+                                         const std::vector<Vec2>& vectorArray) {
+    auto array = Json::Value(Json::arrayValue);
+    for (auto& vec : vectorArray) {
+        auto vec2array = Json::Value(Json::arrayValue);
+        vec2array.append(vec.x);
+        vec2array.append(vec.y);
+        array.append(vec2array);
+    }
+    setOptionValue(optionName, array);
+}
 
 void GameOptions::write(std::ostream& output) {
     output << getInstance()->m_jsonRoot << std::endl;
