@@ -24,6 +24,9 @@ class GameOptions {
         const std::string& optionName);
     static std::vector<Vec2> getOption2DVectorArray(
         const std::string& optionName);
+    static bool isOptionSet(const std::string& optionName) {
+        return !getInstance()->getOptionValue(optionName).isNull();
+    }
     static void write(std::ostream& output);
 
     /* Non-static, requires the actual object */

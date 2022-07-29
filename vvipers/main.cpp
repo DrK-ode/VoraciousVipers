@@ -1,19 +1,20 @@
 #include <fstream>
 #include <thread>
-#include <vvipers/config.hpp>
-#include <vvipers/debug.hpp>
 #include <vvipers/Game.hpp>
 #include <vvipers/GameOptions.hpp>
 #include <vvipers/Time.hpp>
+#include <vvipers/config.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
-
 void startGame() {
     std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
-    GameOptions options( cfgFile ); // The one and only instance
-    options.setOptionString("General/resourceDirectoryPath", RESOURCE_PATH );
-    
+    GameOptions options(cfgFile);  // The one and only instance
+    const std::string resPathOptStr("General/resourceDirectoryPath");
+    if (!options.isOptionSet(resPathOptStr))
+        options.setOptionString(resPathOptStr, RESOURCE_PATH);
+
     Vec2 windowSize = GameOptions::getOption2DVector("General/windowSize");
     double FPS = GameOptions::getOptionDouble("General/FPS");
     if (FPS == 0.)
@@ -74,9 +75,8 @@ void startGame() {
         theGame.draw();
         theGame.display();
         drawDuration = clock.split();
-        sleepDuration =
-            frameDuration -
-            (debugDuration + updateDuration + eventDuration + drawDuration);
+        sleepDuration = frameDuration - (debugDuration + updateDuration +
+                                         eventDuration + drawDuration);
 
         std::this_thread::sleep_for(sleepDuration);
         firstFrame = false;
