@@ -21,10 +21,13 @@ class FontProvider {
 
 class OptionsProvider {
   public:
+    virtual bool getOptionBoolean(const std::string& optionName) const = 0;
     virtual std::string getOptionString(
         const std::string& optionName) const = 0;
     virtual double getOptionDouble(const std::string& optionName) const = 0;
     virtual Vec2 getOption2DVector(const std::string& optionName) const = 0;
+    virtual std::vector<bool> getOptionBooleanArray(
+        const std::string& optionName) const = 0;
     virtual std::vector<double> getOptionDoubleArray(
         const std::string& optionName) const = 0;
     virtual std::vector<std::string> getOptionStringArray(
@@ -33,18 +36,24 @@ class OptionsProvider {
         const std::string& optionName) const = 0;
     virtual bool isOptionSet(const std::string& optionName) const = 0;
     virtual void write(std::ostream& output) const = 0;
+
+    virtual void setOptionBoolean(const std::string& optionName,
+                                  bool optionValue) = 0;
     virtual void setOptionDouble(const std::string& optionName,
                                  double optionValue) = 0;
     virtual void setOptionString(const std::string& optionName,
                                  const std::string& optionValue) = 0;
     virtual void setOption2DVector(const std::string& optionName,
                                    Vec2 value) = 0;
-    virtual void setOptionStringArray(
+    virtual void setOptionBooleanArray(
         const std::string& optionName,
-        const std::vector<std::string>& stringArray) = 0;
+        const std::vector<bool>& booleanArray) = 0;
     virtual void setOptionDoubleArray(
         const std::string& optionName,
         const std::vector<double>& doubleArray) = 0;
+    virtual void setOptionStringArray(
+        const std::string& optionName,
+        const std::vector<std::string>& stringArray) = 0;
     virtual void setOption2DVectorArray(
         const std::string& optionName,
         const std::vector<Vec2>& vectorArray) = 0;

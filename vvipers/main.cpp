@@ -3,6 +3,7 @@
 #include <vvipers/Game.hpp>
 #include <vvipers/OptionsJSON.hpp>
 #include <vvipers/FontFileLoader.hpp>
+#include <vvipers/TextureFileLoader.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
@@ -17,9 +18,11 @@ void startGame() {
     if (!options.isOptionSet(resPathOptStr))
         options.setOptionString(resPathOptStr, RESOURCE_PATH);
     FontFileLoader fontProvider(&options);
+    TextureFileLoader textureProvider(&options);
     Services services;
     services.setFontProvider(&fontProvider);
     services.setOptionsProvider(&options);
+    services.setTextureProvider(&textureProvider);
 
     Vec2 windowSize = options.getOption2DVector("General/windowSize");
     double FPS = options.getOptionDouble("General/FPS");

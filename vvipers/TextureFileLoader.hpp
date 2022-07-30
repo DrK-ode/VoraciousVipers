@@ -14,13 +14,11 @@ class TextureFileLoader : public TextureProvider {
     ~TextureFileLoader();
     const sf::Texture* getTexture(
         const std::string& texturename) const override;
-    const sf::Texture* loadTexture(const std::string& filename, sf::FloatRect,
-                                   bool repeatable);
 
   private:
-    std::string m_resourceDirectoryPath;
+    const sf::Texture* loadTexture(const std::string& filename, sf::FloatRect,
+                                   bool repeatable);
     std::map<const std::string, const sf::Texture*> m_textures;
-    const sf::Texture* m_defaultTexture;
 };
 
 }  // namespace VVipers

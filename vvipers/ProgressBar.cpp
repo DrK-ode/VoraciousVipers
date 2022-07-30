@@ -1,6 +1,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
 #include <vvipers/ProgressBar.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 

@@ -34,6 +34,7 @@ PlayerPanel::PlayerPanel(Vec2 size, const Player* player,
     m_boostBar.setBarColor(sf::Color::Red);
     m_boostBar.setBorderColor(player->color());
     m_boostBar.setVertical(true);
+    m_boostBar.setProgress( toSeconds(player->viper()->boostCharge()));
     // Setup score bar
     m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);

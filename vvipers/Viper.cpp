@@ -14,7 +14,8 @@ class Viper::ViperConfiguration {
     friend class Viper;
 
   private:
-    void initialize(const OptionsProvider* options) {
+    void initialize(const OptionsProvider* options,
+                    const TextureProvider* textures) {
         nominalSpeed = options->getOptionDouble("Viper/nominalSpeed");
         nominalSegmentWidth =
             options->getOptionDouble("Viper/nominalSegmentWidth");  // px
@@ -43,34 +44,11 @@ class Viper::ViperConfiguration {
         tailNodes =
             options->getOption2DVectorArray("ViperModel/ViperTail/nodes");
 
-        loadTextures(options);
+        headTexture = textures->getTexture("ViperHead");
+        bodyTexture = textures->getTexture("ViperBody");
+        tailTexture = textures->getTexture("ViperTail");
 
         initialized = true;
-    }
-    void loadTextures(const OptionsProvider* options) {
-        // Load image and split it into the different textures.
-        sf::Image combinedTextureImage;
-        std::stringstream ss;
-        ss << options->getOptionString("General/resourceDirectoryPath")
-           << options->getOptionString("ViperModel/textureFileName");
-        combinedTextureImage.loadFromFile(ss.str());
-        sf::Vector2i imgSize(combinedTextureImage.getSize());
-        sf::Vector2i upperLeft;
-        sf::Vector2i rectSize(imgSize.x, imgSize.y / 3);
-
-        // Head texture
-        upperLeft = {0, 0};
-        headTexture.loadFromImage(combinedTextureImage,
-                                  sf::IntRect(upperLeft, rectSize));
-        // Body texture
-        upperLeft.y = rectSize.y;
-        bodyTexture.loadFromImage(combinedTextureImage,
-                                  sf::IntRect(upperLeft, rectSize));
-        bodyTexture.setRepeated(true);
-        // Tail texture
-        upperLeft.y = 2 * rectSize.y;
-        tailTexture.loadFromImage(combinedTextureImage,
-                                  sf::IntRect(upperLeft, rectSize));
     }
 
   public:
@@ -84,34 +62,35 @@ class Viper::ViperConfiguration {
     double headNominalLength;  // px
     Time headDuration;         // s
     std::vector<Vec2> headNodes;
-    sf::Texture headTexture;
+    const sf::Texture* headTexture;
 
     double bodyNominalLength;  // px
     Time bodyDuration;         // s
     std::vector<Vec2> bodyNodes;
-    sf::Texture bodyTexture;
+    const sf::Texture* bodyTexture;
 
     double tailNominalLength;  // px
     Time tailDuration;         // s
     std::vector<Vec2> tailNodes;
-    sf::Texture tailTexture;
+    const sf::Texture* tailTexture;
 };
 
 Viper::ViperConfiguration Viper::viperCfg;
 
-Viper::Viper(const OptionsProvider* options)
+Viper::Viper(const OptionsProvider* options, const TextureProvider* textures)
     : m_boostInc(0.),
-      m_boostCharge(0.),
+      m_boostRechargeCooldown(0.),
       m_growth(0.),
       m_headPoint(nullptr),
       m_color(sf::Color::Green) {
     if (!viperCfg.initialized)
-        viperCfg.initialize(options);
+        viperCfg.initialize(options, textures);
+    m_boostCharge = viperCfg.boostMaxCharge;
 
     m_speed = viperCfg.nominalSpeed;
-    m_headBody.setTexture(&viperCfg.headTexture);
-    m_bodyBody.setTexture(&viperCfg.bodyTexture);
-    m_tailBody.setTexture(&viperCfg.tailTexture);
+    m_headBody.setTexture(viperCfg.headTexture);
+    m_bodyBody.setTexture(viperCfg.bodyTexture);
+    m_tailBody.setTexture(viperCfg.tailTexture);
 }
 
 void Viper::boost(double relativeSpeedIncrease) {
@@ -240,9 +219,9 @@ void Viper::updateSpeed(const Time& elapsedTime) {
         updateBoostCharge(elapsedTime * viperCfg.boostRechargeRate);
     }
     if (m_speed < targetSpeed) {
-        // 1s to increase speed by nominal speed but cap at targetSpeed
+        // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
-            std::min(viperCfg.nominalSpeed,
+            std::min(2*viperCfg.nominalSpeed,
                      (targetSpeed - m_speed) / toSeconds(elapsedTime));
     } else if (m_speed > targetSpeed) {
         acceleration =
@@ -328,13 +307,13 @@ void Viper::updateBody(ViperPart part, Time timeFront,
         case ViperPart::Head: {
             body = &m_headBody;
             sketch = &viperCfg.headNodes;
-            textureSize = viperCfg.headTexture.getSize();
+            textureSize = viperCfg.headTexture->getSize();
             break;
         }
         case ViperPart::Body: {
             body = &m_bodyBody;
             sketch = &viperCfg.bodyNodes;
-            textureSize = viperCfg.bodyTexture.getSize();
+            textureSize = viperCfg.bodyTexture->getSize();
             const Time nominalSegmentDuration = viperCfg.bodyDuration;
             segmentLength = std::min(temporalLength, nominalSegmentDuration);
             // The growing segment starts from 0 and has a fraction of the
@@ -345,7 +324,7 @@ void Viper::updateBody(ViperPart part, Time timeFront,
         case ViperPart::Tail: {
             body = &m_tailBody;
             sketch = &viperCfg.tailNodes;
-            textureSize = viperCfg.tailTexture.getSize();
+            textureSize = viperCfg.tailTexture->getSize();
             break;
         }
     }

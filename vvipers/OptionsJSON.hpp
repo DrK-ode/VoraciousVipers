@@ -2,22 +2,26 @@
 #define VVIPERS_OPTIONSJSON_HPP
 
 #include <json/json.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
-#include <vvipers/Vec2.hpp>
 #include <vvipers/Services.hpp>
+#include <vvipers/Vec2.hpp>
 
 namespace VVipers {
 
 class OptionsJSON : public OptionsProvider {
   public:
     OptionsJSON(std::istream& input);
-    virtual ~OptionsJSON(){}
+    virtual ~OptionsJSON() {}
 
+    bool getOptionBoolean(const std::string& optionName) const override;
     std::string getOptionString(const std::string& optionName) const override;
     double getOptionDouble(const std::string& optionName) const override;
     Vec2 getOption2DVector(const std::string& optionName) const override;
+    std::vector<bool> getOptionBooleanArray(
+        const std::string& optionName) const override;
     std::vector<double> getOptionDoubleArray(
         const std::string& optionName) const override;
     std::vector<std::string> getOptionStringArray(
@@ -29,6 +33,10 @@ class OptionsJSON : public OptionsProvider {
     }
     void write(std::ostream& output) const override;
 
+    void setOptionBoolean(const std::string& optionName,
+                          bool optionValue) override {
+        setOptionValue(optionName, Json::Value(optionValue));
+    }
     void setOptionDouble(const std::string& optionName,
                          double optionValue) override {
         setOptionValue(optionName, Json::Value(optionValue));
@@ -41,11 +49,13 @@ class OptionsJSON : public OptionsProvider {
         setOptionDoubleArray(optionName,
                              std::vector<double>({value.x, value.y}));
     }
+    void setOptionBooleanArray(const std::string& optionName,
+                               const std::vector<bool>& booleanArray) override;
+    void setOptionDoubleArray(const std::string& optionName,
+                              const std::vector<double>& doubleArray) override;
     void setOptionStringArray(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) override;
-    void setOptionDoubleArray(const std::string& optionName,
-                              const std::vector<double>& doubleArray) override;
     void setOption2DVectorArray(const std::string& optionName,
                                 const std::vector<Vec2>& vectorArray) override;
 
@@ -63,4 +73,4 @@ class OptionsJSON : public OptionsProvider {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_OPTIONSJSON_HPP
+#endif  // VVIPERS_OPTIONSJSON_HPP

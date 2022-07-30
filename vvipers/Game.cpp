@@ -3,12 +3,12 @@
 #include <typeinfo>
 #include <vvipers/Bodypart.hpp>
 #include <vvipers/Controller.hpp>
-#include <vvipers/debug.hpp>
 #include <vvipers/Game.hpp>
 #include <vvipers/Player.hpp>
 #include <vvipers/Services.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/Walls.hpp>
+#include <vvipers/debug.hpp>
 
 namespace VVipers {
 
@@ -18,7 +18,7 @@ Game::Game(Vec2 windowSize)
     : sf::RenderWindow(sf::VideoMode(windowSize.x, windowSize.y),
                        "VoraciousVipers"),
       m_exit(false) {
-    const sf::Vector2f statusBarRelSize(0.5, 0.1);
+    const sf::Vector2f statusBarRelSize(0.33, 0.1);
     const sf::Vector2f statusBarSize(getSize().x * statusBarRelSize.x,
                                      getSize().y * statusBarRelSize.y);
     m_statusBarView = new sf::View();
@@ -89,7 +89,8 @@ Player* Game::addPlayer(const std::string& name, Controller* controller,
                         Viper* viper) {
     Player* player = new Player(name, controller, viper);
     m_players.insert(player);
-    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player, Services::getFontService());
+    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player,
+                                         Services::getFontService());
     m_playerPanels.insert(panel);
     viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
     player->addObserver(panel, {GameEvent::EventType::ObjectModified});
@@ -109,7 +110,8 @@ void Game::deletePlayer(Player* player) {
 }
 
 Viper* Game::addViper(/* startConditions? */) {
-    Viper* viper = new Viper( Services::getOptionsService() );
+    Viper* viper =
+        new Viper(Services::getOptionsService(), Services::getTextureService());
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper);

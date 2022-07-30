@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <vvipers/OptionsJSON.hpp>
+#include <vvipers/TextureFileLoader.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Viper.hpp>
 #include <vvipers/config.hpp>
@@ -20,7 +21,8 @@ class ViperTest : public ::testing::Test {
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->isOptionSet(resPathOptStr))
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
-        viper = new Viper(options);
+        TextureFileLoader textures(options);
+        viper = new Viper(options, &textures);
         viper->setup(Vec2(0, 0), 180.f, 1.5);
     }
     ~ViperTest() {

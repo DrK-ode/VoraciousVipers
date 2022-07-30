@@ -11,9 +11,9 @@
 #include <vvipers/GameEvent.hpp>
 #include <vvipers/GameObject.hpp>
 #include <vvipers/Observer.hpp>
+#include <vvipers/Services.hpp>
 #include <vvipers/Time.hpp>
 #include <vvipers/Track.hpp>
-#include <vvipers/Services.hpp>
 
 namespace VVipers {
 /**
@@ -26,7 +26,7 @@ class Viper : public GameObject,
               public sf::Drawable,
               public Observable {
   public:
-    Viper(const OptionsProvider* options);
+    Viper(const OptionsProvider* options, const TextureProvider* textures);
     /** Adds time the Viper should spend growing. **/
     void addGrowth(const Time& g);
     /** @return current direction of the head. **/

@@ -38,6 +38,13 @@ const Json::Value OptionsJSON::getOptionArray(
     return value;
 }
 
+bool OptionsJSON::getOptionBoolean(const std::string& optionName) const {
+    auto value = getOptionValue(optionName);
+    if (!value.isBool())
+        tagError(" Value ", optionName, " is not a boolean.");
+    return value.asBool();
+}
+
 double OptionsJSON::getOptionDouble(const std::string& optionName) const {
     auto value = getOptionValue(optionName);
     if (!value.isDouble())
@@ -60,19 +67,19 @@ Vec2 OptionsJSON::getOption2DVector(const std::string& optionName) const {
     return Vec2(value[0].asDouble(), value[1].asDouble());
 }
 
-std::vector<std::string> OptionsJSON::getOptionStringArray(
+std::vector<bool> OptionsJSON::getOptionBooleanArray(
     const std::string& optionName) const {
     auto value = getOptionArray(optionName);
-    std::vector<std::string> stringArray;
-    stringArray.reserve(value.size());
-    for (auto stringValue : value) {
-        if (!stringValue.isString()) {
-            tagError("Expected string value in array.");
+    std::vector<bool> boolArray;
+    boolArray.reserve(value.size());
+    for (auto boolValue : value) {
+        if (!boolValue.isBool()) {
+            tagError("Expected boolean value in array.");
             continue;
         }
-        stringArray.push_back(stringValue.asString());
+        boolArray.push_back(boolValue.asDouble());
     }
-    return stringArray;
+    return boolArray;
 }
 
 std::vector<double> OptionsJSON::getOptionDoubleArray(
@@ -88,6 +95,21 @@ std::vector<double> OptionsJSON::getOptionDoubleArray(
         doubleArray.push_back(doubleValue.asDouble());
     }
     return doubleArray;
+}
+
+std::vector<std::string> OptionsJSON::getOptionStringArray(
+    const std::string& optionName) const {
+    auto value = getOptionArray(optionName);
+    std::vector<std::string> stringArray;
+    stringArray.reserve(value.size());
+    for (auto stringValue : value) {
+        if (!stringValue.isString()) {
+            tagError("Expected string value in array.");
+            continue;
+        }
+        stringArray.push_back(stringValue.asString());
+    }
+    return stringArray;
 }
 
 std::vector<Vec2> OptionsJSON::getOption2DVectorArray(
@@ -123,9 +145,14 @@ template <typename T>
 void OptionsJSON::setOptionArray(const std::string& optionName,
                                  const std::vector<T>& optionValue) {
     auto array = Json::Value(Json::arrayValue);
-    for (auto& element : optionValue)
+    for (auto element : optionValue)
         array.append(element);
     setOptionValue(optionName, array);
+}
+
+void OptionsJSON::setOptionBooleanArray(const std::string& optionName,
+                                        const std::vector<bool>& optionArray) {
+    setOptionArray(optionName, optionArray);
 }
 
 void OptionsJSON::setOptionDoubleArray(const std::string& optionName,
