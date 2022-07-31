@@ -40,8 +40,7 @@ void FlashScreen::processEvents() {
     while (m_game.getWindow().pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             setTransitionState(TransitionState::Quit);
-        } else if ((event.type == sf::Event::KeyPressed) and
-                   (event.key.code == sf::Keyboard::Escape)) {
+        } else if (event.type == sf::Event::KeyPressed) {
             setTransitionState(TransitionState::Replace);
         }
     }
