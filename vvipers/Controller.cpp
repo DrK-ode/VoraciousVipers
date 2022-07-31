@@ -12,7 +12,7 @@ SteeringCommand KeyboardController::control() const {
     static bool lastLeft = false;
     keyPressed = sf::Keyboard::isKeyPressed(m_keys.left);
     if (keyPressed) {
-        cmd.turn -= 1.0; // Hard turn left
+        cmd.turn -= 1.0;  // Hard turn left
         if (!lastLeft)
             cmd.enable = true;
     } else if (lastLeft) {
@@ -23,7 +23,7 @@ SteeringCommand KeyboardController::control() const {
     static bool lastRight = false;
     keyPressed = sf::Keyboard::isKeyPressed(m_keys.right);
     if (keyPressed) {
-        cmd.turn += 1.; // Hard turn right
+        cmd.turn += 1.;  // Hard turn right
         if (!lastRight)
             cmd.enable = true;
     } else if (lastRight) {
@@ -46,13 +46,15 @@ SteeringCommand KeyboardController::control() const {
 }
 
 SteeringCommand MouseController::control() const {
-    const sf::Vector2i windowHalfSize(m_window->getSize().x/2, m_window->getSize().y/2);
-    const double degPerPx = 1; // Essentially the mouse sensitivity
+    const sf::Vector2i windowHalfSize(m_window.getSize().x / 2,
+                                      m_window.getSize().y / 2);
+    const double degPerPx = 1;  // Essentially the mouse sensitivity
     SteeringCommand cmd;
-    cmd.turn = degPerPx * (sf::Mouse::getPosition(*m_window).x - windowHalfSize.x);
-    cmd.boost = sf::Mouse::isButtonPressed( sf::Mouse::Left );
+    cmd.turn =
+        degPerPx * (sf::Mouse::getPosition(m_window).x - windowHalfSize.x);
+    cmd.boost = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     // This might cause problems if anything else uses the mouse
-    sf::Mouse::setPosition(windowHalfSize, *m_window);
+    sf::Mouse::setPosition(windowHalfSize, m_window);
     return cmd;
 }
 

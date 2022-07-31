@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SERVICES_HPP
-#define VVIPERS_SERVICES_HPP
+#ifndef VVIPERS_PROVIDERS_HPP
+#define VVIPERS_PROVIDERS_HPP
 
 #include <string>
 #include <vector>
@@ -14,6 +14,7 @@ namespace VVipers {
 
 class FontProvider {
   public:
+    virtual ~FontProvider() {}
     virtual const sf::Font* getDefaultFont() const = 0;
     /** @returns default font if the wanted font is not found **/
     virtual const sf::Font* getFont(const std::string& fontname) const = 0;
@@ -21,6 +22,7 @@ class FontProvider {
 
 class OptionsProvider {
   public:
+    virtual ~OptionsProvider() {}
     virtual bool getOptionBoolean(const std::string& optionName) const = 0;
     virtual std::string getOptionString(
         const std::string& optionName) const = 0;
@@ -61,43 +63,11 @@ class OptionsProvider {
 
 class TextureProvider {
   public:
+    virtual ~TextureProvider() {}
     virtual const sf::Texture* getTexture(
         const std::string& texturename) const = 0;
 };
 
-class Services {
-  public:
-    Services();
-
-    static const FontProvider* getFontService() {
-        return getInstance()->m_fontProvider;
-    }
-    static const OptionsProvider* getOptionsService() {
-        return getInstance()->m_optionsProvider;
-    }
-    static const TextureProvider* getTextureService() {
-        return getInstance()->m_textureProvider;
-    }
-
-    void setFontProvider(const FontProvider* fontProvider) {
-        m_fontProvider = fontProvider;
-    }
-    void setOptionsProvider(const OptionsProvider* optionsProvider) {
-        m_optionsProvider = optionsProvider;
-    }
-    void setTextureProvider(const TextureProvider* textureProvider) {
-        m_textureProvider = textureProvider;
-    }
-
-  private:
-    static Services* getInstance();
-    static Services* s_instance;
-
-    const FontProvider* m_fontProvider;
-    const OptionsProvider* m_optionsProvider;
-    const TextureProvider* m_textureProvider;
-};
-
 }  // namespace VVipers
 
-#endif  // VVIPERS_SERVICES_HPP
+#endif  // VVIPERS_PROVIDERS_HPP

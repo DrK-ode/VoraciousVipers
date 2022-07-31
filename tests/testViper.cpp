@@ -21,17 +21,19 @@ class ViperTest : public ::testing::Test {
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->isOptionSet(resPathOptStr))
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
-        TextureFileLoader textures(options);
-        viper = new Viper(options, &textures);
+        textures = new TextureFileLoader(options);
+        viper = new Viper(*options, *textures);
         viper->setup(Vec2(0, 0), 180.f, 1.5);
     }
     ~ViperTest() {
+        delete textures;
         delete options;
         delete viper;
     }
 
     Viper* viper;
     OptionsJSON* options;
+    TextureFileLoader* textures;
 };
 
 TEST_F(ViperTest, angleTest) {

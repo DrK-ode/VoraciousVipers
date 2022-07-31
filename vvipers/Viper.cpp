@@ -14,39 +14,39 @@ class Viper::ViperConfiguration {
     friend class Viper;
 
   private:
-    void initialize(const OptionsProvider* options,
-                    const TextureProvider* textures) {
-        nominalSpeed = options->getOptionDouble("Viper/nominalSpeed");
+    void initialize(const OptionsProvider& options,
+                    const TextureProvider& textures) {
+        nominalSpeed = options.getOptionDouble("Viper/nominalSpeed");
         nominalSegmentWidth =
-            options->getOptionDouble("Viper/nominalSegmentWidth");  // px
+            options.getOptionDouble("Viper/nominalSegmentWidth");  // px
         boostMaxCharge =
-            seconds(options->getOptionDouble("Viper/boostMaxCharge"));  // s
+            seconds(options.getOptionDouble("Viper/boostMaxCharge"));  // s
         boostRechargeRate =
-            options->getOptionDouble("Viper/boostRechargeRate");  // s per s
-        boostRechargeCooldown = seconds(options->getOptionDouble(
+            options.getOptionDouble("Viper/boostRechargeRate");  // s per s
+        boostRechargeCooldown = seconds(options.getOptionDouble(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
-        headNominalLength = options->getOptionDouble(
+        headNominalLength = options.getOptionDouble(
             "ViperModel/ViperHead/nominalLength");                 // px
         headDuration = seconds(headNominalLength / nominalSpeed);  // s
         headNodes =
-            options->getOption2DVectorArray("ViperModel/ViperHead/nodes");
+            options.getOption2DVectorArray("ViperModel/ViperHead/nodes");
 
-        bodyNominalLength = options->getOptionDouble(
+        bodyNominalLength = options.getOptionDouble(
             "ViperModel/ViperBody/nominalLength");                 // px
         bodyDuration = seconds(bodyNominalLength / nominalSpeed);  // s
         bodyNodes =
-            options->getOption2DVectorArray("ViperModel/ViperBody/nodes");
+            options.getOption2DVectorArray("ViperModel/ViperBody/nodes");
 
-        tailNominalLength = options->getOptionDouble(
+        tailNominalLength = options.getOptionDouble(
             "ViperModel/ViperTail/nominalLength");                 // px
         tailDuration = seconds(tailNominalLength / nominalSpeed);  // s
         tailNodes =
-            options->getOption2DVectorArray("ViperModel/ViperTail/nodes");
+            options.getOption2DVectorArray("ViperModel/ViperTail/nodes");
 
-        headTexture = textures->getTexture("ViperHead");
-        bodyTexture = textures->getTexture("ViperBody");
-        tailTexture = textures->getTexture("ViperTail");
+        headTexture = textures.getTexture("ViperHead");
+        bodyTexture = textures.getTexture("ViperBody");
+        tailTexture = textures.getTexture("ViperTail");
 
         initialized = true;
     }
@@ -77,7 +77,7 @@ class Viper::ViperConfiguration {
 
 Viper::ViperConfiguration Viper::viperCfg;
 
-Viper::Viper(const OptionsProvider* options, const TextureProvider* textures)
+Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
     : m_boostInc(0.),
       m_boostRechargeCooldown(0.),
       m_growth(0.),

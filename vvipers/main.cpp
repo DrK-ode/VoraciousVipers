@@ -1,13 +1,13 @@
 #include <fstream>
-#include <thread>
-#include <vvipers/Game.hpp>
-#include <vvipers/OptionsJSON.hpp>
-#include <vvipers/FontFileLoader.hpp>
-#include <vvipers/TextureFileLoader.hpp>
-#include <vvipers/Time.hpp>
+#include <vvipers/Arena.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/debug.hpp>
-#include <vvipers/Services.hpp>
+#include <vvipers/Engine.hpp>
+#include <vvipers/FontFileLoader.hpp>
+#include <vvipers/Game.hpp>
+#include <vvipers/OptionsJSON.hpp>
+#include <vvipers/Providers.hpp>
+#include <vvipers/TextureFileLoader.hpp>
 
 namespace VVipers {
 
@@ -19,77 +19,9 @@ void startGame() {
         options.setOptionString(resPathOptStr, RESOURCE_PATH);
     FontFileLoader fontProvider(&options);
     TextureFileLoader textureProvider(&options);
-    Services services;
-    services.setFontProvider(&fontProvider);
-    services.setOptionsProvider(&options);
-    services.setTextureProvider(&textureProvider);
+    Engine engine(options,fontProvider,textureProvider);
 
-    Vec2 windowSize = options.getOption2DVector("General/windowSize");
-    double FPS = options.getOptionDouble("General/FPS");
-    if (FPS == 0.)
-        FPS = 60.0;  // Default
-
-    Game theGame(windowSize);
-
-    Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
-        sleepDuration(0), debtDuration(0), debugDuration(0);
-    const Time nominalFrameDuration = seconds(1. / FPS);
-    Time frameDuration = nominalFrameDuration;
-    double fpsAverage = 0.;
-    const size_t sampleSize = FPS;
-    std::vector<double> durationSamples(sampleSize, 0.);
-    size_t sampleIndex = 0;
-
-    Stopwatch clock;
-    clock.start();
-    bool firstFrame = true;
-    // Main game loop
-    while (!theGame.exit()) {
-        tickDuration = clock.restart();
-        // If not first tick
-        if (!firstFrame) {
-            // Analyze last event
-            debtDuration = frameDuration - tickDuration;
-            frameDuration = nominalFrameDuration + debtDuration;
-            double fps = 1 / toSeconds(tickDuration);
-            // Calculate average FPS
-            durationSamples[sampleIndex++] = fps;
-            fpsAverage = 0.;
-            for (auto& t : durationSamples)
-                fpsAverage += t;
-            fpsAverage /= sampleSize;
-            if (sampleIndex == sampleSize)
-                sampleIndex = 0;
-            // Print some info
-            logInfo("Last frame took ", tickDuration, " (on average ",
-                    fpsAverage, " FPS)");
-            logInfo("  Debug:   ", debugDuration);
-            logInfo("  Update:  ", updateDuration);
-            logInfo("  Events:  ", eventDuration);
-            logInfo("  Drawing: ", drawDuration);
-            logInfo("  Sleep:   ", sleepDuration);
-            logInfo("  We owe the next frame: ", debtDuration);
-        }
-        debugDuration = clock.split();
-        if (!firstFrame) {
-            while (tickDuration > 2 * nominalFrameDuration) {
-                theGame.update(nominalFrameDuration);
-                tickDuration -= nominalFrameDuration;
-            }
-            theGame.update(tickDuration);
-        }
-        updateDuration = clock.split();
-        theGame.processEvents();
-        eventDuration = clock.split();
-        theGame.draw();
-        theGame.display();
-        drawDuration = clock.split();
-        sleepDuration = frameDuration - (debugDuration + updateDuration +
-                                         eventDuration + drawDuration);
-
-        std::this_thread::sleep_for(sleepDuration);
-        firstFrame = false;
-    }
+    engine.startGame();
 }
 
 }  // namespace VVipers

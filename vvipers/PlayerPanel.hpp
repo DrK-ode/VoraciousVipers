@@ -16,7 +16,7 @@ class FontProvider;
 
 class PlayerPanel : public sf::Drawable, public Observer {
   public:
-    PlayerPanel(Vec2 size, const Player* player, const FontProvider* fontProvider);
+    PlayerPanel(Vec2 size, const Player* player, const FontProvider& fontProvider);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
     const Player* getPlayer() const { return m_player; }

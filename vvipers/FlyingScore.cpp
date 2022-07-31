@@ -2,12 +2,12 @@
 #include <sstream>
 #include <vvipers/FlyingScore.hpp>
 #include <vvipers/GameEvent.hpp>
-#include <vvipers/Services.hpp>
+#include <vvipers/Providers.hpp>
 
 namespace VVipers {
 
 FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
-                         Vec2 target, Time timeOfFlight, uint64_t score, const FontProvider* fontProvider)
+                         Vec2 target, Time timeOfFlight, uint64_t score, const FontProvider& fontProvider)
     : m_initialPosition(initialPosition),
       m_initialVelocity(initialVelocity),
       m_timeOfFlight(timeOfFlight),
@@ -19,7 +19,7 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
                      (target - m_initialPosition - m_initialVelocity * tof) /
                      (tof * tof);
     // Load and set font
-    m_font = fontProvider->getDefaultFont();
+    m_font = fontProvider.getDefaultFont();
     m_text.setFont(*m_font);
     updateText();
     auto lb = m_text.getLocalBounds();
