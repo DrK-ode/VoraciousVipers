@@ -46,49 +46,46 @@ Arena::Arena(Game& game) : m_game(game) {
     m_walls = new Walls(gameSize);
     m_collisionDetector.registerCollidable(m_walls);
 
-    auto controllerK = addKeyboardController();
+    auto controllerK = createKeyboardController();
     auto viperK = addViper();
     auto playerK = addPlayer("PlayerK", controllerK, viperK);
     playerK->color(sf::Color::Red);
 }
 
 Arena::~Arena() {
-    for (auto c : m_controllers)
-        delete c;
     delete m_statusBarView;
     delete m_gameView;
 }
 
-Controller* Arena::addController(Controller* controller) {
+controller_ptr Arena::addController(controller_ptr controller) {
     m_controllers.insert(controller);
     return controller;
 }
 
-void Arena::deleteController(Controller* controller) {
+void Arena::deleteController(controller_ptr controller) {
     m_controllers.erase(controller);
-    delete controller;
 }
 
-Controller* Arena::addMouseController() {
+controller_ptr Arena::createMouseController() {
     m_game.getWindow().setMouseCursorGrabbed(true);
     m_game.getWindow().setMouseCursorVisible(false);
     Vec2 windowSize = m_game.getWindow().getSize();
     sf::Mouse::setPosition(sf::Vector2i(windowSize.x / 2, windowSize.y / 2),
                            m_game.getWindow());
-    return addController(new MouseController(m_game.getWindow()));
+    return addController( controller_ptr(new MouseController(m_game.getWindow())));
 }
 
-Controller* Arena::addKeyboardController() {
+controller_ptr Arena::createKeyboardController() {
     KeyboardController::KeyboardControls keys;
     keys.left = sf::Keyboard::A;
     keys.right = sf::Keyboard::D;
     keys.boost = sf::Keyboard::Space;
-    return addController(new KeyboardController(keys));
+    return addController(controller_ptr(new KeyboardController(keys)));
 }
 
-std::shared_ptr<Player> Arena::addPlayer(const std::string& name, Controller* controller,
-                         std::shared_ptr<Viper> viper) {
-    auto player = std::shared_ptr<Player>(new Player(name, controller, viper));
+player_ptr Arena::addPlayer(const std::string& name, controller_ptr controller,
+                         viper_ptr viper) {
+    auto player = player_ptr(new Player(name, controller, viper));
     m_players.insert(player);
     PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player.get(),
                                          m_game.getFontService());
@@ -98,7 +95,7 @@ std::shared_ptr<Player> Arena::addPlayer(const std::string& name, Controller* co
     return player;
 }
 
-void Arena::deletePlayer(std::shared_ptr<Player> player) {
+void Arena::deletePlayer(player_ptr player) {
     for (auto panel : m_playerPanels) {
         if (panel->getPlayer() == player.get()) {
             m_playerPanels.erase(panel);
@@ -109,9 +106,9 @@ void Arena::deletePlayer(std::shared_ptr<Player> player) {
     m_players.erase(player);
 }
 
-std::shared_ptr<Viper> Arena::addViper(/* startConditions? */) {
+viper_ptr Arena::addViper(/* startConditions? */) {
     auto viper =
-        std::shared_ptr<Viper>(new Viper(m_game.getOptionsService(), m_game.getTextureService()));
+        viper_ptr(new Viper(m_game.getOptionsService(), m_game.getTextureService()));
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper.get());
@@ -123,7 +120,7 @@ void Arena::killViper(Viper* viper) { viper->state(GameObject::Dying); }
 
 void Arena::deleteViper(Viper* viper) {
     m_collisionDetector.deRegisterCollidable(viper);
-    m_vipers.erase(std::shared_ptr<Viper>(viper));
+    m_vipers.erase(viper_ptr(viper));
 }
 
 void Arena::addFood(Vec2 position, double diameter) {

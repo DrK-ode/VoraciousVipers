@@ -4,16 +4,17 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <memory>
 #include <vector>
+#include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/Collision/Bodypart.hpp>
 #include <vvipers/Scenes/Collision/Collidable.hpp>
 #include <vvipers/Scenes/Collision/CollisionVertices.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Engine/Providers.hpp>
-#include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Scenes/GameElements/Track.hpp>
+#include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {
 /**
@@ -121,6 +122,8 @@ class Viper : public GameObject,
     std::vector<const Bodypart*> m_sensitiveParts;
     sf::Color m_color;
 };
+
+using viper_ptr = std::shared_ptr<Viper>;
 
 }  // namespace VVipers
 #endif  // VVIPERS_VIPER_HPP

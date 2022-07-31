@@ -1,6 +1,7 @@
 #ifndef VVIPERS_CONTROLLER_HPP
 #define VVIPERS_CONTROLLER_HPP
 
+#include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
@@ -19,6 +20,8 @@ class Controller {
     virtual ~Controller() {};
     virtual SteeringCommand control() const { return SteeringCommand(); }
 };
+
+using controller_ptr = std::shared_ptr<Controller>;
 
 class KeyboardController : public Controller {
   public:

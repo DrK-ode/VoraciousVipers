@@ -12,16 +12,15 @@
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Scenes/GameElements/PlayerPanel.hpp>
+#include <vvipers/Scenes/GameElements/Controller.hpp>
+#include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/Scenes/GameElements/Player.hpp>
+#include <vvipers/Scenes/GameElements/Walls.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Scenes/Scene.hpp>
 #include <vvipers/Engine/Game.hpp>
 
 namespace VVipers {
-
-class Controller;
-class Walls;
-class Viper;
-class Player;
 
 class Arena : public Scene, public Observer {
   public:
@@ -34,15 +33,15 @@ class Arena : public Scene, public Observer {
     std::shared_ptr<Scene> makeTransition() override;
 
   private:
-    Controller* addController(Controller* controller);
-    void deleteController(Controller* controller);
-    Controller* addMouseController();
-    Controller* addKeyboardController();
+    controller_ptr addController(controller_ptr controller);
+    void deleteController(controller_ptr controller);
+    controller_ptr createMouseController();
+    controller_ptr createKeyboardController();
 
-    std::shared_ptr<Player> addPlayer(const std::string& name, Controller* controller,
-                      std::shared_ptr<Viper> viper);
-    void deletePlayer(std::shared_ptr<Player> player);
-    std::shared_ptr<Viper> addViper(/* Start conditions */);
+    player_ptr addPlayer(const std::string& name, controller_ptr controller,
+                      viper_ptr viper);
+    void deletePlayer(player_ptr player);
+    viper_ptr addViper(/* Start conditions */);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
     void addFood(Vec2 position, double diameter);
@@ -78,10 +77,11 @@ class Arena : public Scene, public Observer {
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
     CollisionDetector m_collisionDetector;
     Walls* m_walls;
-    std::set<Controller*> m_controllers;
-    std::set<std::shared_ptr<Player>> m_players;
+    // Arena and Player has joint ownership of controllers and vipers
+    std::set<controller_ptr> m_controllers;
+    std::set<viper_ptr> m_vipers;
+    std::set<player_ptr> m_players;
     std::set<PlayerPanel*> m_playerPanels;
-    std::set<std::shared_ptr<Viper>> m_vipers;
     std::set<Food*> m_food;
     std::set<FlyingScore*> m_flyingScores;
 };
