@@ -20,10 +20,11 @@ class PauseScreen : public Scene {
 
   private:
     Game& m_game;
-    sf::Text m_text;
+    sf::Text m_pauseText;
+    sf::Text m_quitText;
     sf::RectangleShape m_background;
 };
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_PAUSESCREEN_HPP
+#endif // VVIPERS_SCENES_PAUSESCREEN_HPP

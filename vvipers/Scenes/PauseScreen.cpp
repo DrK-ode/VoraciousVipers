@@ -9,15 +9,26 @@ namespace VVipers {
 
 PauseScreen::PauseScreen(Game& game) : m_game(game) {
     Vec2 size = m_game.getWindow().getSize();
-    m_text.setFont(*m_game.getFontService().getDefaultFont());
-    m_text.setString("Pause");
-    m_text.setCharacterSize(0.1 * size.y);
-    m_text.setPosition(size / 2);
-    auto lb = m_text.getLocalBounds();
-    m_text.setOrigin(Vec2(lb.left + lb.width, lb.top + lb.height) / 2);
-    m_text.setFillColor(sf::Color::Green);
-    m_text.setOutlineColor(sf::Color::Red);
-    m_text.setOutlineThickness(0.005 * size.y);
+    m_pauseText.setFont(*m_game.getFontService().getDefaultFont());
+    m_pauseText.setString("Pause");
+    m_pauseText.setCharacterSize(0.1 * size.y);
+    m_pauseText.setPosition(size / 2);
+    auto lbp = m_pauseText.getLocalBounds();
+    m_pauseText.setOrigin(Vec2(lbp.left + lbp.width, lbp.top + lbp.height) / 2);
+    m_pauseText.setFillColor(sf::Color::Green);
+    m_pauseText.setOutlineColor(sf::Color::Red);
+    m_pauseText.setOutlineThickness(0.005 * size.y);
+
+    m_quitText.setFont(*m_game.getFontService().getDefaultFont());
+    m_quitText.setString("(Press 'q' to quit)");
+    m_quitText.setCharacterSize(0.5 * m_pauseText.getCharacterSize());
+    m_quitText.setPosition(m_pauseText.getPosition() +
+                           Vec2(0, m_pauseText.getCharacterSize()));
+    auto lbq = m_quitText.getLocalBounds();
+    m_quitText.setOrigin(Vec2(lbq.left + lbq.width, lbq.top + lbq.height) / 2);
+    m_quitText.setFillColor(sf::Color::Green);
+    m_quitText.setOutlineColor(sf::Color::Red);
+    m_quitText.setOutlineThickness(0.5 * m_pauseText.getOutlineThickness());
 
     m_background.setPosition(0, 0);
     m_background.setSize(size);
@@ -28,12 +39,13 @@ PauseScreen::PauseScreen(Game& game) : m_game(game) {
 
 void PauseScreen::draw() {
     m_game.getWindow().draw(m_background);
-    m_game.getWindow().draw(m_text);
+    m_game.getWindow().draw(m_pauseText);
+    m_game.getWindow().draw(m_quitText);
 }
 
-scene_ptr PauseScreen::makeTransition(){
+scene_ptr PauseScreen::makeTransition() {
     // Setup state for next time the pause screen is invoked
-    setTransitionState( TransitionState::Continue);
+    setTransitionState(TransitionState::Continue);
     return scene_ptr(nullptr);
 }
 
@@ -45,7 +57,16 @@ void PauseScreen::processEvents() {
         if (event.type == sf::Event::Closed) {
             setTransitionState(TransitionState::Quit);
         } else if (event.type == sf::Event::KeyPressed) {
-            setTransitionState(TransitionState::Return);
+            switch (event.key.code) {
+                case sf::Keyboard::Q: {
+                    setTransitionState(TransitionState::Quit);
+                    break;
+                }
+                default: {
+                    setTransitionState(TransitionState::Return);
+                    break;
+                }
+            }
         }
     }
 }
