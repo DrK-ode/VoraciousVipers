@@ -36,12 +36,12 @@ class KeyboardController : public Controller {
 
 class MouseController : public Controller {
   public:
-    MouseController(const sf::RenderWindow* window) : m_window(window) {}
+    MouseController(const sf::RenderWindow& window) : m_window(window) {}
 
   private:
     virtual SteeringCommand control() const override;
 
-    const sf::RenderWindow* m_window;
+    const sf::RenderWindow& m_window;
 };
 
 }  // namespace VVipers

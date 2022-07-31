@@ -2,7 +2,7 @@
 #define VVIPERS_TEXTUREFILELOADER_HPP
 
 #include <map>
-#include <vvipers/Services.hpp>
+#include <vvipers/Providers.hpp>
 
 namespace VVipers {
 

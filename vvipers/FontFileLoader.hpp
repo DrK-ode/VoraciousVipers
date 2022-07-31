@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics/Font.hpp>
 #include <set>
-#include <vvipers/Services.hpp>
+#include <vvipers/Providers.hpp>
 
 namespace VVipers {
 

@@ -1,14 +1,14 @@
 #include <sstream>
 #include <vvipers/PlayerPanel.hpp>
-#include <vvipers/Services.hpp>
+#include <vvipers/Providers.hpp>
 #include <vvipers/Viper.hpp>
 
 namespace VVipers {
 
 PlayerPanel::PlayerPanel(Vec2 size, const Player* player,
-                         const FontProvider* fontProvider)
+                         const FontProvider& fontProvider)
     : m_size(size), m_player(player), m_score(player->score()) {
-    m_font = fontProvider->getDefaultFont();
+    m_font = fontProvider.getDefaultFont();
     // Set text properties
     m_nameText.setFont(*m_font);
     const int characterSize = 0.25 * size.y;  // px

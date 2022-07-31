@@ -1,6 +1,7 @@
 configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
 set(INC_FILES
+    Arena.hpp
     Bodypart.hpp
     Collidable.hpp
     CollisionBody.hpp
@@ -10,6 +11,8 @@ set(INC_FILES
     Controller.hpp
     ConvexBody.hpp
     debug.hpp
+    Engine.hpp
+    FlashScreen.hpp
     FlyingScore.hpp
     FontFileLoader.hpp
     Food.hpp
@@ -21,7 +24,8 @@ set(INC_FILES
     Player.hpp
     PlayerPanel.hpp
     ProgressBar.hpp
-    Services.hpp
+    Providers.hpp
+    Scene.hpp
     TextureFileLoader.hpp
     Time.hpp
     Track.hpp
@@ -32,6 +36,7 @@ set(INC_FILES
 )
 
 set(SRC_FILES
+    Arena.cpp
     Bodypart.cpp
     Collidable.cpp
     CollisionBody.cpp
@@ -39,6 +44,8 @@ set(SRC_FILES
     CollisionVertices.cpp
     Controller.cpp
     ConvexBody.cpp
+    Engine.cpp
+    FlashScreen.cpp
     FlyingScore.cpp
     FontFileLoader.cpp
     Food.cpp
@@ -50,7 +57,7 @@ set(SRC_FILES
     Player.cpp
     PlayerPanel.cpp
     ProgressBar.cpp
-    Services.cpp
+    Scene.cpp
     TextureFileLoader.cpp
     Track.cpp
     Vec2.cpp

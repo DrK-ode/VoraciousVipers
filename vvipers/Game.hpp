@@ -1,87 +1,31 @@
 #ifndef VVIPERS_GAME_HPP
 #define VVIPERS_GAME_HPP
 
-#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <vvipers/CollisionDetector.hpp>
-#include <vvipers/FlyingScore.hpp>
-#include <vvipers/Food.hpp>
-#include <vvipers/GameEvent.hpp>
-#include <vvipers/GameObject.hpp>
-#include <vvipers/Observer.hpp>
-#include <vvipers/PlayerPanel.hpp>
-#include <vvipers/Time.hpp>
+#include <vvipers/Providers.hpp>
 
 namespace VVipers {
 
-class Controller;
-class Walls;
-class Viper;
-class Player;
-
-class Game : public sf::RenderWindow, public Observer, Observable {
+class Game {
   public:
-    Game(Vec2 windowSize);
-    ~Game();
-    void draw();
-    bool exit() const { return m_exit; }
-    void onNotify(const GameEvent* event) override;
-    void processEvents();
-    void update(Time elapsedTime);
+    Game(const OptionsProvider& options, const FontProvider& fonts,
+         const TextureProvider& textures);
 
-  private:
-    Controller* addController(Controller* controller);
-    void deleteController(Controller* controller);
-    Controller* addMouseController();
-    Controller* addKeyboardController();
-
-    Player* addPlayer(const std::string& name, Controller* controller,
-                      Viper* viper);
-    void deletePlayer(Player* player);
-    Viper* addViper(/* Start conditions */);
-    void deleteViper(Viper* viper);
-    void killViper(Viper* viper);
-    void addFood(Vec2 position, double diameter);
-    void eatFood(Viper*, Food*);
-    void deleteFood(Food* food);
-
-    PlayerPanel* findPlayerPanel(const Player* player) const;
-    Player* findPlayerWith(const Viper*) const;
-    Player* findPlayerWith(const Controller*) const;
-
-    Vec2 findFreeRect(Vec2 rectSize) const {
-        return findFreeRect(rectSize,
-                            sf::Rect<double>(0, 0, m_gameView->getSize().x,
-                                             m_gameView->getSize().y));
+    sf::RenderWindow& getWindow() { return m_window; };
+    const FontProvider& getFontService() const { return m_fontProvider; }
+    const OptionsProvider& getOptionsService() const {
+        return m_optionsProvider;
     }
-    Vec2 findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const;
-    void dispenseFood();
+    const TextureProvider& getTextureService() const {
+        return m_textureProvider;
+    }
 
-    void handleCollision(const Colliders& c);
-    void handleCollisions();
-    void handleSteering();
-    void handleDestruction(const DestroyEvent* event);
-    void handleObjectUpdates(Time elapsedTime);
-
-    void processWindowEvents();
-    void signalExit();
-
-    sf::View* m_statusBarView;
-    sf::View* m_gameView;
-    bool m_exit;
-    std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
-    CollisionDetector m_collisionDetector;
-    Walls* m_walls;
-    Vec2 m_mouseMove;
-    std::set<Controller*> m_controllers;
-    std::set<Player*> m_players;
-    std::set<PlayerPanel*> m_playerPanels;
-    std::set<Viper*> m_vipers;
-    std::set<Food*> m_food;
-    std::set<FlyingScore*> m_flyingScores;
+    sf::RenderWindow m_window;
+    const OptionsProvider& m_optionsProvider;
+    const FontProvider& m_fontProvider;
+    const TextureProvider& m_textureProvider;
 };
 
 }  // namespace VVipers
 
-#endif
+#endif  // VVIPERS_GAME_HPP
