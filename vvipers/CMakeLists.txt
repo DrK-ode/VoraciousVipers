@@ -10,6 +10,7 @@ set(INC_FILES
     Engine/TextureFileLoader.hpp
     Scenes/Arena.hpp
     Scenes/FlashScreen.hpp
+    Scenes/GameOverScreen.hpp
     Scenes/PauseScreen.hpp
     Scenes/Scene.hpp
     Scenes/Collision/Bodypart.hpp
@@ -44,6 +45,7 @@ set(SRC_FILES
     Engine/TextureFileLoader.cpp
     Scenes/Arena.cpp
     Scenes/FlashScreen.cpp
+    Scenes/GameOverScreen.cpp
     Scenes/PauseScreen.cpp
     Scenes/Scene.cpp
     Scenes/Collision/Bodypart.cpp

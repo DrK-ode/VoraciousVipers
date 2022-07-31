@@ -1,6 +1,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
 #include <typeinfo>
+#include <memory>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/Arena.hpp>
 #include <vvipers/Scenes/Collision/Bodypart.hpp>
@@ -9,6 +10,7 @@
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
 #include <vvipers/Scenes/PauseScreen.hpp>
+#include <vvipers/Scenes/GameOverScreen.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
@@ -51,10 +53,6 @@ Arena::Arena(Game& game) : m_game(game) {
 }
 
 Arena::~Arena() {
-    for (auto p : m_players)
-        delete p;
-    for (auto v : m_vipers)
-        delete v;
     for (auto c : m_controllers)
         delete c;
     delete m_statusBarView;
@@ -88,11 +86,11 @@ Controller* Arena::addKeyboardController() {
     return addController(new KeyboardController(keys));
 }
 
-Player* Arena::addPlayer(const std::string& name, Controller* controller,
-                         Viper* viper) {
-    Player* player = new Player(name, controller, viper);
+std::shared_ptr<Player> Arena::addPlayer(const std::string& name, Controller* controller,
+                         std::shared_ptr<Viper> viper) {
+    auto player = std::shared_ptr<Player>(new Player(name, controller, viper));
     m_players.insert(player);
-    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player,
+    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player.get(),
                                          m_game.getFontService());
     m_playerPanels.insert(panel);
     viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
@@ -100,24 +98,23 @@ Player* Arena::addPlayer(const std::string& name, Controller* controller,
     return player;
 }
 
-void Arena::deletePlayer(Player* player) {
+void Arena::deletePlayer(std::shared_ptr<Player> player) {
     for (auto panel : m_playerPanels) {
-        if (panel->getPlayer() == player) {
+        if (panel->getPlayer() == player.get()) {
             m_playerPanels.erase(panel);
             delete panel;
             break;  // Assumes only one panel per player
         }
     }
     m_players.erase(player);
-    delete player;
 }
 
-Viper* Arena::addViper(/* startConditions? */) {
-    Viper* viper =
-        new Viper(m_game.getOptionsService(), m_game.getTextureService());
+std::shared_ptr<Viper> Arena::addViper(/* startConditions? */) {
+    auto viper =
+        std::shared_ptr<Viper>(new Viper(m_game.getOptionsService(), m_game.getTextureService()));
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
-    m_collisionDetector.registerCollidable(viper);
+    m_collisionDetector.registerCollidable(viper.get());
     m_vipers.insert(viper);
     return viper;
 }
@@ -126,8 +123,7 @@ void Arena::killViper(Viper* viper) { viper->state(GameObject::Dying); }
 
 void Arena::deleteViper(Viper* viper) {
     m_collisionDetector.deRegisterCollidable(viper);
-    m_vipers.erase(viper);
-    delete viper;
+    m_vipers.erase(std::shared_ptr<Viper>(viper));
 }
 
 void Arena::addFood(Vec2 position, double diameter) {
@@ -176,14 +172,14 @@ PlayerPanel* Arena::findPlayerPanel(const Player* player) const {
 Player* Arena::findPlayerWith(const Controller* controller) const {
     for (auto player : m_players)
         if (player->controller() == controller)
-            return player;
+            return player.get();
     return nullptr;
 }
 
 Player* Arena::findPlayerWith(const Viper* viper) const {
     for (auto player : m_players)
         if (player->viper() == viper)
-            return player;
+            return player.get();
     return nullptr;
 }
 
@@ -230,7 +226,7 @@ void Arena::draw() {
     window.draw(*m_walls);
     for (const auto f : m_food)
         window.draw(*f);
-    for (const auto v : m_vipers)
+    for (const auto& v : m_vipers)
         window.draw(*v);
     window.setView(window.getDefaultView());
     for (const auto s : m_flyingScores)
@@ -320,6 +316,19 @@ void Arena::handleObjectUpdates(Time elapsedTime) {
         s->update(elapsedTime);
 }
 
+void Arena::checkForGameOver(){
+    for( auto player : m_players )
+        if( player->viper() && player->viper()->state() != GameObject::Dead )
+            return; // Keep on playing as long as someone is alive
+
+    setTransitionState(TransitionState::Replace);
+    // This scene must be kept alive since GameOverScreen reads
+    std::vector<std::shared_ptr<const Player>> players;
+    for( auto p : m_players )
+        players.push_back(p);
+    m_transitionScene = scene_ptr(new GameOverScreen(m_game, players) );
+}
+
 void Arena::onNotify(const GameEvent* event) {
     // If directly processable, do it!
     switch (event->type()) {
@@ -384,6 +393,7 @@ void Arena::update(Time elapsedTime) {
     handleObjectUpdates(elapsedTime);
     handleCollisions();
     dispenseFood();
+    checkForGameOver();
 }
 
 std::shared_ptr<Scene> Arena::makeTransition() {

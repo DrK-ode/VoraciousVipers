@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <string>
+#include <memory>
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
@@ -17,7 +18,7 @@ typedef uint64_t level_t;
 
 class Player : public GameObject, public Observable {
   public:
-    Player(const std::string& name, Controller* c, Viper* v);
+    Player(const std::string& name, Controller* c, std::shared_ptr<Viper> v);
 
     static level_t calculateLevel(score_t score) { return score / 1000 + 1; }
     static score_t calculateLevelLimit(level_t level) {
@@ -31,15 +32,15 @@ class Player : public GameObject, public Observable {
     std::string name() const { return m_name; }
     score_t score() const { return m_score; };
     void score(score_t score) { m_score += score; };
-    Viper* viper() const { return m_viper; }
-    void viper(Viper* v) { m_viper = v; }
+    Viper* viper() const { return m_viper.get(); }
+    void viper(std::shared_ptr<Viper> v) { m_viper = v; }
 
   private:
     std::string m_name;
     sf::Color m_color;
     Controller* m_controller;
     score_t m_score;
-    Viper* m_viper;
+    std::shared_ptr<Viper> m_viper;
 };
 
 }  // namespace VVipers

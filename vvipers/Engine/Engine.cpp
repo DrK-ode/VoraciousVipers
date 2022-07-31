@@ -110,7 +110,8 @@ void Engine::sceneSelection() {
         case Scene::TransitionState::Return: {
             m_scenes.back()->makeTransition(); // Ignore return value
             m_scenes.pop_back();
-            m_scenes.back()->setSceneState( Scene::SceneState::Running );
+            if( !m_scenes.empty() )
+                m_scenes.back()->setSceneState( Scene::SceneState::Running );
             break;
         }
         case Scene::TransitionState::Spawn: {

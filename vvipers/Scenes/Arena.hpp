@@ -1,6 +1,8 @@
 #ifndef VVIPERS_ARENA_HPP
 #define VVIPERS_ARENA_HPP
 
+#include <memory>
+#include <vector>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <vvipers/Scenes/Collision/CollisionDetector.hpp>
@@ -37,10 +39,10 @@ class Arena : public Scene, public Observer {
     Controller* addMouseController();
     Controller* addKeyboardController();
 
-    Player* addPlayer(const std::string& name, Controller* controller,
-                      Viper* viper);
-    void deletePlayer(Player* player);
-    Viper* addViper(/* Start conditions */);
+    std::shared_ptr<Player> addPlayer(const std::string& name, Controller* controller,
+                      std::shared_ptr<Viper> viper);
+    void deletePlayer(std::shared_ptr<Player> player);
+    std::shared_ptr<Viper> addViper(/* Start conditions */);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
     void addFood(Vec2 position, double diameter);
@@ -64,6 +66,7 @@ class Arena : public Scene, public Observer {
     void handleSteering();
     void handleDestruction(const DestroyEvent* event);
     void handleObjectUpdates(Time elapsedTime);
+    void checkForGameOver();
 
     void processWindowEvents();
 
@@ -76,9 +79,9 @@ class Arena : public Scene, public Observer {
     CollisionDetector m_collisionDetector;
     Walls* m_walls;
     std::set<Controller*> m_controllers;
-    std::set<Player*> m_players;
+    std::set<std::shared_ptr<Player>> m_players;
     std::set<PlayerPanel*> m_playerPanels;
-    std::set<Viper*> m_vipers;
+    std::set<std::shared_ptr<Viper>> m_vipers;
     std::set<Food*> m_food;
     std::set<FlyingScore*> m_flyingScores;
 };

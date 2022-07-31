@@ -1,9 +1,9 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <exception>
-#include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
-#include <vvipers/config.hpp>
+#include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include <vvipers/config.hpp>
 
 namespace VVipers {
 
@@ -98,9 +98,19 @@ void Viper::boost(double relativeSpeedIncrease) {
 }
 
 void Viper::die(const Time& elapsedTime) {
-    m_temporalLength -= 3 * elapsedTime;
+    static const Time lengthAtDeath(m_temporalLength);
+    static Time timeSinceDeath(0);
+    static const double secondsItTakesToDie = std::sqrt(toSeconds(m_temporalLength));
+    static const Time k_constDecay(0.1);
+    static const double k_expDecay =
+        std::log(lengthAtDeath / k_constDecay) / secondsItTakesToDie;
+
+    m_temporalLength =
+        lengthAtDeath * std::exp(-k_expDecay * toSeconds(timeSinceDeath)) -
+        k_constDecay;
     if (m_temporalLength <= seconds(0))
         state(Dead);
+    timeSinceDeath += elapsedTime;
 }
 
 void Viper::addGrowth(const Time& g) { m_growth += g; }
@@ -221,7 +231,7 @@ void Viper::updateSpeed(const Time& elapsedTime) {
     if (m_speed < targetSpeed) {
         // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
-            std::min(2*viperCfg.nominalSpeed,
+            std::min(2 * viperCfg.nominalSpeed,
                      (targetSpeed - m_speed) / toSeconds(elapsedTime));
     } else if (m_speed > targetSpeed) {
         acceleration =
