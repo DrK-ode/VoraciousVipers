@@ -20,7 +20,7 @@ class Engine {
     void update(Time elapsedTime);
 
     Game m_game;
-    std::deque< std::unique_ptr<Scene> > m_scenes;
+    std::deque< std::shared_ptr<Scene> > m_scenes;
 };
 
 }  // namespace VVipers

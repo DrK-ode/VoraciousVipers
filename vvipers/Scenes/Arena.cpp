@@ -1,13 +1,14 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
 #include <typeinfo>
+#include <vvipers/Engine/Providers.hpp>
+#include <vvipers/Scenes/Arena.hpp>
 #include <vvipers/Scenes/Collision/Bodypart.hpp>
 #include <vvipers/Scenes/GameElements/Controller.hpp>
-#include <vvipers/Scenes/Arena.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
+#include <vvipers/Scenes/PauseScreen.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
@@ -32,6 +33,9 @@ Arena::Arena(Game& game) : m_game(game) {
     m_gameView->setCenter(gameSize / 2);
     m_gameView->setViewport(
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
+
+    // Only create one pause screen so that it can be reused
+    m_pauseScene = std::shared_ptr<Scene>( new PauseScreen(m_game) );
 
     // auto controllerM = addMouseController();
     // auto viperM = addViper();
@@ -85,7 +89,7 @@ Controller* Arena::addKeyboardController() {
 }
 
 Player* Arena::addPlayer(const std::string& name, Controller* controller,
-                        Viper* viper) {
+                         Viper* viper) {
     Player* player = new Player(name, controller, viper);
     m_players.insert(player);
     PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player,
@@ -148,11 +152,13 @@ void Arena::eatFood(Viper* viper, Food* food) {
     player->score(score);
 
     PlayerPanel* panel = findPlayerPanel(player);
-    FlyingScore* flyingScore = new FlyingScore(
-        Vec2(m_game.getWindow().mapCoordsToPixel(food->getPosition(), *m_gameView)),
-        4 * viper->velocity(),
-        Vec2(m_game.getWindow().mapCoordsToPixel(panel->getScoreTarget(), *m_statusBarView)), 1s,
-        score, m_game.getFontService());
+    FlyingScore* flyingScore =
+        new FlyingScore(Vec2(m_game.getWindow().mapCoordsToPixel(
+                            food->getPosition(), *m_gameView)),
+                        4 * viper->velocity(),
+                        Vec2(m_game.getWindow().mapCoordsToPixel(
+                            panel->getScoreTarget(), *m_statusBarView)),
+                        1s, score, m_game.getFontService());
     flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
     flyingScore->setFontSize(0.03 * m_game.getWindow().getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
@@ -215,7 +221,7 @@ void Arena::dispenseFood() {
 }
 
 void Arena::draw() {
-    auto& window  = m_game.getWindow();
+    auto& window = m_game.getWindow();
     window.clear(sf::Color::Black);
     window.setView(*m_statusBarView);
     for (const auto panel : m_playerPanels)
@@ -332,7 +338,8 @@ void Arena::processWindowEvents() {
     while (m_game.getWindow().pollEvent(event)) {
         switch (event.type) {
             case sf::Event::Closed: {
-                signalExit();
+                setSceneState(SceneState::Paused);
+                setTransitionState(TransitionState::Return);
                 break;
             }
             case sf::Event::Resized: {
@@ -341,7 +348,9 @@ void Arena::processWindowEvents() {
             case sf::Event::KeyPressed: {
                 switch (event.key.code) {
                     case sf::Keyboard::Escape: {
-                        signalExit();
+                        setSceneState(SceneState::Paused);
+                        setTransitionState(TransitionState::Spawn);
+                        m_transitionScene = m_pauseScene;
                         break;
                     }
                     default: {
@@ -370,11 +379,6 @@ void Arena::processEvents() {
     m_eventsToBeProcessed.clear();
 }
 
-void Arena::signalExit() {
-    setSceneState(SceneState::Paused);
-    setTransitionState(TransitionState::Return);
-}
-
 void Arena::update(Time elapsedTime) {
     handleSteering();
     handleObjectUpdates(elapsedTime);
@@ -382,4 +386,10 @@ void Arena::update(Time elapsedTime) {
     dispenseFood();
 }
 
+std::shared_ptr<Scene> Arena::makeTransition() {
+    // Setting the state after the transition has occured and this scene starts
+    // running again
+    setTransitionState(TransitionState::Continue);
+    return m_transitionScene;
+}
 }  // namespace VVipers

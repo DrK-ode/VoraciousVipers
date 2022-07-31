@@ -31,8 +31,8 @@ void FlashScreen::update(Time elapsedTime) {
     }
 }
 
-std::unique_ptr<Scene> FlashScreen::getTransition() {
-    return std::unique_ptr<Scene>(new Arena(m_game));
+std::shared_ptr<Scene> FlashScreen::makeTransition() {
+    return std::shared_ptr<Scene>(new Arena(m_game));
 }
 
 void FlashScreen::processEvents() {

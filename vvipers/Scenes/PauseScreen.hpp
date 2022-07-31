@@ -1,6 +1,7 @@
-#ifndef VVIPERS_FLASHSCREEN_HPP
-#define VVIPERS_FLASHSCREEN_HPP
+#ifndef VVIPERS_SCENES_PAUSESCREEN_HPP
+#define VVIPERS_SCENES_PAUSESCREEN_HPP
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <vvipers/Scenes/Scene.hpp>
 #include <vvipers/Utilities/Time.hpp>
@@ -9,20 +10,20 @@ namespace VVipers {
 
 class Game;
 
-class FlashScreen : public Scene {
+class PauseScreen : public Scene {
   public:
-    FlashScreen(Game& game, Time duration);
+    PauseScreen(Game& game);
     void draw() override;
     void processEvents() override;
     void update(Time elapsedTime) override;
-    std::shared_ptr<Scene> makeTransition() override;
+    scene_ptr makeTransition() override;
 
   private:
     Game& m_game;
-    Time m_timeLeft;
     sf::Text m_text;
+    sf::RectangleShape m_background;
 };
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_FLASHSCREEN_HPP
+#endif  // VVIPERS_SCENES_PAUSESCREEN_HPP

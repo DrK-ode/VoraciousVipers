@@ -29,6 +29,7 @@ class Arena : public Scene, public Observer {
     void onNotify(const GameEvent* event) override;
     void processEvents() override;
     void update(Time elapsedTime) override;
+    std::shared_ptr<Scene> makeTransition() override;
 
   private:
     Controller* addController(Controller* controller);
@@ -65,11 +66,12 @@ class Arena : public Scene, public Observer {
     void handleObjectUpdates(Time elapsedTime);
 
     void processWindowEvents();
-    void signalExit();
 
     sf::View* m_statusBarView;
     sf::View* m_gameView;
     Game& m_game;
+    std::shared_ptr<Scene> m_transitionScene;
+    std::shared_ptr<Scene> m_pauseScene;
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
     CollisionDetector m_collisionDetector;
     Walls* m_walls;

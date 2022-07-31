@@ -9,13 +9,15 @@ set(INC_FILES
     Engine/Providers.hpp
     Engine/TextureFileLoader.hpp
     Scenes/Arena.hpp
+    Scenes/FlashScreen.hpp
+    Scenes/PauseScreen.hpp
+    Scenes/Scene.hpp
     Scenes/Collision/Bodypart.hpp
     Scenes/Collision/Collidable.hpp
     Scenes/Collision/CollisionBody.hpp
     Scenes/Collision/CollisionDetector.hpp
     Scenes/Collision/CollisionVertices.hpp
     Scenes/Collision/ConvexBody.hpp
-    Scenes/FlashScreen.hpp
     Scenes/GameElements/Controller.hpp
     Scenes/GameElements/FlyingScore.hpp
     Scenes/GameElements/Food.hpp
@@ -28,7 +30,6 @@ set(INC_FILES
     Scenes/GameElements/Track.hpp
     Scenes/GameElements/Viper.hpp
     Scenes/GameElements/Walls.hpp
-    Scenes/Scene.hpp
     Utilities/debug.hpp
     Utilities/Time.hpp
     Utilities/Vec2.hpp
@@ -42,13 +43,15 @@ set(SRC_FILES
     Engine/OptionsJSON.cpp
     Engine/TextureFileLoader.cpp
     Scenes/Arena.cpp
+    Scenes/FlashScreen.cpp
+    Scenes/PauseScreen.cpp
+    Scenes/Scene.cpp
     Scenes/Collision/Bodypart.cpp
     Scenes/Collision/Collidable.cpp
     Scenes/Collision/CollisionBody.cpp
     Scenes/Collision/CollisionDetector.cpp
     Scenes/Collision/CollisionVertices.cpp
     Scenes/Collision/ConvexBody.cpp
-    Scenes/FlashScreen.cpp
     Scenes/GameElements/Controller.cpp
     Scenes/GameElements/FlyingScore.cpp
     Scenes/GameElements/Food.cpp
@@ -61,7 +64,6 @@ set(SRC_FILES
     Scenes/GameElements/Track.cpp
     Scenes/GameElements/Viper.cpp
     Scenes/GameElements/Walls.cpp
-    Scenes/Scene.cpp
     Utilities/Vec2.cpp
 )
 

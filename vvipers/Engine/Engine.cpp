@@ -102,20 +102,23 @@ void Engine::sceneSelection() {
             break;
         }
         case Scene::TransitionState::Replace: {
-            auto nextScene = m_scenes.back()->getTransition();
+            auto nextScene = m_scenes.back()->makeTransition();
             m_scenes.pop_back();
             m_scenes.push_back(std::move(nextScene));
             break;
         }
         case Scene::TransitionState::Return: {
+            m_scenes.back()->makeTransition(); // Ignore return value
             m_scenes.pop_back();
+            m_scenes.back()->setSceneState( Scene::SceneState::Running );
             break;
         }
         case Scene::TransitionState::Spawn: {
-            m_scenes.push_back(std::move(m_scenes.back()->getTransition()));
+            m_scenes.push_back(std::move(m_scenes.back()->makeTransition()));
             break;
         }
         case Scene::TransitionState::Quit: {
+            m_scenes.back()->makeTransition(); // Ignore return value
             while (!m_scenes.empty()) {
                 m_scenes.pop_back();
             }
@@ -130,6 +133,13 @@ void Engine::update(Time elapsedTime) {
 }
 
 void Engine::draw() {
+    auto sceneIter = m_scenes.rbegin();
+    while ((*sceneIter)->isTransparent() &&
+           std::next(sceneIter) != m_scenes.rend())
+           ++sceneIter;
+    while( sceneIter != m_scenes.rbegin()){
+        (*sceneIter--)->draw();
+    }
     m_scenes.back()->draw();
     m_game.getWindow().display();
 }
