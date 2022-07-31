@@ -22,6 +22,12 @@
 
 namespace VVipers {
 
+using controller_ptr = std::shared_ptr<Controller>;
+using food_ptr = std::unique_ptr<Food>;
+using player_ptr = std::shared_ptr<Player>;
+using viper_ptr = std::shared_ptr<Viper>;
+using walls_ptr = std::unique_ptr<Walls>;
+
 class Arena : public Scene, public Observer {
   public:
     Arena(Game& game);
@@ -72,18 +78,20 @@ class Arena : public Scene, public Observer {
     sf::View m_statusBarView;
     sf::View m_gameView;
     Game& m_game;
+    // The arena keeps partial ownership of the pause screen in order to be able to reuse it
     std::shared_ptr<Scene> m_transitionScene;
     std::shared_ptr<Scene> m_pauseScene;
-    std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
-    CollisionDetector m_collisionDetector;
-    Walls* m_walls;
     // Arena and Player has joint ownership of controllers and vipers
     std::set<controller_ptr> m_controllers;
     std::set<viper_ptr> m_vipers;
     std::set<player_ptr> m_players;
-    std::set<PlayerPanel*> m_playerPanels;
-    std::set<Food*> m_food;
-    std::set<FlyingScore*> m_flyingScores;
+    std::set<std::unique_ptr<PlayerPanel>> m_playerPanels;
+    std::set<food_ptr> m_food;
+    std::set<std::unique_ptr<FlyingScore>> m_flyingScores;
+    walls_ptr m_walls;
+
+    std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
+    CollisionDetector m_collisionDetector;
 };
 
 }  // namespace VVipers

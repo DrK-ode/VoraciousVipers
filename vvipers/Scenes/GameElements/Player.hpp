@@ -17,7 +17,7 @@ typedef uint64_t level_t;
 
 class Player : public GameObject, public Observable {
   public:
-    Player(const std::string& name, controller_ptr c, viper_ptr v);
+    Player(const std::string& name, std::shared_ptr<Controller> c, std::shared_ptr<Viper> v);
 
     static level_t calculateLevel(score_t score) { return score / 1000 + 1; }
     static score_t calculateLevelLimit(level_t level) {
@@ -27,22 +27,20 @@ class Player : public GameObject, public Observable {
     sf::Color color() const { return m_color; }
     void color(sf::Color c);
     const Controller* controller() const { return m_controller.get(); }
-    void controller(controller_ptr c) { m_controller = c; }
+    void controller(std::shared_ptr<Controller> c) { m_controller = c; }
     std::string name() const { return m_name; }
     score_t score() const { return m_score; };
     void score(score_t score) { m_score += score; };
     Viper* viper() const { return m_viper.get(); }
-    void viper(viper_ptr v) { m_viper = v; }
+    void viper(std::shared_ptr<Viper> v) { m_viper = v; }
 
   private:
     std::string m_name;
     sf::Color m_color;
-    controller_ptr m_controller;
+    std::shared_ptr<Controller> m_controller;
     score_t m_score;
-    viper_ptr m_viper;
+    std::shared_ptr<Viper> m_viper;
 };
-
-using player_ptr = std::shared_ptr<Player>;
 
 }  // namespace VVipers
 #endif

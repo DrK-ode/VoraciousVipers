@@ -9,6 +9,7 @@
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
+#include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 

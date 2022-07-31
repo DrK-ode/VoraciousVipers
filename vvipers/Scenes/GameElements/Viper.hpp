@@ -123,7 +123,5 @@ class Viper : public GameObject,
     sf::Color m_color;
 };
 
-using viper_ptr = std::shared_ptr<Viper>;
-
 }  // namespace VVipers
 #endif  // VVIPERS_VIPER_HPP

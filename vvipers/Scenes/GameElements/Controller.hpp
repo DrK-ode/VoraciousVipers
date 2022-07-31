@@ -21,8 +21,6 @@ class Controller {
     virtual SteeringCommand control() const { return SteeringCommand(); }
 };
 
-using controller_ptr = std::shared_ptr<Controller>;
-
 class KeyboardController : public Controller {
   public:
     struct KeyboardControls {

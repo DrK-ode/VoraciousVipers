@@ -1,7 +1,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
-#include <typeinfo>
 #include <memory>
+#include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/Arena.hpp>
 #include <vvipers/Scenes/Collision/Bodypart.hpp>
@@ -9,8 +9,8 @@
 #include <vvipers/Scenes/GameElements/Player.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
-#include <vvipers/Scenes/PauseScreen.hpp>
 #include <vvipers/Scenes/GameOverScreen.hpp>
+#include <vvipers/Scenes/PauseScreen.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
@@ -35,14 +35,14 @@ Arena::Arena(Game& game) : m_game(game) {
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
 
     // Only create one pause screen so that it can be reused
-    m_pauseScene = std::shared_ptr<Scene>( new PauseScreen(m_game) );
+    m_pauseScene = std::make_shared<PauseScreen>(m_game);
 
     // auto controllerM = addMouseController();
     // auto viperM = addViper();
     // auto playerM = addPlayer("PlayerM", controllerM, viperM);
 
-    m_walls = new Walls(gameSize);
-    m_collisionDetector.registerCollidable(m_walls);
+    m_walls = std::make_unique<Walls>(gameSize);
+    m_collisionDetector.registerCollidable(m_walls.get());
 
     auto controllerK = createKeyboardController();
     auto viperK = addViper();
@@ -67,7 +67,7 @@ controller_ptr Arena::createMouseController() {
     Vec2 windowSize = m_game.getWindow().getSize();
     sf::Mouse::setPosition(sf::Vector2i(windowSize.x / 2, windowSize.y / 2),
                            m_game.getWindow());
-    return addController( controller_ptr(new MouseController(m_game.getWindow())));
+    return addController(std::make_shared<MouseController>(m_game.getWindow()));
 }
 
 controller_ptr Arena::createKeyboardController() {
@@ -75,26 +75,26 @@ controller_ptr Arena::createKeyboardController() {
     keys.left = sf::Keyboard::A;
     keys.right = sf::Keyboard::D;
     keys.boost = sf::Keyboard::Space;
-    return addController(controller_ptr(new KeyboardController(keys)));
+    return addController(std::make_shared<KeyboardController>(keys));
 }
 
 player_ptr Arena::addPlayer(const std::string& name, controller_ptr controller,
-                         viper_ptr viper) {
-    auto player = player_ptr(new Player(name, controller, viper));
+                            viper_ptr viper) {
+    auto player = make_shared<Player>(name, controller, viper);
     m_players.insert(player);
-    PlayerPanel* panel = new PlayerPanel(m_statusBarView.getSize(), player.get(),
-                                         m_game.getFontService());
-    m_playerPanels.insert(panel);
-    viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
-    player->addObserver(panel, {GameEvent::EventType::ObjectModified});
+    auto panel = std::make_unique<PlayerPanel>(
+        m_statusBarView.getSize(), player.get(), m_game.getFontService());
+    viper->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
+    player->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
+    // Container takes ownership, ptr panel is no longer valid
+    m_playerPanels.insert(std::move(panel));
     return player;
 }
 
 void Arena::deletePlayer(player_ptr player) {
-    for (auto panel : m_playerPanels) {
+    for (auto& panel : m_playerPanels) {
         if (panel->getPlayer() == player.get()) {
             m_playerPanels.erase(panel);
-            delete panel;
             break;  // Assumes only one panel per player
         }
     }
@@ -102,11 +102,12 @@ void Arena::deletePlayer(player_ptr player) {
 }
 
 viper_ptr Arena::addViper(/* startConditions? */) {
-    auto viper =
-        viper_ptr(new Viper(m_game.getOptionsService(), m_game.getTextureService()));
+    auto viper = std::make_shared<Viper>(m_game.getOptionsService(),
+                                         m_game.getTextureService());
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper.get());
+    // Container takes ownership, ptr viper is no longer valid
     m_vipers.insert(viper);
     return viper;
 }
@@ -115,21 +116,29 @@ void Arena::killViper(Viper* viper) { viper->state(GameObject::Dying); }
 
 void Arena::deleteViper(Viper* viper) {
     m_collisionDetector.deRegisterCollidable(viper);
-    m_vipers.erase(viper_ptr(viper));
+    for (auto& v : m_vipers)
+        if (v.get() == viper) {
+            m_vipers.erase(v);
+            break;
+        }
 }
 
 void Arena::addFood(Vec2 position, double diameter) {
-    Food* food = new Food(position, diameter);
+    auto food = std::make_unique<Food>(position, diameter);
     // Check for collisions
-    m_food.insert(food);
-    m_collisionDetector.registerCollidable(food);
+    m_collisionDetector.registerCollidable(food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
+    // Container takes ownership, ptr food is no longer valid
+    m_food.insert(std::move(food));
 }
 
 void Arena::deleteFood(Food* food) {
     m_collisionDetector.deRegisterCollidable(food);
-    m_food.erase(food);
-    delete food;
+    for (auto& f : m_food)
+        if (f.get() == food) {
+            m_food.erase(f);
+            break;
+        }
 }
 
 void Arena::eatFood(Viper* viper, Food* food) {
@@ -140,24 +149,24 @@ void Arena::eatFood(Viper* viper, Food* food) {
     player->score(score);
 
     PlayerPanel* panel = findPlayerPanel(player);
-    FlyingScore* flyingScore =
-        new FlyingScore(Vec2(m_game.getWindow().mapCoordsToPixel(
-                            food->getPosition(), m_gameView)),
-                        4 * viper->velocity(),
-                        Vec2(m_game.getWindow().mapCoordsToPixel(
-                            panel->getScoreTarget(), m_statusBarView)),
-                        1s, score, m_game.getFontService());
+    auto flyingScore = std::make_unique<FlyingScore>(
+        Vec2(m_game.getWindow().mapCoordsToPixel(food->getPosition(),
+                                                 m_gameView)),
+        4 * viper->velocity(),
+        Vec2(m_game.getWindow().mapCoordsToPixel(panel->getScoreTarget(),
+                                                 m_statusBarView)),
+        1s, score, m_game.getFontService());
     flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
     flyingScore->setFontSize(0.03 * m_game.getWindow().getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
     flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
-    m_flyingScores.insert(flyingScore);
+    m_flyingScores.insert(std::move(flyingScore));
 }
 
 PlayerPanel* Arena::findPlayerPanel(const Player* player) const {
-    for (auto panel : m_playerPanels)
+    for (auto& panel : m_playerPanels)
         if (player == panel->getPlayer())
-            return panel;
+            return panel.get();
     return nullptr;
 }
 
@@ -212,16 +221,16 @@ void Arena::draw() {
     auto& window = m_game.getWindow();
     window.clear(sf::Color::Black);
     window.setView(m_statusBarView);
-    for (const auto panel : m_playerPanels)
+    for (const auto& panel : m_playerPanels)
         window.draw(*panel);
     window.setView(m_gameView);
     window.draw(*m_walls);
-    for (const auto f : m_food)
+    for (const auto& f : m_food)
         window.draw(*f);
     for (const auto& v : m_vipers)
         window.draw(*v);
     window.setView(window.getDefaultView());
-    for (const auto s : m_flyingScores)
+    for (const auto& s : m_flyingScores)
         window.draw(*s);
 }
 
@@ -293,32 +302,36 @@ void Arena::handleDestruction(const DestroyEvent* event) {
     else if (typeid(*event->objectPtr) == typeid(Food))
         deleteFood((Food*)event->objectPtr);
     else if (typeid(*event->objectPtr) == typeid(FlyingScore)) {
-        delete event->objectPtr;
-        m_flyingScores.erase((FlyingScore*)event->objectPtr);
+        for (auto& fs : m_flyingScores) {
+            if (fs.get() == event->objectPtr) {
+                m_flyingScores.erase(fs);
+                break;
+            }
+        }
     } else
         throw std::runtime_error("Unknown object sending DestroyEvent.");
 }
 
 void Arena::handleObjectUpdates(Time elapsedTime) {
-    for (auto v : m_vipers)
+    for (auto& v : m_vipers)
         v->update(elapsedTime);
-    for (auto f : m_food)
+    for (auto& f : m_food)
         f->update(elapsedTime);
-    for (auto s : m_flyingScores)
+    for (auto& s : m_flyingScores)
         s->update(elapsedTime);
 }
 
-void Arena::checkForGameOver(){
-    for( auto player : m_players )
-        if( player->viper() && player->viper()->state() != GameObject::Dead )
-            return; // Keep on playing as long as someone is alive
+void Arena::checkForGameOver() {
+    for (auto player : m_players)
+        if (player->viper() && player->viper()->state() != GameObject::Dead)
+            return;  // Keep on playing as long as someone is alive
 
     setTransitionState(TransitionState::Replace);
     // This scene must be kept alive since GameOverScreen reads
     std::vector<std::shared_ptr<const Player>> players;
-    for( auto p : m_players )
+    for (auto p : m_players)
         players.push_back(p);
-    m_transitionScene = scene_ptr(new GameOverScreen(m_game, players) );
+    m_transitionScene = make_shared<GameOverScreen>(m_game, players);
 }
 
 void Arena::onNotify(const GameEvent* event) {
