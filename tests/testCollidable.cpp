@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <vector>
-#include <vvipers/Bodypart.hpp>
-#include <vvipers/Collidable.hpp>
-#include <vvipers/CollisionBody.hpp>
-#include <vvipers/ConvexBody.hpp>
-#include <vvipers/debug.hpp>
+#include <vvipers/Scenes/Collision/Bodypart.hpp>
+#include <vvipers/Scenes/Collision/Collidable.hpp>
+#include <vvipers/Scenes/Collision/CollisionBody.hpp>
+#include <vvipers/Scenes/Collision/ConvexBody.hpp>
+#include <vvipers/Utilities/debug.hpp>
 
 using namespace VVipers;
 

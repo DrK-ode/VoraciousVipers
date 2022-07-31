@@ -2,10 +2,10 @@
 
 #include <fstream>
 #include <string>
-#include <vvipers/OptionsJSON.hpp>
-#include <vvipers/Vec2.hpp>
+#include <vvipers/Engine/OptionsJSON.hpp>
+#include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/config.hpp>
-#include <vvipers/debug.hpp>
+#include <vvipers/Utilities/debug.hpp>
 
 using namespace VVipers;
 

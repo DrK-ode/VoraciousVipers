@@ -14,11 +14,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
+find_package(SFML COMPONENTS system window graphics network audio REQUIRED)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Werror")
 
 add_subdirectory(./vvipers)
 if(BUILD_TESTS)
-  # Tests depend on library built by the above subdir
+  # Tests depend on library built above (subdir)
   add_subdirectory(./tests)
 endif(BUILD_TESTS)
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vvipers/Vec2.hpp>
-#include <vvipers/VVMath.hpp>
+#include <vvipers/Utilities/Vec2.hpp>
+#include <vvipers/Utilities/VVMath.hpp>
 
 using namespace VVipers;
 

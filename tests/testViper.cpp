@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <fstream>
-#include <vvipers/OptionsJSON.hpp>
-#include <vvipers/TextureFileLoader.hpp>
-#include <vvipers/Time.hpp>
-#include <vvipers/Viper.hpp>
+#include <vvipers/Engine/OptionsJSON.hpp>
+#include <vvipers/Engine/TextureFileLoader.hpp>
+#include <vvipers/Utilities/Time.hpp>
+#include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/config.hpp>
-#include <vvipers/debug.hpp>
+#include <vvipers/Utilities/debug.hpp>
 
 using namespace VVipers;
 

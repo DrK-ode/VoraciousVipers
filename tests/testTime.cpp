@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <thread>
-#include <vvipers/Time.hpp>
+#include <vvipers/Utilities/Time.hpp>
 
 using namespace VVipers;
 using namespace std::chrono_literals;

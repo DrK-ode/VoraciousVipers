@@ -1,13 +1,13 @@
 #include <fstream>
-#include <vvipers/Arena.hpp>
+#include <vvipers/Scenes/Arena.hpp>
 #include <vvipers/config.hpp>
-#include <vvipers/debug.hpp>
-#include <vvipers/Engine.hpp>
-#include <vvipers/FontFileLoader.hpp>
-#include <vvipers/Game.hpp>
-#include <vvipers/OptionsJSON.hpp>
-#include <vvipers/Providers.hpp>
-#include <vvipers/TextureFileLoader.hpp>
+#include <vvipers/Utilities/debug.hpp>
+#include <vvipers/Engine/Engine.hpp>
+#include <vvipers/Engine/FontFileLoader.hpp>
+#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/OptionsJSON.hpp>
+#include <vvipers/Engine/Providers.hpp>
+#include <vvipers/Engine/TextureFileLoader.hpp>
 
 namespace VVipers {
 
