@@ -64,7 +64,6 @@ TEST_F(JsonTest, setTest) {
     options->setOption2DVector("extra3", Vec2(3, 33));
     options->setOptionDoubleArray("extra4", dblArray);
     options->setOption2DVectorArray("extra5", vec2Array);
-    options->write(std::cout);
     EXPECT_DOUBLE_EQ(options->getOptionDouble("extra1"), 1.0);
     EXPECT_EQ(options->getOptionString("extra2"), "two");
     EXPECT_EQ(options->getOption2DVector("extra3"), Vec2(3, 33));
