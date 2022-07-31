@@ -54,8 +54,8 @@ class Arena : public Scene, public Observer {
 
     Vec2 findFreeRect(Vec2 rectSize) const {
         return findFreeRect(rectSize,
-                            sf::Rect<double>(0, 0, m_gameView->getSize().x,
-                                             m_gameView->getSize().y));
+                            sf::Rect<double>(0, 0, m_gameView.getSize().x,
+                                             m_gameView.getSize().y));
     }
     Vec2 findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const;
     void dispenseFood();
@@ -69,8 +69,8 @@ class Arena : public Scene, public Observer {
 
     void processWindowEvents();
 
-    sf::View* m_statusBarView;
-    sf::View* m_gameView;
+    sf::View m_statusBarView;
+    sf::View m_gameView;
     Game& m_game;
     std::shared_ptr<Scene> m_transitionScene;
     std::shared_ptr<Scene> m_pauseScene;

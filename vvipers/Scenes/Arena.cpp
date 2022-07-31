@@ -22,18 +22,16 @@ Arena::Arena(Game& game) : m_game(game) {
     const sf::Vector2f statusBarRelSize(0.33, 0.1);
     const sf::Vector2f statusBarSize(windowSize.x * statusBarRelSize.x,
                                      windowSize.y * statusBarRelSize.y);
-    m_statusBarView = new sf::View();
-    m_statusBarView->setSize(statusBarSize);
-    m_statusBarView->setCenter(statusBarSize / 2);
-    m_statusBarView->setViewport(sf::FloatRect({0.f, 0.f}, statusBarRelSize));
+    m_statusBarView.setSize(statusBarSize);
+    m_statusBarView.setCenter(statusBarSize / 2);
+    m_statusBarView.setViewport(sf::FloatRect({0.f, 0.f}, statusBarRelSize));
 
     const sf::Vector2f gameRelSize(1, 1 - statusBarRelSize.y);
     const sf::Vector2f gameSize(windowSize.x * gameRelSize.x,
                                 windowSize.y * gameRelSize.y);
-    m_gameView = new sf::View();
-    m_gameView->setSize(gameSize);
-    m_gameView->setCenter(gameSize / 2);
-    m_gameView->setViewport(
+    m_gameView.setSize(gameSize);
+    m_gameView.setCenter(gameSize / 2);
+    m_gameView.setViewport(
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
 
     // Only create one pause screen so that it can be reused
@@ -52,10 +50,7 @@ Arena::Arena(Game& game) : m_game(game) {
     playerK->color(sf::Color::Red);
 }
 
-Arena::~Arena() {
-    delete m_statusBarView;
-    delete m_gameView;
-}
+Arena::~Arena() {}
 
 controller_ptr Arena::addController(controller_ptr controller) {
     m_controllers.insert(controller);
@@ -87,7 +82,7 @@ player_ptr Arena::addPlayer(const std::string& name, controller_ptr controller,
                          viper_ptr viper) {
     auto player = player_ptr(new Player(name, controller, viper));
     m_players.insert(player);
-    PlayerPanel* panel = new PlayerPanel(m_statusBarView->getSize(), player.get(),
+    PlayerPanel* panel = new PlayerPanel(m_statusBarView.getSize(), player.get(),
                                          m_game.getFontService());
     m_playerPanels.insert(panel);
     viper->addObserver(panel, {GameEvent::EventType::ObjectModified});
@@ -147,10 +142,10 @@ void Arena::eatFood(Viper* viper, Food* food) {
     PlayerPanel* panel = findPlayerPanel(player);
     FlyingScore* flyingScore =
         new FlyingScore(Vec2(m_game.getWindow().mapCoordsToPixel(
-                            food->getPosition(), *m_gameView)),
+                            food->getPosition(), m_gameView)),
                         4 * viper->velocity(),
                         Vec2(m_game.getWindow().mapCoordsToPixel(
-                            panel->getScoreTarget(), *m_statusBarView)),
+                            panel->getScoreTarget(), m_statusBarView)),
                         1s, score, m_game.getFontService());
     flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
     flyingScore->setFontSize(0.03 * m_game.getWindow().getSize().y, 1.0);
@@ -216,10 +211,10 @@ void Arena::dispenseFood() {
 void Arena::draw() {
     auto& window = m_game.getWindow();
     window.clear(sf::Color::Black);
-    window.setView(*m_statusBarView);
+    window.setView(m_statusBarView);
     for (const auto panel : m_playerPanels)
         window.draw(*panel);
-    window.setView(*m_gameView);
+    window.setView(m_gameView);
     window.draw(*m_walls);
     for (const auto f : m_food)
         window.draw(*f);
