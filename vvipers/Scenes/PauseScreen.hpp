@@ -14,9 +14,9 @@ class PauseScreen : public Scene {
   public:
     PauseScreen(Game& game);
     void draw() override;
-    void processEvents() override;
-    void update(Time elapsedTime) override;
     scene_ptr makeTransition() override;
+    void processEvents() override;
+    void update(Time elapsedTime) override{};
 
   private:
     Game& m_game;
@@ -27,4 +27,4 @@ class PauseScreen : public Scene {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_PAUSESCREEN_HPP
+#endif  // VVIPERS_SCENES_PAUSESCREEN_HPP

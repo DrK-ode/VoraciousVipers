@@ -98,19 +98,9 @@ void Viper::boost(double relativeSpeedIncrease) {
 }
 
 void Viper::die(const Time& elapsedTime) {
-    static const Time lengthAtDeath(m_temporalLength);
-    static Time timeSinceDeath(0);
-    static const double secondsItTakesToDie = std::sqrt(toSeconds(m_temporalLength));
-    static const Time k_constDecay(0.1);
-    static const double k_expDecay =
-        std::log(lengthAtDeath / k_constDecay) / secondsItTakesToDie;
-
-    m_temporalLength =
-        lengthAtDeath * std::exp(-k_expDecay * toSeconds(timeSinceDeath)) -
-        k_constDecay;
+    m_temporalLength -= 4 * elapsedTime;
     if (m_temporalLength <= seconds(0))
         state(Dead);
-    timeSinceDeath += elapsedTime;
 }
 
 void Viper::addGrowth(const Time& g) { m_growth += g; }

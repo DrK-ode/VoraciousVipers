@@ -1,13 +1,16 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
+#include <algorithm>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Scenes/GameOverScreen.hpp>
+#include <vvipers/Scenes/FlashScreen.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-GameOverScreen::GameOverScreen(Game& game, std::vector<std::shared_ptr<const Player>> players)
+GameOverScreen::GameOverScreen(
+    Game& game, std::vector<std::shared_ptr<const Player>> players)
     : m_game(game), m_players(players) {
     Vec2 size = m_game.getWindow().getSize();
     m_gameOverText.setFont(*m_game.getFontService().getDefaultFont());
@@ -22,7 +25,7 @@ GameOverScreen::GameOverScreen(Game& game, std::vector<std::shared_ptr<const Pla
     m_gameOverText.setOutlineThickness(0.005 * size.y);
 
     m_scoreText.setFont(*m_game.getFontService().getDefaultFont());
-    m_scoreText.setString("Scores:");
+    m_scoreText.setString(getScoreString(players));
     m_scoreText.setCharacterSize(0.5 * m_gameOverText.getCharacterSize());
     m_scoreText.setPosition(m_gameOverText.getPosition() +
                             Vec2(0, m_gameOverText.getCharacterSize()));
@@ -39,15 +42,26 @@ GameOverScreen::GameOverScreen(Game& game, std::vector<std::shared_ptr<const Pla
     setTransparent(true);
 }
 
+std::string GameOverScreen::getScoreString(
+    std::vector<std::shared_ptr<const Player>>& players) {
+    std::sort(players.begin(), players.end(),
+              [](const auto& lhs, const auto& rhs) {
+                  return lhs->score() < rhs->score();
+              });
+    std::stringstream ss;
+    for (auto p = players.cbegin(); p != players.cend(); ++p) {
+        if (p != players.cbegin())
+            ss << '\n';
+        ss << (*p)->name() << ": " << (*p)->score() << " (Viper level "
+           << Player::calculateLevel((*p)->score()) << ")";
+    }
+    return std::move(ss.str());
+}
+
 void GameOverScreen::draw() {
     m_game.getWindow().draw(m_background);
     m_game.getWindow().draw(m_gameOverText);
     m_game.getWindow().draw(m_scoreText);
-}
-
-scene_ptr GameOverScreen::makeTransition() {
-    // Setup state for next time the pause screen is invoked
-    return scene_ptr(nullptr);
 }
 
 void GameOverScreen::update(Time elapsedTime) {}
@@ -58,7 +72,7 @@ void GameOverScreen::processEvents() {
         if (event.type == sf::Event::Closed) {
             setTransitionState(TransitionState::Quit);
         } else if (event.type == sf::Event::KeyPressed) {
-            setTransitionState(TransitionState::Return);
+            setTransitionState(TransitionState::Default);
             break;
         }
     }

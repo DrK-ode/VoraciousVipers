@@ -11,7 +11,7 @@ class Game;
 
 class FlashScreen : public Scene {
   public:
-    FlashScreen(Game& game, Time duration);
+    FlashScreen(Game& game, Time duration = seconds(2));
     void draw() override;
     void processEvents() override;
     void update(Time elapsedTime) override;

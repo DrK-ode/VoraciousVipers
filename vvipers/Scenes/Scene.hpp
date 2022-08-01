@@ -11,15 +11,28 @@ using scene_ptr = std::shared_ptr<Scene>;
 
 class Scene {
   public:
+    /** Whether to update the Scene or not (regardless if it is on the top of
+     * the stack) **/
     enum class SceneState { Running, Paused };
-    enum class TransitionState { Continue, Replace, Return, Spawn, Quit };
+    /** Different ways of transitioning **/
+    enum class TransitionState {
+        Clear,     // Pop the whole stack and push the new Scene.
+        Default,   // Pop the whole stack and push the default Scene.
+        Continue,  // No transition, keep going.
+        JumpTo,    // Pop until the chosen Scene is reached.
+        Replace,   // Pop this Scene and push the new Scene.
+        Return,    //  Pop this Scene.
+        Spawn,     // Push the new Scene.
+        Quit       // Pop all Scenes.
+    };
     // Game holds the window and other single instance objects, e.g., managers.
     Scene();
     virtual void draw() = 0;
     virtual void processEvents() = 0;
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
-    virtual scene_ptr makeTransition() = 0;
+    virtual scene_ptr makeTransition() { return scene_ptr(); }
+    virtual void onReactivation();
     SceneState getSceneState() const { return m_sceneState; }
     void setSceneState(SceneState state) { m_sceneState = state; }
     TransitionState getTransitionState() const { return m_transitionState; }

@@ -323,10 +323,10 @@ void Arena::handleObjectUpdates(Time elapsedTime) {
 
 void Arena::checkForGameOver() {
     for (auto player : m_players)
-        if (player->viper() && player->viper()->state() != GameObject::Dead)
+        if (player->viper() && player->viper()->state() == GameObject::Alive)
             return;  // Keep on playing as long as someone is alive
 
-    setTransitionState(TransitionState::Replace);
+    setTransitionState(TransitionState::Spawn);
     // This scene must be kept alive since GameOverScreen reads
     std::vector<std::shared_ptr<const Player>> players;
     for (auto p : m_players)

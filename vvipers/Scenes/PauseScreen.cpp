@@ -44,12 +44,10 @@ void PauseScreen::draw() {
 }
 
 scene_ptr PauseScreen::makeTransition() {
-    // Setup state for next time the pause screen is invoked
+    // Setup for reuse
     setTransitionState(TransitionState::Continue);
-    return scene_ptr(nullptr);
+    return scene_ptr();
 }
-
-void PauseScreen::update(Time elapsedTime) {}
 
 void PauseScreen::processEvents() {
     sf::Event event;

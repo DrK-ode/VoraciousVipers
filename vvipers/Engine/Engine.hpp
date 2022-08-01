@@ -15,7 +15,7 @@ class Engine {
   private:
     void draw();
     void gameLoop(double FPS);
-    void loadFirstScene();
+    scene_ptr createDefaultScene();
     void sceneSelection();
     void update(Time elapsedTime);
 
