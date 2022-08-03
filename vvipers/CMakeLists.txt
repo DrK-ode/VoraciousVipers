@@ -7,6 +7,7 @@ set(INC_FILES
     Engine/Game.hpp
     Engine/OptionsJSON.hpp
     Engine/Providers.hpp
+    Engine/Scene.hpp
     Engine/TextureFileLoader.hpp
     Scenes/ArenaScene.hpp
     Scenes/Collision/Bodypart.hpp
@@ -28,7 +29,6 @@ set(INC_FILES
     Scenes/MainMenuScene.hpp
     Scenes/MenuScene.hpp
     Scenes/PauseScene.hpp
-    Scenes/Scene.hpp
     Scenes/UIElements/Controller.hpp
     Scenes/UIElements/FlyingScore.hpp
     Scenes/UIElements/MenuButton.hpp
@@ -46,6 +46,7 @@ set(SRC_FILES
     Engine/FontFileLoader.cpp
     Engine/Game.cpp
     Engine/OptionsJSON.cpp
+    Engine/Scene.cpp
     Engine/TextureFileLoader.cpp
     Scenes/ArenaScene.cpp
     Scenes/Collision/Bodypart.cpp
@@ -67,7 +68,6 @@ set(SRC_FILES
     Scenes/MainMenuScene.cpp
     Scenes/MenuScene.cpp
     Scenes/PauseScene.cpp
-    Scenes/Scene.cpp
     Scenes/UIElements/Controller.cpp
     Scenes/UIElements/FlyingScore.cpp
     Scenes/UIElements/MenuButton.cpp

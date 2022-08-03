@@ -17,7 +17,7 @@
 #include <vvipers/Scenes/GameElements/Player.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
 #include <vvipers/Utilities/Time.hpp>
-#include <vvipers/Scenes/Scene.hpp>
+#include <vvipers/Engine/Scene.hpp>
 #include <vvipers/Engine/Game.hpp>
 
 namespace VVipers {

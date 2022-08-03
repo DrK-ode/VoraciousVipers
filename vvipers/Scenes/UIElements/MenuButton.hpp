@@ -19,8 +19,10 @@ class MenuButton : public MenuItem {
     void setLabel(const std::string& label);
     void setBackgroundColor(sf::Color color) {m_box.setFillColor(color);}
     void setBorderColor(sf::Color color) {m_box.setOutlineColor(color);}
+    void setFontRatio(double ratio){m_fontRatio = ratio;}
 
   private:
+    double m_fontRatio;
     sf::RectangleShape m_box;
     sf::Text m_text;
 };

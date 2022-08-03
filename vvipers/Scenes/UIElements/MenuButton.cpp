@@ -3,10 +3,10 @@
 
 namespace VVipers {
 
-MenuButton::MenuButton() {
+MenuButton::MenuButton() : m_fontRatio(0.8) {
     m_text.setFillColor(sf::Color::Magenta);
-    m_box.setFillColor(sf::Color::Blue);
-    m_box.setOutlineColor(sf::Color::Red);
+    m_box.setFillColor(sf::Color::Transparent);
+    m_box.setOutlineColor(sf::Color::Transparent);
 }
 
 void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -16,17 +16,16 @@ void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void MenuButton::update(Time elapsedTime) {
     if (isSelected())
-        m_text.setFillColor(sf::Color::Red);
+        m_box.setOutlineColor( m_text.getFillColor() );
     else
-        m_text.setFillColor(sf::Color::Magenta);
+        m_box.setOutlineColor(sf::Color::Transparent);
 }
 
 void MenuButton::onGeometryChange() {
     auto size = getSize();
     auto position = getPosition();
-    tagDebug("position: ", position, ", size: ", size);
 
-    m_text.setCharacterSize(0.8 * size.y);
+    m_text.setCharacterSize(m_fontRatio * size.y);
     auto textlb = m_text.getLocalBounds();
     m_text.setOrigin(textlb.left + 0.5 * textlb.width,
                      textlb.top + 0.5 * textlb.height);

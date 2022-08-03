@@ -15,9 +15,9 @@ void Engine::startGame() {
     if (FPS == 0.)
         FPS = 60.0;  // Default
 
-    if (m_scenes.empty()) {
+    if (getSceneStack().empty()) {
         if (m_defaultScene) {
-            m_scenes.push_back(m_defaultScene);
+            getSceneStack().push_back(m_defaultScene);
         } else {
             tagError("No scene loaded to start the game.");
         }
@@ -40,7 +40,7 @@ void Engine::gameLoop(double FPS) {
     clock.start();
     bool firstFrame = true;
     // Main game loop
-    while (!m_scenes.empty()) {
+    while (!getSceneStack().empty()) {
         tickDuration = clock.restart();
         // If not first tick
         if (!firstFrame) {
@@ -76,7 +76,7 @@ void Engine::gameLoop(double FPS) {
             update(tickDuration);
         }
         updateDuration = clock.split();
-        m_scenes.back()->processEvents();
+        getSceneStack().back()->processEvents();
         eventDuration = clock.split();
         draw();
         drawDuration = clock.split();
@@ -93,73 +93,77 @@ void Engine::gameLoop(double FPS) {
 }
 
 void Engine::sceneSelection() {
-    switch (m_scenes.back()->getTransitionState()) {
+    switch (getSceneStack().back()->getTransitionState()) {
         case Scene::TransitionState::Clear: {
-            auto nextScene = m_scenes.back()->makeTransition();
-            m_scenes.clear();
-            m_scenes.push_back(std::move(nextScene));
+            auto nextScene = getSceneStack().back()->makeTransition();
+            getSceneStack().clear();
+            getSceneStack().push_back(std::move(nextScene));
             break;
         }
         case Scene::TransitionState::Continue: {
             break;
         }
         case Scene::TransitionState::Default: {
-            m_scenes.clear();
+            getSceneStack().clear();
             if (m_defaultScene) {
-                m_scenes.push_back(m_defaultScene);
+                getSceneStack().push_back(m_defaultScene);
                 m_defaultScene->onReactivation();
                 break;
             }
             case Scene::TransitionState::JumpTo: {
-                auto nextScene = m_scenes.back()->makeTransition();
-                while (m_scenes.back() != nextScene)
-                    m_scenes.pop_back();
-                if (!m_scenes.empty())
-                    m_scenes.back()->onReactivation();
+                auto nextScene = getSceneStack().back()->makeTransition();
+                while (getSceneStack().back() != nextScene)
+                    getSceneStack().pop_back();
+                if (!getSceneStack().empty())
+                    getSceneStack().back()->onReactivation();
                 break;
             }
             case Scene::TransitionState::Replace: {
-                auto nextScene = m_scenes.back()->makeTransition();
-                m_scenes.pop_back();
-                m_scenes.push_back(std::move(nextScene));
+                auto nextScene = getSceneStack().back()->makeTransition();
+                getSceneStack().pop_back();
+                getSceneStack().push_back(std::move(nextScene));
                 break;
             }
             case Scene::TransitionState::Return: {
-                m_scenes.back()->makeTransition();  // Ignore return value
-                m_scenes.pop_back();
-                if (!m_scenes.empty())
-                    m_scenes.back()->onReactivation();
+                getSceneStack()
+                    .back()
+                    ->makeTransition();  // Ignore return value
+                getSceneStack().pop_back();
+                if (!getSceneStack().empty())
+                    getSceneStack().back()->onReactivation();
                 break;
             }
             case Scene::TransitionState::Spawn: {
-                m_scenes.push_back(
-                    std::move(m_scenes.back()->makeTransition()));
+                getSceneStack().push_back(
+                    std::move(getSceneStack().back()->makeTransition()));
                 break;
             }
             case Scene::TransitionState::Quit: {
-                m_scenes.back()->makeTransition();  // Ignore return value
-                m_scenes.clear();
+                getSceneStack()
+                    .back()
+                    ->makeTransition();  // Ignore return value
+                getSceneStack().clear();
             }
         }
     }
 }
 
 void Engine::update(Time elapsedTime) {
-    for (auto& scene : m_scenes)
+    for (auto& scene : getSceneStack())
         if (scene->getSceneState() == Scene::SceneState::Running)
             scene->update(elapsedTime);
 }
 
 void Engine::draw() {
     m_game->getWindow().clear(sf::Color::Black);
-    auto sceneIter = m_scenes.rbegin();
+    auto sceneIter = getSceneStack().rbegin();
     while ((*sceneIter)->isTransparent() &&
-           std::next(sceneIter) != m_scenes.rend())
+           std::next(sceneIter) != getSceneStack().rend())
         ++sceneIter;
-    while (sceneIter != m_scenes.rbegin()) {
+    while (sceneIter != getSceneStack().rbegin()) {
         (*sceneIter--)->draw();
     }
-    m_scenes.back()->draw();
+    getSceneStack().back()->draw();
     m_game->getWindow().display();
 }
 

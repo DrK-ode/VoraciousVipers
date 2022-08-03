@@ -10,7 +10,6 @@
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/config.hpp>
-#include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
@@ -28,7 +27,7 @@ void startGame() {
     auto firstScene = std::make_shared<FlashScreenScene>(*game.get());
     auto size = game->getWindow().getSize();
     // Center and size in original coordinates
-    sf::View menuView(Vec2(0.25*size), 0.5*Vec2(size.x, size.y));
+    sf::View menuView(Vec2(0.25 * size), 0.5 * Vec2(size.x, size.y));
     // Relative position and size in screen coordinates
     menuView.setViewport(sf::FloatRect(0.25, 0.25, 0.5, 0.5));
     auto mainMenu = std::make_shared<MainMenuScene>(*game.get(), menuView);

@@ -4,7 +4,7 @@
 #include <deque>
 #include <memory>
 #include <vvipers/Engine/Game.hpp>
-#include <vvipers/Scenes/Scene.hpp>
+#include <vvipers/Engine/Scene.hpp>
 
 namespace VVipers {
 
@@ -14,7 +14,7 @@ class Engine {
     void setDefaultScene(scene_ptr defaultScene) {
         m_defaultScene = defaultScene;
     }
-    void loadScene( scene_ptr scene ){ m_scenes.push_back(scene);}
+    void loadScene( scene_ptr scene ){ getSceneStack().push_back(scene);}
     void startGame();
 
   private:
@@ -22,9 +22,9 @@ class Engine {
     void gameLoop(double FPS);
     void sceneSelection();
     void update(Time elapsedTime);
+    scenestack_t& getSceneStack() {return m_game->m_scenes;}
 
     std::unique_ptr<Game> m_game;
-    std::deque<scene_ptr> m_scenes;
     scene_ptr m_defaultScene;
 };
 

@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <vvipers/Scenes/Scene.hpp>
+#include <vvipers/Engine/Scene.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {

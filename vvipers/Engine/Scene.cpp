@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/Scene.hpp>
+#include <vvipers/Engine/Scene.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {

@@ -6,21 +6,15 @@
 namespace VVipers {
 
 MenuScene::MenuScene(Game& game, sf::View view)
-    : m_game(game),
-      m_view(view),
-      m_selected(m_menuItems.end()),
-      m_layout(Vertical) {}
+    : m_game(game), m_view(view), m_selectedIndex(-1), m_layout(Vertical) {}
 
-void MenuScene::addItem(MenuItem* menuItem) {
-    m_menuItems.push_back(menuItem);
-    // If the vector reallocates the iterator is invalidated
-    m_selected = m_menuItems.end();
-}
+void MenuScene::addItem(MenuItem* menuItem) { m_menuItems.push_back(menuItem); }
 
-void MenuScene::delItem(int index) {
+void MenuScene::delItem(size_t index) {
     m_menuItems.erase(m_menuItems.begin() + index);
     // If the iterator points to the object erased or beyond, it is invalidated
-    m_selected = m_menuItems.end();
+    if (m_selectedIndex >= index)
+        --m_selectedIndex;
 }
 
 void MenuScene::draw() {
@@ -49,72 +43,63 @@ void MenuScene::distributeMenuItems() {
     }
 }
 
-const MenuItem* MenuScene::getSelected() const {
-    if (m_selected == m_menuItems.end())
-        return nullptr;
-    return *m_selected;
-}
-
 void MenuScene::handleKeyPressed(const sf::Event& event) {
     if ((m_layout == Vertical && event.key.code == sf::Keyboard::Up) or
         (m_layout == Horizontal && event.key.code == sf::Keyboard::Left)) {
-        auto oldSelected = m_selected;
-        if (m_selected == m_menuItems.begin())
-            m_selected = m_menuItems.end();
-        --m_selected;
-        swapSelected(oldSelected, m_selected);
+        auto oldSelectedIndex = m_selectedIndex;
+        if (m_selectedIndex == 0)
+            m_selectedIndex = m_menuItems.size();
+        --m_selectedIndex;
+        swapSelected(oldSelectedIndex, m_selectedIndex);
     } else if ((m_layout == Vertical && event.key.code == sf::Keyboard::Down) or
                (m_layout == Horizontal &&
                 event.key.code == sf::Keyboard::Right)) {
-        auto oldSelected = m_selected;
-        if (oldSelected == m_menuItems.end())
-            m_selected = m_menuItems.begin();
+        auto oldSelectedIndex = m_selectedIndex;
+        if (oldSelectedIndex >= m_menuItems.size())
+            m_selectedIndex = 0;
         else
-            ++m_selected;
-        if (m_selected == m_menuItems.end())
-            m_selected = m_menuItems.begin();
-        swapSelected(oldSelected, m_selected);
+            ++m_selectedIndex;
+        if (m_selectedIndex == m_menuItems.size())
+            m_selectedIndex = 0;
+        swapSelected(oldSelectedIndex, m_selectedIndex);
     } else if (event.key.code == sf::Keyboard::Return) {
-        if (m_selected != m_menuItems.end())
-            onMenuItemActivation(*m_selected);
+        if (m_selectedIndex < m_menuItems.size())
+            onMenuItemActivation(m_menuItems[m_selectedIndex]);
     } else if (event.key.code == sf::Keyboard::Escape) {
         onReturn();
     } else {
-        if (m_selected != m_menuItems.end())
-            (*m_selected)->handleEvent(event);
+        if (m_selectedIndex < m_menuItems.size())
+            m_menuItems[m_selectedIndex]->handleEvent(event);
     }
 }
 
 void MenuScene::handleMouseMoved(const sf::Event& event) {
-    auto oldSelected = m_selected;
+    auto oldSelectedIndex = m_selectedIndex;
     auto& window = m_game.getWindow();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_view);
-    tagDebug(localCoord);
     auto pointedAt = menuItemAtCoords(localCoord);
-    tagDebug( pointedAt, " ", m_menuItems[0], " ", m_menuItems[1]);
-    for (auto menuItemIter = m_menuItems.begin();
-         menuItemIter != m_menuItems.end(); ++menuItemIter) {
-        if (*menuItemIter == pointedAt) {
-            m_selected = menuItemIter;
+    for (size_t i = 0; i < m_menuItems.size(); ++i) {
+        if (m_menuItems[i] == pointedAt) {
+            m_selectedIndex = i;
             break;
         }
     }
-    swapSelected(oldSelected, m_selected);
+    swapSelected(oldSelectedIndex, m_selectedIndex);
 }
 
 void MenuScene::handleMouseButtonPressed(const sf::Event& event) {
     auto& window = m_game.getWindow();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_view);
-    if (m_selected != m_menuItems.end() and
-        *m_selected == menuItemAtCoords(localCoord))
-        onMenuItemActivation(*m_selected);
+    if (m_selectedIndex < m_menuItems.size() and
+        m_menuItems[m_selectedIndex] == menuItemAtCoords(localCoord))
+        onMenuItemActivation(m_menuItems[m_selectedIndex]);
 }
 
 void MenuScene::handleTextEntered(const sf::Event& event) {
-    if (m_selected != m_menuItems.end())
-        (*m_selected)->handleEvent(event);
+    if (m_selectedIndex < m_menuItems.size())
+        m_menuItems[m_selectedIndex]->handleEvent(event);
 }
 
 void MenuScene::processEvents() {
@@ -148,21 +133,28 @@ void MenuScene::processEvents() {
 }
 
 MenuItem* MenuScene::menuItemAtCoords(Vec2 coords) const {
-    for (auto menuItem : m_menuItems){
-        auto lb = menuItem->getLocalBounds();
-        tagDebug( coords, " ", lb.left, " ", lb.top, " ", lb.width, " ", lb.height);
+    for (auto menuItem : m_menuItems)
         if (menuItem->contains(coords))
             return menuItem;
-    }
     return nullptr;
 }
 
-void MenuScene::swapSelected(menuItemContainer::iterator oldSelected,
-                             menuItemContainer::iterator newSelected) {
-    if (oldSelected != m_menuItems.end())
-        (*oldSelected)->setSelected(false);
-    if (newSelected != m_menuItems.end())
-        (*newSelected)->setSelected(true);
+const MenuItem* MenuScene::getSelected() const {
+    if (m_selectedIndex < m_menuItems.size())
+        return m_menuItems[m_selectedIndex];
+    return nullptr;
+}
+
+void MenuScene::setSelectedIndex(size_t index) {
+    swapSelected(m_selectedIndex, index);
+    m_selectedIndex = index;
+}
+
+void MenuScene::swapSelected(size_t oldSelectedIndex, size_t newSelectedIndex) {
+    if (oldSelectedIndex < m_menuItems.size())
+        m_menuItems[oldSelectedIndex]->setSelected(false);
+    if (newSelectedIndex < m_menuItems.size())
+        m_menuItems[newSelectedIndex]->setSelected(true);
 }
 
 /** Default is to update all the menu items **/
@@ -176,7 +168,7 @@ void MenuScene::updateMenuItems(Time elapsedTime) {
 void MenuScene::onReactivation() {
     setSceneState(Scene::SceneState::Running);
     setTransitionState(TransitionState::Continue);
-    m_selected = m_menuItems.end();
+    m_selectedIndex = 0;
 }
 
 }  // namespace VVipers

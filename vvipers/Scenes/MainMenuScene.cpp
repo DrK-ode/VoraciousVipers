@@ -14,9 +14,12 @@ MainMenuScene::MainMenuScene(Game& game, sf::View view): MenuScene(game,view), m
     m_quitButton = std::make_unique<MenuButton>();
     m_quitButton->setLabel("Quit");
     m_quitButton->setFont( *game.getFontService().getDefaultFont() );
-    m_quitButton->setBackgroundColor(sf::Color::Green);
     addItem(m_quitButton.get());
 
+    setSelectedIndex(0);
+    setLayoutOrientation(Horizontal);
+    m_playButton->setFontRatio(0.1);
+    m_quitButton->setFontRatio(0.1);
     distributeMenuItems();
 }
 
