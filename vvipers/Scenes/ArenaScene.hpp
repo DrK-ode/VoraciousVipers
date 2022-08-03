@@ -1,24 +1,24 @@
 #ifndef VVIPERS_SCENES_ARENASCENE_HPP
 #define VVIPERS_SCENES_ARENASCENE_HPP
 
-#include <memory>
-#include <vector>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/View.hpp>
+#include <memory>
+#include <vector>
+#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/Scene.hpp>
 #include <vvipers/Scenes/Collision/CollisionDetector.hpp>
-#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
 #include <vvipers/Scenes/GameElements/Food.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
-#include <vvipers/Scenes/UIElements/Controller.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
+#include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
+#include <vvipers/Scenes/UIElements/Controller.hpp>
+#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
+#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
 #include <vvipers/Utilities/Time.hpp>
-#include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Engine/Game.hpp>
 
 namespace VVipers {
 
@@ -30,7 +30,7 @@ using walls_ptr = std::unique_ptr<Walls>;
 
 class ArenaScene : public Scene, public Observer {
   public:
-    ArenaScene(const Game& game);
+    ArenaScene(Game& game);
     ~ArenaScene();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
@@ -39,13 +39,14 @@ class ArenaScene : public Scene, public Observer {
     std::shared_ptr<Scene> makeTransition() override;
 
   private:
-    controller_ptr addController(controller_ptr controller);
-    void deleteController(controller_ptr controller);
-    controller_ptr createMouseController();
-    controller_ptr createKeyboardController();
-
-    player_ptr addPlayer(const std::string& name, controller_ptr controller,
-                      viper_ptr viper);
+    controller_ptr createController(
+        const KeyboardController::KeyboardControls& keys);
+    player_ptr addPlayer(const std::string& name, sf::Color color,
+                         controller_ptr controller, viper_ptr viper,
+                         sf::View view);
+    void addPlayers(std::vector<std::string>& names,
+                    std::vector<std::string>& colors, std::vector<double>& keys,
+                    std::vector<sf::View>& views);
     void deletePlayer(player_ptr player);
     viper_ptr addViper(/* Start conditions */);
     void deleteViper(Viper* viper);
@@ -76,9 +77,9 @@ class ArenaScene : public Scene, public Observer {
 
     void processWindowEvents();
 
-    sf::View m_statusBarView;
     sf::View m_gameView;
-    // The arena keeps partial ownership of the pause screen in order to be able to reuse it
+    // The arena keeps partial ownership of the pause screen in order to be able
+    // to reuse it
     std::shared_ptr<Scene> m_transitionScene;
     std::shared_ptr<Scene> m_pauseScene;
     // Arena and Player has joint ownership of controllers and vipers
@@ -96,4 +97,4 @@ class ArenaScene : public Scene, public Observer {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_ARENASCENE_HPP
+#endif  // VVIPERS_SCENES_ARENASCENE_HPP

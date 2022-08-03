@@ -24,6 +24,7 @@ void Engine::startGame() {
             tagError("No scene loaded to start the game.");
         }
     }
+
     gameLoop(FPS);
 }
 

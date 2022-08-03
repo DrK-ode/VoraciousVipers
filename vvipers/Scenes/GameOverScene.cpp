@@ -9,7 +9,7 @@
 
 namespace VVipers {
 
-GameOverScene::GameOverScene(const Game& game,
+GameOverScene::GameOverScene(Game& game,
                              std::vector<std::shared_ptr<const Player>> players)
     : Scene(game), m_players(players) {
     Vec2 size = getGame().getWindow().getSize();

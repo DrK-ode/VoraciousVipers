@@ -7,7 +7,7 @@
 
 namespace VVipers {
 
-PauseScene::PauseScene(const Game& game) : Scene(game) {
+PauseScene::PauseScene(Game& game) : Scene(game) {
     Vec2 size = getGame().getWindow().getSize();
     m_pauseText.setFont(*getGame().getFontService().getDefaultFont());
     m_pauseText.setString("Pause");

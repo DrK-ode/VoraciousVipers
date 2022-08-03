@@ -15,7 +15,7 @@ class Game;
 
 class GameOverScene : public Scene {
   public:
-    GameOverScene(const Game& game,
+    GameOverScene(Game& game,
                    std::vector<std::shared_ptr<const Player>> players);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void processEvent(const sf::Event& event) override;

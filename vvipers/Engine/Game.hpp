@@ -28,7 +28,9 @@ class Game {
     }
     size_t getSceneStackHeight() const {return m_scenes.size();}
     const Scene* getScene(size_t index) const {return m_scenes[index].get();}
-    const scenestack_t& getSceneStack() { return m_scenes; }
+    const scenestack_t& getSceneStack() const { return m_scenes; }
+    void setGrabMouse(bool grabbed);
+    bool isMouseGrabbed() const {return m_mouseGrabbed;}
 
   private:
     sf::RenderWindow m_window;
@@ -36,6 +38,8 @@ class Game {
     const OptionsProvider& m_optionsProvider;
     const FontProvider& m_fontProvider;
     const TextureProvider& m_textureProvider;
+
+    bool m_mouseGrabbed;
 
     friend class Engine;
 };

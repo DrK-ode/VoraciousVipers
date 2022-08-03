@@ -5,6 +5,11 @@
         "fonts": ["DroidSansMono"],
         "defaultFont": "DroidSansMono"
     },
+    "Players": {
+        "names": ["DrK", "MrTest"],
+        "keys": [71, 72, 73, 0, 3, 22],
+        "colors": ["#ff0000", "#00ff00"]
+    },
     "Viper": {
         "nominalSpeed":         100,
         "nominalSegmentWidth":  30,

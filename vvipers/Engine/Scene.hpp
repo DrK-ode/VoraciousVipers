@@ -29,7 +29,7 @@ class Scene : public sf::Drawable {
         Quit       // Pop all Scenes.
     };
 
-    Scene(const Game& game);
+    Scene(Game& game);
     virtual void processEvent(const sf::Event& event) = 0;
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
@@ -43,10 +43,10 @@ class Scene : public sf::Drawable {
     }
     bool isTransparent() const { return m_isTransparent; }
     void setTransparent(bool transparent) { m_isTransparent = transparent; }
-    const Game& getGame() const { return m_game; }
+    Game& getGame() { return m_game; }
 
   private:
-    const Game& m_game;
+    Game& m_game;
     SceneState m_sceneState;
     TransitionState m_transitionState;
     bool m_isTransparent;

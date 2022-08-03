@@ -12,7 +12,7 @@ class Game;
 
 class PauseScene : public Scene {
   public:
-    PauseScene(const Game& game);
+    PauseScene(Game& game);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     scene_ptr makeTransition() override;
     void processEvent(const sf::Event& event) override;

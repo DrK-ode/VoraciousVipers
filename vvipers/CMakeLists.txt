@@ -38,6 +38,7 @@ set(INC_FILES
     Utilities/debug.hpp
     Utilities/Time.hpp
     Utilities/Vec2.hpp
+    Utilities/VVColor.hpp
     Utilities/VVMath.hpp
 )
 

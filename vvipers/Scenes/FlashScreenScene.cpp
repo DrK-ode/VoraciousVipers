@@ -7,7 +7,7 @@
 
 namespace VVipers {
 
-FlashScreenScene::FlashScreenScene(const Game& game, Time duration)
+FlashScreenScene::FlashScreenScene(Game& game, Time duration)
     : Scene(game), m_timeLeft(duration) {
     Vec2 size = getGame().getWindow().getSize();
     m_text.setFont(*getGame().getFontService().getDefaultFont());

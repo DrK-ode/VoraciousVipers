@@ -10,7 +10,7 @@ namespace VVipers {
 
 class MainMenuScene : public MenuScene {
   public:
-    MainMenuScene(const Game& game, sf::View view);
+    MainMenuScene(Game& game);
     void onMenuItemActivation(MenuItem* menuItem) override;
     scene_ptr makeTransition() override;
 

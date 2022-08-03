@@ -5,26 +5,26 @@
 
 namespace VVipers {
 
-PlayerPanel::PlayerPanel(Vec2 size, const Player* player,
+PlayerPanel::PlayerPanel(sf::View view, const Player* player,
                          const FontProvider& fontProvider)
-    : m_size(size), m_player(player), m_score(player->score()) {
+    : m_view(view), m_player(player), m_score(player->score()) {
     m_font = fontProvider.getDefaultFont();
     // Set text properties
     m_nameText.setFont(*m_font);
-    const int characterSize = 0.25 * size.y;  // px
+    const int characterSize = 0.25 * m_view.getSize().y;  // px
     m_nameText.setCharacterSize(characterSize);
     // Set the name string and the position (dependent on string size)
     updateNameString();
     // Set positions
-    Vec2 spacing = Vec2(0.025, 0.1) * m_size;
+    Vec2 spacing = Vec2(0.025, 0.1) * Vec2(m_view.getSize());
     Vec2 boostBarPos = spacing;
-    Vec2 boostBarSize = Vec2(0.05, 0.8) * m_size;
+    Vec2 boostBarSize = Vec2(0.05, 0.8) * Vec2(m_view.getSize());
     Vec2 scoreBarSize =
-        Vec2(m_size.x - 3 * spacing.x - boostBarSize.x, 0.25 * m_size.y);
+        Vec2(m_view.getSize().x - 3 * spacing.x - boostBarSize.x, 0.25 * m_view.getSize().y);
     Vec2 namePosition = boostBarPos + Vec2(spacing.x + boostBarSize.x,
                                            m_nameText.getLocalBounds().top);
     Vec2 scoreBarPos =
-        Vec2(namePosition.x, m_size.y - 2 * spacing.y - scoreBarSize.y);
+        Vec2(namePosition.x, m_view.getSize().y - 2 * spacing.y - scoreBarSize.y);
     m_boostBar.setPosition(spacing);
     m_nameText.setPosition(namePosition);
     m_scoreBar.setPosition(scoreBarPos);

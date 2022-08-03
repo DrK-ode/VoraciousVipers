@@ -3,7 +3,7 @@
 
 namespace VVipers {
 
-Scene::Scene(const Game& game)
+Scene::Scene(Game& game)
     : m_game(game),
       m_sceneState(SceneState::Running),
       m_transitionState(TransitionState::Continue),

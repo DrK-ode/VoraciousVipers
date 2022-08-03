@@ -16,11 +16,14 @@ class FontProvider;
 
 class PlayerPanel : public sf::Drawable, public Observer {
   public:
-    PlayerPanel(Vec2 size, const Player* player, const FontProvider& fontProvider);
+    PlayerPanel(sf::View view, const Player* player,
+                const FontProvider& fontProvider);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
     const Player* getPlayer() const { return m_player; }
     Vec2 getScoreTarget() const;
+    sf::View getView() const { return m_view; }
+    void setView(sf::View view) { m_view = view; }
 
   private:
     void updateNameString();
@@ -28,7 +31,7 @@ class PlayerPanel : public sf::Drawable, public Observer {
     void updateScoreLimits();
     void addScore(score_t score);
 
-    Vec2 m_size;
+    sf::View m_view;
     const Player* m_player;
     score_t m_score;
     sf::Text m_nameText;

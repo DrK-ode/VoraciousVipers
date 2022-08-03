@@ -81,8 +81,7 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
     : m_boostInc(0.),
       m_boostRechargeCooldown(0.),
       m_growth(0.),
-      m_headPoint(nullptr),
-      m_color(sf::Color::Green) {
+      m_headPoint(nullptr) {
     if (!viperCfg.initialized)
         viperCfg.initialize(options, textures);
     m_boostCharge = viperCfg.boostMaxCharge;
