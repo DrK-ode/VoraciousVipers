@@ -8,29 +8,33 @@ set(INC_FILES
     Engine/OptionsJSON.hpp
     Engine/Providers.hpp
     Engine/TextureFileLoader.hpp
-    Scenes/Arena.hpp
-    Scenes/FlashScreen.hpp
-    Scenes/GameOverScreen.hpp
-    Scenes/PauseScreen.hpp
-    Scenes/Scene.hpp
+    Scenes/ArenaScene.hpp
     Scenes/Collision/Bodypart.hpp
     Scenes/Collision/Collidable.hpp
     Scenes/Collision/CollisionBody.hpp
     Scenes/Collision/CollisionDetector.hpp
     Scenes/Collision/CollisionVertices.hpp
     Scenes/Collision/ConvexBody.hpp
-    Scenes/GameElements/Controller.hpp
-    Scenes/GameElements/FlyingScore.hpp
+    Scenes/FlashScreenScene.hpp
     Scenes/GameElements/Food.hpp
     Scenes/GameElements/GameEvent.hpp
     Scenes/GameElements/GameObject.hpp
     Scenes/GameElements/Observer.hpp
     Scenes/GameElements/Player.hpp
-    Scenes/GameElements/PlayerPanel.hpp
-    Scenes/GameElements/ProgressBar.hpp
     Scenes/GameElements/Track.hpp
     Scenes/GameElements/Viper.hpp
     Scenes/GameElements/Walls.hpp
+    Scenes/GameOverScene.hpp
+    Scenes/MainMenuScene.hpp
+    Scenes/MenuScene.hpp
+    Scenes/PauseScene.hpp
+    Scenes/Scene.hpp
+    Scenes/UIElements/Controller.hpp
+    Scenes/UIElements/FlyingScore.hpp
+    Scenes/UIElements/MenuButton.hpp
+    Scenes/UIElements/MenuItem.hpp
+    Scenes/UIElements/PlayerPanel.hpp
+    Scenes/UIElements/ProgressBar.hpp
     Utilities/debug.hpp
     Utilities/Time.hpp
     Utilities/Vec2.hpp
@@ -43,29 +47,33 @@ set(SRC_FILES
     Engine/Game.cpp
     Engine/OptionsJSON.cpp
     Engine/TextureFileLoader.cpp
-    Scenes/Arena.cpp
-    Scenes/FlashScreen.cpp
-    Scenes/GameOverScreen.cpp
-    Scenes/PauseScreen.cpp
-    Scenes/Scene.cpp
+    Scenes/ArenaScene.cpp
     Scenes/Collision/Bodypart.cpp
     Scenes/Collision/Collidable.cpp
     Scenes/Collision/CollisionBody.cpp
     Scenes/Collision/CollisionDetector.cpp
     Scenes/Collision/CollisionVertices.cpp
     Scenes/Collision/ConvexBody.cpp
-    Scenes/GameElements/Controller.cpp
-    Scenes/GameElements/FlyingScore.cpp
+    Scenes/FlashScreenScene.cpp
     Scenes/GameElements/Food.cpp
     Scenes/GameElements/GameEvent.cpp
     Scenes/GameElements/GameObject.cpp
     Scenes/GameElements/Observer.cpp
     Scenes/GameElements/Player.cpp
-    Scenes/GameElements/PlayerPanel.cpp
-    Scenes/GameElements/ProgressBar.cpp
     Scenes/GameElements/Track.cpp
     Scenes/GameElements/Viper.cpp
     Scenes/GameElements/Walls.cpp
+    Scenes/GameOverScene.cpp
+    Scenes/MainMenuScene.cpp
+    Scenes/MenuScene.cpp
+    Scenes/PauseScene.cpp
+    Scenes/Scene.cpp
+    Scenes/UIElements/Controller.cpp
+    Scenes/UIElements/FlyingScore.cpp
+    Scenes/UIElements/MenuButton.cpp
+    Scenes/UIElements/MenuItem.cpp
+    Scenes/UIElements/PlayerPanel.cpp
+    Scenes/UIElements/ProgressBar.cpp
     Utilities/Vec2.cpp
 )
 

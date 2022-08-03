@@ -4,7 +4,7 @@
 #include <memory>
 #include <SFML/Graphics/Color.hpp>
 #include <string>
-#include <vvipers/Scenes/GameElements/Controller.hpp>
+#include <vvipers/Scenes/UIElements/Controller.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>

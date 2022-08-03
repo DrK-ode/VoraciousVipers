@@ -2,14 +2,14 @@
 #include <SFML/Window/Event.hpp>
 #include <algorithm>
 #include <vvipers/Engine/Game.hpp>
-#include <vvipers/Scenes/GameOverScreen.hpp>
-#include <vvipers/Scenes/FlashScreen.hpp>
+#include <vvipers/Scenes/GameOverScene.hpp>
+#include <vvipers/Scenes/FlashScreenScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-GameOverScreen::GameOverScreen(
+GameOverScene::GameOverScene(
     Game& game, std::vector<std::shared_ptr<const Player>> players)
     : m_game(game), m_players(players) {
     Vec2 size = m_game.getWindow().getSize();
@@ -42,7 +42,7 @@ GameOverScreen::GameOverScreen(
     setTransparent(true);
 }
 
-std::string GameOverScreen::getScoreString(
+std::string GameOverScene::getScoreString(
     std::vector<std::shared_ptr<const Player>>& players) {
     std::sort(players.begin(), players.end(),
               [](const auto& lhs, const auto& rhs) {
@@ -58,15 +58,15 @@ std::string GameOverScreen::getScoreString(
     return std::move(ss.str());
 }
 
-void GameOverScreen::draw() {
+void GameOverScene::draw() {
     m_game.getWindow().draw(m_background);
     m_game.getWindow().draw(m_gameOverText);
     m_game.getWindow().draw(m_scoreText);
 }
 
-void GameOverScreen::update(Time elapsedTime) {}
+void GameOverScene::update(Time elapsedTime) {}
 
-void GameOverScreen::processEvents() {
+void GameOverScene::processEvents() {
     sf::Event event;
     while (m_game.getWindow().pollEvent(event)) {
         if (event.type == sf::Event::Closed) {

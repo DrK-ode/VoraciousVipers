@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/GameElements/Controller.hpp>
+#include <vvipers/Scenes/UIElements/Controller.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 

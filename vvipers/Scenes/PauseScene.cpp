@@ -1,13 +1,13 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <vvipers/Engine/Game.hpp>
-#include <vvipers/Scenes/PauseScreen.hpp>
+#include <vvipers/Scenes/PauseScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-PauseScreen::PauseScreen(Game& game) : m_game(game) {
+PauseScene::PauseScene(Game& game) : m_game(game) {
     Vec2 size = m_game.getWindow().getSize();
     m_pauseText.setFont(*m_game.getFontService().getDefaultFont());
     m_pauseText.setString("Pause");
@@ -20,7 +20,7 @@ PauseScreen::PauseScreen(Game& game) : m_game(game) {
     m_pauseText.setOutlineThickness(0.005 * size.y);
 
     m_quitText.setFont(*m_game.getFontService().getDefaultFont());
-    m_quitText.setString("(Press 'q' to quit)");
+    m_quitText.setString("(Press 'q' to return to main menu)");
     m_quitText.setCharacterSize(0.5 * m_pauseText.getCharacterSize());
     m_quitText.setPosition(m_pauseText.getPosition() +
                            Vec2(0, m_pauseText.getCharacterSize()));
@@ -37,19 +37,19 @@ PauseScreen::PauseScreen(Game& game) : m_game(game) {
     setTransparent(true);
 }
 
-void PauseScreen::draw() {
+void PauseScene::draw() {
     m_game.getWindow().draw(m_background);
     m_game.getWindow().draw(m_pauseText);
     m_game.getWindow().draw(m_quitText);
 }
 
-scene_ptr PauseScreen::makeTransition() {
+scene_ptr PauseScene::makeTransition() {
     // Setup for reuse
     setTransitionState(TransitionState::Continue);
     return scene_ptr();
 }
 
-void PauseScreen::processEvents() {
+void PauseScene::processEvents() {
     sf::Event event;
     while (m_game.getWindow().pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -57,7 +57,7 @@ void PauseScreen::processEvents() {
         } else if (event.type == sf::Event::KeyPressed) {
             switch (event.key.code) {
                 case sf::Keyboard::Q: {
-                    setTransitionState(TransitionState::Quit);
+                    setTransitionState(TransitionState::Default);
                     break;
                 }
                 default: {

@@ -7,7 +7,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Scenes/GameElements/ProgressBar.hpp>
+#include <vvipers/Scenes/UIElements/ProgressBar.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {

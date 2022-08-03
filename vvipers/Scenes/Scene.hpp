@@ -1,5 +1,5 @@
-#ifndef VVIPERS_ENGINE_SCENE_HPP
-#define VVIPERS_ENGINE_SCENE_HPP
+#ifndef VVIPERS_SCENES_SCENE_HPP
+#define VVIPERS_SCENES_SCENE_HPP
 
 #include <memory>
 #include <vvipers/Utilities/Time.hpp>
@@ -21,11 +21,11 @@ class Scene {
         Continue,  // No transition, keep going.
         JumpTo,    // Pop until the chosen Scene is reached.
         Replace,   // Pop this Scene and push the new Scene.
-        Return,    //  Pop this Scene.
+        Return,    // Pop this Scene.
         Spawn,     // Push the new Scene.
         Quit       // Pop all Scenes.
     };
-    // Game holds the window and other single instance objects, e.g., managers.
+  
     Scene();
     virtual void draw() = 0;
     virtual void processEvents() = 0;
@@ -41,7 +41,7 @@ class Scene {
     }
     bool isTransparent() const { return m_isTransparent; }
     void setTransparent(bool transparent) { m_isTransparent = transparent; }
-
+    
   private:
     SceneState m_sceneState;
     TransitionState m_transitionState;
@@ -50,4 +50,4 @@ class Scene {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_ENGINE_SCENE_HPP
+#endif // VVIPERS_SCENES_SCENE_HPP

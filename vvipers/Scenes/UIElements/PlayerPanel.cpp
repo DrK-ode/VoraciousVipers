@@ -1,5 +1,5 @@
 #include <sstream>
-#include <vvipers/Scenes/GameElements/PlayerPanel.hpp>
+#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 

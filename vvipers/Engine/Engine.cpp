@@ -2,28 +2,26 @@
 #include <thread>
 #include <vector>
 #include <vvipers/Engine/Engine.hpp>
-#include <vvipers/Scenes/FlashScreen.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-Engine::Engine(const OptionsProvider& options, const FontProvider& fonts,
-               const TextureProvider& textures)
-    : m_game(options, fonts, textures) {
-    m_scenes.push_back(std::move(createDefaultScene()));
-}
-
-scene_ptr Engine::createDefaultScene() {
-    return std::make_shared<FlashScreen>(m_game);
-}
+Engine::Engine(std::unique_ptr<Game> game) : m_game(std::move(game)) {}
 
 void Engine::startGame() {
-    double FPS = m_game.getOptionsService().getOptionDouble("General/FPS");
+    double FPS = m_game->getOptionsService().getOptionDouble("General/FPS");
     if (FPS == 0.)
         FPS = 60.0;  // Default
 
+    if (m_scenes.empty()) {
+        if (m_defaultScene) {
+            m_scenes.push_back(m_defaultScene);
+        } else {
+            tagError("No scene loaded to start the game.");
+        }
+    }
     gameLoop(FPS);
 }
 
@@ -107,37 +105,41 @@ void Engine::sceneSelection() {
         }
         case Scene::TransitionState::Default: {
             m_scenes.clear();
-            m_scenes.push_back(createDefaultScene());
-            break;
-        }
-        case Scene::TransitionState::JumpTo: {
-            auto nextScene = m_scenes.back()->makeTransition();
-            while (m_scenes.back() != nextScene)
+            if (m_defaultScene) {
+                m_scenes.push_back(m_defaultScene);
+                m_defaultScene->onReactivation();
+                break;
+            }
+            case Scene::TransitionState::JumpTo: {
+                auto nextScene = m_scenes.back()->makeTransition();
+                while (m_scenes.back() != nextScene)
+                    m_scenes.pop_back();
+                if (!m_scenes.empty())
+                    m_scenes.back()->onReactivation();
+                break;
+            }
+            case Scene::TransitionState::Replace: {
+                auto nextScene = m_scenes.back()->makeTransition();
                 m_scenes.pop_back();
-            if (!m_scenes.empty())
-                m_scenes.back()->onReactivation();
-            break;
-        }
-        case Scene::TransitionState::Replace: {
-            auto nextScene = m_scenes.back()->makeTransition();
-            m_scenes.pop_back();
-            m_scenes.push_back(std::move(nextScene));
-            break;
-        }
-        case Scene::TransitionState::Return: {
-            m_scenes.back()->makeTransition();  // Ignore return value
-            m_scenes.pop_back();
-            if (!m_scenes.empty())
-                m_scenes.back()->onReactivation();
-            break;
-        }
-        case Scene::TransitionState::Spawn: {
-            m_scenes.push_back(std::move(m_scenes.back()->makeTransition()));
-            break;
-        }
-        case Scene::TransitionState::Quit: {
-            m_scenes.back()->makeTransition();  // Ignore return value
-            m_scenes.clear();
+                m_scenes.push_back(std::move(nextScene));
+                break;
+            }
+            case Scene::TransitionState::Return: {
+                m_scenes.back()->makeTransition();  // Ignore return value
+                m_scenes.pop_back();
+                if (!m_scenes.empty())
+                    m_scenes.back()->onReactivation();
+                break;
+            }
+            case Scene::TransitionState::Spawn: {
+                m_scenes.push_back(
+                    std::move(m_scenes.back()->makeTransition()));
+                break;
+            }
+            case Scene::TransitionState::Quit: {
+                m_scenes.back()->makeTransition();  // Ignore return value
+                m_scenes.clear();
+            }
         }
     }
 }
@@ -149,7 +151,7 @@ void Engine::update(Time elapsedTime) {
 }
 
 void Engine::draw() {
-    m_game.getWindow().clear(sf::Color::Black);
+    m_game->getWindow().clear(sf::Color::Black);
     auto sceneIter = m_scenes.rbegin();
     while ((*sceneIter)->isTransparent() &&
            std::next(sceneIter) != m_scenes.rend())
@@ -158,7 +160,7 @@ void Engine::draw() {
         (*sceneIter--)->draw();
     }
     m_scenes.back()->draw();
-    m_game.getWindow().display();
+    m_game->getWindow().display();
 }
 
 }  // namespace VVipers

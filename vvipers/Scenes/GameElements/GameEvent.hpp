@@ -9,11 +9,19 @@ class Bodypart;
 class CollisionBody;
 class Controller;
 class GameObject;
+class MenuItem;
 class Player;
 
 class GameEvent {
   public:
-    enum class EventType { Application, Destroy, Scoring, Update, ObjectModified };
+    enum class EventType {
+        Application,
+        Destroy,
+        Menu,
+        Scoring,
+        Update,
+        ObjectModified
+    };
     virtual GameEvent* clone() const = 0;
     EventType type() const { return m_type; }
     virtual ~GameEvent(){};
@@ -40,6 +48,15 @@ class DestroyEvent : public GameEvent {
         : GameEvent(EventType::Destroy), objectPtr(optr) {}
     GameEvent* clone() const override { return new DestroyEvent(*this); }
     const GameObject* objectPtr;
+};
+
+class MenuEvent : public GameEvent {
+  public:
+    enum class MenuEventType { Return, SubMenu };
+    MenuEvent(const MenuItem* mi) : GameEvent(EventType::Menu), sender(mi) {}
+    GameEvent* clone() const override { return new MenuEvent(*this); }
+    const MenuItem* sender;
+    MenuEventType message;
 };
 
 class ObjectModifiedEvent : public GameEvent {

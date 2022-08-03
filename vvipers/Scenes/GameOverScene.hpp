@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_GAMEOVERSCREEN_HPP
-#define VVIPERS_SCENES_GAMEOVERSCREEN_HPP
+#ifndef VVIPERS_SCENES_GAMEOVERSCENE_HPP
+#define VVIPERS_SCENES_GAMEOVERSCENE_HPP
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -13,9 +13,9 @@ namespace VVipers {
 
 class Game;
 
-class GameOverScreen : public Scene {
+class GameOverScene : public Scene {
   public:
-    GameOverScreen(Game& game,
+    GameOverScene(Game& game,
                    std::vector<std::shared_ptr<const Player>> players);
     void draw() override;
     void processEvents() override;
@@ -34,4 +34,4 @@ class GameOverScreen : public Scene {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_GAMEOVERSCREEN_HPP
+#endif // VVIPERS_SCENES_GAMEOVERSCENE_HPP

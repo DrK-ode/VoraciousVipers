@@ -1,6 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
-#include <vvipers/Scenes/GameElements/FlyingScore.hpp>
+#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Engine/Providers.hpp>
 

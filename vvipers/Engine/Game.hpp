@@ -5,7 +5,8 @@
 #include <vvipers/Engine/Providers.hpp>
 
 namespace VVipers {
-
+  
+/** Game holds the window and other single instance objects, e.g., managers. **/
 class Game {
   public:
     Game(const OptionsProvider& options, const FontProvider& fonts,
@@ -20,6 +21,7 @@ class Game {
         return m_textureProvider;
     }
 
+  private:
     sf::RenderWindow m_window;
     const OptionsProvider& m_optionsProvider;
     const FontProvider& m_fontProvider;

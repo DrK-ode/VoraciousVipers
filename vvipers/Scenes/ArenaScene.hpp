@@ -1,18 +1,18 @@
-#ifndef VVIPERS_ARENA_HPP
-#define VVIPERS_ARENA_HPP
+#ifndef VVIPERS_SCENES_ARENASCENE_HPP
+#define VVIPERS_SCENES_ARENASCENE_HPP
 
 #include <memory>
 #include <vector>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <vvipers/Scenes/Collision/CollisionDetector.hpp>
-#include <vvipers/Scenes/GameElements/FlyingScore.hpp>
+#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
 #include <vvipers/Scenes/GameElements/Food.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Scenes/GameElements/PlayerPanel.hpp>
-#include <vvipers/Scenes/GameElements/Controller.hpp>
+#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
+#include <vvipers/Scenes/UIElements/Controller.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
@@ -28,10 +28,10 @@ using player_ptr = std::shared_ptr<Player>;
 using viper_ptr = std::shared_ptr<Viper>;
 using walls_ptr = std::unique_ptr<Walls>;
 
-class Arena : public Scene, public Observer {
+class ArenaScene : public Scene, public Observer {
   public:
-    Arena(Game& game);
-    ~Arena();
+    ArenaScene(Game& game);
+    ~ArenaScene();
     void draw();
     void onNotify(const GameEvent* event) override;
     void processEvents() override;
@@ -96,4 +96,4 @@ class Arena : public Scene, public Observer {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_ARENA_HPP
+#endif // VVIPERS_SCENES_ARENASCENE_HPP

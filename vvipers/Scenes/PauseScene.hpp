@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_PAUSESCREEN_HPP
-#define VVIPERS_SCENES_PAUSESCREEN_HPP
+#ifndef VVIPERS_SCENES_PAUSESCENE_HPP
+#define VVIPERS_SCENES_PAUSESCENE_HPP
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -10,9 +10,9 @@ namespace VVipers {
 
 class Game;
 
-class PauseScreen : public Scene {
+class PauseScene : public Scene {
   public:
-    PauseScreen(Game& game);
+    PauseScene(Game& game);
     void draw() override;
     scene_ptr makeTransition() override;
     void processEvents() override;
@@ -27,4 +27,4 @@ class PauseScreen : public Scene {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_PAUSESCREEN_HPP
+#endif // VVIPERS_SCENES_PAUSESCENE_HPP

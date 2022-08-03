@@ -1,6 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
-#include <vvipers/Scenes/GameElements/ProgressBar.hpp>
+#include <vvipers/Scenes/UIElements/ProgressBar.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
@@ -104,8 +104,8 @@ void ProgressBar::updateBar() {
         }
         m_text.setString(ss.str());
         auto lb = m_text.getLocalBounds();
-        m_text.setOrigin(0.5 * (lb.left + lb.width),
-                         0.5 * (2*lb.top + lb.height));
+        m_text.setOrigin(lb.left + 0.5*lb.width,
+                         lb.top + 0.5*lb.height);
         m_text.setPosition(m_position + 0.5 * m_size);
     }
 }

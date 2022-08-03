@@ -2,25 +2,30 @@
 #define VVIPERS_ENGINE_HPP
 
 #include <deque>
-#include <vvipers/Scenes/Scene.hpp>
+#include <memory>
 #include <vvipers/Engine/Game.hpp>
+#include <vvipers/Scenes/Scene.hpp>
 
 namespace VVipers {
 
 class Engine {
   public:
-    Engine(const OptionsProvider& options, const FontProvider& fonts, const TextureProvider& textures);
+    Engine(std::unique_ptr<Game> game);
+    void setDefaultScene(scene_ptr defaultScene) {
+        m_defaultScene = defaultScene;
+    }
+    void loadScene( scene_ptr scene ){ m_scenes.push_back(scene);}
     void startGame();
 
   private:
     void draw();
     void gameLoop(double FPS);
-    scene_ptr createDefaultScene();
     void sceneSelection();
     void update(Time elapsedTime);
 
-    Game m_game;
-    std::deque< std::shared_ptr<Scene> > m_scenes;
+    std::unique_ptr<Game> m_game;
+    std::deque<scene_ptr> m_scenes;
+    scene_ptr m_defaultScene;
 };
 
 }  // namespace VVipers
