@@ -5,7 +5,7 @@
 namespace VVipers
 {
 
-MainMenuScene::MainMenuScene(Game& game, sf::View view): MenuScene(game,view), m_game(game) {
+MainMenuScene::MainMenuScene(const Game& game, sf::View view): MenuScene(game,view) {
     m_playButton = std::make_unique<MenuButton>();
     m_playButton->setLabel("Play");
     m_playButton->setFont( *game.getFontService().getDefaultFont() );
@@ -17,9 +17,9 @@ MainMenuScene::MainMenuScene(Game& game, sf::View view): MenuScene(game,view), m
     addItem(m_quitButton.get());
 
     setSelectedIndex(0);
-    setLayoutOrientation(Horizontal);
-    m_playButton->setFontRatio(0.1);
-    m_quitButton->setFontRatio(0.1);
+    // setLayoutOrientation(Horizontal);
+    // m_playButton->setFontRatio(0.1);
+    // m_quitButton->setFontRatio(0.1);
     distributeMenuItems();
 }
 
@@ -34,7 +34,7 @@ void MainMenuScene::onMenuItemActivation(MenuItem* menuItem){
 }
 
 scene_ptr MainMenuScene::makeTransition(){
-    return scene_ptr( new ArenaScene(m_game) );
+    return scene_ptr( new ArenaScene( getGame()) );
 }
 
     

@@ -15,17 +15,16 @@ class Game;
 
 class GameOverScene : public Scene {
   public:
-    GameOverScene(Game& game,
+    GameOverScene(const Game& game,
                    std::vector<std::shared_ptr<const Player>> players);
-    void draw() override;
-    void processEvents() override;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override;
 
   private:
     std::string getScoreString(
         std::vector<std::shared_ptr<const Player>>& players);
 
-    Game& m_game;
     std::vector<std::shared_ptr<const Player>> m_players;
     sf::Text m_gameOverText;
     sf::Text m_scoreText;

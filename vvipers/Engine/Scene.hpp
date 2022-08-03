@@ -3,13 +3,16 @@
 
 #include <memory>
 #include <vvipers/Utilities/Time.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Window/Event.hpp>
 
 namespace VVipers {
 
 class Scene;
+class Game;
 using scene_ptr = std::shared_ptr<Scene>;
 
-class Scene {
+class Scene : public sf::Drawable {
   public:
     /** Whether to update the Scene or not (regardless if it is on the top of
      * the stack) **/
@@ -25,10 +28,9 @@ class Scene {
         Spawn,     // Push the new Scene.
         Quit       // Pop all Scenes.
     };
-  
-    Scene();
-    virtual void draw() = 0;
-    virtual void processEvents() = 0;
+
+    Scene(const Game& game);
+    virtual void processEvent(const sf::Event& event) = 0;
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
     virtual scene_ptr makeTransition() { return scene_ptr(); }
@@ -41,8 +43,10 @@ class Scene {
     }
     bool isTransparent() const { return m_isTransparent; }
     void setTransparent(bool transparent) { m_isTransparent = transparent; }
-    
+    const Game& getGame() const { return m_game; }
+
   private:
+    const Game& m_game;
     SceneState m_sceneState;
     TransitionState m_transitionState;
     bool m_isTransparent;
@@ -50,4 +54,4 @@ class Scene {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_SCENE_HPP
+#endif  // VVIPERS_SCENES_SCENE_HPP

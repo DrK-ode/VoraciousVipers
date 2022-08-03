@@ -17,10 +17,10 @@ class MenuScene : public Scene {
   public:
     enum LayoutOrientation { Horizontal, Vertical };
 
-    MenuScene(Game& game, sf::View view);
-    void draw() override;
+    MenuScene(const Game& game, sf::View view);
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void distributeMenuItems();
-    void processEvents() override;
+    void processEvent(const sf::Event& event) override;
     /** Overide if you need to do anything else but calling update on all menu
      * items. **/
     void update(Time elapsedTime) override;
@@ -44,13 +44,15 @@ class MenuScene : public Scene {
     void handleKeyPressed(const sf::Event& event);
     void handleMouseMoved(const sf::Event& event);
     void handleMouseButtonPressed(const sf::Event& event);
+    void handleMouseScroll(const sf::Event& event);
     void handleTextEntered(const sf::Event& event);
 
+    void menuUp();
+    void menuDown();
     MenuItem* menuItemAtCoords(Vec2 coords) const;
     void swapSelected(size_t oldSelected,
                       size_t newSelected);
 
-    Game& m_game;
     sf::View m_view;
     std::vector<MenuItem*> m_menuItems;
     size_t m_selectedIndex;

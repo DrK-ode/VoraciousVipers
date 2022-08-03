@@ -17,8 +17,8 @@ namespace VVipers {
 
 using namespace std::chrono_literals;
 
-ArenaScene::ArenaScene(Game& game) : m_game(game) {
-    Vec2 windowSize = m_game.getWindow().getSize();
+ArenaScene::ArenaScene(const Game& game) : Scene(game) {
+    Vec2 windowSize = getGame().getWindow().getSize();
     const sf::Vector2f statusBarRelSize(0.33, 0.1);
     const sf::Vector2f statusBarSize(windowSize.x * statusBarRelSize.x,
                                      windowSize.y * statusBarRelSize.y);
@@ -35,7 +35,7 @@ ArenaScene::ArenaScene(Game& game) : m_game(game) {
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
 
     // Only create one pause screen so that it can be reused
-    m_pauseScene = std::make_shared<PauseScene>(m_game);
+    m_pauseScene = std::make_shared<PauseScene>(getGame());
 
     // auto controllerM = addMouseController();
     // auto viperM = addViper();
@@ -62,19 +62,19 @@ void ArenaScene::deleteController(controller_ptr controller) {
 }
 
 controller_ptr ArenaScene::createMouseController() {
-    m_game.getWindow().setMouseCursorGrabbed(true);
-    m_game.getWindow().setMouseCursorVisible(false);
-    Vec2 windowSize = m_game.getWindow().getSize();
+    //getGame().getWindow().setMouseCursorGrabbed(true);
+    //getGame().getWindow().setMouseCursorVisible(false);
+    Vec2 windowSize = getGame().getWindow().getSize();
     sf::Mouse::setPosition(sf::Vector2i(windowSize.x / 2, windowSize.y / 2),
-                           m_game.getWindow());
-    return addController(std::make_shared<MouseController>(m_game.getWindow()));
+                           getGame().getWindow());
+    return addController(std::make_shared<MouseController>(getGame().getWindow()));
 }
 
 controller_ptr ArenaScene::createKeyboardController() {
     KeyboardController::KeyboardControls keys;
-    keys.left = sf::Keyboard::A;
-    keys.right = sf::Keyboard::D;
-    keys.boost = sf::Keyboard::Space;
+    keys.left = sf::Keyboard::Left;
+    keys.right = sf::Keyboard::Right;
+    keys.boost = sf::Keyboard::Up;
     return addController(std::make_shared<KeyboardController>(keys));
 }
 
@@ -83,7 +83,7 @@ player_ptr ArenaScene::addPlayer(const std::string& name, controller_ptr control
     auto player = make_shared<Player>(name, controller, viper);
     m_players.insert(player);
     auto panel = std::make_unique<PlayerPanel>(
-        m_statusBarView.getSize(), player.get(), m_game.getFontService());
+        m_statusBarView.getSize(), player.get(), getGame().getFontService());
     viper->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
     player->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
     // Container takes ownership, ptr panel is no longer valid
@@ -102,8 +102,8 @@ void ArenaScene::deletePlayer(player_ptr player) {
 }
 
 viper_ptr ArenaScene::addViper(/* startConditions? */) {
-    auto viper = std::make_shared<Viper>(m_game.getOptionsService(),
-                                         m_game.getTextureService());
+    auto viper = std::make_shared<Viper>(getGame().getOptionsService(),
+                                         getGame().getTextureService());
     viper->setup(findFreeRect({100, 100}), Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper.get());
@@ -150,14 +150,14 @@ void ArenaScene::eatFood(Viper* viper, Food* food) {
 
     PlayerPanel* panel = findPlayerPanel(player);
     auto flyingScore = std::make_unique<FlyingScore>(
-        Vec2(m_game.getWindow().mapCoordsToPixel(food->getPosition(),
+        Vec2(getGame().getWindow().mapCoordsToPixel(food->getPosition(),
                                                  m_gameView)),
         4 * viper->velocity(),
-        Vec2(m_game.getWindow().mapCoordsToPixel(panel->getScoreTarget(),
+        Vec2(getGame().getWindow().mapCoordsToPixel(panel->getScoreTarget(),
                                                  m_statusBarView)),
-        1s, score, m_game.getFontService());
+        1s, score, getGame().getFontService());
     flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
-    flyingScore->setFontSize(0.03 * m_game.getWindow().getSize().y, 1.0);
+    flyingScore->setFontSize(0.03 * getGame().getWindow().getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
     flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
     m_flyingScores.insert(std::move(flyingScore));
@@ -217,21 +217,20 @@ void ArenaScene::dispenseFood() {
     }
 }
 
-void ArenaScene::draw() {
-    auto& window = m_game.getWindow();
-    window.clear(sf::Color::Black);
-    window.setView(m_statusBarView);
+void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.clear(sf::Color::Black);
+    target.setView(m_statusBarView);
     for (const auto& panel : m_playerPanels)
-        window.draw(*panel);
-    window.setView(m_gameView);
-    window.draw(*m_walls);
+        target.draw(*panel,states);
+    target.setView(m_gameView);
+    target.draw(*m_walls,states);
     for (const auto& f : m_food)
-        window.draw(*f);
+        target.draw(*f,states);
     for (const auto& v : m_vipers)
-        window.draw(*v);
-    window.setView(window.getDefaultView());
+        target.draw(*v,states);
+    target.setView(target.getDefaultView());
     for (const auto& s : m_flyingScores)
-        window.draw(*s);
+        target.draw(*s,states);
 }
 
 void ArenaScene::handleCollisions() {
@@ -331,7 +330,7 @@ void ArenaScene::checkForGameOver() {
     std::vector<std::shared_ptr<const Player>> players;
     for (auto p : m_players)
         players.push_back(p);
-    m_transitionScene = make_shared<GameOverScene>(m_game, players);
+    m_transitionScene = make_shared<GameOverScene>(getGame(), players);
 }
 
 void ArenaScene::onNotify(const GameEvent* event) {
@@ -347,9 +346,7 @@ void ArenaScene::onNotify(const GameEvent* event) {
     }
 }
 
-void ArenaScene::processWindowEvents() {
-    sf::Event event;
-    while (m_game.getWindow().pollEvent(event)) {
+void ArenaScene::processEvent(const sf::Event& event) {
         switch (event.type) {
             case sf::Event::Closed: {
                 setSceneState(SceneState::Paused);
@@ -377,11 +374,9 @@ void ArenaScene::processWindowEvents() {
                 break;
             }
         }
-    }
 }
 
-void ArenaScene::processEvents() {
-    processWindowEvents();
+void ArenaScene::processGameEvents() {
     auto [beginDestroyEvents, endDestroyEvents] =
         m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
     for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter)
@@ -398,6 +393,7 @@ void ArenaScene::update(Time elapsedTime) {
     handleObjectUpdates(elapsedTime);
     handleCollisions();
     dispenseFood();
+    processGameEvents();
     checkForGameOver();
 }
 

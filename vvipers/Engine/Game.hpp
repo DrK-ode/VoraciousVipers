@@ -18,7 +18,7 @@ class Game {
     Game(const OptionsProvider& options, const FontProvider& fonts,
          const TextureProvider& textures);
 
-    sf::RenderWindow& getWindow() { return m_window; };
+    const sf::RenderWindow& getWindow() const { return m_window; };
     const FontProvider& getFontService() const { return m_fontProvider; }
     const OptionsProvider& getOptionsService() const {
         return m_optionsProvider;
@@ -26,7 +26,9 @@ class Game {
     const TextureProvider& getTextureService() const {
         return m_textureProvider;
     }
-    const scenestack_t& getSceneStack() const { return m_scenes; }
+    size_t getSceneStackHeight() const {return m_scenes.size();}
+    const Scene* getScene(size_t index) const {return m_scenes[index].get();}
+    const scenestack_t& getSceneStack() { return m_scenes; }
 
   private:
     sf::RenderWindow m_window;

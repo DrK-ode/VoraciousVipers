@@ -7,9 +7,9 @@
 
 namespace VVipers {
 
-PauseScene::PauseScene(Game& game) : m_game(game) {
-    Vec2 size = m_game.getWindow().getSize();
-    m_pauseText.setFont(*m_game.getFontService().getDefaultFont());
+PauseScene::PauseScene(const Game& game) : Scene(game) {
+    Vec2 size = getGame().getWindow().getSize();
+    m_pauseText.setFont(*getGame().getFontService().getDefaultFont());
     m_pauseText.setString("Pause");
     m_pauseText.setCharacterSize(0.1 * size.y);
     m_pauseText.setPosition(size / 2);
@@ -19,7 +19,7 @@ PauseScene::PauseScene(Game& game) : m_game(game) {
     m_pauseText.setOutlineColor(sf::Color::Red);
     m_pauseText.setOutlineThickness(0.005 * size.y);
 
-    m_quitText.setFont(*m_game.getFontService().getDefaultFont());
+    m_quitText.setFont(*getGame().getFontService().getDefaultFont());
     m_quitText.setString("(Press 'q' to return to main menu)");
     m_quitText.setCharacterSize(0.5 * m_pauseText.getCharacterSize());
     m_quitText.setPosition(m_pauseText.getPosition() +
@@ -37,10 +37,10 @@ PauseScene::PauseScene(Game& game) : m_game(game) {
     setTransparent(true);
 }
 
-void PauseScene::draw() {
-    m_game.getWindow().draw(m_background);
-    m_game.getWindow().draw(m_pauseText);
-    m_game.getWindow().draw(m_quitText);
+void PauseScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw(m_background, states);
+    target.draw(m_pauseText, states);
+    target.draw(m_quitText, states);
 }
 
 scene_ptr PauseScene::makeTransition() {
@@ -49,21 +49,18 @@ scene_ptr PauseScene::makeTransition() {
     return scene_ptr();
 }
 
-void PauseScene::processEvents() {
-    sf::Event event;
-    while (m_game.getWindow().pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            setTransitionState(TransitionState::Quit);
-        } else if (event.type == sf::Event::KeyPressed) {
-            switch (event.key.code) {
-                case sf::Keyboard::Q: {
-                    setTransitionState(TransitionState::Default);
-                    break;
-                }
-                default: {
-                    setTransitionState(TransitionState::Return);
-                    break;
-                }
+void PauseScene::processEvent(const sf::Event& event) {
+    if (event.type == sf::Event::Closed) {
+        setTransitionState(TransitionState::Quit);
+    } else if (event.type == sf::Event::KeyPressed) {
+        switch (event.key.code) {
+            case sf::Keyboard::Q: {
+                setTransitionState(TransitionState::Default);
+                break;
+            }
+            default: {
+                setTransitionState(TransitionState::Return);
+                break;
             }
         }
     }

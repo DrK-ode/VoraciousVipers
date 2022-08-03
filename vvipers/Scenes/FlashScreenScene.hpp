@@ -11,13 +11,12 @@ class Game;
 
 class FlashScreenScene : public Scene {
   public:
-    FlashScreenScene(Game& game, Time duration = seconds(2));
-    void draw() override;
-    void processEvents() override;
+    FlashScreenScene(const Game& game, Time duration = seconds(2));
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override;
 
   private:
-    Game& m_game;
     Time m_timeLeft;
     sf::Text m_text;
 };

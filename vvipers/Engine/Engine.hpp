@@ -20,9 +20,11 @@ class Engine {
   private:
     void draw();
     void gameLoop(double FPS);
+    void processEvents(Scene* scene);
     void sceneSelection();
     void update(Time elapsedTime);
     scenestack_t& getSceneStack() {return m_game->m_scenes;}
+    sf::RenderWindow& getWindow() {return m_game->m_window;}
 
     std::unique_ptr<Game> m_game;
     scene_ptr m_defaultScene;

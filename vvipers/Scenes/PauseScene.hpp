@@ -12,14 +12,13 @@ class Game;
 
 class PauseScene : public Scene {
   public:
-    PauseScene(Game& game);
-    void draw() override;
+    PauseScene(const Game& game);
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     scene_ptr makeTransition() override;
-    void processEvents() override;
+    void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override{};
 
   private:
-    Game& m_game;
     sf::Text m_pauseText;
     sf::Text m_quitText;
     sf::RectangleShape m_background;

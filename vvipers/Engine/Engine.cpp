@@ -5,6 +5,8 @@
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 namespace VVipers {
 
@@ -76,7 +78,7 @@ void Engine::gameLoop(double FPS) {
             update(tickDuration);
         }
         updateDuration = clock.split();
-        getSceneStack().back()->processEvents();
+        processEvents(getSceneStack().back().get());
         eventDuration = clock.split();
         draw();
         drawDuration = clock.split();
@@ -89,6 +91,13 @@ void Engine::gameLoop(double FPS) {
                                          eventDuration + drawDuration);
         std::this_thread::sleep_for(sleepDuration);
         firstFrame = false;
+    }
+}
+
+void Engine::processEvents(Scene* scene){
+    sf::Event event;
+    while( getWindow().pollEvent(event)){
+        scene->processEvent(event);
     }
 }
 
@@ -155,16 +164,17 @@ void Engine::update(Time elapsedTime) {
 }
 
 void Engine::draw() {
-    m_game->getWindow().clear(sf::Color::Black);
+    auto& window = m_game->m_window;
+    window.clear(sf::Color::Black);
     auto sceneIter = getSceneStack().rbegin();
     while ((*sceneIter)->isTransparent() &&
            std::next(sceneIter) != getSceneStack().rend())
         ++sceneIter;
     while (sceneIter != getSceneStack().rbegin()) {
-        (*sceneIter--)->draw();
+        window.draw(*(sceneIter--)->get());
     }
-    getSceneStack().back()->draw();
-    m_game->getWindow().display();
+    window.draw(*getSceneStack().back());
+    window.display();
 }
 
 }  // namespace VVipers

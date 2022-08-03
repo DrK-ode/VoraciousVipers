@@ -5,8 +5,8 @@
 
 namespace VVipers {
 
-MenuScene::MenuScene(Game& game, sf::View view)
-    : m_game(game), m_view(view), m_selectedIndex(-1), m_layout(Vertical) {}
+MenuScene::MenuScene(const Game& game, sf::View view)
+    : Scene(game), m_view(view), m_selectedIndex(-1), m_layout(Vertical) {}
 
 void MenuScene::addItem(MenuItem* menuItem) { m_menuItems.push_back(menuItem); }
 
@@ -17,10 +17,10 @@ void MenuScene::delItem(size_t index) {
         --m_selectedIndex;
 }
 
-void MenuScene::draw() {
-    m_game.getWindow().setView(m_view);
+void MenuScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.setView(m_view);
     for (auto& menuItem : m_menuItems)
-        m_game.getWindow().draw(*menuItem);
+        target.draw(*menuItem, states);
 }
 
 void MenuScene::distributeMenuItems() {
@@ -46,22 +46,11 @@ void MenuScene::distributeMenuItems() {
 void MenuScene::handleKeyPressed(const sf::Event& event) {
     if ((m_layout == Vertical && event.key.code == sf::Keyboard::Up) or
         (m_layout == Horizontal && event.key.code == sf::Keyboard::Left)) {
-        auto oldSelectedIndex = m_selectedIndex;
-        if (m_selectedIndex == 0)
-            m_selectedIndex = m_menuItems.size();
-        --m_selectedIndex;
-        swapSelected(oldSelectedIndex, m_selectedIndex);
+        menuUp();
     } else if ((m_layout == Vertical && event.key.code == sf::Keyboard::Down) or
                (m_layout == Horizontal &&
                 event.key.code == sf::Keyboard::Right)) {
-        auto oldSelectedIndex = m_selectedIndex;
-        if (oldSelectedIndex >= m_menuItems.size())
-            m_selectedIndex = 0;
-        else
-            ++m_selectedIndex;
-        if (m_selectedIndex == m_menuItems.size())
-            m_selectedIndex = 0;
-        swapSelected(oldSelectedIndex, m_selectedIndex);
+        menuDown();
     } else if (event.key.code == sf::Keyboard::Return) {
         if (m_selectedIndex < m_menuItems.size())
             onMenuItemActivation(m_menuItems[m_selectedIndex]);
@@ -75,7 +64,7 @@ void MenuScene::handleKeyPressed(const sf::Event& event) {
 
 void MenuScene::handleMouseMoved(const sf::Event& event) {
     auto oldSelectedIndex = m_selectedIndex;
-    auto& window = m_game.getWindow();
+    auto& window = getGame().getWindow();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_view);
     auto pointedAt = menuItemAtCoords(localCoord);
@@ -89,7 +78,7 @@ void MenuScene::handleMouseMoved(const sf::Event& event) {
 }
 
 void MenuScene::handleMouseButtonPressed(const sf::Event& event) {
-    auto& window = m_game.getWindow();
+    auto& window = getGame().getWindow();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_view);
     if (m_selectedIndex < m_menuItems.size() and
@@ -97,38 +86,65 @@ void MenuScene::handleMouseButtonPressed(const sf::Event& event) {
         onMenuItemActivation(m_menuItems[m_selectedIndex]);
 }
 
+void MenuScene::handleMouseScroll(const sf::Event& event) {
+    if (event.mouseWheelScroll.delta > 0)
+        menuUp();
+    else if (event.mouseWheelScroll.delta < 0)
+        menuDown();
+}
+
 void MenuScene::handleTextEntered(const sf::Event& event) {
     if (m_selectedIndex < m_menuItems.size())
         m_menuItems[m_selectedIndex]->handleEvent(event);
 }
 
-void MenuScene::processEvents() {
-    sf::Event event;
-    while (m_game.getWindow().pollEvent(event)) {
-        switch (event.type) {
-            case sf::Event::Closed: {
-                setTransitionState(TransitionState::Quit);
-                break;
-            }
-            case sf::Event::TextEntered: {
-                handleTextEntered(event);
-                break;
-            }
-            case sf::Event::KeyPressed: {
-                handleKeyPressed(event);
-                break;
-            }
-            case sf::Event::MouseButtonPressed: {
-                handleMouseButtonPressed(event);
-                break;
-            }
-            case sf::Event::MouseMoved: {
-                handleMouseMoved(event);
-                break;
-            }
-            default:
-                break;
+void MenuScene::menuUp() {
+    auto oldSelectedIndex = m_selectedIndex;
+    if (m_selectedIndex == 0)
+        m_selectedIndex = m_menuItems.size();
+    --m_selectedIndex;
+    swapSelected(oldSelectedIndex, m_selectedIndex);
+}
+
+void MenuScene::menuDown() {
+    auto oldSelectedIndex = m_selectedIndex;
+    if (oldSelectedIndex >= m_menuItems.size())
+        m_selectedIndex = 0;
+    else
+        ++m_selectedIndex;
+    if (m_selectedIndex == m_menuItems.size())
+        m_selectedIndex = 0;
+    swapSelected(oldSelectedIndex, m_selectedIndex);
+}
+
+void MenuScene::processEvent(const sf::Event& event) {
+    switch (event.type) {
+        case sf::Event::Closed: {
+            setTransitionState(TransitionState::Quit);
+            break;
         }
+        case sf::Event::TextEntered: {
+            handleTextEntered(event);
+            break;
+        }
+        case sf::Event::KeyPressed: {
+            handleKeyPressed(event);
+            break;
+        }
+        case sf::Event::MouseButtonPressed: {
+            handleMouseButtonPressed(event);
+            break;
+        }
+        case sf::Event::MouseMoved: {
+            handleMouseMoved(event);
+            break;
+        }
+        case sf::Event::MouseWheelScrolled: {
+            handleMouseScroll(event);
+            break;
+        }
+        default:
+            break;
     }
 }
 

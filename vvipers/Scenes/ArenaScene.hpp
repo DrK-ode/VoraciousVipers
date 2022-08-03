@@ -30,11 +30,11 @@ using walls_ptr = std::unique_ptr<Walls>;
 
 class ArenaScene : public Scene, public Observer {
   public:
-    ArenaScene(Game& game);
+    ArenaScene(const Game& game);
     ~ArenaScene();
-    void draw();
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void onNotify(const GameEvent* event) override;
-    void processEvents() override;
+    void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override;
     std::shared_ptr<Scene> makeTransition() override;
 
@@ -66,6 +66,7 @@ class ArenaScene : public Scene, public Observer {
     Vec2 findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const;
     void dispenseFood();
 
+    void processGameEvents();
     void handleCollision(const Colliders& c);
     void handleCollisions();
     void handleSteering();
@@ -77,7 +78,6 @@ class ArenaScene : public Scene, public Observer {
 
     sf::View m_statusBarView;
     sf::View m_gameView;
-    Game& m_game;
     // The arena keeps partial ownership of the pause screen in order to be able to reuse it
     std::shared_ptr<Scene> m_transitionScene;
     std::shared_ptr<Scene> m_pauseScene;

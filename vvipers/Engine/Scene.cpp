@@ -3,8 +3,9 @@
 
 namespace VVipers {
 
-Scene::Scene()
-    : m_sceneState(SceneState::Running),
+Scene::Scene(const Game& game)
+    : m_game(game),
+      m_sceneState(SceneState::Running),
       m_transitionState(TransitionState::Continue),
       m_isTransparent(false) {}
 
