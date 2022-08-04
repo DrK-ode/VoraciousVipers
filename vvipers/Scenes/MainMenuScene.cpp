@@ -24,9 +24,6 @@ MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
     addItem(m_quitButton.get());
 
     setSelectedIndex(0);
-    // setLayoutOrientation(Horizontal);
-    // m_playButton->setFontRatio(0.1);
-    // m_quitButton->setFontRatio(0.1);
     distributeMenuItems();
 }
 

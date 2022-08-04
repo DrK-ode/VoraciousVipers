@@ -9,7 +9,7 @@ Scene::Scene(Game& game)
       m_transitionState(TransitionState::Continue),
       m_isTransparent(false) {}
 
-void Scene::onReactivation() {
+void Scene::onActivation() {
     setSceneState(Scene::SceneState::Running);
     setTransitionState(TransitionState::Continue);
 }

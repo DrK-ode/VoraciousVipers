@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_MENUSCENE_HPP
-#define VVIPERS_SCENES_MENUSCENE_HPP
+#ifndef VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP
+#define VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP
 
 #include <SFML/Graphics/View.hpp>
 #include <memory>
@@ -27,18 +27,22 @@ class MenuScene : public Scene {
     // Calls update on all menuItems
     void updateMenuItems(Time elapsedTime);
     sf::View getMenuView() const { return m_menuView; }
-    void setMenuView(sf::View view) {m_menuView = view;}
+    void setMenuView(sf::View view) { m_menuView = view; }
     void addItem(MenuItem* menuItem);
     void delItem(size_t index);
     const MenuItem* getItem(int index) const { return m_menuItems[index]; }
     const MenuItem* getSelected() const;
-    void setSelectedIndex( size_t index);
+    void setSelectedIndex(size_t index);
     size_t getNumberOfMenuItems() const { return m_menuItems.size(); }
-    LayoutOrientation getLayoutOrientation() const {return m_layout;}
-    void setLayoutOrientation( LayoutOrientation lo) {m_layout = lo;}
+    LayoutOrientation getLayoutOrientation() const { return m_layout; }
+    void setLayoutOrientation(LayoutOrientation lo) { m_layout = lo; }
     virtual void onMenuItemActivation(MenuItem* menuItem){};
     virtual void onReturn() { setTransitionState(TransitionState::Return); }
-    virtual void onReactivation() override;
+    virtual void onActivation() override;
+
+  protected:
+    virtual void drawBackground(sf::RenderTarget& target,
+                        sf::RenderStates states) const {};
 
   private:
     void handleKeyPressed(const sf::Event& event);
@@ -51,8 +55,7 @@ class MenuScene : public Scene {
     void menuDown();
     MenuItem* menuItemAtCoords(Vec2 coords) const;
     void activateSelected();
-    void swapSelected(size_t oldSelected,
-                      size_t newSelected);
+    void swapSelected(size_t oldSelected, size_t newSelected);
 
     sf::View m_menuView;
     std::vector<MenuItem*> m_menuItems;
@@ -62,4 +65,4 @@ class MenuScene : public Scene {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_MENUSCENE_HPP
+#endif // VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP

@@ -126,9 +126,13 @@ void ArenaScene::deletePlayer(player_ptr player) {
 viper_ptr ArenaScene::addViper(/* startConditions? */) {
     auto viper = std::make_shared<Viper>(getGame().getOptionsService(),
                                          getGame().getTextureService());
-    auto rect = findFreeRect({100, 100});
-    tagDebug(rect);
-    viper->setup(rect, Random::getDouble(0, 360), 5);
+    std::vector<sf::Rect<double>> otherVipers;
+    Vec2 exclusionZoneSize(100, 100);
+    for (auto& v : m_vipers) {
+        otherVipers.push_back({*v->head(), exclusionZoneSize});
+    }
+    auto position = findFreeRect(exclusionZoneSize, otherVipers);
+    viper->setup(position, Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_collisionDetector.registerCollidable(viper.get());
     // Container takes ownership, ptr viper is no longer valid
@@ -208,7 +212,21 @@ Player* ArenaScene::findPlayerWith(const Viper* viper) const {
     return nullptr;
 }
 
-Vec2 ArenaScene::findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const {
+Vec2 ArenaScene::findFreeRect(
+    Vec2 rectSize, const std::vector<sf::Rect<double>>& excludedRegions) const {
+    return findFreeRect(
+        rectSize, excludedRegions,
+        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y));
+}
+
+Vec2 ArenaScene::findFreeRect(Vec2 rectSize) const {
+    std::vector<sf::Rect<double>> dummy;
+    return findFreeRect(rectSize, dummy);
+}
+
+Vec2 ArenaScene::findFreeRect(
+    Vec2 rectSize, const std::vector<sf::Rect<double>>& excludedRegions,
+    sf::Rect<double> limits) const {
     // If one million is not enough something is wrong or the level design is
     // bad
     const int maxTries = 1000000;
@@ -219,6 +237,17 @@ Vec2 ArenaScene::findFreeRect(Vec2 rectSize, sf::Rect<double> limits) const {
         Vec2 position(
             Random::getDouble(limits.left, limits.width - rectSize.x),
             Random::getDouble(limits.top, limits.height - rectSize.y));
+        // First, check against all excluded regions
+        bool occupied = false;
+        for (auto& excluded : excludedRegions) {
+            if (excluded.contains(position)) {
+                occupied = true;
+                break;
+            }
+        }
+        if (occupied)
+            continue;
+        // Second, check against all existing objects in the game
         testRect->convexShape.setPosition(position);
         testRect->updateBodyPart();
 

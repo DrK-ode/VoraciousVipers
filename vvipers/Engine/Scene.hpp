@@ -34,7 +34,7 @@ class Scene : public sf::Drawable {
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
     virtual scene_ptr makeTransition() { return scene_ptr(); }
-    virtual void onReactivation();
+    virtual void onActivation();
     SceneState getSceneState() const { return m_sceneState; }
     void setSceneState(SceneState state) { m_sceneState = state; }
     TransitionState getTransitionState() const { return m_transitionState; }

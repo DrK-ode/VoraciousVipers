@@ -1,5 +1,5 @@
 #include <SFML/Window/Mouse.hpp>
-#include <vvipers/Scenes/MenuScene.hpp>
+#include <vvipers/Scenes/UIElements/MenuScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
@@ -18,6 +18,7 @@ void MenuScene::delItem(size_t index) {
 }
 
 void MenuScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    drawBackground(target,states);
     target.setView(m_menuView);
     for (auto& menuItem : m_menuItems)
         target.draw(*menuItem, states);
@@ -194,7 +195,7 @@ void MenuScene::updateMenuItems(Time elapsedTime) {
         menuItem->update(elapsedTime);
 }
 
-void MenuScene::onReactivation() {
+void MenuScene::onActivation() {
     setSceneState(Scene::SceneState::Running);
     setTransitionState(TransitionState::Continue);
     m_selectedIndex = 0;

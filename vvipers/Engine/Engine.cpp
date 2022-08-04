@@ -1,3 +1,5 @@
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
 #include <memory>
 #include <thread>
 #include <vector>
@@ -5,8 +7,6 @@
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
 
 namespace VVipers {
 
@@ -19,6 +19,7 @@ void Engine::startGame() {
 
     if (getSceneStack().empty()) {
         if (m_defaultScene) {
+            m_defaultScene->onActivation();
             getSceneStack().push_back(m_defaultScene);
         } else {
             tagError("No scene loaded to start the game.");
@@ -95,9 +96,9 @@ void Engine::gameLoop(double FPS) {
     }
 }
 
-void Engine::processEvents(Scene* scene){
+void Engine::processEvents(Scene* scene) {
     sf::Event event;
-    while( getWindow().pollEvent(event)){
+    while (getWindow().pollEvent(event)) {
         scene->processEvent(event);
     }
 }
@@ -107,6 +108,7 @@ void Engine::sceneSelection() {
         case Scene::TransitionState::Clear: {
             auto nextScene = getSceneStack().back()->makeTransition();
             getSceneStack().clear();
+            nextScene->onActivation();
             getSceneStack().push_back(std::move(nextScene));
             break;
         }
@@ -117,7 +119,7 @@ void Engine::sceneSelection() {
             getSceneStack().clear();
             if (m_defaultScene) {
                 getSceneStack().push_back(m_defaultScene);
-                m_defaultScene->onReactivation();
+                m_defaultScene->onActivation();
                 break;
             }
             case Scene::TransitionState::JumpTo: {
@@ -125,12 +127,13 @@ void Engine::sceneSelection() {
                 while (getSceneStack().back() != nextScene)
                     getSceneStack().pop_back();
                 if (!getSceneStack().empty())
-                    getSceneStack().back()->onReactivation();
+                    getSceneStack().back()->onActivation();
                 break;
             }
             case Scene::TransitionState::Replace: {
                 auto nextScene = getSceneStack().back()->makeTransition();
                 getSceneStack().pop_back();
+                nextScene->onActivation();
                 getSceneStack().push_back(std::move(nextScene));
                 break;
             }
@@ -140,12 +143,13 @@ void Engine::sceneSelection() {
                     ->makeTransition();  // Ignore return value
                 getSceneStack().pop_back();
                 if (!getSceneStack().empty())
-                    getSceneStack().back()->onReactivation();
+                    getSceneStack().back()->onActivation();
                 break;
             }
             case Scene::TransitionState::Spawn: {
-                getSceneStack().push_back(
-                    std::move(getSceneStack().back()->makeTransition()));
+                auto nextScene = getSceneStack().back()->makeTransition();
+                nextScene->onActivation();
+                getSceneStack().push_back(std::move(nextScene));
                 break;
             }
             case Scene::TransitionState::Quit: {

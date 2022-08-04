@@ -2,28 +2,28 @@
 #define VVIPERS_SCENES_PAUSESCENE_HPP
 
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Utilities/Time.hpp>
+#include <memory>
+#include <vvipers/Scenes/UIElements/MenuScene.hpp>
+#include <vvipers/Scenes/UIElements/MenuButton.hpp>
 
 namespace VVipers {
 
 class Game;
 
-class PauseScene : public Scene {
+class PauseScene : public MenuScene {
   public:
     PauseScene(Game& game);
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    scene_ptr makeTransition() override;
-    void processEvent(const sf::Event& event) override;
-    void update(Time elapsedTime) override{};
+    void drawBackground(sf::RenderTarget& target,
+                        sf::RenderStates states) const override;
+    void onMenuItemActivation(MenuItem* menuItem) override;
 
   private:
     sf::Text m_pauseText;
-    sf::Text m_quitText;
+    std::unique_ptr<MenuButton> m_continueButton;
+    std::unique_ptr<MenuButton> m_quitButton;
     sf::RectangleShape m_background;
 };
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_PAUSESCENE_HPP
+#endif  // VVIPERS_SCENES_PAUSESCENE_HPP

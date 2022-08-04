@@ -28,7 +28,7 @@ GameOverScene::GameOverScene(Game& game,
     m_scoreText.setString(getScoreString(players));
     m_scoreText.setCharacterSize(0.5 * m_gameOverText.getCharacterSize());
     m_scoreText.setPosition(m_gameOverText.getPosition() +
-                            Vec2(0, m_gameOverText.getCharacterSize()));
+                            Vec2(0, 2 * m_gameOverText.getCharacterSize()));
     auto lbq = m_scoreText.getLocalBounds();
     m_scoreText.setOrigin(Vec2(lbq.left + lbq.width, lbq.top + lbq.height) / 2);
     m_scoreText.setFillColor(sf::Color::Green);
@@ -46,7 +46,7 @@ std::string GameOverScene::getScoreString(
     std::vector<std::shared_ptr<const Player>>& players) {
     std::sort(players.begin(), players.end(),
               [](const auto& lhs, const auto& rhs) {
-                  return lhs->score() < rhs->score();
+                  return lhs->score() > rhs->score();
               });
     std::stringstream ss;
     for (auto p = players.cbegin(); p != players.cend(); ++p) {
@@ -73,7 +73,12 @@ void GameOverScene::processEvent(const sf::Event& event) {
             setTransitionState(TransitionState::Quit);
             break;
         }
-        case sf::Event::KeyPressed:
+        case sf::Event::KeyPressed: {
+            if ((event.key.code == sf::Keyboard::Return) or
+                (event.key.code == sf::Keyboard::Escape))
+                setTransitionState(TransitionState::Default);
+            break;
+        }
         case sf::Event::MouseButtonPressed: {
             setTransitionState(TransitionState::Default);
             break;
