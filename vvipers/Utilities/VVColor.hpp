@@ -23,46 +23,86 @@ inline sf::Color colorFromRGBString(const std::string& str) {
 }
 
 // Following the conversion algorithm presented on Wikipedia
-inline sf::Color colorFromHSL(double H, double S, double L) {
+inline std::tuple<double, double, double> fromHSLtoRGB(double H, double S,
+                                                       double L) {
     H = std::fmod(H, 1.0);
     if (H < 0)
         H += 1.0;
     if (S < 0. or S > 1. or L < 0. or L > 1.)
-        throw std::runtime_error("Invalid HSL input.");
+        throw std::runtime_error("Invalid HSL values.");
 
     double c = (1. - std::abs(2. * L - 1.)) * S;
     double h = H * 6.;
     double x = c * (1. - std::abs(std::fmod(h, 2.) - 1.));
 
-    double r = 0;
-    double g = 0;
-    double b = 0;
+    double R = 0;
+    double G = 0;
+    double B = 0;
     if (h < 1) {
-        r = c;
-        g = x;
+        R = c;
+        G = x;
     } else if (h < 2) {
-        r = x;
-        g = c;
+        R = x;
+        G = c;
     } else if (h < 3) {
-        g = c;
-        b = x;
+        G = c;
+        B = x;
     } else if (h < 4) {
-        g = x;
-        b = c;
+        G = x;
+        B = c;
     } else if (h < 5) {
-        r = x;
-        b = c;
+        R = x;
+        B = c;
     } else {
-        r = c;
-        b = x;
+        R = c;
+        B = x;
     }
 
     double m = L - 0.5 * c;
-    r += m;
-    g += m;
-    b += m;
+    R += m;
+    G += m;
+    B += m;
 
-    return sf::Color( uint8_t(255*r), uint8_t(255*g), uint8_t(255*b));
+    return {R, G, B};
+}
+
+// Following the conversion algorithm presented on Wikipedia
+inline std::tuple<double, double, double> fromRGBtoHSL(double R, double G,
+                                                       double B) {
+    if (R < 0. or R > 1. or G < 0. or G > 1. or B < 0. or B > 1.)
+        throw std::runtime_error("Invalid RGB values.");
+
+    double xmax = std::max(std::max(R, G), B);
+    double xmin = std::min(std::min(R, G), B);
+    double c = xmax - xmin;
+    double L = 0.5 * (xmax + xmin);
+
+    double H;
+    if (c == 0.)
+        H = 0.;
+    else if (xmax == R)
+        H = (0 + (G - B) / c) / 6.;
+    else if (xmax == G)
+        H = (2 + (B - R) / c) / 6.;
+    else if (xmax == B)
+        H = (4 + (R - G) / c) / 6.;
+
+    double S = 0;
+    if (L > 0. and L < 1.)
+        S = (xmax - L) / std::min(L, 1 - L);
+
+    return {H, S, L};
+}
+
+inline sf::Color colorFromRGB(double R, double G, double B) {
+    return sf::Color(std::min(uint32_t(255), uint32_t(256 * R)),
+                     std::min(uint32_t(255), uint32_t(256 * G)),
+                     std::min(uint32_t(255), uint32_t(256 * B)));
+}
+
+inline sf::Color colorFromHSL(double H, double S, double L) {
+    auto [R, G, B] = fromHSLtoRGB(H, S, L);
+    return colorFromRGB(R, G, B);
 }
 
 }  // namespace VVipers
