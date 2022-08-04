@@ -85,8 +85,9 @@ void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
         keys.boost = sf::Keyboard::Key(playerKeys[3 * i + 2]);
         auto controller = createController(keys);
         auto viper = addViper();
-        auto player = addPlayer(playerNames[i], colorFromRGBString(playerColors[i]),
-                                controller, viper, playerViews[i]);
+        auto player =
+            addPlayer(playerNames[i], colorFromRGBString(playerColors[i]),
+                      controller, viper, playerViews[i]);
     }
 }
 
@@ -177,8 +178,10 @@ void ArenaScene::deleteFood(Food* food) {
 
 void ArenaScene::eatFood(Viper* viper, Food* food) {
     viper->addGrowth(1s * food->getSize() / Food::nominalFoodSize);
+    viper->addBoostCharge(0.5s);
     food->state(GameObject::Dying);
-    score_t score = 100 * food->getSize() / Food::nominalFoodSize;
+    score_t score = 10. * toSeconds(viper->temporalLength()) * food->getSize() /
+                    Food::nominalFoodSize;
     auto player = findPlayerWith(viper);
     player->score(score);
 

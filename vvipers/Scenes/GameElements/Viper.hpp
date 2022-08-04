@@ -42,6 +42,8 @@ class Viper : public GameObject,
     void boost(double relativeSpeedIncrease);
     /** @returns the current stored boost duration **/
     Time boostCharge() const { return m_boostCharge; }
+    /** Adds boost charge but won't exceed maximum **/
+    void addBoostCharge(Time charge);
     /** @returns the maximum stored boost duration **/
     Time boostMax() const;
     /** Collidable override. @returns a list of all owned CollidableBody which

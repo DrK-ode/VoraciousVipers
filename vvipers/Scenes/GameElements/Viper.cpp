@@ -192,14 +192,23 @@ void Viper::update(Time elapsedTime) {
     cleanUpTrailingTrackPoints();
 }
 
-void Viper::updateBoostCharge(Time chargeChange) {
-    chargeChange = std::max(chargeChange, -m_boostCharge);
-    chargeChange =
-        std::min(chargeChange, viperCfg.boostMaxCharge - m_boostCharge);
-    m_boostCharge += chargeChange;
+void Viper::addBoostCharge(Time charge) {
+    auto oldCharge = m_boostCharge;
+    m_boostCharge += charge;
+    m_boostCharge = std::max(m_boostCharge, seconds(0));
+    m_boostCharge = std::min(m_boostCharge, boostMax());
 
-    ObjectModifiedEvent event(this);
-    notify(&event);
+    if (m_boostCharge != oldCharge) {
+        ObjectModifiedEvent event(this);
+        notify(&event);
+    }
+}
+
+void Viper::updateBoostCharge(Time elapsedTime) {
+    if (m_boostRechargeCooldown == seconds(0)) {
+        addBoostCharge(elapsedTime * viperCfg.boostRechargeRate);
+    } else if (m_boostInc > 0)
+        addBoostCharge(-elapsedTime);
 }
 
 void Viper::updateSpeed(const Time& elapsedTime) {
@@ -207,16 +216,12 @@ void Viper::updateSpeed(const Time& elapsedTime) {
     double targetSpeed = viperCfg.nominalSpeed;
     if (m_boostInc > 0) {
         targetSpeed *= (1 + m_boostInc);
-        updateBoostCharge(-elapsedTime);
         m_boostRechargeCooldown = viperCfg.boostRechargeCooldown;
     } else {
         m_boostRechargeCooldown -=
             std::min(m_boostRechargeCooldown, elapsedTime);
     }
-    if (m_boostRechargeCooldown == seconds(0) and
-        m_boostCharge < viperCfg.boostMaxCharge) {
-        updateBoostCharge(elapsedTime * viperCfg.boostRechargeRate);
-    }
+    updateBoostCharge(elapsedTime);
     if (m_speed < targetSpeed) {
         // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
