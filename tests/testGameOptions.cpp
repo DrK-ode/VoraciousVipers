@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <string>
+#include <memory>
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/config.hpp>
@@ -11,22 +12,11 @@ using namespace VVipers;
 
 namespace {
 
-class JsonTest : public ::testing::Test {
-  public:
-    JsonTest() {
-        debug::verbosity = Verbosity::silent;
-        std::ifstream input("test.json");
-        options = new OptionsJSON(input);
-        const std::string resPathOptStr("General/resourceDirectoryPath");
-        if (!options->isOptionSet(resPathOptStr))
-            options->setOptionString(resPathOptStr, RESOURCE_PATH);
-    }
-    ~JsonTest() { delete options; }
+TEST(JsonTest, basicReadTest) {
+    debug::verbosity = Verbosity::silent;
+    std::ifstream input("test.json");
+    auto options = std::make_unique<OptionsJSON>(input);
 
-    OptionsJSON* options;
-};
-
-TEST_F(JsonTest, basicReadTest) {
     EXPECT_FALSE(options->isOptionSet("value100"));
     EXPECT_TRUE(options->isOptionSet("value1"));
 
@@ -43,7 +33,11 @@ TEST_F(JsonTest, basicReadTest) {
     EXPECT_EQ(options->getOption2DVector("value3"), Vec2(3, 33));
 }
 
-TEST_F(JsonTest, subdirTest) {
+TEST(JsonTest, subdirTest) {
+    debug::verbosity = Verbosity::silent;
+    std::ifstream input("test.json");
+    auto options = std::make_unique<OptionsJSON>(input);
+
     EXPECT_THROW(options->getOptionDouble("value5"), Json::LogicError);
     EXPECT_THROW(options->getOptionString("value5"), Json::LogicError);
     EXPECT_THROW(options->getOption2DVector("value5"), Json::LogicError);
@@ -51,12 +45,19 @@ TEST_F(JsonTest, subdirTest) {
     EXPECT_EQ(options->getOptionDouble("value5/value52/value521"), 521);
 }
 
-TEST_F(JsonTest, arrayTest) {
+TEST(JsonTest, arrayTest) {
+    debug::verbosity = Verbosity::silent;
+    std::ifstream input("test.json");
+    auto options = std::make_unique<OptionsJSON>(input);
     std::vector<double> dblArray = {1, 2, 3, 4, 5, 6};
     EXPECT_EQ(options->getOptionDoubleArray("value6"), dblArray);
 }
 
-TEST_F(JsonTest, setTest) {
+TEST(JsonTest, setTest) {
+    debug::verbosity = Verbosity::silent;
+    std::ifstream input("test.json");
+    auto options = std::make_unique<OptionsJSON>(input);
+
     std::vector<double> dblArray = {1, 2, 3};
     std::vector<Vec2> vec2Array = {Vec2(1, 11), Vec2(2, 22), Vec2(3, 33)};
     options->setOptionDouble("extra1", 1.0);

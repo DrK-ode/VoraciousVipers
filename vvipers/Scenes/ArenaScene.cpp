@@ -19,18 +19,24 @@ namespace VVipers {
 using namespace std::chrono_literals;
 
 ArenaScene::ArenaScene(Game& game) : Scene(game) {
+    size_t numberOfPlayers =
+        game.getOptionsService().getOptionDouble("Players/numberOfPlayers");
     auto playerNames =
         game.getOptionsService().getOptionStringArray("Players/names");
     auto playerColors =
         game.getOptionsService().getOptionStringArray("Players/colors");
     auto playerKeys =
         game.getOptionsService().getOptionDoubleArray("Players/keys");
-    auto numberOfDivisions = playerNames.size() + 1;
-    if ((playerNames.size() != playerColors.size()) or
-        (playerNames.size() * 3 != playerKeys.size())) {
+    auto numberOfDivisions = numberOfPlayers + 1;
+    if ((playerNames.size() < numberOfPlayers) or
+        (playerColors.size() < numberOfPlayers) or
+        (playerKeys.size() < 3 * numberOfPlayers)) {
         throw std::runtime_error(
             "Wrong size of arrays in player configuration.");
     }
+    playerNames.resize(numberOfPlayers);
+    playerColors.resize(numberOfPlayers);
+    playerKeys.resize(3 * numberOfPlayers);
 
     Vec2 windowSize = getGame().getWindow().getSize();
     const sf::Vector2f statusBarRelSize(1. / numberOfDivisions, 0.1);
@@ -79,7 +85,7 @@ void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
         keys.boost = sf::Keyboard::Key(playerKeys[3 * i + 2]);
         auto controller = createController(keys);
         auto viper = addViper();
-        auto player = addPlayer(playerNames[i], stringToColor(playerColors[i]),
+        auto player = addPlayer(playerNames[i], colorFromRGBString(playerColors[i]),
                                 controller, viper, playerViews[i]);
     }
 }
