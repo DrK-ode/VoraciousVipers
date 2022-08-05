@@ -105,6 +105,11 @@ inline sf::Color colorFromHSL(double H, double S, double L) {
     return colorFromRGB(R, G, B);
 }
 
+inline sf::Color blendColors(sf::Color c1, double f1, sf::Color c2, double f2) {
+    return sf::Color(c1.r * f1 + c2.r * f2, c1.g * f1 + c2.g * f2,
+                     c1.b * f1 + c2.b * f2);
+}
+
 }  // namespace VVipers
 
 #endif  // VVIPERS_UTILITIES_VVCOLOR_HPP

@@ -41,12 +41,13 @@ class ArenaScene : public Scene, public Observer {
   private:
     controller_ptr createController(
         const KeyboardController::KeyboardControls& keys);
-    player_ptr addPlayer(const std::string& name, sf::Color color,
-                         controller_ptr controller, viper_ptr viper,
-                         sf::View view);
+    player_ptr addPlayer(const std::string& name, sf::Color primaryColor,
+                         sf::Color secondaryColor, controller_ptr controller,
+                         viper_ptr viper, sf::View view);
     void addPlayers(std::vector<std::string>& names,
-                    std::vector<std::string>& colors, std::vector<double>& keys,
-                    std::vector<sf::View>& views);
+                    std::vector<std::string>& primaryColors,
+                    std::vector<std::string>& secondaryColors,
+                    std::vector<double>& keys, std::vector<sf::View>& views);
     void deletePlayer(player_ptr player);
     viper_ptr addViper(/* Start conditions */);
     void deleteViper(Viper* viper);

@@ -1,6 +1,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <exception>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/config.hpp>
@@ -102,7 +103,10 @@ void Viper::die(const Time& elapsedTime) {
         state(Dead);
 }
 
-void Viper::addGrowth(const Time& g) { m_growth += g; }
+void Viper::addGrowth(Time howMuch, Time when) {
+    m_dinnerTimes[when] = howMuch;
+    // m_growth += g;
+}
 
 double Viper::length() const {
     return m_track.length(m_headPoint->getTime(),
@@ -114,9 +118,9 @@ void Viper::setup(const Vec2& headPosition, double angle,
     m_angle = angle;
     // Vec2 vipVec = Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
     m_temporalLength = seconds(0);
-    addGrowth(viperCfg.headDuration +
-              numberOfBodySegments * viperCfg.bodyDuration +
-              viperCfg.tailDuration);
+    m_growth =
+        (viperCfg.headDuration + numberOfBodySegments * viperCfg.bodyDuration +
+         viperCfg.tailDuration);
     m_track.create_back(headPosition, seconds(0));
     m_headPoint = m_track.front();
 }
@@ -151,7 +155,28 @@ void Viper::cleanUpTrailingTrackPoints() {
     }
 }
 
+void Viper::clearDinnerTimes() {
+    Time tailTime = m_headPoint->getTime() - m_temporalLength;
+    // Slightly wasteful but there will never be more than a handful dinner
+    // times stored at the same time.
+    for (auto& dinnerTime : m_dinnerTimes)
+        if (dinnerTime.first < tailTime) {
+            m_growth += dinnerTime.second;
+            dinnerTime.second = seconds(0);
+        }
+    // This loop can only remove a maximum of one time per update. But that's
+    // fine
+    for (auto& dinnerTime : m_dinnerTimes)
+        // Times 10 give us some margin but it would be nicer to specify
+        // exactly...
+        if (dinnerTime.first + 10 * viperCfg.bodyDuration < tailTime) {
+            m_dinnerTimes.erase(dinnerTime.first);
+            break;
+        }
+}
+
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw(m_headBody, states);
     target.draw(m_headBody, states);
     target.draw(m_bodyBody, states);
     target.draw(m_tailBody, states);
@@ -190,6 +215,7 @@ void Viper::update(Time elapsedTime) {
     updateMotion(elapsedTime);
     updateBodies();
     cleanUpTrailingTrackPoints();
+    clearDinnerTimes();
 }
 
 void Viper::addBoostCharge(Time charge) {
@@ -360,7 +386,8 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             Vec2 textCoords =
                 (Vec2(0.5f, iSeg) + sketch->at(iNode)) * textureSize;
             // All vertices have the same color atm
-            body->appendVertex(sf::Vertex(position, m_color, textCoords));
+            sf::Color color = calcVertexColor(time);
+            body->appendVertex(sf::Vertex(position, color, textCoords));
         }
         timeFront -= actualLength;  // Next segment will start here
     }
@@ -386,6 +413,30 @@ void Viper::updateBody(ViperPart part, Time timeFront,
             m_sensitiveParts[i] = body->bodyparts()[i];
     } else
         body->assignBodyParts(0, body->size(), nodesPerBodypart, sharedNodes);
+}
+
+sf::Color Viper::calcVertexColor(Time time) {
+    auto headSide = m_dinnerTimes.lower_bound(time);  // Closer to head
+    auto tailSide = m_dinnerTimes.end();
+    if (headSide != m_dinnerTimes.begin()) {
+        tailSide = headSide;
+        --tailSide;  // Closer to tail
+    }
+
+    auto distanceLimit = 2 * viperCfg.bodyDuration;
+    double sFactor = 0;
+    if (tailSide != m_dinnerTimes.end()) {
+        auto distance = time - tailSide->first;
+        if (distance < distanceLimit)
+            sFactor += (distanceLimit - distance) / (distanceLimit);
+    }
+    if (headSide != m_dinnerTimes.end()) {
+        auto distance = headSide->first - time;
+        if (distance < distanceLimit)
+            sFactor += (distanceLimit - distance) / (distanceLimit);
+    }
+    sFactor = std::min(1.0, sFactor);
+    return blendColors(m_primaryColor, 1. - sFactor, m_secondaryColor, sFactor);
 }
 
 }  // namespace VVipers

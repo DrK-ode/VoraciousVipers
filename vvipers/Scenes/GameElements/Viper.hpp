@@ -1,5 +1,5 @@
-#ifndef VVIPERS_VIPER_HPP
-#define VVIPERS_VIPER_HPP
+#ifndef VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP
+#define VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -28,8 +28,9 @@ class Viper : public GameObject,
               public Observable {
   public:
     Viper(const OptionsProvider& options, const TextureProvider& textures);
-    /** Adds time the Viper should spend growing. **/
-    void addGrowth(const Time& g);
+    /** Adds time the Viper should spend growing and where along the viper that
+     * growth is. **/
+    void addGrowth(Time howMuch, Time when);
     /** @return current direction of the head. **/
     double angle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
@@ -52,8 +53,12 @@ class Viper : public GameObject,
         return std::vector<const CollisionBody*>(
             {&m_headBody, &m_bodyBody, &m_tailBody});
     }
-    sf::Color color() const { return m_color; }
-    void color(sf::Color c) { m_color = c; }
+    sf::Color getPrimaryColor() const { return m_primaryColor; }
+    sf::Color getSecondaryColor() const { return m_secondaryColor; }
+    void setColors(sf::Color c1, sf::Color c2) {
+        m_primaryColor = c1;
+        m_secondaryColor = c2;
+    }
     /** Changes state to Dying and will evntually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
@@ -98,10 +103,13 @@ class Viper : public GameObject,
     enum class ViperPart { Head, Body, Tail };
     TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
+    void clearDinnerTimes();
     void grow(const Time& elapsedTime);
 
     void updateBodies();
     void updateBody(ViperPart, Time timeFront, const Time& temporalLength);
+    sf::Color calcVertexColor(Time time);
+
     void updateMotion(const Time& elapsedTime);
     void updateSpeed(const Time& elapsedTime);
     void updateAngle(const Time& elapsedTime);
@@ -122,8 +130,10 @@ class Viper : public GameObject,
     CollisionVertices m_bodyBody;
     CollisionVertices m_tailBody;
     std::vector<const Bodypart*> m_sensitiveParts;
-    sf::Color m_color;
+    sf::Color m_primaryColor;
+    sf::Color m_secondaryColor;
+    std::map<Time,Time> m_dinnerTimes;
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_VIPER_HPP
+#endif  // VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP

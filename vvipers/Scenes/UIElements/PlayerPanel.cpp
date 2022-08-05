@@ -31,8 +31,8 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     // Setup boost bar
     m_boostBar.setSize(boostBarSize);
     m_boostBar.setBorderWidth(2);
-    m_boostBar.setBarColor(sf::Color::Red);
-    m_boostBar.setBorderColor(player->color());
+    m_boostBar.setBarColor(player->getSecondaryColor());
+    m_boostBar.setBorderColor(player->getPrimaryColor());
     m_boostBar.setVertical(true);
     m_boostBar.setProgress( toSeconds(player->viper()->boostCharge()));
     // Setup score bar
@@ -74,7 +74,7 @@ void PlayerPanel::onNotify(const GameEvent* event) {
 
 void PlayerPanel::updateNameString() {
     m_nameText.setString(m_player->name());
-    m_nameText.setFillColor(m_player->color());
+    m_nameText.setFillColor(m_player->getPrimaryColor());
 }
 
 void PlayerPanel::updateScoreString() {

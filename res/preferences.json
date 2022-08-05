@@ -6,10 +6,11 @@
         "defaultFont": "DroidSansMono"
     },
     "Players": {
-        "numberOfPlayers": 2,
+        "numberOfPlayers": 1,
         "names": ["DrK", "MrTest"],
         "keys": [71, 72, 73, 0, 3, 22],
-        "colors": ["#ff0000", "#00ff00"]
+        "primaryColors": ["#ff0000", "#00ff00"],
+        "secondaryColors": ["#00ffff", "#ffff00"]
     },
     "Viper": {
         "nominalSpeed":         100,

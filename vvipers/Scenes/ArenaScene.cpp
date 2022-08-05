@@ -23,19 +23,23 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
         game.getOptionsService().getOptionDouble("Players/numberOfPlayers");
     auto playerNames =
         game.getOptionsService().getOptionStringArray("Players/names");
-    auto playerColors =
-        game.getOptionsService().getOptionStringArray("Players/colors");
+    auto playerPrimaryColors =
+        game.getOptionsService().getOptionStringArray("Players/primaryColors");
+    auto playerSecondaryColors = game.getOptionsService().getOptionStringArray(
+        "Players/secondaryColors");
     auto playerKeys =
         game.getOptionsService().getOptionDoubleArray("Players/keys");
     auto numberOfDivisions = numberOfPlayers + 1;
     if ((playerNames.size() < numberOfPlayers) or
-        (playerColors.size() < numberOfPlayers) or
+        (playerPrimaryColors.size() < numberOfPlayers) or
+        (playerSecondaryColors.size() < numberOfPlayers) or
         (playerKeys.size() < 3 * numberOfPlayers)) {
         throw std::runtime_error(
             "Wrong size of arrays in player configuration.");
     }
     playerNames.resize(numberOfPlayers);
-    playerColors.resize(numberOfPlayers);
+    playerPrimaryColors.resize(numberOfPlayers);
+    playerSecondaryColors.resize(numberOfPlayers);
     playerKeys.resize(3 * numberOfPlayers);
 
     Vec2 windowSize = getGame().getWindow().getSize();
@@ -65,7 +69,8 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
     m_collisionDetector.registerCollidable(m_walls.get());
     // The players must absolutely be added _after_ the level has been filled
     // with obstacles, otherwise they might end up inside of them
-    addPlayers(playerNames, playerColors, playerKeys, statusBarViews);
+    addPlayers(playerNames, playerPrimaryColors, playerSecondaryColors,
+               playerKeys, statusBarViews);
 
     // Only create one pause screen so that it can be reused
     m_pauseScene = std::make_shared<PauseScene>(getGame());
@@ -74,7 +79,8 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
 ArenaScene::~ArenaScene() {}
 
 void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
-                            std::vector<std::string>& playerColors,
+                            std::vector<std::string>& primaryColors,
+                            std::vector<std::string>& secondaryColors,
                             std::vector<double>& playerKeys,
                             std::vector<sf::View>& playerViews) {
     auto numberOfPlayers = playerNames.size();
@@ -86,8 +92,9 @@ void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
         auto controller = createController(keys);
         auto viper = addViper();
         auto player =
-            addPlayer(playerNames[i], colorFromRGBString(playerColors[i]),
-                      controller, viper, playerViews[i]);
+            addPlayer(playerNames[i], colorFromRGBString(primaryColors[i]),
+                      colorFromRGBString(secondaryColors[i]), controller, viper,
+                      playerViews[i]);
     }
 }
 
@@ -105,11 +112,13 @@ controller_ptr ArenaScene::createController(
         throw std::runtime_error("Inconsistently set controller keys.");
 }
 
-player_ptr ArenaScene::addPlayer(const std::string& name, sf::Color color,
+player_ptr ArenaScene::addPlayer(const std::string& name,
+                                 sf::Color primaryColor,
+                                 sf::Color secondaryColor,
                                  controller_ptr controller, viper_ptr viper,
                                  sf::View view) {
     auto player = make_shared<Player>(name, controller, viper);
-    player->color(color);
+    player->setColors(primaryColor, secondaryColor);
     m_players.insert(player);
     auto panel = std::make_unique<PlayerPanel>(view, player.get(),
                                                getGame().getFontService());
@@ -177,7 +186,7 @@ void ArenaScene::deleteFood(Food* food) {
 }
 
 void ArenaScene::eatFood(Viper* viper, Food* food) {
-    viper->addGrowth(1s * food->getSize() / Food::nominalFoodSize);
+    viper->addGrowth(1s * food->getSize() / Food::nominalFoodSize, viper->head()->getTime());
     viper->addBoostCharge(0.5s);
     food->state(GameObject::Dying);
     score_t score = 10. * toSeconds(viper->temporalLength()) * food->getSize() /
@@ -413,7 +422,7 @@ void ArenaScene::processEvent(const sf::Event& event) {
     switch (event.type) {
         case sf::Event::Closed: {
             setSceneState(SceneState::Paused);
-            setTransitionState(TransitionState::Return);
+            setTransitionState(TransitionState::Quit);
             break;
         }
         case sf::Event::Resized: {

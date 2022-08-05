@@ -1,5 +1,5 @@
-#ifndef VVIPERS_PLAYER_HPP
-#define VVIPERS_PLAYER_HPP
+#ifndef VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
+#define VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
 
 #include <memory>
 #include <SFML/Graphics/Color.hpp>
@@ -24,8 +24,9 @@ class Player : public GameObject, public Observable {
         return (level - 1) * 1000;
     }
 
-    sf::Color color() const { return m_color; }
-    void color(sf::Color c);
+    sf::Color getPrimaryColor() const { return m_primaryColor; }
+    sf::Color getSecondaryColor() const { return m_secondaryColor; }
+    void setColors(sf::Color c1, sf::Color c2);
     const Controller* controller() const { return m_controller.get(); }
     void controller(std::shared_ptr<Controller> c) { m_controller = c; }
     std::string name() const { return m_name; }
@@ -36,11 +37,12 @@ class Player : public GameObject, public Observable {
 
   private:
     std::string m_name;
-    sf::Color m_color;
+    sf::Color m_primaryColor;
+    sf::Color m_secondaryColor;
     std::shared_ptr<Controller> m_controller;
     score_t m_score;
     std::shared_ptr<Viper> m_viper;
 };
 
 }  // namespace VVipers
-#endif
+#endif // VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
