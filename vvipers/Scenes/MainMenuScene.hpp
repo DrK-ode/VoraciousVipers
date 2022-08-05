@@ -16,7 +16,9 @@ class MainMenuScene : public MenuScene {
 
   private:
     std::unique_ptr<MenuButton> m_playButton;
+    std::unique_ptr<MenuButton> m_optionsButton;
     std::unique_ptr<MenuButton> m_quitButton;
+    std::unique_ptr<Scene> m_transitionTo;
 };
 
 }  // namespace VVipers

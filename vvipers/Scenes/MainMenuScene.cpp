@@ -1,6 +1,7 @@
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/UIElements/MenuButton.hpp>
 #include <vvipers/Scenes/ArenaScene.hpp>
+#include <vvipers/Scenes/OptionsMenuScene.hpp>
 
 namespace VVipers
 {
@@ -18,6 +19,11 @@ MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
     m_playButton->setFont( *game.getFontService().getDefaultFont() );
     addItem(m_playButton.get());
 
+    m_optionsButton = std::make_unique<MenuButton>();
+    m_optionsButton->setLabel("Options");
+    m_optionsButton->setFont( *game.getFontService().getDefaultFont() );
+    addItem(m_optionsButton.get());
+
     m_quitButton = std::make_unique<MenuButton>();
     m_quitButton->setLabel("Quit");
     m_quitButton->setFont( *game.getFontService().getDefaultFont() );
@@ -31,6 +37,11 @@ void MainMenuScene::onMenuItemActivation(MenuItem* menuItem){
     if( menuItem == m_playButton.get()){
         setSceneState(SceneState::Paused);
         setTransitionState(TransitionState::Spawn );
+        m_transitionTo = std::make_unique<ArenaScene>( getGame());
+    }else if( menuItem == m_optionsButton.get()){
+        setSceneState(SceneState::Paused);
+        setTransitionState(TransitionState::Spawn );
+        m_transitionTo = std::make_unique<OptionsMenuScene>( getGame());
     }else if( menuItem == m_quitButton.get()){
         setSceneState(SceneState::Paused);
         setTransitionState(TransitionState::Quit );
@@ -38,7 +49,7 @@ void MainMenuScene::onMenuItemActivation(MenuItem* menuItem){
 }
 
 scene_ptr MainMenuScene::makeTransition(){
-    return scene_ptr( new ArenaScene( getGame()) );
+    return std::move(m_transitionTo);
 }
 
     

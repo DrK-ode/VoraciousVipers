@@ -27,6 +27,7 @@ set(INC_FILES
     Scenes/GameElements/Walls.hpp
     Scenes/GameOverScene.hpp
     Scenes/MainMenuScene.hpp
+    Scenes/OptionsMenuScene.hpp
     Scenes/PauseScene.hpp
     Scenes/UIElements/Controller.hpp
     Scenes/UIElements/FlyingScore.hpp
@@ -67,6 +68,7 @@ set(SRC_FILES
     Scenes/GameElements/Walls.cpp
     Scenes/GameOverScene.cpp
     Scenes/MainMenuScene.cpp
+    Scenes/OptionsMenuScene.cpp
     Scenes/PauseScene.cpp
     Scenes/UIElements/Controller.cpp
     Scenes/UIElements/FlyingScore.cpp
