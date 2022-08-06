@@ -1,8 +1,8 @@
 #ifndef VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
 #define VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
 
-#include <SFML/Graphics/Rect.hpp>
 #include <memory>
+#include <SFML/Graphics/Rect.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {

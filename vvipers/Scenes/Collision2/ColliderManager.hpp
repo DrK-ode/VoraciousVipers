@@ -2,7 +2,6 @@
 #define VVIPERS_SCENES_COLLISION2_COLLIDERMANAGER_HPP
 
 #include <set>
-#include <vector>
 #include <memory>
 #include <vvipers/Scenes/Collision2/Collider.hpp>
 

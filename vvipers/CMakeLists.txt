@@ -12,6 +12,7 @@ set(INC_FILES
     Scenes/ArenaScene.hpp
     Scenes/Collision2/Collider.hpp
     Scenes/Collision2/ColliderManager.hpp
+    Scenes/Collision2/Shape.hpp
     Scenes/Collision/Bodypart.hpp
     Scenes/Collision/Collidable.hpp
     Scenes/Collision/CollisionBody.hpp
