@@ -21,27 +21,33 @@ struct ColliderPtr {
 struct CollisionResult {
     std::unique_ptr<ColliderPtr> colliderA;
     std::unique_ptr<ColliderPtr> colliderB;
+    std::unique_ptr<CollisionResult> nextCollision;
 
-    explicit operator bool() const { return colliderA && colliderB; }
+    explicit operator bool() const { return colliderA and colliderB; }
 };
 
 class Collider {
   public:
     enum class ColliderType { CircleLike, Polygon, Segmented };
 
-    Collider(ColliderType type);
+    Collider(ColliderType type, bool active) : m_type(type), m_active(active) {}
     ColliderType getType() const { return m_type; }
     virtual bool inside(Vec2) const = 0;
     virtual sf::FloatRect getBounds() const = 0;
-    CollisionResult collision(const Collider& body) const;
-    CollisionResult collisionSegmented(const ColliderSegmented& body) const;
-    virtual CollisionResult collisionCircle(
-        const ColliderCircle& circle) const = 0;
-    virtual CollisionResult collisionPolygon(
-        const ColliderPolygon& polygon) const = 0;
+    std::unique_ptr<CollisionResult> collision(const Collider& body) const;
+    void setActive(bool active) { m_active = active; }
+    bool isActive() const { return m_active; }
 
   private:
+    std::unique_ptr<CollisionResult> collisionSegmented(
+        const ColliderSegmented& body) const;
+    virtual std::unique_ptr<CollisionResult> collisionCircle(
+        const ColliderCircle& circle) const = 0;
+    virtual std::unique_ptr<CollisionResult> collisionPolygon(
+        const ColliderPolygon& polygon) const = 0;
+
     ColliderType m_type;
+    bool m_active;
 };
 
 /** Wraps any object that provides the methods getPosition() and getRadius().
@@ -64,15 +70,13 @@ class ColliderCircle : public Collider {
         double getRadius() const override {
             return wrappedCircleObject.getRadius();
         }
-
-      private:
         const T wrappedCircleObject;
     };
 
   public:
     template <typename T>
-    ColliderCircle(const T& object)
-        : Collider(ColliderType::CircleLike),
+    ColliderCircle(const T& object, bool active)
+        : Collider(ColliderType::CircleLike, active),
           m_circleLikeObject(CircleWrapper<T>(object)) {}
     Vec2 getPosition() const { return m_circleLikeObject.getPosition(); }
     double getRadius() const { return m_circleLikeObject.getRadius(); }
@@ -80,12 +84,14 @@ class ColliderCircle : public Collider {
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
     bool inside(Vec2) const override;
-    CollisionResult collisionCircle(
-        const ColliderCircle& circle) const override;
-    CollisionResult collisionPolygon(
-        const ColliderPolygon& polygon) const override;
 
   private:
+    /** Overrides from Collider **/
+    std::unique_ptr<CollisionResult> collisionCircle(
+        const ColliderCircle& circle) const override;
+    std::unique_ptr<CollisionResult> collisionPolygon(
+        const ColliderPolygon& polygon) const override;
+
     const CircleLikeObject& m_circleLikeObject;
 };
 
@@ -116,8 +122,8 @@ class ColliderPolygon : public Collider {
 
   public:
     template <typename T>
-    ColliderPolygon(const T& object)
-        : Collider(ColliderType::Polygon),
+    ColliderPolygon(const T& object, bool active)
+        : Collider(ColliderType::Polygon, active),
           m_polygonObject(PolygonWrapper<T>(object)) {}
     Vec2 getGlobalPoint(size_t i) const {
         return m_polygonObject.getGlobalPoint(i);
@@ -127,12 +133,14 @@ class ColliderPolygon : public Collider {
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
     bool inside(Vec2) const override;
-    CollisionResult collisionCircle(
-        const ColliderCircle& circle) const override;
-    CollisionResult collisionPolygon(
-        const ColliderPolygon& polygon) const override;
 
   private:
+    /** Overrides from Collider **/
+    std::unique_ptr<CollisionResult> collisionCircle(
+        const ColliderCircle& circle) const override;
+    std::unique_ptr<CollisionResult> collisionPolygon(
+        const ColliderPolygon& polygon) const override;
+
     const PolygonObject& m_polygonObject;
 };
 
@@ -163,8 +171,8 @@ class ColliderSegmented : public Collider {
 
   public:
     template <typename T>
-    ColliderSegmented(const T& object)
-        : Collider(ColliderType::Segmented),
+    ColliderSegmented(const T& object, bool active)
+        : Collider(ColliderType::Segmented, active),
           m_segmentedObject(SegmentedWrapper<T>(object)) {}
     size_t getSegmentCount() const {
         return m_segmentedObject.getSegmentCount();
@@ -176,12 +184,14 @@ class ColliderSegmented : public Collider {
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
     bool inside(Vec2) const override;
-    CollisionResult collisionCircle(
-        const ColliderCircle& circle) const override;
-    CollisionResult collisionPolygon(
-        const ColliderPolygon& polygon) const override;
 
   private:
+    /** Overrides from Collider **/
+    std::unique_ptr<CollisionResult> collisionCircle(
+        const ColliderCircle& circle) const override;
+    std::unique_ptr<CollisionResult> collisionPolygon(
+        const ColliderPolygon& polygon) const override;
+
     const SegmentedObject& m_segmentedObject;
 };
 

@@ -11,6 +11,7 @@ set(INC_FILES
     Engine/TextureFileLoader.hpp
     Scenes/ArenaScene.hpp
     Scenes/Collision2/Collider.hpp
+    Scenes/Collision2/ColliderManager.hpp
     Scenes/Collision/Bodypart.hpp
     Scenes/Collision/Collidable.hpp
     Scenes/Collision/CollisionBody.hpp
@@ -53,6 +54,7 @@ set(SRC_FILES
     Engine/TextureFileLoader.cpp
     Scenes/ArenaScene.cpp
     Scenes/Collision2/Collider.cpp
+    Scenes/Collision2/ColliderManager.cpp
     Scenes/Collision/Bodypart.cpp
     Scenes/Collision/Collidable.cpp
     Scenes/Collision/CollisionBody.cpp
