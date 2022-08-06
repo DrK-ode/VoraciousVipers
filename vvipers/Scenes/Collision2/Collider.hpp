@@ -1,8 +1,8 @@
 #ifndef VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
 #define VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
 
-#include <memory>
 #include <SFML/Graphics/Rect.hpp>
+#include <memory>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {
@@ -77,9 +77,9 @@ class ColliderCircle : public Collider {
     template <typename T>
     ColliderCircle(const T& object, bool active)
         : Collider(ColliderType::CircleLike, active),
-          m_circleLikeObject(CircleWrapper<T>(object)) {}
-    Vec2 getPosition() const { return m_circleLikeObject.getPosition(); }
-    double getRadius() const { return m_circleLikeObject.getRadius(); }
+          m_circleLikeObject( std::make_unique<CircleWrapper<T>>(object)) {}
+    Vec2 getPosition() const { return m_circleLikeObject->getPosition(); }
+    double getRadius() const { return m_circleLikeObject->getRadius(); }
 
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
@@ -92,7 +92,7 @@ class ColliderCircle : public Collider {
     std::unique_ptr<CollisionResult> collisionPolygon(
         const ColliderPolygon& polygon) const override;
 
-    const CircleLikeObject& m_circleLikeObject;
+    const std::unique_ptr<CircleLikeObject> m_circleLikeObject;
 };
 
 /** Wraps any object that provides the methods getPointCount() and
@@ -110,7 +110,7 @@ class ColliderPolygon : public Collider {
         PolygonWrapper(const T& polygonObject)
             : wrappedPolygonObject(polygonObject) {}
         Vec2 getGlobalPoint(size_t i) const override {
-            return wrappedPolygonObject.getPoint(i);
+            return wrappedPolygonObject.getGlobalPoint(i);
         }
         size_t getPointCount() const override {
             return wrappedPolygonObject.getPointCount();
@@ -124,11 +124,11 @@ class ColliderPolygon : public Collider {
     template <typename T>
     ColliderPolygon(const T& object, bool active)
         : Collider(ColliderType::Polygon, active),
-          m_polygonObject(PolygonWrapper<T>(object)) {}
+          m_polygonObject( std::make_unique<PolygonWrapper<T>>(object)) {}
     Vec2 getGlobalPoint(size_t i) const {
-        return m_polygonObject.getGlobalPoint(i);
+        return m_polygonObject->getGlobalPoint(i);
     }
-    size_t getPointCount() const { return m_polygonObject.getPointCount(); }
+    size_t getPointCount() const { return m_polygonObject->getPointCount(); }
 
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
@@ -141,7 +141,7 @@ class ColliderPolygon : public Collider {
     std::unique_ptr<CollisionResult> collisionPolygon(
         const ColliderPolygon& polygon) const override;
 
-    const PolygonObject& m_polygonObject;
+    const std::unique_ptr<PolygonObject> m_polygonObject;
 };
 
 /** Wraps any object that provides the methods getSegmentCount() and
@@ -150,7 +150,9 @@ class ColliderSegmented : public Collider {
   private:
     struct SegmentedObject {
         virtual size_t getSegmentCount() const = 0;
-        virtual const Collider& getSegment(size_t) const = 0;
+        virtual size_t getSegmentPointCount(size_t) const = 0;
+        virtual Vec2 getSegmentGlobalPoint(size_t, size_t) const = 0;
+        virtual bool isSegmentActive(size_t i) const = 0;
     };
 
     template <typename T>
@@ -158,11 +160,17 @@ class ColliderSegmented : public Collider {
       public:
         SegmentedWrapper(const T& polygonObject)
             : wrappedSegmentedObject(polygonObject) {}
-        const Collider& getSegment(size_t i) const override {
-            return wrappedSegmentedObject.getSegment(i);
-        }
         size_t getSegmentCount() const override {
             return wrappedSegmentedObject.getSegmentCount();
+        }
+        Vec2 getSegmentGlobalPoint(size_t i, size_t j) const override {
+            return wrappedSegmentedObject.getSegmentGlobalPoint(i, j);
+        }
+        size_t getSegmentPointCount(size_t i) const override {
+            return wrappedSegmentedObject.getSegmentPointCount(i);
+        }
+        bool isSegmentActive(size_t i) const {
+            return wrappedSegmentedObject.isSegmentActive(i);
         }
 
       private:
@@ -170,16 +178,45 @@ class ColliderSegmented : public Collider {
     };
 
   public:
+    class PolygonSegment {
+      public:
+        PolygonSegment(const ColliderSegmented& segmented)
+            : m_segmented(segmented) {}
+        /** These four methods allow the PolygonSegment to act as a base for a
+         * ColliderPolygon but getting its data from a ColliderSegmented. Which
+         * of the segments that are active is controlled by the
+         * setCurrentSegment method. **/
+        bool isActive() const {
+            return m_segmented.isSegmentActive(m_currentSegment);
+        }
+        void setCurrentSegment(size_t i) { m_currentSegment = i; }
+        Vec2 getGlobalPoint(size_t j) const {
+            return m_segmented.getSegmentGlobalPoint(m_currentSegment, j);
+        }
+        size_t getPointCount() const {
+            return m_segmented.getSegmentPointCount(m_currentSegment);
+        }
+
+      private:
+        const ColliderSegmented& m_segmented;
+        size_t m_currentSegment;
+    };
+
+  public:
     template <typename T>
     ColliderSegmented(const T& object, bool active)
         : Collider(ColliderType::Segmented, active),
-          m_segmentedObject(SegmentedWrapper<T>(object)) {}
+          m_segmentedObject( std::make_unique<SegmentedWrapper<T>>(object)) {}
     size_t getSegmentCount() const {
-        return m_segmentedObject.getSegmentCount();
+        return m_segmentedObject->getSegmentCount();
     }
-    const Collider& getSegment(size_t i) const {
-        return m_segmentedObject.getSegment(i);
+    Vec2 getSegmentGlobalPoint(size_t i, size_t j) const {
+        return m_segmentedObject->getSegmentGlobalPoint(i, j);
     }
+    size_t getSegmentPointCount(size_t i) const {
+        return m_segmentedObject->getSegmentPointCount(i);
+    }
+    bool isSegmentActive(size_t i) const { return m_segmentedObject->isSegmentActive(i); }
 
     /** Overrides from Collider **/
     sf::FloatRect getBounds() const override;
@@ -192,7 +229,7 @@ class ColliderSegmented : public Collider {
     std::unique_ptr<CollisionResult> collisionPolygon(
         const ColliderPolygon& polygon) const override;
 
-    const SegmentedObject& m_segmentedObject;
+    const std::unique_ptr<SegmentedObject> m_segmentedObject;
 };
 
 }  // namespace VVipers

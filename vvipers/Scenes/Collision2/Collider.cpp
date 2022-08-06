@@ -31,8 +31,12 @@ std::unique_ptr<CollisionResult> Collider::collisionSegmented(
     const ColliderSegmented& segmented) const {
     auto combinedResult = std::make_unique<CollisionResult>();
     auto nextResult = &combinedResult;
+    ColliderSegmented::PolygonSegment polygonSegment(segmented);
+    ColliderPolygon colliderPolygon(polygonSegment, segmented.isActive());
     for (size_t i = 0; i < segmented.getSegmentCount(); ++i) {
-        auto result = collision(segmented.getSegment(i));
+        polygonSegment.setCurrentSegment(i);
+        colliderPolygon.setActive(polygonSegment.isActive());
+        auto result = collision(colliderPolygon);
         if (result) {
             auto newResult = std::make_unique<CollisionResult>();
             newResult->colliderA = std::make_unique<ColliderPtr>(
@@ -189,17 +193,27 @@ void combineBounds(sf::FloatRect& bounds, const sf::FloatRect& b) {
 }
 
 sf::FloatRect ColliderSegmented::getBounds() const {
-    sf::FloatRect bounds;
-    for (size_t i = 0; i < getSegmentCount(); ++i) {
-        auto b = getSegment(i).getBounds();
-        combineBounds(bounds, b);
-    }
-    return bounds;
+    double xmin = std::numeric_limits<double>::max();
+    double ymin = std::numeric_limits<double>::max();
+    double xmax = std::numeric_limits<double>::lowest();
+    double ymax = std::numeric_limits<double>::lowest();
+    for (size_t i = 0; i < this->getSegmentCount(); ++i)
+        for (size_t j = 0; j < getSegmentPointCount(i); ++j) {
+            auto point = getSegmentGlobalPoint(i, j);
+            xmin = std::min(xmin, point.x);
+            xmax = std::max(xmax, point.x);
+            ymin = std::min(ymin, point.y);
+            ymax = std::max(ymax, point.y);
+        }
+    return sf::FloatRect(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
 bool ColliderSegmented::inside(Vec2 point) const {
-    for (size_t i = 0; i < getSegmentCount(); ++i) {
-        if (getSegment(i).inside(point)) {
+    ColliderSegmented::PolygonSegment polygonSegment(*this);
+    ColliderPolygon colliderPolygon(polygonSegment, this->isActive());
+    for (size_t i = 0; i < this->getSegmentCount(); ++i) {
+        polygonSegment.setCurrentSegment(i);
+        if (colliderPolygon.inside(point)) {
             return true;
             break;
         }
