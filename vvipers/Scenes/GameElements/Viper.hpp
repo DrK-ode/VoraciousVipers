@@ -4,12 +4,11 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Vertex.hpp>
 #include <memory>
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
-#include <vvipers/Scenes/Collision/Bodypart.hpp>
-#include <vvipers/Scenes/Collision/Collidable.hpp>
-#include <vvipers/Scenes/Collision/CollisionVertices.hpp>
+#include <vvipers/Scenes/Collision2/Collider.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
@@ -23,8 +22,8 @@ namespace VVipers {
  * representation.
  */
 class Viper : public GameObject,
-              public Collidable,
               public sf::Drawable,
+              public ColliderSegmented,
               public Observable {
   public:
     Viper(const OptionsProvider& options, const TextureProvider& textures);
@@ -38,28 +37,22 @@ class Viper : public GameObject,
     void angle(double a) { m_angle = mod180Deg(a); }
     /** @returns the amount of boost the Viper is currently receiving **/
     double boost() const { return m_boostInc; }
-    /** Sets the relative amount the speed should be increased by.
-     * Typically values around 1.0. **/
-    void boost(double relativeSpeedIncrease);
     /** @returns the current stored boost duration **/
     Time boostCharge() const { return m_boostCharge; }
     /** Adds boost charge but won't exceed maximum **/
     void addBoostCharge(Time charge);
     /** @returns the maximum stored boost duration **/
     Time boostMax() const;
-    /** Collidable override. @returns a list of all owned CollidableBody which
-     * for a Viper is the head, body and tail. **/
-    std::vector<const CollisionBody*> collisionBodies() const override {
-        return std::vector<const CollisionBody*>(
-            {&m_headBody, &m_bodyBody, &m_tailBody});
-    }
+    /** @returns the main color. **/
     sf::Color getPrimaryColor() const { return m_primaryColor; }
+    /** @returns the secondary color used for effects. **/
     sf::Color getSecondaryColor() const { return m_secondaryColor; }
+    /** Sets both the main and secondary color. **/
     void setColors(sf::Color c1, sf::Color c2) {
         m_primaryColor = c1;
         m_secondaryColor = c2;
     }
-    /** Changes state to Dying and will evntually become dead **/
+    /** Changes state to Dying and will eventually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -67,8 +60,6 @@ class Viper : public GameObject,
     const Track& getTrack() const { return m_track; }
     /** @returns The first point on the track the Viper is following. **/
     const TrackPoint* head() const { return m_headPoint; }
-    /** @returns true if the Bodypart is one of the Vipers vulnerable parts **/
-    bool isSensitive(const Bodypart*) const;
     /** @returns Normal (spatial) length of the Viper. **/
     double length() const;
     /** Initiliazes the position and direction of the Viper given the specified
@@ -78,6 +69,7 @@ class Viper : public GameObject,
     void speed(double s) { m_speed = s; }
     /** @returns current speed. **/
     double speed() const { return m_speed; }
+    /** Sets how fast the angle chanes as well as the boost factor **/
     void steer(double angularSpeed, double boost) {
         m_angularSpeed = angularSpeed;
         m_boostInc = boost;
@@ -96,6 +88,12 @@ class Viper : public GameObject,
                Vec2(std::cos(degToRad(m_angle)), std::sin(degToRad(m_angle)));
     }
 
+    /** Methods overriden from ColliderSegmented **/
+    size_t getSegmentCount() const override;
+    size_t getSegmentPointCount(size_t) const override { return 4; }
+    Vec2 getSegmentGlobalPoint(size_t i, size_t j) const override;
+    bool isSegmentActive(size_t i) const override;
+
   private:
     struct ViperConfiguration;
     static ViperConfiguration viperCfg;
@@ -106,8 +104,8 @@ class Viper : public GameObject,
     void clearDinnerTimes();
     void grow(const Time& elapsedTime);
 
-    void updateBodies();
-    void updateBody(ViperPart, Time timeFront, const Time& temporalLength);
+    void updateVertices();
+    void updateVertices(ViperPart, Time timeFront, const Time& temporalLength);
     sf::Color calcVertexColor(Time time);
 
     void updateMotion(const Time& elapsedTime);
@@ -126,13 +124,13 @@ class Viper : public GameObject,
     Time m_growth;                 // s
     TrackPoint* m_headPoint;
     Track m_track;
-    CollisionVertices m_headBody;
-    CollisionVertices m_bodyBody;
-    CollisionVertices m_tailBody;
-    std::vector<const Bodypart*> m_sensitiveParts;
     sf::Color m_primaryColor;
     sf::Color m_secondaryColor;
-    std::map<Time,Time> m_dinnerTimes;
+    std::map<Time, Time> m_dinnerTimes;
+
+    std::vector<sf::Vertex> m_verticesHead;
+    std::vector<sf::Vertex> m_verticesBody;
+    std::vector<sf::Vertex> m_verticesTail;
 };
 
 }  // namespace VVipers

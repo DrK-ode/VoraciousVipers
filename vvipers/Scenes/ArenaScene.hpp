@@ -7,7 +7,7 @@
 #include <vector>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Scenes/Collision/CollisionDetector.hpp>
+#include <vvipers/Scenes/Collision2/ColliderManager.hpp>
 #include <vvipers/Scenes/GameElements/Food.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
@@ -70,7 +70,7 @@ class ArenaScene : public Scene, public Observer {
     void dispenseFood();
 
     void processGameEvents();
-    void handleCollision(const Colliders& c);
+    void handleCollision(const ColliderSegment& cA, const ColliderSegment& cB);
     void handleCollisions();
     void handleSteering();
     void handleDestruction(const DestroyEvent* event);
@@ -94,7 +94,7 @@ class ArenaScene : public Scene, public Observer {
     walls_ptr m_walls;
 
     std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
-    CollisionDetector m_collisionDetector;
+    ColliderManager m_colliderManager;
 };
 
 }  // namespace VVipers

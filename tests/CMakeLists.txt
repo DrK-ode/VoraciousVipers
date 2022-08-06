@@ -3,7 +3,7 @@ find_package(GTest REQUIRED)
 
 add_executable(
   vvtest
-  testCollidable.cpp
+  testCollision.cpp
   testColor.cpp
   testGameOptions.cpp
   testMath.cpp

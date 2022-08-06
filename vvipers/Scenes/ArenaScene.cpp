@@ -4,7 +4,6 @@
 #include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/ArenaScene.hpp>
-#include <vvipers/Scenes/Collision/Bodypart.hpp>
 #include <vvipers/Scenes/GameElements/Player.hpp>
 #include <vvipers/Scenes/GameElements/Viper.hpp>
 #include <vvipers/Scenes/GameElements/Walls.hpp>
@@ -66,7 +65,8 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
 
     m_walls = std::make_unique<Walls>(gameSize);
-    m_collisionDetector.registerCollidable(m_walls.get());
+    m_colliderManager.registerCollider(*m_walls.get());
+
     // The players must absolutely be added _after_ the level has been filled
     // with obstacles, otherwise they might end up inside of them
     addPlayers(playerNames, playerPrimaryColors, playerSecondaryColors,
@@ -150,7 +150,7 @@ viper_ptr ArenaScene::addViper(/* startConditions? */) {
     auto position = findFreeRect(exclusionZoneSize, otherVipers);
     viper->setup(position, Random::getDouble(0, 360), 5);
     viper->addObserver(this, {GameEvent::EventType::Destroy});
-    m_collisionDetector.registerCollidable(viper.get());
+    m_colliderManager.registerCollider(*viper.get());
     // Container takes ownership, ptr viper is no longer valid
     m_vipers.insert(viper);
     return viper;
@@ -159,7 +159,7 @@ viper_ptr ArenaScene::addViper(/* startConditions? */) {
 void ArenaScene::killViper(Viper* viper) { viper->state(GameObject::Dying); }
 
 void ArenaScene::deleteViper(Viper* viper) {
-    m_collisionDetector.deRegisterCollidable(viper);
+    m_colliderManager.deRegisterCollider(*viper);
     for (auto& v : m_vipers)
         if (v.get() == viper) {
             m_vipers.erase(v);
@@ -170,14 +170,14 @@ void ArenaScene::deleteViper(Viper* viper) {
 void ArenaScene::addFood(Vec2 position, double diameter) {
     auto food = std::make_unique<Food>(position, diameter);
     // Check for collisions
-    m_collisionDetector.registerCollidable(food.get());
+    m_colliderManager.registerCollider(*food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
     // Container takes ownership, ptr food is no longer valid
     m_food.insert(std::move(food));
 }
 
 void ArenaScene::deleteFood(Food* food) {
-    m_collisionDetector.deRegisterCollidable(food);
+    m_colliderManager.deRegisterCollider(*food);
     for (auto& f : m_food)
         if (f.get() == food) {
             m_food.erase(f);
@@ -186,11 +186,12 @@ void ArenaScene::deleteFood(Food* food) {
 }
 
 void ArenaScene::eatFood(Viper* viper, Food* food) {
-    viper->addGrowth(1s * food->getSize() / Food::nominalFoodSize, viper->head()->getTime());
+    viper->addGrowth(1s * food->getRadius() / Food::nominalFoodRadius,
+                     viper->head()->getTime());
     viper->addBoostCharge(0.5s);
     food->state(GameObject::Dying);
-    score_t score = 10. * toSeconds(viper->temporalLength()) * food->getSize() /
-                    Food::nominalFoodSize;
+    score_t score = 10. * toSeconds(viper->temporalLength()) *
+                    food->getRadius() / Food::nominalFoodRadius;
     auto player = findPlayerWith(viper);
     player->score(score);
 
@@ -248,9 +249,7 @@ Vec2 ArenaScene::findFreeRect(
     // If one million is not enough something is wrong or the level design is
     // bad
     const int maxTries = 1000000;
-    ConvexBody* testRect =
-        ConvexBody::createRectangle(Vec2(0, 0), rectSize, true);
-    MonoBodyCollidable collidable(testRect);  // Takes ownership of testRect
+    RectangleShape testRect(rectSize, true);
     for (int i = 0; i < maxTries; ++i) {
         Vec2 position(
             Random::getDouble(limits.left, limits.width - rectSize.x),
@@ -266,10 +265,9 @@ Vec2 ArenaScene::findFreeRect(
         if (occupied)
             continue;
         // Second, check against all existing objects in the game
-        testRect->convexShape.setPosition(position);
-        testRect->updateBodyPart();
+        testRect.setPosition(position);
 
-        if (m_collisionDetector.checkForCollisions(&collidable).empty())
+        if (m_colliderManager.checkForCollisions(testRect).empty())
             // Return center position
             return position + rectSize / 2;
     }
@@ -278,8 +276,8 @@ Vec2 ArenaScene::findFreeRect(
 
 void ArenaScene::dispenseFood() {
     while (m_food.size() < 2) {
-        double smallest = Food::nominalFoodSize / 2.;
-        double largest = Food::nominalFoodSize * 1.5;
+        double smallest = Food::nominalFoodRadius / 2.;
+        double largest = Food::nominalFoodRadius * 1.5;
         double foodDiameter = Random::getDouble(smallest, largest);
         // Find a spot, with some room to spare
         Vec2 centerPosition =
@@ -306,31 +304,35 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void ArenaScene::handleCollisions() {
-    auto collisions = m_collisionDetector.checkForCollisions();
-    for (auto& c : collisions)
-        handleCollision(c);
+    for (auto& c : m_colliderManager.checkForCollisions()) {
+        handleCollision(c.colliderA, c.colliderB);
+        handleCollision(c.colliderB, c.colliderA);
+    }
 }
 
-void ArenaScene::handleCollision(const Colliders& colliders) {
-    const Colliders reversed(colliders.second, colliders.first);
-    for (auto& c : {colliders, reversed}) {
-        const CollisionTriplet cA = c.first;
-        const CollisionTriplet cB = c.second;
-        if (typeid(*cA.collidable) == typeid(Viper)) {
-            Viper* viper = (Viper*)cA.collidable;
-            if (viper->state() == Viper::Alive &&
-                viper->isSensitive(cA.bodypart)) {
-                if (typeid(*cB.collidable) == typeid(Food)) {
-                    Food* food = (Food*)cB.collidable;
-                    if (food->state() == GameObject::Alive)
-                        eatFood(viper, food);
-                } else if (typeid(*cB.collidable) == typeid(Walls)) {
+void ArenaScene::handleCollision(const ColliderSegment& cA,
+                                 const ColliderSegment& cB) {
+    if (typeid(*cA.collider) == typeid(Viper)) {
+        Viper* viper = (Viper*)cA.collider;
+        if (viper->state() == Viper::Alive &&
+            viper->isSegmentActive(cA.segmentIndex)) {
+            if (typeid(*cB.collider) == typeid(Food)) {
+                Food* food = (Food*)cB.collider;
+                if (food->state() == GameObject::Alive)
+                    eatFood(viper, food);
+            } else if (typeid(*cB.collider) == typeid(Walls)) {
+                killViper(viper);
+            } else if (typeid(*cB.collider) == typeid(Viper)) {
+                auto dindex = cA.segmentIndex > cB.segmentIndex
+                                  ? cA.segmentIndex - cB.segmentIndex
+                                  : cB.segmentIndex - cA.segmentIndex;
+                // Check if it's just neighbouring segments touching or a real
+                // collision
+                if (dindex > 1){
                     killViper(viper);
-                } else if (typeid(*cB.collidable) == typeid(Viper)) {
-                    killViper(viper);
-                } else
-                    throw std::runtime_error("Unknown collision happend");
-            }
+                }
+            } else
+                throw std::runtime_error("Unknown collision happend");
         }
     }
 }

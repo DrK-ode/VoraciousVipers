@@ -2,7 +2,7 @@
 
 namespace VVipers {
 
-const double Food::nominalFoodSize(40);
+const double Food::nominalFoodRadius(20);
 
 void Food::decay(Time elapsedTime) {
     static Time decayTime;
@@ -15,9 +15,8 @@ void Food::decay(Time elapsedTime) {
     const double twirl = 5*360; // deg / s
     const Time timeOfDeath = seconds(1);
 
-    m_body->convexShape.rotate(twirl * toSeconds(elapsedTime));
-    m_body->convexShape.scale( (timeOfDeath - decayTime)/timeOfDeath * Vec2(1,1) );
-    m_body->updateBodyPart();
+    rotate(twirl * toSeconds(elapsedTime));
+    scale( (timeOfDeath - decayTime)/timeOfDeath * Vec2(1,1) );
     if (decayTime >= timeOfDeath)
         state(Dead);
 }
@@ -36,7 +35,7 @@ void Food::update(Time elapsedTime) {
     if (state() == Dying)
         decay(elapsedTime);
     else {
-        m_body->convexShape.rotate(2*nominalFoodSize/m_size);
+        rotate(nominalFoodRadius/getRadius());
     }
 }
 

@@ -73,9 +73,9 @@ void Engine::gameLoop(double FPS) {
         }
         debugDuration = clock.split();
         if (!firstFrame) {
-            while (tickDuration > 2 * nominalFrameDuration) {
+            if (tickDuration > 2 * nominalFrameDuration) {
                 // update(nominalFrameDuration);
-                tickDuration -= nominalFrameDuration;
+                tickDuration = nominalFrameDuration;
             }
             update(tickDuration);
         }

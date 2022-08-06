@@ -2,46 +2,34 @@
 #define VVIPERS_FOOD_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <vector>
-#include <vvipers/Scenes/Collision/Collidable.hpp>
-#include <vvipers/Scenes/Collision/ConvexBody.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
+#include <vvipers/Scenes/Collision2/Shape.hpp>
 
 namespace VVipers {
 
 class Food : public GameObject,
-             public sf::Drawable,
-             public MonoBodyCollidable,
+             public CircleShape,
              public Observable {
   public:
-    Food(Vec2 position, double size)
-        : MonoBodyCollidable(
-              ConvexBody::createCircle(position, size / 2, 7, true)),
-          m_startOfDecay(false), m_size(size) {
-        m_body = (ConvexBody*)body();
-        m_body->convexShape.setFillColor(sf::Color::Cyan);
-    }
-    void draw(sf::RenderTarget& target,
-              sf::RenderStates states) const override {
-        target.draw(*m_body, states);
+    Food(Vec2 position, double radius)
+        : CircleShape(radius, 7),
+          m_startOfDecay(false) {
+        setFillColor(sf::Color::Cyan);
+        setPosition(position);
     }
     void update(Time elapsedTime);
-    Vec2 getPosition() const {return m_body->convexShape.getPosition();}
-    double getSize() const {return m_size;}
 
-    static const double nominalFoodSize;
+    static const double nominalFoodRadius;
 
   private:
     void decay(Time elapsedTime);
     void stateChanged(ObjectState from, ObjectState into) override;
 
     bool m_startOfDecay;
-    double m_size;
-    ConvexBody* m_body;
 };
 
 }  // namespace VVipers

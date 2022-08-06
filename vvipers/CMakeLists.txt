@@ -13,12 +13,6 @@ set(INC_FILES
     Scenes/Collision2/Collider.hpp
     Scenes/Collision2/ColliderManager.hpp
     Scenes/Collision2/Shape.hpp
-    Scenes/Collision/Bodypart.hpp
-    Scenes/Collision/Collidable.hpp
-    Scenes/Collision/CollisionBody.hpp
-    Scenes/Collision/CollisionDetector.hpp
-    Scenes/Collision/CollisionVertices.hpp
-    Scenes/Collision/ConvexBody.hpp
     Scenes/FlashScreenScene.hpp
     Scenes/GameElements/Food.hpp
     Scenes/GameElements/GameEvent.hpp
@@ -56,12 +50,6 @@ set(SRC_FILES
     Scenes/ArenaScene.cpp
     Scenes/Collision2/Collider.cpp
     Scenes/Collision2/ColliderManager.cpp
-    Scenes/Collision/Bodypart.cpp
-    Scenes/Collision/Collidable.cpp
-    Scenes/Collision/CollisionBody.cpp
-    Scenes/Collision/CollisionDetector.cpp
-    Scenes/Collision/CollisionVertices.cpp
-    Scenes/Collision/ConvexBody.cpp
     Scenes/FlashScreenScene.cpp
     Scenes/GameElements/Food.cpp
     Scenes/GameElements/GameEvent.cpp

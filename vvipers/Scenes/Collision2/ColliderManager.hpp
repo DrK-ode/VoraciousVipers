@@ -1,22 +1,23 @@
 #ifndef VVIPERS_SCENES_COLLISION2_COLLIDERMANAGER_HPP
 #define VVIPERS_SCENES_COLLISION2_COLLIDERMANAGER_HPP
 
-#include <set>
 #include <memory>
+#include <set>
 #include <vvipers/Scenes/Collision2/Collider.hpp>
+#include <vvipers/Scenes/GameElements/GameObject.hpp>
 
 namespace VVipers {
 
 class ColliderManager {
   public:
-    std::unique_ptr<CollisionResult> checkForCollisions() const;
-    std::unique_ptr<CollisionResult> checkForCollisions(const Collider* c) const;
-    void deRegisterCollider(Collider* collider) {
+    CollisionVector checkForCollisions() const;
+    CollisionVector checkForCollisions(const Collider& c) const;
+    void deRegisterCollider(const Collider& collider) {
         // If present remove it
-        m_colliders.erase(collider);
+        m_colliders.erase(&collider);
     }
-    void registerCollider(const Collider* collider) {
-        m_colliders.insert(collider);
+    void registerCollider(const Collider& collider) {
+        m_colliders.insert(&collider);
     }
 
   private:

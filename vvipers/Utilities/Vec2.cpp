@@ -29,19 +29,4 @@ Vec2 Vec2::projectionVector(Vec2 v) const {
     return v * this->dot(v) / v2;
 }
 
-sf::Rect<double> rectangularBounds( const std::vector<Vec2>& coords ) {
-    double xmin = std::numeric_limits<double>::max();
-    double ymin = std::numeric_limits<double>::max();
-    double xmax = std::numeric_limits<double>::lowest();
-    double ymax = std::numeric_limits<double>::lowest();
-
-    for (auto point : coords ) {
-        xmin = std::min(xmin, point.x);
-        xmax = std::max(xmax, point.x);
-        ymin = std::min(ymin, point.y);
-        ymax = std::max(ymax, point.y);
-    }
-    return sf::Rect<double>(xmin, ymin, xmax - xmin, ymax - ymin);
-}
-
 }  // namespace VVipers

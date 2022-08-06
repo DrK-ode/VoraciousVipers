@@ -1,70 +1,126 @@
 #include <vvipers/Scenes/Collision2/Collider.hpp>
+#include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-std::unique_ptr<CollisionResult> Collider::collision(
-    const Collider& body) const {
-    if (!this->isActive() or !body.isActive())
-        return std::make_unique<CollisionResult>();
-    switch (body.getType()) {
+CollisionVector Collider::collision(const Collider& body1,
+                                    const Collider& body2) {
+    CollisionVector result;
+    if (!body1.isActive() and !body2.isActive())
+        return result;
+    switch (body1.getType()) {
         case ColliderType::CircleLike: {
-            auto& circle = static_cast<const ColliderCircle&>(body);
-            return collisionCircle(circle);
+            auto& circle1 = static_cast<const ColliderCircle&>(body1);
+            switch (body2.getType()) {
+                case ColliderType::CircleLike: {
+                    auto& circle2 = static_cast<const ColliderCircle&>(body2);
+                    auto r = collisionCircleCircle(circle1, circle2);
+                    if (r)
+                        result.push_back(r);
+                    break;
+                }
+                case ColliderType::Polygon: {
+                    auto& polygon2 = static_cast<const ColliderPolygon&>(body2);
+                    auto r = collisionCirclePolygon(circle1, polygon2);
+                    if (r)
+                        result.push_back(r);
+                    break;
+                }
+                case ColliderType::Segmented: {
+                    result = collision(body2, body1);
+                    break;
+                }
+            }
             break;
         }
         case ColliderType::Polygon: {
-            auto& polygon = static_cast<const ColliderPolygon&>(body);
-            return collisionPolygon(polygon);
+            auto& polygon1 = static_cast<const ColliderPolygon&>(body1);
+            switch (body2.getType()) {
+                case ColliderType::CircleLike: {
+                    auto& circle2 = static_cast<const ColliderCircle&>(body2);
+                    auto r = collisionCirclePolygon(circle2, polygon1);
+                    if (r)
+                        result.push_back(r);
+                    break;
+                }
+                case ColliderType::Polygon: {
+                    auto& polygon2 = static_cast<const ColliderPolygon&>(body2);
+                    auto r = collisionPolygonPolygon(polygon1, polygon2);
+                    if (r)
+                        result.push_back(r);
+                    break;
+                }
+                case ColliderType::Segmented: {
+                    result = collision(body2, body1);
+                    break;
+                }
+            }
             break;
         }
         case ColliderType::Segmented: {
-            auto& segmented = static_cast<const ColliderSegmented&>(body);
-            return collisionSegmented(segmented);
+            auto& segmented1 = static_cast<const ColliderSegmented&>(body1);
+            if (body2.getType() == ColliderType::Segmented) {
+                auto& segmented2 = static_cast<const ColliderSegmented&>(body2);
+                result = collisionBothSegmented(segmented1, segmented2);
+            } else
+                result = collisionSegmented(segmented1, body2);
             break;
         }
     }
-    throw std::runtime_error(
-        "Unrecognised Collider type (this should not happen).");
+    return result;
 }
 
-std::unique_ptr<CollisionResult> Collider::collisionSegmented(
-    const ColliderSegmented& segmented) const {
-    auto combinedResult = std::make_unique<CollisionResult>();
-    auto nextResult = &combinedResult;
-    ColliderSegmented::PolygonSegment polygonSegment(segmented);
-    ColliderPolygon colliderPolygon(polygonSegment, segmented.isActive());
-    for (size_t i = 0; i < segmented.getSegmentCount(); ++i) {
-        polygonSegment.setCurrentSegment(i);
-        colliderPolygon.setActive(polygonSegment.isActive());
-        auto result = collision(colliderPolygon);
-        if (result) {
-            auto newResult = std::make_unique<CollisionResult>();
-            newResult->colliderA = std::make_unique<ColliderPtr>(
-                this, std::move(result->colliderA));
-            newResult->colliderB = std::make_unique<ColliderPtr>(
-                &segmented, std::move(result->colliderB));
-            newResult->nextCollision = std::move(result->nextCollision);
+CollisionVector Collider::collisionBothSegmented(
+    const ColliderSegmented& segmented1, const ColliderSegmented& segmented2) {
+    CollisionVector combinedResult;
 
-            *nextResult = std::move(newResult);
-            while (nextResult)
-                nextResult = &(*nextResult)->nextCollision;
+    ColliderSegmented::PolygonSegment polygonSegment1(segmented1);
+    ColliderSegmented::PolygonSegment polygonSegment2(segmented2);
+
+    for (size_t i = 0; i < segmented1.getSegmentCount(); ++i) {
+        polygonSegment1.setCurrentSegment(i);
+        polygonSegment1.setActive(segmented1.isSegmentActive(i));
+        size_t startIndex2 = &segmented1 == &segmented2 ? i + 1 : 0;
+        for (size_t j = startIndex2; j < segmented2.getSegmentCount(); ++j) {
+            polygonSegment2.setCurrentSegment(j);
+            polygonSegment2.setActive(segmented2.isSegmentActive(j));
+
+            auto result =
+                collisionPolygonPolygon(polygonSegment1, polygonSegment2);
+            if (result) {
+                result.colliderA.collider = &segmented1;
+                result.colliderA.segmentIndex = i;
+                result.colliderB.collider = &segmented2;
+                result.colliderB.segmentIndex = j;
+                combinedResult.push_back(result);
+            }
         }
     }
     return combinedResult;
 }
 
-std::unique_ptr<CollisionResult> collisionCirclePolygon(
-    const ColliderCircle& circle, const ColliderPolygon& polygon) {
-    auto result = std::make_unique<CollisionResult>();
-    for (size_t i = 0; i < polygon.getPointCount(); ++i) {
-        if (circle.inside(polygon.getGlobalPoint(i))) {
-            result->colliderA = std::make_unique<ColliderPtr>(&circle, nullptr);
-            result->colliderB =
-                std::make_unique<ColliderPtr>(&polygon, nullptr);
-            break;
+CollisionVector Collider::collisionSegmented(
+    const ColliderSegmented& segmented1, const Collider& body2) {
+    CollisionVector combinedResult;
+    ColliderSegmented::PolygonSegment polygonSegment(segmented1);
+
+    for (size_t i = 0; i < segmented1.getSegmentCount(); ++i) {
+        polygonSegment.setCurrentSegment(i);
+        polygonSegment.setActive(segmented1.isSegmentActive(i));
+        CollisionResult result;
+        if (body2.getType() == ColliderType::CircleLike)
+            result = collisionCirclePolygon(
+                static_cast<const ColliderCircle&>(body2), polygonSegment);
+        else
+            result = collisionPolygonPolygon(
+                static_cast<const ColliderPolygon&>(body2), polygonSegment);
+        if (result) {
+            result.colliderB.collider = &segmented1;
+            result.colliderB.segmentIndex = i;
+            combinedResult.push_back(result);
         }
     }
-    return result;
+    return combinedResult;
 }
 
 sf::FloatRect ColliderCircle::getBounds() const {
@@ -77,20 +133,16 @@ bool ColliderCircle::inside(Vec2 point) const {
     return (point - this->getPosition()).abs() < this->getRadius();
 }
 
-std::unique_ptr<CollisionResult> ColliderCircle::collisionCircle(
-    const ColliderCircle& circle) const {
-    auto result = std::make_unique<CollisionResult>();
-    if ((this != &circle) and (getPosition() - circle.getPosition()).abs() <
-                                  getRadius() + circle.getRadius()) {
-        result->colliderA = std::make_unique<ColliderPtr>(this, nullptr);
-        result->colliderB = std::make_unique<ColliderPtr>(&circle, nullptr);
+CollisionResult Collider::collisionCircleCircle(const ColliderCircle& circle1,
+                                                const ColliderCircle& circle2) {
+    CollisionResult result;
+    if ((&circle1 != &circle2) and
+        (circle1.getPosition() - circle2.getPosition()).abs() <
+            circle1.getRadius() + circle2.getRadius()) {
+        result.colliderA.collider = &circle1;
+        result.colliderB.collider = &circle2;
     }
     return result;
-}
-
-std::unique_ptr<CollisionResult> ColliderCircle::collisionPolygon(
-    const ColliderPolygon& polygon) const {
-    return collisionCirclePolygon(*this, polygon);
 }
 
 sf::FloatRect ColliderPolygon::getBounds() const {
@@ -109,7 +161,8 @@ sf::FloatRect ColliderPolygon::getBounds() const {
     return sf::FloatRect(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
-/** Helper function for the Separating Axes Theorem algorithm **/
+/** Helper function for the Separating Axes Theorem
+ * algorithm **/
 std::tuple<double, double> projectionsMinMax(const ColliderPolygon& polygon,
                                              Vec2 axis) {
     double minimum = std::numeric_limits<double>::max();
@@ -146,50 +199,49 @@ bool ColliderPolygon::inside(Vec2 point) const {
     return true;
 }
 
-void swapColliders(std::unique_ptr<CollisionResult>& result) {
-    auto temp = std::move(result->colliderA);
-    result->colliderA = std::move(result->colliderB);
-    result->colliderB = std::move(temp);
-}
-
-std::unique_ptr<CollisionResult> ColliderPolygon::collisionCircle(
-    const ColliderCircle& circle) const {
-    auto result = collisionCirclePolygon(circle, *this);
-    // Swap the order so that this object corresponds to the first collider. The
-    // function always puts circle first.
-    swapColliders(result);
-    return result;
-}
-
-std::unique_ptr<CollisionResult> ColliderPolygon::collisionPolygon(
-    const ColliderPolygon& polygon) const {
-    auto result = std::make_unique<CollisionResult>();
+CollisionResult Collider::collisionCirclePolygon(
+    const ColliderCircle& circle, const ColliderPolygon& polygon) {
+    CollisionResult result;
     // Rough check before doing it properly
-    if ((this == &polygon) or
-        (!this->getBounds().intersects(polygon.getBounds())))
+
+    if ((!circle.getBounds().intersects(polygon.getBounds())))
         return result;
 
-    const auto axes = this->getPointCount() < polygon.getPointCount()
-                          ? getSATAxes(*this)
-                          : getSATAxes(polygon);
+    const auto axes = getSATAxes(polygon);
     for (auto& axis : axes) {
-        auto [min1, max1] = projectionsMinMax(*this, axis);
-        auto [min2, max2] = projectionsMinMax(polygon, axis);
+        auto [min1, max1] = projectionsMinMax(polygon, axis);
+        auto proj = circle.getPosition().projectionScalar(axis);
+        double max2 = proj + circle.getRadius();
+        double min2 = proj - circle.getRadius();
         if (max1 < min2 || max2 < min1)
             return result;
     }
-    result->colliderA = std::make_unique<ColliderPtr>(this, nullptr);
-    result->colliderB = std::make_unique<ColliderPtr>(&polygon, nullptr);
+    result.colliderA.collider = &circle;
+    result.colliderB.collider = &polygon;
     return result;
 }
 
-void combineBounds(sf::FloatRect& bounds, const sf::FloatRect& b) {
-    double right = std::max(bounds.left + bounds.width, b.left + b.width);
-    double bottom = std::max(bounds.top + bounds.height, b.top + b.height);
-    bounds.left = std::min(bounds.left, b.left);
-    bounds.top = std::min(bounds.top, b.top);
-    bounds.width = right - bounds.left;
-    bounds.height = bottom - bounds.top;
+CollisionResult Collider::collisionPolygonPolygon(
+    const ColliderPolygon& polygon1, const ColliderPolygon& polygon2) {
+    CollisionResult result;
+    // Rough check before doing it properly
+
+    if ((&polygon1 == &polygon2) or
+        (!polygon1.getBounds().intersects(polygon2.getBounds())))
+        return result;
+
+    const auto axes = polygon1.getPointCount() < polygon2.getPointCount()
+                          ? getSATAxes(polygon1)
+                          : getSATAxes(polygon2);
+    for (auto& axis : axes) {
+        auto [min1, max1] = projectionsMinMax(polygon1, axis);
+        auto [min2, max2] = projectionsMinMax(polygon2, axis);
+        if (max1 < min2 || max2 < min1)
+            return result;
+    }
+    result.colliderA.collider = &polygon1;
+    result.colliderB.collider = &polygon2;
+    return result;
 }
 
 sf::FloatRect ColliderSegmented::getBounds() const {
@@ -210,29 +262,14 @@ sf::FloatRect ColliderSegmented::getBounds() const {
 
 bool ColliderSegmented::inside(Vec2 point) const {
     ColliderSegmented::PolygonSegment polygonSegment(*this);
-    ColliderPolygon colliderPolygon(polygonSegment, this->isActive());
     for (size_t i = 0; i < this->getSegmentCount(); ++i) {
         polygonSegment.setCurrentSegment(i);
-        if (colliderPolygon.inside(point)) {
+        if (polygonSegment.inside(point)) {
             return true;
             break;
         }
     }
     return false;
-}
-
-std::unique_ptr<CollisionResult> ColliderSegmented::collisionCircle(
-    const ColliderCircle& circle) const {
-    auto result = circle.collision(*this);
-    swapColliders(result);
-    return result;
-}
-
-std::unique_ptr<CollisionResult> ColliderSegmented::collisionPolygon(
-    const ColliderPolygon& polygon) const {
-    auto result = polygon.collision(*this);
-    swapColliders(result);
-    return result;
 }
 
 }  // namespace VVipers
