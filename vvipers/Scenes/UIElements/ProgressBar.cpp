@@ -13,7 +13,7 @@ ProgressBar::ProgressBar()
       m_showText(false),
       m_textStyle(ProgressTextStyle::Percent) {
     setSize(m_size);
-    setBorderWidth(1);
+    setBorderWidth(-1);
     setProgress(m_progressLow);
     m_mainRect.setFillColor(sf::Color::Transparent);
     m_mainRect.setOutlineColor(sf::Color::Blue);
@@ -35,8 +35,8 @@ void ProgressBar::setPosition(Vec2 position) {
 }
 
 void ProgressBar::setBorderWidth(double width) {
-    m_mainRect.setOutlineThickness(width);
-    m_barRect.setOutlineThickness(width);
+    m_mainRect.setOutlineThickness(-width);
+    m_barRect.setOutlineThickness(-width);
 }
 
 void ProgressBar::setProgressLimits(double low, double high) {

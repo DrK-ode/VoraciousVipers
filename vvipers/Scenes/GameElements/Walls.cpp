@@ -5,7 +5,7 @@
 
 namespace VVipers {
 
-Walls::Walls(Vec2 levelSize) : ColliderSegmented(true), m_levelSize(levelSize) {
+Walls::Walls(Vec2 levelSize) : ColliderSegmented(false), m_levelSize(levelSize) {
     constructLevel();
 }
 

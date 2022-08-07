@@ -29,6 +29,7 @@ class Collider {
     enum class ColliderType { CircleLike, Polygon, Segmented };
 
     Collider(ColliderType type, bool active) : m_type(type), m_active(active) {}
+    virtual ~Collider() {}
     ColliderType getType() const { return m_type; }
     virtual bool inside(Vec2) const = 0;
     virtual sf::FloatRect getBounds() const = 0;
@@ -60,7 +61,7 @@ class Collider {
  * Takes shared ownership of the wrapped object **/
 class ColliderCircle : public Collider {
   public:
-    ColliderCircle(bool active = false)
+    ColliderCircle(bool active = true)
         : Collider(ColliderType::CircleLike, active) {}
     virtual double getRadius() const = 0;
     virtual Vec2 getPosition() const = 0;
@@ -74,7 +75,7 @@ class ColliderCircle : public Collider {
  * getPoint(size_t). Takes shared ownership of the wrapped object **/
 class ColliderPolygon : public Collider {
   public:
-    ColliderPolygon(bool active = false)
+    ColliderPolygon(bool active = true)
         : Collider(ColliderType::Polygon, active) {}
     virtual size_t getPointCount() const = 0;
     virtual Vec2 getGlobalPoint(size_t) const = 0;
@@ -112,7 +113,7 @@ class ColliderSegmented : public Collider {
         size_t m_currentSegment;
     };
 
-    ColliderSegmented(bool active = false)
+    ColliderSegmented(bool active = true)
         : Collider(ColliderType::Segmented, active) {}
     virtual size_t getSegmentCount() const = 0;
     virtual size_t getSegmentPointCount(size_t) const = 0;

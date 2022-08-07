@@ -9,6 +9,7 @@
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/Collision2/Collider.hpp>
+#include <vvipers/Scenes/GameElements/Food.hpp>
 #include <vvipers/Scenes/GameElements/GameEvent.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
@@ -31,18 +32,18 @@ class Viper : public GameObject,
      * growth is. **/
     void addGrowth(Time howMuch, Time when);
     /** @return current direction of the head. **/
-    double angle() const { return m_angle; }
+    double getAngle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
      * degrees. **/
-    void angle(double a) { m_angle = mod180Deg(a); }
+    void setAngle(double a) { m_angle = mod180Deg(a); }
     /** @returns the amount of boost the Viper is currently receiving **/
-    double boost() const { return m_boostInc; }
+    double getBoost() const { return m_boostInc; }
     /** @returns the current stored boost duration **/
-    Time boostCharge() const { return m_boostCharge; }
+    Time getBoostCharge() const { return m_boostCharge; }
     /** Adds boost charge but won't exceed maximum **/
     void addBoostCharge(Time charge);
     /** @returns the maximum stored boost duration **/
-    Time boostMax() const;
+    Time getBoostMax() const;
     /** @returns the main color. **/
     sf::Color getPrimaryColor() const { return m_primaryColor; }
     /** @returns the secondary color used for effects. **/
@@ -52,6 +53,8 @@ class Viper : public GameObject,
         m_primaryColor = c1;
         m_secondaryColor = c2;
     }
+    /** Consumes food that will add both growth and some boost charge **/
+    void eat(const Food& food);
     /** Changes state to Dying and will eventually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
@@ -59,16 +62,22 @@ class Viper : public GameObject,
     /** @returns The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
     /** @returns The first point on the track the Viper is following. **/
-    const TrackPoint* head() const { return m_headPoint; }
+    const TrackPoint* getHead() const { return m_headPoint; }
     /** @returns Normal (spatial) length of the Viper. **/
-    double length() const;
+    double getLength() const;
+    /** forawrds info from ViperCfg **/
+    double getNominalWidth() const;
     /** Initiliazes the position and direction of the Viper given the specified
      * length. **/
     void setup(const Vec2& from, double angle, double numberOfBodySegments);
     /** Sets the speed. **/
-    void speed(double s) { m_speed = s; }
+    void setSpeed(double s) { m_speed = s; }
     /** @returns current speed. **/
-    double speed() const { return m_speed; }
+    double getSpeed() const { return m_speed; }
+    /** Sets the speed. **/
+    void setNominalSpeed(double s) { m_nominalSpeed = s; }
+    /** @returns current speed. **/
+    double getnominalSpeed() const { return m_nominalSpeed; }
     /** Sets how fast the angle chanes as well as the boost factor **/
     void steer(double angularSpeed, double boost) {
         m_angularSpeed = angularSpeed;
@@ -77,16 +86,13 @@ class Viper : public GameObject,
     /** @returns The temporal length of the Viper.
      * It is the time it takes for the tail to reach the current position of the
      * head. **/
-    Time temporalLength() const { return m_temporalLength; }
+    Time getTemporalLength() const { return m_temporalLength; }
     /** @returns the minimum turning radius **/
-    double turningRadius() const;
+    double getMaxAngularSpeed() const;
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
     void update(Time elapsedTime);
-    Vec2 velocity() const {
-        return m_speed *
-               Vec2(std::cos(degToRad(m_angle)), std::sin(degToRad(m_angle)));
-    }
+    Vec2 getVelocity() const { return Vec2(m_speed, 0).rotate(m_angle); }
 
     /** Methods overriden from ColliderSegmented **/
     size_t getSegmentCount() const override;
@@ -115,6 +121,7 @@ class Viper : public GameObject,
 
     double m_angle;         // degrees, clockwise since y-axis is downwards
     double m_angularSpeed;  // degrees/s
+    double m_nominalSpeed;  // px/s
     double m_speed;         // px/s
     double m_targetSpeed;   // px/s
     double m_boostInc;      // Boost speed = (1 + m_boost) * nominal speed

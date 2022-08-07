@@ -9,12 +9,9 @@
 
 namespace VVipers {
 
-/** These classes adds the methode getGlobalPoint(size_t) to the SFML Shape
- * classes so that Collider instances can be based off them **/
-
 class CircleShape : public sf::CircleShape, public ColliderCircle {
   public:
-    CircleShape(double radius = 0, size_t pointCount = 30, bool active = false)
+    CircleShape(double radius = 0, size_t pointCount = 30, bool active = true)
         : sf::CircleShape(radius, pointCount), ColliderCircle(active) {
             setRadius(radius);
         }
@@ -31,7 +28,7 @@ class CircleShape : public sf::CircleShape, public ColliderCircle {
 
 class ConvexShape : public sf::ConvexShape, public ColliderPolygon {
   public:
-    ConvexShape(size_t pointCount = 0, bool active = false)
+    ConvexShape(size_t pointCount = 0, bool active = true)
         : sf::ConvexShape(pointCount), ColliderPolygon(active) {}
     Vec2 getGlobalPoint(size_t i) const {
         return getTransform().transformPoint(getPoint(i));
@@ -43,7 +40,7 @@ class ConvexShape : public sf::ConvexShape, public ColliderPolygon {
 
 class RectangleShape : public sf::RectangleShape, public ColliderPolygon {
   public:
-    RectangleShape(const Vec2& size = Vec2(0., 0.), bool active = false)
+    RectangleShape(const Vec2& size = Vec2(0., 0.), bool active = true)
         : sf::RectangleShape(sf::Vector2f(size)), ColliderPolygon(active) {}
     Vec2 getGlobalPoint(size_t i) const {
         return getTransform().transformPoint(getPoint(i));

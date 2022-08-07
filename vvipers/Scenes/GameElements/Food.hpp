@@ -15,21 +15,21 @@ class Food : public GameObject,
              public CircleShape,
              public Observable {
   public:
-    Food(Vec2 position, double radius)
-        : CircleShape(radius, 7),
-          m_startOfDecay(false) {
-        setFillColor(sf::Color::Cyan);
-        setPosition(position);
-    }
+    Food(Vec2 position, double radius, Time bonusExpire);
+    bool isBonusEligible() const;
+    double getScoreValue() const;
     void update(Time elapsedTime);
 
     static const double nominalFoodRadius;
 
   private:
     void decay(Time elapsedTime);
-    void stateChanged(ObjectState from, ObjectState into) override;
 
-    bool m_startOfDecay;
+    Time m_startOfDecay;
+    Time m_age;
+    Time m_bonusExpire;
+    const double m_originalRadius;
+    const double m_hue;
 };
 
 }  // namespace VVipers

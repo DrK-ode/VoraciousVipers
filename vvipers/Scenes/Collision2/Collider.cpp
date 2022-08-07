@@ -130,7 +130,7 @@ sf::FloatRect ColliderCircle::getBounds() const {
 }
 
 bool ColliderCircle::inside(Vec2 point) const {
-    return (point - this->getPosition()).abs() < this->getRadius();
+    return (point - this->getPosition()).squared() < this->getRadius()*this->getRadius();
 }
 
 CollisionResult Collider::collisionCircleCircle(const ColliderCircle& circle1,

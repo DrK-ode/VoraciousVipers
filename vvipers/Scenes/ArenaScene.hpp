@@ -49,10 +49,10 @@ class ArenaScene : public Scene, public Observer {
                     std::vector<std::string>& secondaryColors,
                     std::vector<double>& keys, std::vector<sf::View>& views);
     void deletePlayer(player_ptr player);
-    viper_ptr addViper(/* Start conditions */);
+    viper_ptr addViper(std::vector<const Collider*>&);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
-    void addFood(Vec2 position, double diameter);
+    void addFood(Vec2 position, double diameter, Time bonusExpire);
     void eatFood(Viper*, Food*);
     void deleteFood(Food* food);
 
@@ -60,13 +60,12 @@ class ArenaScene : public Scene, public Observer {
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
-    Vec2 findFreeRect(Vec2 rectSize) const;
-    Vec2 findFreeRect(
-        Vec2 rectSize,
-        const std::vector<sf::Rect<double>>& excludedRegions) const;
-    Vec2 findFreeRect(Vec2 rectSize,
-                      const std::vector<sf::Rect<double>>& excludedRegions,
-                      sf::Rect<double> limits) const;
+    template <typename T>
+    Vec2 findFreeSpace(T&, bool allowRotation = false) const;
+    template <typename T>
+    Vec2 findFreeSpace(T&, bool allowRotation,
+                       const std::vector<const Collider*>& excludedRegions,
+                       sf::Rect<double> limits) const;
     void dispenseFood();
 
     void processGameEvents();

@@ -19,7 +19,10 @@ class Vec2 : public sf::Vector2<double> {
     double abs() const;
     double dot(const Vec2& v) const;
     Vec2 normalized(double norm = 1) const;
+    /** Rotates vector 90 degrees counter clockwise (clockwise on screen) **/
     Vec2 perpVec() const;
+    /** Rotates vector counter clockwise (clockwise on screen) **/
+    Vec2& rotate(double degrees);
     double projectionScalar( Vec2 v ) const;
     Vec2 projectionVector( Vec2 v ) const;
     double squared() const {return x*x+y*y;}

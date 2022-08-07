@@ -100,7 +100,15 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
         viperCfg.initialize(options, textures);
     m_boostCharge = viperCfg.boostMaxCharge;
 
-    m_speed = viperCfg.nominalSpeed;
+    m_nominalSpeed = viperCfg.nominalSpeed;
+    m_speed = m_nominalSpeed;
+}
+
+void Viper::eat(const Food& food) {
+    addGrowth(viperCfg.bodyDuration * (food.getRadius() * food.getRadius()) /
+                  (Food::nominalFoodRadius * Food::nominalFoodRadius),
+              m_headPoint->getTime());
+    addBoostCharge(0.5s);
 }
 
 void Viper::die(const Time& elapsedTime) {
@@ -113,27 +121,29 @@ void Viper::addGrowth(Time howMuch, Time when) {
     m_dinnerTimes[when] = howMuch;
 }
 
-double Viper::length() const {
+double Viper::getLength() const {
     return m_track.length(m_headPoint->getTime(),
                           m_headPoint->getTime() - m_temporalLength);
 }
 
-void Viper::setup(const Vec2& headPosition, double angle,
+double Viper::getNominalWidth() const { return viperCfg.nominalSegmentWidth; }
+
+void Viper::setup(const Vec2& tailPosition, double angle,
                   double numberOfBodySegments) {
     m_angle = angle;
-    // Vec2 vipVec = Vec2(cos(degToRad(angle)), sin(degToRad(angle)));
-    m_temporalLength = seconds(0);
-    m_growth =
-        (viperCfg.headDuration + numberOfBodySegments * viperCfg.bodyDuration +
-         viperCfg.tailDuration);
-    m_track.create_back(headPosition, seconds(0));
+    m_temporalLength = viperCfg.headDuration + viperCfg.tailDuration;
+    m_growth = numberOfBodySegments * viperCfg.bodyDuration;
+
+    Vec2 direction = Vec2(1, 0).rotate(angle);
+    double length = toSeconds(m_temporalLength) * getSpeed();
+    auto viperVector = length * direction;
+    m_track.create_back(tailPosition + viperVector, m_temporalLength);
+    m_track.create_back(tailPosition, seconds(0));
     m_headPoint = m_track.front();
 }
 
 TrackPoint* Viper::createNextHeadTrackPoint(Time elapsedTime) {
-    double dx = m_speed * toSeconds(elapsedTime) * cos(degToRad(m_angle));
-    double dy = m_speed * toSeconds(elapsedTime) * sin(degToRad(m_angle));
-    Vec2 advance(dx, dy);
+    Vec2 advance = Vec2(m_speed * toSeconds(elapsedTime), 0).rotate(m_angle);
     return m_track.create_front(*m_headPoint + advance,
                                 m_headPoint->getTime() + elapsedTime);
 }
@@ -180,7 +190,7 @@ void Viper::clearDinnerTimes() {
         }
 }
 
-Time Viper::boostMax() const { return viperCfg.boostMaxCharge; }
+Time Viper::getBoostMax() const { return viperCfg.boostMaxCharge; }
 
 void Viper::grow(const Time& elapsedTime) {
     // Limit the growth to how much time that has passed
@@ -189,8 +199,9 @@ void Viper::grow(const Time& elapsedTime) {
     m_growth -= actualGrowth;
 }
 
-double Viper::turningRadius() const {
-    return viperCfg.nominalSpeed / viperCfg.nominalSegmentWidth;
+// This allows the viper narrower turns when not boosting
+double Viper::getMaxAngularSpeed() const {
+    return m_nominalSpeed / viperCfg.nominalSegmentWidth;
 }
 
 void Viper::update(Time elapsedTime) {
@@ -215,7 +226,7 @@ void Viper::addBoostCharge(Time charge) {
     auto oldCharge = m_boostCharge;
     m_boostCharge += charge;
     m_boostCharge = std::max(m_boostCharge, seconds(0));
-    m_boostCharge = std::min(m_boostCharge, boostMax());
+    m_boostCharge = std::min(m_boostCharge, getBoostMax());
 
     if (m_boostCharge != oldCharge) {
         ObjectModifiedEvent event(this);
@@ -309,8 +320,9 @@ Vec2 Viper::getSegmentGlobalPoint(size_t segmentIndex,
 void Viper::updateVertices() {
     Time headDuration = std::min(m_temporalLength, viperCfg.headDuration);
     if (m_temporalLength < viperCfg.headDuration + viperCfg.tailDuration) {
-        headDuration = m_temporalLength * (viperCfg.headDuration /
-                       (viperCfg.headDuration + viperCfg.tailDuration));
+        headDuration = m_temporalLength *
+                       (viperCfg.headDuration /
+                        (viperCfg.headDuration + viperCfg.tailDuration));
     }
     Time tailDuration =
         std::min(m_temporalLength - headDuration, viperCfg.tailDuration);

@@ -32,17 +32,17 @@ class ViperTest : public ::testing::Test {
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_DOUBLE_EQ(viper->angle(), 180.);
-    viper->angle(90.);
-    EXPECT_DOUBLE_EQ(viper->angle(), 90.);
-    viper->angle(-90.);
-    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
-    viper->angle(270.);
-    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
+    EXPECT_DOUBLE_EQ(viper->getAngle(), 180.);
+    viper->setAngle(90.);
+    EXPECT_DOUBLE_EQ(viper->getAngle(), 90.);
+    viper->setAngle(-90.);
+    EXPECT_DOUBLE_EQ(viper->getAngle(), -90.);
+    viper->setAngle(270.);
+    EXPECT_DOUBLE_EQ(viper->getAngle(), -90.);
 }
 
 TEST_F(ViperTest, velocityTest) {
-    EXPECT_DOUBLE_EQ(viper->speed(), viper->velocity().abs());
+    EXPECT_DOUBLE_EQ(viper->getSpeed(), viper->getVelocity().abs());
 }
 
 TEST_F(ViperTest, lengthTest) {
@@ -52,9 +52,9 @@ TEST_F(ViperTest, lengthTest) {
             options->getOptionDouble("ViperModel/ViperBody/nominalLength") +
         options->getOptionDouble("ViperModel/ViperTail/nominalLength");
     viper->update(seconds(3.0));  // Let it grow
-    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
+    EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
     viper->update(seconds(3.0));  // Let it grow more
-    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
+    EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
 }
 
 }  // namespace

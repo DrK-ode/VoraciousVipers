@@ -68,7 +68,8 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
     m_colliderManager.registerCollider(*m_walls.get());
 
     // The players must absolutely be added _after_ the level has been filled
-    // with obstacles, otherwise they might end up inside of them
+    // with obstacles, otherwise they might end up inside or on top of them.
+    dispenseFood();
     addPlayers(playerNames, playerPrimaryColors, playerSecondaryColors,
                playerKeys, statusBarViews);
 
@@ -84,18 +85,21 @@ void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
                             std::vector<double>& playerKeys,
                             std::vector<sf::View>& playerViews) {
     auto numberOfPlayers = playerNames.size();
+    std::vector<const Collider*> otherViperStartAreas;
     for (size_t i = 0; i < numberOfPlayers; ++i) {
         KeyboardController::KeyboardControls keys;
         keys.left = sf::Keyboard::Key(playerKeys[3 * i + 0]);
         keys.right = sf::Keyboard::Key(playerKeys[3 * i + 1]);
         keys.boost = sf::Keyboard::Key(playerKeys[3 * i + 2]);
         auto controller = createController(keys);
-        auto viper = addViper();
+        auto viper = addViper(otherViperStartAreas);
         auto player =
             addPlayer(playerNames[i], colorFromRGBString(primaryColors[i]),
                       colorFromRGBString(secondaryColors[i]), controller, viper,
                       playerViews[i]);
     }
+    for (auto area : otherViperStartAreas)
+        delete area;
 }
 
 controller_ptr ArenaScene::createController(
@@ -139,16 +143,27 @@ void ArenaScene::deletePlayer(player_ptr player) {
     m_players.erase(player);
 }
 
-viper_ptr ArenaScene::addViper(/* startConditions? */) {
+viper_ptr ArenaScene::addViper(
+    std::vector<const Collider*>& otherViperStartAreas) {
     auto viper = std::make_shared<Viper>(getGame().getOptionsService(),
                                          getGame().getTextureService());
-    std::vector<sf::Rect<double>> otherVipers;
-    Vec2 exclusionZoneSize(100, 100);
-    for (auto& v : m_vipers) {
-        otherVipers.push_back({*v->head(), exclusionZoneSize});
-    }
-    auto position = findFreeRect(exclusionZoneSize, otherVipers);
-    viper->setup(position, Random::getDouble(0, 360), 5);
+
+    double length = viper->getSpeed() * 5;  // 5s free space
+    double width = viper->getNominalWidth();
+    bool allowRotation = true;
+    // Give some margin to the width
+    RectangleShape* viperZone = new RectangleShape({length, 1.5 * width});
+    findFreeSpace(
+        *viperZone, allowRotation, otherViperStartAreas,
+        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y));
+    otherViperStartAreas.push_back(viperZone);
+
+    double angle = viperZone->getRotation();
+    Vec2 direction = Vec2(1, 0).rotate(angle);
+    Vec2 offset = 0.5 * width * direction;
+    Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpVec();
+    viper->setup(viperPosition, angle, 0);
+
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_colliderManager.registerCollider(*viper.get());
     // Container takes ownership, ptr viper is no longer valid
@@ -156,7 +171,11 @@ viper_ptr ArenaScene::addViper(/* startConditions? */) {
     return viper;
 }
 
-void ArenaScene::killViper(Viper* viper) { viper->state(GameObject::Dying); }
+void ArenaScene::killViper(Viper* viper) {
+    // You cannot kill what's already dead
+    if (viper->state() == GameObject::Alive)
+        viper->state(GameObject::Dying);
+}
 
 void ArenaScene::deleteViper(Viper* viper) {
     m_colliderManager.deRegisterCollider(*viper);
@@ -167,8 +186,8 @@ void ArenaScene::deleteViper(Viper* viper) {
         }
 }
 
-void ArenaScene::addFood(Vec2 position, double diameter) {
-    auto food = std::make_unique<Food>(position, diameter);
+void ArenaScene::addFood(Vec2 position, double diameter, Time bonusExpire) {
+    auto food = std::make_unique<Food>(position, diameter, bonusExpire);
     // Check for collisions
     m_colliderManager.registerCollider(*food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
@@ -186,12 +205,9 @@ void ArenaScene::deleteFood(Food* food) {
 }
 
 void ArenaScene::eatFood(Viper* viper, Food* food) {
-    viper->addGrowth(1s * food->getRadius() / Food::nominalFoodRadius,
-                     viper->head()->getTime());
-    viper->addBoostCharge(0.5s);
+    viper->eat(*food);
     food->state(GameObject::Dying);
-    score_t score = 10. * toSeconds(viper->temporalLength()) *
-                    food->getRadius() / Food::nominalFoodRadius;
+    score_t score = food->getScoreValue();
     auto player = findPlayerWith(viper);
     player->score(score);
 
@@ -199,7 +215,7 @@ void ArenaScene::eatFood(Viper* viper, Food* food) {
     auto flyingScore = std::make_unique<FlyingScore>(
         Vec2(getGame().getWindow().mapCoordsToPixel(food->getPosition(),
                                                     m_gameView)),
-        4 * viper->velocity(),
+        4 * viper->getVelocity(),
         Vec2(getGame().getWindow().mapCoordsToPixel(panel->getScoreTarget(),
                                                     panel->getView())),
         1s, score, getGame().getFontService());
@@ -231,33 +247,33 @@ Player* ArenaScene::findPlayerWith(const Viper* viper) const {
     return nullptr;
 }
 
-Vec2 ArenaScene::findFreeRect(
-    Vec2 rectSize, const std::vector<sf::Rect<double>>& excludedRegions) const {
-    return findFreeRect(
-        rectSize, excludedRegions,
-        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y));
+template <typename T>
+Vec2 ArenaScene::findFreeSpace(T& testObject, bool allowRotation) const {
+    std::vector<const Collider*> dummy;
+    auto gameArea =
+        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y);
+    return findFreeSpace(testObject, allowRotation, dummy, gameArea);
 }
 
-Vec2 ArenaScene::findFreeRect(Vec2 rectSize) const {
-    std::vector<sf::Rect<double>> dummy;
-    return findFreeRect(rectSize, dummy);
-}
-
-Vec2 ArenaScene::findFreeRect(
-    Vec2 rectSize, const std::vector<sf::Rect<double>>& excludedRegions,
+template <typename T>
+Vec2 ArenaScene::findFreeSpace(
+    T& testObject, bool allowRotation,
+    const std::vector<const Collider*>& excludedRegions,
     sf::Rect<double> limits) const {
     // If one million is not enough something is wrong or the level design is
     // bad
     const int maxTries = 1000000;
-    RectangleShape testRect(rectSize, true);
     for (int i = 0; i < maxTries; ++i) {
-        Vec2 position(
-            Random::getDouble(limits.left, limits.width - rectSize.x),
-            Random::getDouble(limits.top, limits.height - rectSize.y));
+        Vec2 position(Random::getDouble(limits.left, limits.width),
+                      Random::getDouble(limits.top, limits.height));
+        testObject.setPosition(position);
+        if (allowRotation) {
+            testObject.setRotation(Random::getDouble(0, 360));
+        }
         // First, check against all excluded regions
         bool occupied = false;
-        for (auto& excluded : excludedRegions) {
-            if (excluded.contains(position)) {
+        for (auto excluded : excludedRegions) {
+            if (Collider::collision(testObject, *excluded).size() > 0) {
                 occupied = true;
                 break;
             }
@@ -265,11 +281,10 @@ Vec2 ArenaScene::findFreeRect(
         if (occupied)
             continue;
         // Second, check against all existing objects in the game
-        testRect.setPosition(position);
 
-        if (m_colliderManager.checkForCollisions(testRect).empty())
+        if (m_colliderManager.checkForCollisions(testObject).empty())
             // Return center position
-            return position + rectSize / 2;
+            return position;
     }
     throw std::runtime_error("Could not find an empty area.");
 }
@@ -278,11 +293,13 @@ void ArenaScene::dispenseFood() {
     while (m_food.size() < 2) {
         double smallest = Food::nominalFoodRadius / 2.;
         double largest = Food::nominalFoodRadius * 1.5;
-        double foodDiameter = Random::getDouble(smallest, largest);
+        double foodRadius = std::sqrt(
+            Random::getDouble(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
-        Vec2 centerPosition =
-            findFreeRect(Vec2(2 * foodDiameter, 2 * foodDiameter));
-        addFood(centerPosition, foodDiameter);
+        CircleShape testCircle(foodRadius * 2);
+        findFreeSpace(testCircle);
+        addFood(testCircle.getPosition(), foodRadius,
+                seconds(Random::getDouble(5, 10)));
     }
 }
 
@@ -321,6 +338,9 @@ void ArenaScene::handleCollision(const ColliderSegment& cA,
                 if (food->state() == GameObject::Alive)
                     eatFood(viper, food);
             } else if (typeid(*cB.collider) == typeid(Walls)) {
+                tagDebug("Killed by collision between Viper segment ",
+                         cA.segmentIndex, " and wall segment ",
+                         cB.segmentIndex);
                 killViper(viper);
             } else if (typeid(*cB.collider) == typeid(Viper)) {
                 auto dindex = cA.segmentIndex > cB.segmentIndex
@@ -328,7 +348,9 @@ void ArenaScene::handleCollision(const ColliderSegment& cA,
                                   : cB.segmentIndex - cA.segmentIndex;
                 // Check if it's just neighbouring segments touching or a real
                 // collision
-                if (dindex > 1){
+                if (dindex > 1) {
+                    tagDebug("Killed by collision between Viper segments ",
+                             cA.segmentIndex, " and ", cB.segmentIndex);
                     killViper(viper);
                 }
             } else
@@ -348,18 +370,17 @@ void ArenaScene::handleSteering() {
                  *    2) Boost is active and the boost power is not depleted
                  */
 
-                // This allows the viper a turning radius equal to its width
-                const double maxAngularSpeed =
-                    degPerRad * viper->turningRadius();
-                double angularSpeed = cmd.turn * maxAngularSpeed;
                 // Protect against erroneous input from controller
                 if (std::abs(cmd.turn) > 1)
-                    angularSpeed /= std::abs(cmd.turn);
+                    cmd.turn /= std::abs(cmd.turn);
+                double angularSpeed =
+                    cmd.turn * degPerRad * viper->getMaxAngularSpeed();
                 double boost = 0.;
-                if (cmd.boost && ((viper->boost() > 0 and
-                                   viper->boostCharge() > seconds(0)) or
-                                  (viper->boost() == 0.0 and
-                                   viper->boostCharge() == viper->boostMax())))
+                if (cmd.boost &&
+                    ((viper->getBoost() > 0 and
+                      viper->getBoostCharge() > seconds(0)) or
+                     (viper->getBoost() == 0.0 and
+                      viper->getBoostCharge() == viper->getBoostMax())))
                     boost = 1.;
                 viper->steer(angularSpeed, boost);
             }

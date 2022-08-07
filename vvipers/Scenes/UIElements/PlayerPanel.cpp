@@ -30,11 +30,11 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     m_scoreBar.setPosition(scoreBarPos);
     // Setup boost bar
     m_boostBar.setSize(boostBarSize);
-    m_boostBar.setBorderWidth(2);
+    m_boostBar.setBorderWidth(-2);
     m_boostBar.setBarColor(player->getSecondaryColor());
     m_boostBar.setBorderColor(player->getPrimaryColor());
     m_boostBar.setVertical(true);
-    m_boostBar.setProgress( toSeconds(player->viper()->boostCharge()));
+    m_boostBar.setProgress( toSeconds(player->viper()->getBoostCharge()));
     // Setup score bar
     m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);
@@ -65,7 +65,7 @@ void PlayerPanel::onNotify(const GameEvent* event) {
         if (typeid(*boostEvent->objectPtr) == typeid(Viper)) {
             const Viper* viper =
                 static_cast<const Viper*>(boostEvent->objectPtr);
-            m_boostBar.setProgress(viper->boostCharge() / viper->boostMax());
+            m_boostBar.setProgress(viper->getBoostCharge() / viper->getBoostMax());
         } else if (typeid(*boostEvent->objectPtr) == typeid(Player)) {
             updateNameString();
         }
