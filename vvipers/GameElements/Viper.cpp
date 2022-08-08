@@ -1,6 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <exception>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>

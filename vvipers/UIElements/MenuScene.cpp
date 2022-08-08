@@ -1,5 +1,5 @@
 #include <SFML/Window/Mouse.hpp>
-#include <vvipers/Scenes/UIElements/MenuScene.hpp>
+#include <vvipers/UIElements/MenuScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 

@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/UIElements/MenuItem.hpp>
+#include <vvipers/UIElements/MenuItem.hpp>
 
 namespace VVipers {
 

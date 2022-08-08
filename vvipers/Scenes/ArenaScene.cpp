@@ -4,12 +4,12 @@
 #include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Scenes/ArenaScene.hpp>
-#include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
-#include <vvipers/Scenes/GameElements/Walls.hpp>
+#include <vvipers/GameElements/Player.hpp>
+#include <vvipers/GameElements/Viper.hpp>
+#include <vvipers/GameElements/Walls.hpp>
 #include <vvipers/Scenes/GameOverScene.hpp>
 #include <vvipers/Scenes/PauseScene.hpp>
-#include <vvipers/Scenes/UIElements/Controller.hpp>
+#include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/debug.hpp>
 

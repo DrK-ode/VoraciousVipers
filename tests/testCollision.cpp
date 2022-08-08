@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <vvipers/Scenes/Collision2/Collider.hpp>
-#include <vvipers/Scenes/Collision2/ColliderManager.hpp>
-#include <vvipers/Scenes/Collision2/Shape.hpp>
+#include <vvipers/Collision/Collider.hpp>
+#include <vvipers/Collision/ColliderManager.hpp>
+#include <vvipers/Collision/Shape.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 using namespace VVipers;

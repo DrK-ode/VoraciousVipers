@@ -3,8 +3,8 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
-#include <vvipers/Scenes/UIElements/MenuScene.hpp>
-#include <vvipers/Scenes/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuScene.hpp>
+#include <vvipers/UIElements/MenuButton.hpp>
 
 namespace VVipers {
 

@@ -4,7 +4,7 @@
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <vvipers/Scenes/Collision2/Collider.hpp>
+#include <vvipers/Collision/Collider.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {

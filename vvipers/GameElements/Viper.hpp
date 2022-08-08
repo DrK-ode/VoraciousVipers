@@ -8,12 +8,12 @@
 #include <memory>
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
-#include <vvipers/Scenes/Collision2/Collider.hpp>
-#include <vvipers/Scenes/GameElements/Food.hpp>
-#include <vvipers/Scenes/GameElements/GameEvent.hpp>
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
-#include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Scenes/GameElements/Track.hpp>
+#include <vvipers/Collision/Collider.hpp>
+#include <vvipers/GameElements/Food.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
+#include <vvipers/GameElements/Observer.hpp>
+#include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {

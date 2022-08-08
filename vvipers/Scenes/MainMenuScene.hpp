@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <vvipers/Engine/Game.hpp>
-#include <vvipers/Scenes/UIElements/MenuScene.hpp>
-#include <vvipers/Scenes/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuScene.hpp>
+#include <vvipers/UIElements/MenuButton.hpp>
 
 namespace VVipers {
 

@@ -1,7 +1,7 @@
 #include <sstream>
-#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
+#include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/GameElements/Viper.hpp>
 
 namespace VVipers {
 

@@ -4,9 +4,9 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
-#include <vvipers/Scenes/Collision2/Shape.hpp>
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
-#include <vvipers/Scenes/GameElements/Observer.hpp>
+#include <vvipers/Collision/Shape.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
+#include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 

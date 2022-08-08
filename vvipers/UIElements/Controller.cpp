@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/UIElements/Controller.hpp>
+#include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {

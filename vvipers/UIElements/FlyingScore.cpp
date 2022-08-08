@@ -1,7 +1,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
-#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
-#include <vvipers/Scenes/GameElements/GameEvent.hpp>
+#include <vvipers/UIElements/FlyingScore.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/Engine/Providers.hpp>
 
 namespace VVipers {

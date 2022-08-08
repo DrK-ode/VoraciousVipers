@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/Collision2/Collider.hpp>
+#include <vvipers/Collision/Collider.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {

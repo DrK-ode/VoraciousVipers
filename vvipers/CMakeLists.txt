@@ -1,6 +1,9 @@
 configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
 set(INC_FILES
+    Collision/Collider.hpp
+    Collision/ColliderManager.hpp
+    Collision/Shape.hpp
     config.hpp
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
@@ -10,30 +13,27 @@ set(INC_FILES
     Engine/Providers.hpp
     Engine/Scene.hpp
     Engine/TextureFileLoader.hpp
+    GameElements/Food.hpp
+    GameElements/GameEvent.hpp
+    GameElements/GameObject.hpp
+    GameElements/Observer.hpp
+    GameElements/Player.hpp
+    GameElements/Track.hpp
+    GameElements/Viper.hpp
+    GameElements/Walls.hpp
     Scenes/ArenaScene.hpp
-    Scenes/Collision2/Collider.hpp
-    Scenes/Collision2/ColliderManager.hpp
-    Scenes/Collision2/Shape.hpp
     Scenes/FlashScreenScene.hpp
-    Scenes/GameElements/Food.hpp
-    Scenes/GameElements/GameEvent.hpp
-    Scenes/GameElements/GameObject.hpp
-    Scenes/GameElements/Observer.hpp
-    Scenes/GameElements/Player.hpp
-    Scenes/GameElements/Track.hpp
-    Scenes/GameElements/Viper.hpp
-    Scenes/GameElements/Walls.hpp
     Scenes/GameOverScene.hpp
     Scenes/MainMenuScene.hpp
     Scenes/OptionsMenuScene.hpp
     Scenes/PauseScene.hpp
-    Scenes/UIElements/Controller.hpp
-    Scenes/UIElements/FlyingScore.hpp
-    Scenes/UIElements/MenuButton.hpp
-    Scenes/UIElements/MenuItem.hpp
-    Scenes/UIElements/MenuScene.hpp
-    Scenes/UIElements/PlayerPanel.hpp
-    Scenes/UIElements/ProgressBar.hpp
+    UIElements/Controller.hpp
+    UIElements/FlyingScore.hpp
+    UIElements/MenuButton.hpp
+    UIElements/MenuItem.hpp
+    UIElements/MenuScene.hpp
+    UIElements/PlayerPanel.hpp
+    UIElements/ProgressBar.hpp
     Utilities/debug.hpp
     Utilities/Time.hpp
     Utilities/Vec2.hpp
@@ -42,6 +42,8 @@ set(INC_FILES
 )
 
 set(SRC_FILES
+    Collision/Collider.cpp
+    Collision/ColliderManager.cpp
     Engine/ColorPalette.cpp
     Engine/Engine.cpp
     Engine/FontFileLoader.cpp
@@ -49,29 +51,27 @@ set(SRC_FILES
     Engine/OptionsJSON.cpp
     Engine/Scene.cpp
     Engine/TextureFileLoader.cpp
+    GameElements/Food.cpp
+    GameElements/GameEvent.cpp
+    GameElements/GameObject.cpp
+    GameElements/Observer.cpp
+    GameElements/Player.cpp
+    GameElements/Track.cpp
+    GameElements/Viper.cpp
+    GameElements/Walls.cpp
     Scenes/ArenaScene.cpp
-    Scenes/Collision2/Collider.cpp
-    Scenes/Collision2/ColliderManager.cpp
     Scenes/FlashScreenScene.cpp
-    Scenes/GameElements/Food.cpp
-    Scenes/GameElements/GameEvent.cpp
-    Scenes/GameElements/GameObject.cpp
-    Scenes/GameElements/Observer.cpp
-    Scenes/GameElements/Player.cpp
-    Scenes/GameElements/Track.cpp
-    Scenes/GameElements/Viper.cpp
-    Scenes/GameElements/Walls.cpp
     Scenes/GameOverScene.cpp
     Scenes/MainMenuScene.cpp
     Scenes/OptionsMenuScene.cpp
     Scenes/PauseScene.cpp
-    Scenes/UIElements/Controller.cpp
-    Scenes/UIElements/FlyingScore.cpp
-    Scenes/UIElements/MenuButton.cpp
-    Scenes/UIElements/MenuItem.cpp
-    Scenes/UIElements/MenuScene.cpp
-    Scenes/UIElements/PlayerPanel.cpp
-    Scenes/UIElements/ProgressBar.cpp
+    UIElements/Controller.cpp
+    UIElements/FlyingScore.cpp
+    UIElements/MenuButton.cpp
+    UIElements/MenuItem.cpp
+    UIElements/MenuScene.cpp
+    UIElements/PlayerPanel.cpp
+    UIElements/ProgressBar.cpp
     Utilities/Vec2.cpp
 )
 

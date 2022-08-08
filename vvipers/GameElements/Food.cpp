@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/GameElements/Food.hpp>
+#include <vvipers/GameElements/Food.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 
 namespace VVipers {

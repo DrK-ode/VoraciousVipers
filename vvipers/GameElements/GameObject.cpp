@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
 
 namespace VVipers
 {

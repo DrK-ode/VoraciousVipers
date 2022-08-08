@@ -1,7 +1,7 @@
 #include <vvipers/Scenes/ArenaScene.hpp>
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
-#include <vvipers/Scenes/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuButton.hpp>
 
 namespace VVipers {
 

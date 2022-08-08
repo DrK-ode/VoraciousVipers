@@ -6,7 +6,7 @@
 #include <vector>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Scenes/UIElements/MenuItem.hpp>
+#include <vvipers/UIElements/MenuItem.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {

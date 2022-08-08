@@ -3,7 +3,7 @@
 
 #include <map>
 #include <set>
-#include <vvipers/Scenes/GameElements/GameEvent.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
 
 namespace VVipers {
 

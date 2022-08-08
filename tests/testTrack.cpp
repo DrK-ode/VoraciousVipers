@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <vvipers/Utilities/Time.hpp>
-#include <vvipers/Scenes/GameElements/Track.hpp>
+#include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace {

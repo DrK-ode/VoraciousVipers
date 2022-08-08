@@ -1,4 +1,4 @@
-#include <vvipers/Scenes/GameElements/Observer.hpp>
+#include <vvipers/GameElements/Observer.hpp>
 
 namespace VVipers {
 

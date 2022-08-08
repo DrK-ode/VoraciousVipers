@@ -7,17 +7,17 @@
 #include <vector>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Scenes/Collision2/ColliderManager.hpp>
-#include <vvipers/Scenes/GameElements/Food.hpp>
-#include <vvipers/Scenes/GameElements/GameEvent.hpp>
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
-#include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
-#include <vvipers/Scenes/GameElements/Walls.hpp>
-#include <vvipers/Scenes/UIElements/Controller.hpp>
-#include <vvipers/Scenes/UIElements/FlyingScore.hpp>
-#include <vvipers/Scenes/UIElements/PlayerPanel.hpp>
+#include <vvipers/Collision/ColliderManager.hpp>
+#include <vvipers/GameElements/Food.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
+#include <vvipers/GameElements/Observer.hpp>
+#include <vvipers/GameElements/Player.hpp>
+#include <vvipers/GameElements/Viper.hpp>
+#include <vvipers/GameElements/Walls.hpp>
+#include <vvipers/UIElements/Controller.hpp>
+#include <vvipers/UIElements/FlyingScore.hpp>
+#include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {

@@ -4,9 +4,9 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <string>
 #include <vector>
-#include <vvipers/Scenes/Collision2/Collider.hpp>
-#include <vvipers/Scenes/Collision2/Shape.hpp>
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
+#include <vvipers/Collision/Collider.hpp>
+#include <vvipers/Collision/Shape.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
 
 namespace VVipers {
 

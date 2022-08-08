@@ -1,5 +1,5 @@
 #include <sstream>
-#include <vvipers/Scenes/GameElements/Track.hpp>
+#include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {

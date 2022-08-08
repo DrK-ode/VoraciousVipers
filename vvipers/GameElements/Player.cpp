@@ -1,6 +1,6 @@
-#include <vvipers/Scenes/UIElements/Controller.hpp>
-#include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/UIElements/Controller.hpp>
+#include <vvipers/GameElements/Player.hpp>
+#include <vvipers/GameElements/Viper.hpp>
 
 namespace VVipers {
 

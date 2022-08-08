@@ -5,7 +5,7 @@
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Engine/TextureFileLoader.hpp>
 #include <vvipers/Utilities/Time.hpp>
-#include <vvipers/Scenes/GameElements/Viper.hpp>
+#include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/config.hpp>
 #include <vvipers/Utilities/debug.hpp>
 

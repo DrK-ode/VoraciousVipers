@@ -4,9 +4,9 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <string>
-#include <vvipers/Scenes/GameElements/GameEvent.hpp>
-#include <vvipers/Scenes/GameElements/GameObject.hpp>
-#include <vvipers/Scenes/GameElements/Observer.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
+#include <vvipers/GameElements/GameObject.hpp>
+#include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>

@@ -1,5 +1,5 @@
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <vvipers/Scenes/GameElements/Walls.hpp>
+#include <vvipers/GameElements/Walls.hpp>
 #include <vvipers/Utilities/VVMath.hpp>
 #include <vvipers/Utilities/debug.hpp>
 

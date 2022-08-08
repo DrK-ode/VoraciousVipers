@@ -5,9 +5,9 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <vvipers/Scenes/GameElements/Observer.hpp>
-#include <vvipers/Scenes/GameElements/Player.hpp>
-#include <vvipers/Scenes/UIElements/ProgressBar.hpp>
+#include <vvipers/GameElements/Observer.hpp>
+#include <vvipers/GameElements/Player.hpp>
+#include <vvipers/UIElements/ProgressBar.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {

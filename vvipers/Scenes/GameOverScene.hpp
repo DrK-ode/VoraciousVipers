@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <memory>
 #include <vector>
-#include <vvipers/Scenes/GameElements/Player.hpp>
+#include <vvipers/GameElements/Player.hpp>
 #include <vvipers/Engine/Scene.hpp>
 #include <vvipers/Utilities/Time.hpp>
 

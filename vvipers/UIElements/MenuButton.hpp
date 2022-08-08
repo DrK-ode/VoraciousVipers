@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <vvipers/Scenes/UIElements/MenuItem.hpp>
+#include <vvipers/UIElements/MenuItem.hpp>
 
 namespace VVipers {
 

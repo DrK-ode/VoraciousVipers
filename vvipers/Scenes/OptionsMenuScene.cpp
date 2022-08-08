@@ -1,5 +1,5 @@
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
-#include <vvipers/Scenes/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuButton.hpp>
 
 namespace VVipers
 {
