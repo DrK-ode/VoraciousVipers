@@ -186,8 +186,8 @@ void ArenaScene::deleteViper(Viper* viper) {
         }
 }
 
-void ArenaScene::addFood(Vec2 position, double diameter, Time bonusExpire) {
-    auto food = std::make_unique<Food>(position, diameter, bonusExpire);
+void ArenaScene::addFood(Vec2 position, double diameter) {
+    auto food = std::make_unique<Food>(position, diameter, seconds(Random::getDouble(5, 10)), getGame().getColorService().getColor(Random::getInt()));
     // Check for collisions
     m_colliderManager.registerCollider(*food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
@@ -298,8 +298,7 @@ void ArenaScene::dispenseFood() {
         // Find a spot, with some room to spare
         CircleShape testCircle(foodRadius * 2);
         findFreeSpace(testCircle);
-        addFood(testCircle.getPosition(), foodRadius,
-                seconds(Random::getDouble(5, 10)));
+        addFood(testCircle.getPosition(), foodRadius );
     }
 }
 

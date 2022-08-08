@@ -11,7 +11,7 @@ class GameOptions;
 
 class FontFileLoader : public FontProvider {
   public:
-    FontFileLoader(const OptionsProvider* options);
+    FontFileLoader(const OptionsProvider& options);
     ~FontFileLoader();
     const sf::Font* getDefaultFont() const override;
     /** @returns default font if the wanted font is not found **/

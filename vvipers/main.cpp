@@ -15,14 +15,12 @@ namespace VVipers {
 
 void startGame() {
     std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
-    OptionsJSON options(cfgFile);  // The one and only instance
+    auto options = std::make_unique<OptionsJSON>(cfgFile);  // The one and only instance
     const std::string resPathOptStr("General/resourceDirectoryPath");
-    if (!options.isOptionSet(resPathOptStr))
-        options.setOptionString(resPathOptStr, RESOURCE_PATH);
-    FontFileLoader fontProvider(&options);
-    TextureFileLoader textureProvider(&options);
+    if (!options->isOptionSet(resPathOptStr))
+        options->setOptionString(resPathOptStr, RESOURCE_PATH);
 
-    auto game = std::make_unique<Game>(options, fontProvider, textureProvider);
+    auto game = std::make_unique<Game>( std::move(options) );
 
     auto firstScene = std::make_shared<FlashScreenScene>(*game.get());
     auto mainMenu = std::make_shared<MainMenuScene>(*game.get());

@@ -22,7 +22,7 @@ class ViperTest : public ::testing::Test {
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->isOptionSet(resPathOptStr))
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
-        auto textures = std::make_unique<TextureFileLoader>(options.get());
+        auto textures = std::make_unique<TextureFileLoader>(*options.get());
         viper = std::make_unique<Viper>(*options, *textures);
         viper->setup(Vec2(0, 0), 180.f, 1.5);
     }

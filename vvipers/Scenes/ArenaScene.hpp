@@ -52,7 +52,7 @@ class ArenaScene : public Scene, public Observer {
     viper_ptr addViper(std::vector<const Collider*>&);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
-    void addFood(Vec2 position, double diameter, Time bonusExpire);
+    void addFood(Vec2 position, double diameter);
     void eatFood(Viper*, Food*);
     void deleteFood(Food* food);
 

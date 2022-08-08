@@ -10,7 +10,7 @@ class GameOptions;
 
 class TextureFileLoader : public TextureProvider {
   public:
-    TextureFileLoader(const OptionsProvider* options);
+    TextureFileLoader(const OptionsProvider& options);
     ~TextureFileLoader();
     const sf::Texture* getTexture(
         const std::string& texturename) const override;

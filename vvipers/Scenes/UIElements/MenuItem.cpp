@@ -16,4 +16,9 @@ void MenuItem::setPosition(Vec2 position) {
     onGeometryChange();
 }
 
+void MenuItem::setSelected(bool selected) {
+    m_selected = selected;
+    onSelection();
+}
+
 }  // namespace VVipers

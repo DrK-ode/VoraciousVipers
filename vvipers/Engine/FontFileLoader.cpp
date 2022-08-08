@@ -3,13 +3,13 @@
 
 namespace VVipers {
 
-FontFileLoader::FontFileLoader(const OptionsProvider* options)
+FontFileLoader::FontFileLoader(const OptionsProvider& options)
     : m_defaultFont(nullptr) {
     m_resourceDirectoryPath =
-        options->getOptionString("General/resourceDirectoryPath");
-    for (auto& fontname : options->getOptionStringArray("General/fonts"))
+        options.getOptionString("General/resourceDirectoryPath");
+    for (auto& fontname : options.getOptionStringArray("General/fonts"))
         loadFont(fontname);
-    auto defaultFont = options->getOptionString("General/defaultFont");
+    auto defaultFont = options.getOptionString("General/defaultFont");
     m_defaultFont = getFont(defaultFont);
 }
 

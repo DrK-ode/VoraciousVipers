@@ -11,7 +11,7 @@ PauseScene::PauseScene(Game& game) : MenuScene(game) {
     Vec2 size = game.getWindow().getSize();
 
     m_background.setSize(size);
-    m_background.setFillColor(sf::Color(0x00000080));
+    m_background.setFillColor(sf::Color(0,0,0,0x80));
 
     // Center and size in original coordinates
     Vec2 menuRelSize(0.7, 0.2);
@@ -33,6 +33,8 @@ PauseScene::PauseScene(Game& game) : MenuScene(game) {
 
     setSelectedIndex(0);
     distributeMenuItems();
+    setColors(sf::Color::Transparent, game.getColorService().getColor(0),
+              game.getColorService().getColor(1));
 
     setTransparent(true);
 }

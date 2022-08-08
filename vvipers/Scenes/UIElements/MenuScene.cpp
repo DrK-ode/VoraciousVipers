@@ -44,6 +44,12 @@ void MenuScene::distributeMenuItems() {
     }
 }
 
+void MenuScene::setColors( sf::Color fill, sf::Color border, sf::Color text){
+    for( auto menuItem : m_menuItems ){
+        menuItem->setColors(fill,border,text);
+    }
+}
+
 void MenuScene::handleKeyPressed(const sf::Event& event) {
     if ((m_layout == Vertical && event.key.code == sf::Keyboard::Up) or
         (m_layout == Horizontal && event.key.code == sf::Keyboard::Left)) {

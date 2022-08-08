@@ -19,8 +19,9 @@ class MenuItem : public sf::Drawable {
     bool contains(Vec2 point) const { return contains(point.x, point.y); }
     virtual void draw(sf::RenderTarget& target,
                       sf::RenderStates states) const override{};
+    virtual void setColors( sf::Color fill, sf::Color border, sf::Color text) {};
     virtual void update(Time elapsedTime){};
-    void setSelected(bool selected) { m_selected = selected; }
+    void setSelected(bool selected);
     bool isSelected() const { return m_selected; }
     sf::FloatRect getLocalBounds() const;
     Vec2 getSize() const { return m_size; }
@@ -28,6 +29,7 @@ class MenuItem : public sf::Drawable {
     Vec2 getPosition() const { return m_position; }
     void setPosition(Vec2 position);
     virtual void onGeometryChange(){};
+    virtual void onSelection(){};
     virtual void handleEvent(const sf::Event& event){};
 
   private:

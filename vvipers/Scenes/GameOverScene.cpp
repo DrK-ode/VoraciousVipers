@@ -20,8 +20,8 @@ GameOverScene::GameOverScene(Game& game,
     auto lbp = m_gameOverText.getLocalBounds();
     m_gameOverText.setOrigin(Vec2(lbp.left + lbp.width, lbp.top + lbp.height) /
                              2);
-    m_gameOverText.setFillColor(sf::Color::Green);
-    m_gameOverText.setOutlineColor(sf::Color::Red);
+    m_gameOverText.setFillColor( game.getColorService().getColor(0));
+    m_gameOverText.setOutlineColor(game.getColorService().getColor(1));
     m_gameOverText.setOutlineThickness(0.005 * size.y);
 
     m_scoreText.setFont(*getGame().getFontService().getDefaultFont());
@@ -31,8 +31,8 @@ GameOverScene::GameOverScene(Game& game,
                             Vec2(0, 2 * m_gameOverText.getCharacterSize()));
     auto lbq = m_scoreText.getLocalBounds();
     m_scoreText.setOrigin(Vec2(lbq.left + lbq.width, lbq.top + lbq.height) / 2);
-    m_scoreText.setFillColor(sf::Color::Green);
-    m_scoreText.setOutlineColor(sf::Color::Red);
+    m_scoreText.setFillColor(game.getColorService().getColor(0));
+    m_scoreText.setOutlineColor(game.getColorService().getColor(1));
     m_scoreText.setOutlineThickness(0.5 * m_gameOverText.getOutlineThickness());
 
     m_background.setPosition(0, 0);

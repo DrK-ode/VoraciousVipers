@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <vvipers/Utilities/Vec2.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace sf {
 class Font;
@@ -11,6 +12,12 @@ class Texture;
 }  // namespace sf
 
 namespace VVipers {
+
+class ColorProvider {
+    public:
+    ~ColorProvider() {}
+    virtual sf::Color getColor(size_t index) const = 0;
+};
 
 class FontProvider {
   public:

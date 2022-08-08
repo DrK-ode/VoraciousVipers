@@ -6,23 +6,23 @@
 
 namespace VVipers {
 
-TextureFileLoader::TextureFileLoader(const OptionsProvider* options) {
+TextureFileLoader::TextureFileLoader(const OptionsProvider& options) {
     auto resourceDirectoryPath =
-        options->getOptionString("General/resourceDirectoryPath");
+        options.getOptionString("General/resourceDirectoryPath");
 
     std::stringstream ss;
     for (auto viperPart : {"ViperHead", "ViperBody", "ViperTail"}) {
         ss.str("");
         ss << "ViperModel/" << viperPart << "/textureFile";
-        auto filename = options->getOptionString(ss.str());
+        auto filename = options.getOptionString(ss.str());
         ss.str("");
         ss << "ViperModel/" << viperPart << "/textureCrop";
-        auto cropRect = options->getOptionDoubleArray(ss.str());
+        auto cropRect = options.getOptionDoubleArray(ss.str());
         if (cropRect.size() != 4)
             throw std::runtime_error("cropRect is of the wrong size.");
         ss.str("");
         ss << "ViperModel/" << viperPart << "/repeated";
-        auto repeated = options->getOptionBoolean(ss.str());
+        auto repeated = options.getOptionBoolean(ss.str());
 
         ss.str("");
         ss << resourceDirectoryPath << filename;

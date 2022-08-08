@@ -20,6 +20,7 @@ class MenuScene : public Scene {
     MenuScene(Game& game);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void distributeMenuItems();
+    void setColors( sf::Color fill, sf::Color border, sf::Color text);
     void processEvent(const sf::Event& event) override;
     /** Overide if you need to do anything else but calling update on all menu
      * items. **/

@@ -14,11 +14,10 @@ class MenuButton : public MenuItem {
     void onGeometryChange() override;
     void draw(sf::RenderTarget& target,
                       sf::RenderStates states) const override;
-    void update(Time elapsedTime);
+    void onSelection() override;
     void setFont(const sf::Font& font);
     void setLabel(const std::string& label);
-    void setBackgroundColor(sf::Color color) {m_box.setFillColor(color);}
-    void setBorderColor(sf::Color color) {m_box.setOutlineColor(color);}
+    void setColors( sf::Color fill, sf::Color border, sf::Color text) override;
     void setFontRatio(double ratio){m_fontRatio = ratio;}
 
   private:

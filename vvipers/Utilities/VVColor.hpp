@@ -94,6 +94,11 @@ inline std::tuple<double, double, double> fromRGBtoHSL(double R, double G,
     return {H, S, L};
 }
 
+inline std::tuple<double, double, double> fromRGBtoHSL(uint8_t R, uint8_t G,
+                                                       uint8_t B) {
+    return fromRGBtoHSL(R / 255., G / 255., B / 255.);
+}
+
 inline sf::Color colorFromRGB(double R, double G, double B) {
     return sf::Color(std::min(uint32_t(255), uint32_t(256 * R)),
                      std::min(uint32_t(255), uint32_t(256 * G)),

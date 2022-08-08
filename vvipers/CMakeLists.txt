@@ -2,6 +2,7 @@ configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
 
 set(INC_FILES
     config.hpp
+    Engine/ColorPalette.hpp
     Engine/Engine.hpp
     Engine/FontFileLoader.hpp
     Engine/Game.hpp
@@ -41,6 +42,7 @@ set(INC_FILES
 )
 
 set(SRC_FILES
+    Engine/ColorPalette.cpp
     Engine/Engine.cpp
     Engine/FontFileLoader.cpp
     Engine/Game.cpp

@@ -3,7 +3,8 @@
         "windowSize": [1024, 768 ],
         "FPS": 60,
         "fonts": ["DroidSansMono"],
-        "defaultFont": "DroidSansMono"
+        "defaultFont": "DroidSansMono",
+        "colorPalette": ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF"]
     },
     "Players": {
         "numberOfPlayers": 1,

@@ -1,21 +1,20 @@
 #ifndef VVIPERS_FOOD_HPP
 #define VVIPERS_FOOD_HPP
 
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
+#include <vvipers/Scenes/Collision2/Shape.hpp>
 #include <vvipers/Scenes/GameElements/GameObject.hpp>
 #include <vvipers/Scenes/GameElements/Observer.hpp>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
-#include <vvipers/Scenes/Collision2/Shape.hpp>
 
 namespace VVipers {
 
-class Food : public GameObject,
-             public CircleShape,
-             public Observable {
+class Food : public GameObject, public CircleShape, public Observable {
   public:
-    Food(Vec2 position, double radius, Time bonusExpire);
+    Food(Vec2 position, double radius, Time bonusExpire, sf::Color color);
     bool isBonusEligible() const;
     double getScoreValue() const;
     void update(Time elapsedTime);
@@ -29,7 +28,9 @@ class Food : public GameObject,
     Time m_age;
     Time m_bonusExpire;
     const double m_originalRadius;
-    const double m_hue;
+    double m_colorH;
+    double m_colorS;
+    double m_colorL;
 };
 
 }  // namespace VVipers

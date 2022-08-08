@@ -37,7 +37,7 @@ class Random {
         return distribution(m_generator);
     }
     // Both first and last inclusive
-    static int getInt(int first, int last) {
+    static int getInt(int first = 0, int last = std::numeric_limits<int>::max() ) {
         return getDouble(first, last+1);
     }
     // First inclusive, last exclusive

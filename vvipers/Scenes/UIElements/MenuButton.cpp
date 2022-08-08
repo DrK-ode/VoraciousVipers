@@ -14,11 +14,12 @@ void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(m_text, states);
 }
 
-void MenuButton::update(Time elapsedTime) {
+void MenuButton::onSelection() {
     if (isSelected())
-        m_box.setOutlineColor( m_text.getFillColor() );
+        m_box.setOutlineThickness(
+            -std::max(1., 0.05 * m_text.getCharacterSize()));
     else
-        m_box.setOutlineColor(sf::Color::Transparent);
+        m_box.setOutlineThickness(0);
 }
 
 void MenuButton::onGeometryChange() {
@@ -29,11 +30,19 @@ void MenuButton::onGeometryChange() {
     auto textlb = m_text.getLocalBounds();
     m_text.setOrigin(textlb.left + 0.5 * textlb.width,
                      textlb.top + 0.5 * textlb.height);
-    m_text.setPosition(position + size/2);
+    m_text.setPosition(position + size / 2);
 
     m_box.setPosition(position);
     m_box.setSize(size);
-    m_box.setOutlineThickness(-0.05 * size.y);
+
+    onSelection();
+}
+
+void MenuButton::setColors(sf::Color fill, sf::Color border, sf::Color text) {
+    m_box.setFillColor(fill);
+    m_box.setOutlineColor(border);
+    m_text.setFillColor(text);
+    m_text.setOutlineColor(border);
 }
 
 void MenuButton::setFont(const sf::Font& font) { m_text.setFont(font); }
