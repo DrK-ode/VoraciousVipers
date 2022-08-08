@@ -16,15 +16,15 @@ ProgressBar::ProgressBar()
     setBorderWidth(-1);
     setProgress(m_progressLow);
     m_mainRect.setFillColor(sf::Color::Transparent);
-    m_mainRect.setOutlineColor(sf::Color::Blue);
-    m_barRect.setFillColor(sf::Color::Red);
+    m_mainRect.setOutlineColor(sf::Color::Transparent);
+    m_barRect.setFillColor(sf::Color::Transparent);
     m_barRect.setOutlineColor(sf::Color::Transparent);
 }
 
 void ProgressBar::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
-    target.draw(m_mainRect, states);
     target.draw(m_barRect, states);
+    target.draw(m_mainRect, states);
     target.draw(m_text, states);
 }
 

@@ -3,7 +3,7 @@
 
 namespace VVipers {
 
-const double Food::nominalFoodRadius(20);
+const double Food::nominalFoodRadius(15);
 
 Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
     : CircleShape(radius, 7, true),
@@ -14,7 +14,7 @@ Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
     auto [h, s, l] = fromRGBtoHSL(color.r, color.g, color.b);
     m_colorH = h;
     m_colorS = s;
-    m_colorL = l;
+    m_colorL = std::clamp(l, 0.3, 0.7);
     setPosition(position);
     setFillColor(color);
     setOutlineThickness(5);
@@ -41,6 +41,10 @@ double Food::getScoreValue() const {
     return score;
 }
 
+sf::Color Food::getColor() const {
+    return colorFromHSL(m_colorH, m_colorS, m_colorL);
+}
+
 void Food::update(Time elapsedTime) {
     m_age += elapsedTime;
     rotate(2 * nominalFoodRadius / getRadius());
@@ -52,7 +56,7 @@ void Food::update(Time elapsedTime) {
     if (state() == Dying)
         decay(elapsedTime);
     else {
-        double L = isBonusEligible() ? m_colorL * 1.2 : m_colorL * 0.8;
+        double L = isBonusEligible() ? m_colorL + 0.1 : m_colorL - 0.1;
         setOutlineColor(colorFromHSL(
             m_colorH, m_colorS,
             L + 0.1 * std::sin(fmod(10 * timeAsSeconds(m_age), twopi))));

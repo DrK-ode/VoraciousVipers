@@ -30,7 +30,7 @@ class Viper : public GameObject,
     Viper(const OptionsProvider& options, const TextureProvider& textures);
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
-    void addGrowth(Time howMuch, Time when);
+    void addGrowth(Time howMuch, Time when, sf::Color color);
     /** @return current direction of the head. **/
     double getAngle() const { return m_angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
@@ -133,7 +133,11 @@ class Viper : public GameObject,
     Track m_track;
     sf::Color m_primaryColor;
     sf::Color m_secondaryColor;
-    std::map<Time, Time> m_dinnerTimes;
+    struct Dinner{
+      Time amount;
+      sf::Color color;
+    };
+    std::map<Time, Dinner> m_dinnerTimes;
 
     std::vector<sf::Vertex> m_verticesHead;
     std::vector<sf::Vertex> m_verticesBody;

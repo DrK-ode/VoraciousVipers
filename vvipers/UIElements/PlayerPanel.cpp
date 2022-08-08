@@ -30,7 +30,7 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     m_scoreBar.setPosition(scoreBarPos);
     // Setup boost bar
     m_boostBar.setSize(boostBarSize);
-    m_boostBar.setBorderWidth(-2);
+    m_boostBar.setBorderWidth(2);
     m_boostBar.setBarColor(player->getSecondaryColor());
     m_boostBar.setBorderColor(player->getPrimaryColor());
     m_boostBar.setVertical(true);
@@ -38,10 +38,10 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     // Setup score bar
     m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);
-    m_scoreBar.setBarColor(sf::Color::Yellow);
-    m_scoreBar.setBorderColor(sf::Color::Yellow);
+    m_scoreBar.setBarColor(player->getSecondaryColor());
+    m_scoreBar.setBorderColor(player->getPrimaryColor());
     m_scoreBar.setTextProperties(m_font, 0.8 * characterSize,
-                                 sf::Color::Magenta,
+                                 player->getPrimaryColor(),
                                  ProgressBar::ProgressTextStyle::IntegerRatio);
     m_scoreBar.setShowText(true);
     updateScoreString();

@@ -20,27 +20,27 @@ class Viper::ViperConfiguration {
         nominalSpeed = options.getOptionDouble("Viper/nominalSpeed");
         nominalSegmentWidth =
             options.getOptionDouble("Viper/nominalSegmentWidth");  // px
-        boostMaxCharge =
-            timeFromseconds(options.getOptionDouble("Viper/boostMaxCharge"));  // s
+        boostMaxCharge = timeFromseconds(
+            options.getOptionDouble("Viper/boostMaxCharge"));  // s
         boostRechargeRate =
             options.getOptionDouble("Viper/boostRechargeRate");  // s per s
         boostRechargeCooldown = timeFromseconds(options.getOptionDouble(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
         headNominalLength = options.getOptionDouble(
-            "ViperModel/ViperHead/nominalLength");                 // px
+            "ViperModel/ViperHead/nominalLength");                         // px
         headDuration = timeFromseconds(headNominalLength / nominalSpeed);  // s
         headNodes =
             options.getOption2DVectorArray("ViperModel/ViperHead/nodes");
 
         bodyNominalLength = options.getOptionDouble(
-            "ViperModel/ViperBody/nominalLength");                 // px
+            "ViperModel/ViperBody/nominalLength");                         // px
         bodyDuration = timeFromseconds(bodyNominalLength / nominalSpeed);  // s
         bodyNodes =
             options.getOption2DVectorArray("ViperModel/ViperBody/nodes");
 
         tailNominalLength = options.getOptionDouble(
-            "ViperModel/ViperTail/nominalLength");                 // px
+            "ViperModel/ViperTail/nominalLength");                         // px
         tailDuration = timeFromseconds(tailNominalLength / nominalSpeed);  // s
         tailNodes =
             options.getOption2DVectorArray("ViperModel/ViperTail/nodes");
@@ -107,7 +107,7 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
 void Viper::eat(const Food& food) {
     addGrowth(viperCfg.bodyDuration * (food.getRadius() * food.getRadius()) /
                   (Food::nominalFoodRadius * Food::nominalFoodRadius),
-              m_headPoint->getTime());
+              m_headPoint->getTime(), food.getColor());
     addBoostCharge(0.5s);
 }
 
@@ -117,8 +117,8 @@ void Viper::die(const Time& elapsedTime) {
         state(Dead);
 }
 
-void Viper::addGrowth(Time howMuch, Time when) {
-    m_dinnerTimes[when] = howMuch;
+void Viper::addGrowth(Time howMuch, Time when, sf::Color color) {
+    m_dinnerTimes[when] = {howMuch, color};
 }
 
 double Viper::getLength() const {
@@ -143,7 +143,8 @@ void Viper::setup(const Vec2& tailPosition, double angle,
 }
 
 TrackPoint* Viper::createNextHeadTrackPoint(Time elapsedTime) {
-    Vec2 advance = Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
+    Vec2 advance =
+        Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
     return m_track.create_front(*m_headPoint + advance,
                                 m_headPoint->getTime() + elapsedTime);
 }
@@ -176,8 +177,8 @@ void Viper::clearDinnerTimes() {
     // times stored at the same time.
     for (auto& dinnerTime : m_dinnerTimes)
         if (dinnerTime.first < tailTime) {
-            m_growth += dinnerTime.second;
-            dinnerTime.second = timeFromseconds(0);
+            m_growth += dinnerTime.second.amount;
+            dinnerTime.second.amount = timeFromseconds(0);
         }
     // This loop can only remove a maximum of one time per update. But that's
     // fine
@@ -441,19 +442,32 @@ sf::Color Viper::calcVertexColor(Time time) {
     }
 
     auto distanceLimit = 2 * viperCfg.bodyDuration;
-    double sFactor = 0;
+    double sFactor1 = 0;
+    sf::Color color1 = sf::Color::Transparent;
     if (tailSide != m_dinnerTimes.end()) {
+        color1 = tailSide->second.color;
         auto distance = time - tailSide->first;
         if (distance < distanceLimit)
-            sFactor += (distanceLimit - distance) / (distanceLimit);
+            sFactor1 = (distanceLimit - distance) / (distanceLimit);
     }
+    double sFactor2 = 0;
+    sf::Color color2 = sf::Color::Transparent;
     if (headSide != m_dinnerTimes.end()) {
+        color2 = headSide->second.color;
         auto distance = headSide->first - time;
         if (distance < distanceLimit)
-            sFactor += (distanceLimit - distance) / (distanceLimit);
+            sFactor2 = (distanceLimit - distance) / (distanceLimit);
     }
-    sFactor = std::min(1.0, sFactor);
-    return blendColors(m_primaryColor, 1. - sFactor, m_secondaryColor, sFactor);
+    double sumFactor = sFactor1 + sFactor2;
+    if (sumFactor > 1) {
+        sFactor1 = sFactor1 / sumFactor;
+        sFactor2 = sFactor2 / sumFactor;
+    }
+    // Blends the main color with the blend of the two food colors (normally
+    // only one will be present)
+    return blendColors(m_primaryColor, 1. - sumFactor,
+                       blendColors(color1, sFactor1, color2, sFactor2),
+                       sumFactor);
 }
 
 }  // namespace VVipers

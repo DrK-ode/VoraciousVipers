@@ -17,6 +17,7 @@ class Food : public GameObject, public CircleShape, public Observable {
     Food(Vec2 position, double radius, Time bonusExpire, sf::Color color);
     bool isBonusEligible() const;
     double getScoreValue() const;
+    sf::Color getColor() const;
     void update(Time elapsedTime);
 
     static const double nominalFoodRadius;

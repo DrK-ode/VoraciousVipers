@@ -293,8 +293,8 @@ Vec2 ArenaScene::findFreeSpace(
 
 void ArenaScene::dispenseFood() {
     while (m_food.size() < 2) {
-        double smallest = Food::nominalFoodRadius / 2.;
-        double largest = Food::nominalFoodRadius * 1.5;
+        double smallest = Food::nominalFoodRadius * 0.75;
+        double largest = Food::nominalFoodRadius * 1.25;
         double foodRadius = std::sqrt(
             Random::getDouble(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
