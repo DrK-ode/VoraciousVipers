@@ -1,5 +1,5 @@
-#ifndef VVIPERS_TIME_HPP
-#define VVIPERS_TIME_HPP
+#ifndef VVIPERS_UTILITIES_TIME_HPP
+#define VVIPERS_UTILITIES_TIME_HPP
 
 #include <chrono>
 
@@ -7,12 +7,12 @@ namespace VVipers {
 
 typedef std::chrono::duration<double> Time; // Holds number of nanoseconds as a double
 
-inline const Time seconds(double t) {
+inline const Time timeFromseconds(double t) {
     return std::chrono::duration_cast<Time>(std::chrono::duration<double>(t));
 }
 
 template<typename T,typename U>
-inline double toSeconds(const std::chrono::duration<T,U>& t) {
+inline double timeAsSeconds(const std::chrono::duration<T,U>& t) {
     return std::chrono::duration_cast<std::chrono::duration<double>>(t).count();
 }
 
@@ -55,4 +55,4 @@ class Stopwatch {
 
 }  // namespace VVipers
 
-#endif
+#endif // VVIPERS_UTILITIES_TIME_HPP

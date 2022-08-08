@@ -11,7 +11,7 @@ class Game;
 
 class FlashScreenScene : public Scene {
   public:
-    FlashScreenScene(Game& game, Time duration = seconds(2));
+    FlashScreenScene(Game& game, Time duration = timeFromseconds(2));
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override;

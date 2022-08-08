@@ -13,7 +13,7 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
       m_timeOfFlight(timeOfFlight),
       m_currentTime(0),
       m_score(score) {
-    auto tof = toSeconds(m_timeOfFlight);
+    auto tof = timeAsSeconds(m_timeOfFlight);
     // Constant acceleration
     m_acceleration = 2 *
                      (target - m_initialPosition - m_initialVelocity * tof) /
@@ -47,7 +47,7 @@ void FlyingScore::update(Time elapsedTime) {
         state(Dead);
     else {
         m_currentTime += elapsedTime;
-        auto t = toSeconds(m_currentTime);
+        auto t = timeAsSeconds(m_currentTime);
         auto currentPosition = m_initialPosition + m_initialVelocity * t +
                                0.5 * m_acceleration * t * t;
         m_text.setPosition(currentPosition);

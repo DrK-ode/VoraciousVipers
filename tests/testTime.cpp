@@ -10,9 +10,9 @@ using namespace std::chrono_literals;
 namespace {
 
 TEST(TimeTest, BasicTest) {
-    EXPECT_EQ(Time(0.), seconds(0.));
-    EXPECT_EQ(toSeconds(Time(1.0)), 1.0);
-    EXPECT_EQ(seconds(1.0) / seconds(2.0), 0.5);
+    EXPECT_EQ(Time(0.), timeFromseconds(0.));
+    EXPECT_EQ(timeAsSeconds(Time(1.0)), 1.0);
+    EXPECT_EQ(timeFromseconds(1.0) / timeFromseconds(2.0), 0.5);
 }
 
 TEST(TimeTest, StopwatchTest) {
@@ -25,8 +25,8 @@ TEST(TimeTest, StopwatchTest) {
     std::this_thread::sleep_for(std::chrono::duration<double>(1 / 60.));
     auto duration = clock.stop();
     // Resolution typically worse than 5% appearently...
-    EXPECT_NEAR(toSeconds(split) * 60, 1, 0.1);
-    EXPECT_NEAR(toSeconds(duration) * 60, 2, 0.1);
+    EXPECT_NEAR(timeAsSeconds(split) * 60, 1, 0.1);
+    EXPECT_NEAR(timeAsSeconds(duration) * 60, 2, 0.1);
     EXPECT_THROW(clock.stop(), std::logic_error);
 }
 

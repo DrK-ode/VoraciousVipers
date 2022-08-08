@@ -33,7 +33,7 @@ void Engine::gameLoop(double FPS) {
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
         sceneSelectionDuration(0), sleepDuration(0), debtDuration(0),
         debugDuration(0);
-    const Time nominalFrameDuration = seconds(1. / FPS);
+    const Time nominalFrameDuration = timeFromseconds(1. / FPS);
     Time frameDuration = nominalFrameDuration;
     double fpsAverage = 0.;
     const size_t sampleSize = FPS;
@@ -51,7 +51,7 @@ void Engine::gameLoop(double FPS) {
             // Analyze last event
             debtDuration = frameDuration - tickDuration;
             frameDuration = nominalFrameDuration + debtDuration;
-            double fps = 1 / toSeconds(tickDuration);
+            double fps = 1 / timeAsSeconds(tickDuration);
             // Calculate average FPS
             durationSamples[sampleIndex++] = fps;
             fpsAverage = 0.;

@@ -21,10 +21,10 @@ Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
 }
 
 void Food::decay(Time elapsedTime) {
-    if (m_startOfDecay == seconds(0))
+    if (m_startOfDecay == timeFromseconds(0))
         m_startOfDecay = m_age;
     auto decayTime = m_age - m_startOfDecay;
-    const Time timeForDying = seconds(0.25);
+    const Time timeForDying = timeFromseconds(0.25);
 
     setRadius(m_originalRadius * (timeForDying - decayTime) / timeForDying);
     if (decayTime >= timeForDying)
@@ -55,7 +55,7 @@ void Food::update(Time elapsedTime) {
         double L = isBonusEligible() ? m_colorL * 1.2 : m_colorL * 0.8;
         setOutlineColor(colorFromHSL(
             m_colorH, m_colorS,
-            L + 0.1 * std::sin(fmod(10 * toSeconds(m_age), twopi))));
+            L + 0.1 * std::sin(fmod(10 * timeAsSeconds(m_age), twopi))));
     }
 }
 

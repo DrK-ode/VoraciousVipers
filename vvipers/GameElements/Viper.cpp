@@ -21,27 +21,27 @@ class Viper::ViperConfiguration {
         nominalSegmentWidth =
             options.getOptionDouble("Viper/nominalSegmentWidth");  // px
         boostMaxCharge =
-            seconds(options.getOptionDouble("Viper/boostMaxCharge"));  // s
+            timeFromseconds(options.getOptionDouble("Viper/boostMaxCharge"));  // s
         boostRechargeRate =
             options.getOptionDouble("Viper/boostRechargeRate");  // s per s
-        boostRechargeCooldown = seconds(options.getOptionDouble(
+        boostRechargeCooldown = timeFromseconds(options.getOptionDouble(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
         headNominalLength = options.getOptionDouble(
             "ViperModel/ViperHead/nominalLength");                 // px
-        headDuration = seconds(headNominalLength / nominalSpeed);  // s
+        headDuration = timeFromseconds(headNominalLength / nominalSpeed);  // s
         headNodes =
             options.getOption2DVectorArray("ViperModel/ViperHead/nodes");
 
         bodyNominalLength = options.getOptionDouble(
             "ViperModel/ViperBody/nominalLength");                 // px
-        bodyDuration = seconds(bodyNominalLength / nominalSpeed);  // s
+        bodyDuration = timeFromseconds(bodyNominalLength / nominalSpeed);  // s
         bodyNodes =
             options.getOption2DVectorArray("ViperModel/ViperBody/nodes");
 
         tailNominalLength = options.getOptionDouble(
             "ViperModel/ViperTail/nominalLength");                 // px
-        tailDuration = seconds(tailNominalLength / nominalSpeed);  // s
+        tailDuration = timeFromseconds(tailNominalLength / nominalSpeed);  // s
         tailNodes =
             options.getOption2DVectorArray("ViperModel/ViperTail/nodes");
 
@@ -113,7 +113,7 @@ void Viper::eat(const Food& food) {
 
 void Viper::die(const Time& elapsedTime) {
     m_temporalLength -= 4 * elapsedTime;
-    if (m_temporalLength <= seconds(0))
+    if (m_temporalLength <= timeFromseconds(0))
         state(Dead);
 }
 
@@ -135,15 +135,15 @@ void Viper::setup(const Vec2& tailPosition, double angle,
     m_growth = numberOfBodySegments * viperCfg.bodyDuration;
 
     Vec2 direction = Vec2(1, 0).rotate(angle);
-    double length = toSeconds(m_temporalLength) * getSpeed();
+    double length = timeAsSeconds(m_temporalLength) * getSpeed();
     auto viperVector = length * direction;
     m_track.create_back(tailPosition + viperVector, m_temporalLength);
-    m_track.create_back(tailPosition, seconds(0));
+    m_track.create_back(tailPosition, timeFromseconds(0));
     m_headPoint = m_track.front();
 }
 
 TrackPoint* Viper::createNextHeadTrackPoint(Time elapsedTime) {
-    Vec2 advance = Vec2(m_speed * toSeconds(elapsedTime), 0).rotate(m_angle);
+    Vec2 advance = Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
     return m_track.create_front(*m_headPoint + advance,
                                 m_headPoint->getTime() + elapsedTime);
 }
@@ -177,7 +177,7 @@ void Viper::clearDinnerTimes() {
     for (auto& dinnerTime : m_dinnerTimes)
         if (dinnerTime.first < tailTime) {
             m_growth += dinnerTime.second;
-            dinnerTime.second = seconds(0);
+            dinnerTime.second = timeFromseconds(0);
         }
     // This loop can only remove a maximum of one time per update. But that's
     // fine
@@ -225,7 +225,7 @@ void Viper::update(Time elapsedTime) {
 void Viper::addBoostCharge(Time charge) {
     auto oldCharge = m_boostCharge;
     m_boostCharge += charge;
-    m_boostCharge = std::max(m_boostCharge, seconds(0));
+    m_boostCharge = std::max(m_boostCharge, timeFromseconds(0));
     m_boostCharge = std::min(m_boostCharge, getBoostMax());
 
     if (m_boostCharge != oldCharge) {
@@ -235,7 +235,7 @@ void Viper::addBoostCharge(Time charge) {
 }
 
 void Viper::updateBoostCharge(Time elapsedTime) {
-    if (m_boostRechargeCooldown == seconds(0)) {
+    if (m_boostRechargeCooldown == timeFromseconds(0)) {
         addBoostCharge(elapsedTime * viperCfg.boostRechargeRate);
     } else if (m_boostInc > 0)
         addBoostCharge(-elapsedTime);
@@ -256,17 +256,17 @@ void Viper::updateSpeed(const Time& elapsedTime) {
         // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
             std::min(2 * viperCfg.nominalSpeed,
-                     (targetSpeed - m_speed) / toSeconds(elapsedTime));
+                     (targetSpeed - m_speed) / timeAsSeconds(elapsedTime));
     } else if (m_speed > targetSpeed) {
         acceleration =
             std::max(-viperCfg.nominalSpeed,
-                     (targetSpeed - m_speed) / toSeconds(elapsedTime));
+                     (targetSpeed - m_speed) / timeAsSeconds(elapsedTime));
     }
-    m_speed += acceleration * toSeconds(elapsedTime);
+    m_speed += acceleration * timeAsSeconds(elapsedTime);
 }
 
 void Viper::updateAngle(const Time& elapsedTime) {
-    m_angle += m_angularSpeed * toSeconds(elapsedTime);
+    m_angle += m_angularSpeed * timeAsSeconds(elapsedTime);
 }
 
 void Viper::updateMotion(const Time& elapsedTime) {
@@ -361,7 +361,7 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
      * 3) Assigns bodyparts to be used by the collision system. Only the first
      *    parts of the head are "active".
      */
-    if (temporalLength <= seconds(0))
+    if (temporalLength <= timeFromseconds(0))
         return;
 
     // True width is calculated later and proportional to dL/dt

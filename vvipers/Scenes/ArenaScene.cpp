@@ -3,10 +3,10 @@
 #include <memory>
 #include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
-#include <vvipers/Scenes/ArenaScene.hpp>
 #include <vvipers/GameElements/Player.hpp>
 #include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/GameElements/Walls.hpp>
+#include <vvipers/Scenes/ArenaScene.hpp>
 #include <vvipers/Scenes/GameOverScene.hpp>
 #include <vvipers/Scenes/PauseScene.hpp>
 #include <vvipers/UIElements/Controller.hpp>
@@ -187,7 +187,9 @@ void ArenaScene::deleteViper(Viper* viper) {
 }
 
 void ArenaScene::addFood(Vec2 position, double diameter) {
-    auto food = std::make_unique<Food>(position, diameter, seconds(Random::getDouble(5, 10)), getGame().getColorService().getColor(Random::getInt()));
+    auto food = std::make_unique<Food>(
+        position, diameter, timeFromseconds(Random::getDouble(5, 10)),
+        getGame().getColorService().getColor(Random::getInt()));
     // Check for collisions
     m_colliderManager.registerCollider(*food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
@@ -298,7 +300,7 @@ void ArenaScene::dispenseFood() {
         // Find a spot, with some room to spare
         CircleShape testCircle(foodRadius * 2);
         findFreeSpace(testCircle);
-        addFood(testCircle.getPosition(), foodRadius );
+        addFood(testCircle.getPosition(), foodRadius);
     }
 }
 
@@ -377,7 +379,7 @@ void ArenaScene::handleSteering() {
                 double boost = 0.;
                 if (cmd.boost &&
                     ((viper->getBoost() > 0 and
-                      viper->getBoostCharge() > seconds(0)) or
+                      viper->getBoostCharge() > timeFromseconds(0)) or
                      (viper->getBoost() == 0.0 and
                       viper->getBoostCharge() == viper->getBoostMax())))
                     boost = 1.;
