@@ -1,11 +1,10 @@
-#ifndef VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP
-#define VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP
+#ifndef VVIPERS_GAMEELEMENTS_VIPER_HPP
+#define VVIPERS_GAMEELEMENTS_VIPER_HPP
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Vertex.hpp>
-#include <memory>
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Collision/Collider.hpp>
@@ -58,7 +57,7 @@ class Viper : public GameObject,
     /** Changes state to Dying and will eventually become dead **/
     void die(const Time& elapsedTime);
     /** Drawable override. Draws all parts of the viper to the target **/
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     /** @returns The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
     /** @returns The first point on the track the Viper is following. **/
@@ -101,7 +100,7 @@ class Viper : public GameObject,
     bool isSegmentActive(size_t i) const override;
 
   private:
-    struct ViperConfiguration;
+    class ViperConfiguration;
     static ViperConfiguration viperCfg;
 
     enum class ViperPart { Head, Body, Tail };
@@ -123,7 +122,7 @@ class Viper : public GameObject,
     double m_angularSpeed;  // degrees/s
     double m_nominalSpeed;  // px/s
     double m_speed;         // px/s
-    double m_targetSpeed;   // px/s
+    //double m_targetSpeed;   // px/s
     double m_boostInc;      // Boost speed = (1 + m_boost) * nominal speed
     Time m_boostCharge;     // fraction [0., 1.]
     Time m_boostRechargeCooldown;  // Countdown from viperBoostChargeCooldown
@@ -145,4 +144,4 @@ class Viper : public GameObject,
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_SCENES_GAMEELEMENTS_VIPER_HPP
+#endif  // VVIPERS_GAMEELEMENTS_VIPER_HPP

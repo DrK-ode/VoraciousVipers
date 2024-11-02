@@ -1,10 +1,9 @@
-#ifndef VVIPERS_CONTROLLER_HPP
-#define VVIPERS_CONTROLLER_HPP
+#ifndef VVIPERS_UIELEMENTS_CONTROLLER_HPP
+#define VVIPERS_UIELEMENTS_CONTROLLER_HPP
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <memory>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
@@ -47,4 +46,4 @@ class MouseController : public Controller {
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_CONTROLLER_HPP
+#endif  // VVIPERS_UIELEMENTS_CONTROLLER_HPP

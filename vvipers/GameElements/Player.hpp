@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
-#define VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
+#ifndef VVIPERS_GAMEELEMENTS_PLAYER_HPP
+#define VVIPERS_GAMEELEMENTS_PLAYER_HPP
 
 #include <memory>
 #include <SFML/Graphics/Color.hpp>
@@ -45,4 +45,4 @@ class Player : public GameObject, public Observable {
 };
 
 }  // namespace VVipers
-#endif // VVIPERS_SCENES_GAMEELEMENTS_PLAYER_HPP
+#endif // VVIPERS_GAMEELEMENTS_PLAYER_HPP

@@ -1,5 +1,5 @@
-#ifndef VVIPERS_GAMEEVENT_HPP
-#define VVIPERS_GAMEEVENT_HPP
+#ifndef VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP
+#define VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP
 
 #include <vvipers/Utilities/Time.hpp>
 
@@ -86,4 +86,4 @@ class UpdateEvent : public GameEvent {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_GAMEEVENT_HPP
+#endif  // VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP

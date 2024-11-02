@@ -1,5 +1,5 @@
-#ifndef VVIPERS_GAME_HPP
-#define VVIPERS_GAME_HPP
+#ifndef VVIPERS_ENGINE_GAME_HPP
+#define VVIPERS_ENGINE_GAME_HPP
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <deque>
@@ -47,4 +47,4 @@ class Game {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_GAME_HPP
+#endif  // VVIPERS_ENGINE_GAME_HPP

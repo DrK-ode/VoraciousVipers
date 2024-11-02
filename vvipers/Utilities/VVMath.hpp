@@ -1,5 +1,5 @@
-#ifndef VVIPERS_VVMATH_HPP
-#define VVIPERS_VVMATH_HPP
+#ifndef VVIPERS_UTILITIES_VVMATH_HPP
+#define VVIPERS_UTILITIES_VVMATH_HPP
 
 #include <cmath>
 #include <random>
@@ -54,4 +54,4 @@ inline generatorEngine_t Random::m_generator( Random::m_randomDevice() );
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_VVMATH_HPP
+#endif  // VVIPERS_UTILITIES_VVMATH_HPP

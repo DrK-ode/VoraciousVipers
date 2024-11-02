@@ -1,3 +1,4 @@
+#include <memory>
 #include <vvipers/Engine/ColorPalette.hpp>
 #include <vvipers/Engine/FontFileLoader.hpp>
 #include <vvipers/Engine/Game.hpp>

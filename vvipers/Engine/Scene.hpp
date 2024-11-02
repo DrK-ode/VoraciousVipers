@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_SCENE_HPP
-#define VVIPERS_SCENES_SCENE_HPP
+#ifndef VVIPERS_ENGINE_SCENE_HPP
+#define VVIPERS_ENGINE_SCENE_HPP
 
 #include <memory>
 #include <vvipers/Utilities/Time.hpp>
@@ -54,4 +54,4 @@ class Scene : public sf::Drawable {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_SCENE_HPP
+#endif  // VVIPERS_ENGINE_SCENE_HPP

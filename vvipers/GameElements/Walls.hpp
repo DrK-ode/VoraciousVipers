@@ -1,8 +1,7 @@
-#ifndef VVIPERS_WALLS_HPP
-#define VVIPERS_WALLS_HPP
+#ifndef VVIPERS_GAMEELEMENTS_WALLS_HPP
+#define VVIPERS_GAMEELEMENTS_WALLS_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <string>
 #include <vector>
 #include <vvipers/Collision/Collider.hpp>
 #include <vvipers/Collision/Shape.hpp>
@@ -32,4 +31,4 @@ class Walls : public GameObject, public sf::Drawable, public ColliderSegmented {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_WALLS_HPP
+#endif  // VVIPERS_GAMEELEMENTS_WALLS_HPP

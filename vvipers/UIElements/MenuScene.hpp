@@ -1,8 +1,7 @@
-#ifndef VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP
-#define VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP
+#ifndef VVIPERS_UIELEMENTS_MENUSCENE_HPP
+#define VVIPERS_UIELEMENTS_MENUSCENE_HPP
 
 #include <SFML/Graphics/View.hpp>
-#include <memory>
 #include <vector>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Engine/Scene.hpp>
@@ -66,4 +65,4 @@ class MenuScene : public Scene {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_UIELEMENTS_MENUSCENE_HPP
+#endif // VVIPERS_UIELEMENTS_MENUSCENE_HPP

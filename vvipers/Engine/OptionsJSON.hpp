@@ -1,5 +1,5 @@
-#ifndef VVIPERS_OPTIONSJSON_HPP
-#define VVIPERS_OPTIONSJSON_HPP
+#ifndef VVIPERS_ENGINE_OPTIONSJSON_HPP
+#define VVIPERS_ENGINE_OPTIONSJSON_HPP
 
 #include <json/json.h>
 
@@ -73,4 +73,4 @@ class OptionsJSON : public OptionsProvider {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_OPTIONSJSON_HPP
+#endif  // VVIPERS_ENGINE_OPTIONSJSON_HPP

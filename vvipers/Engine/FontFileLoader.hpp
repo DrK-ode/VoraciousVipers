@@ -1,8 +1,8 @@
-#ifndef VVIPERS_FONTFILELOADER_HPP
-#define VVIPERS_FONTFILELOADER_HPP
+#ifndef VVIPERS_ENGINE_FONTFILELOADER_HPP
+#define VVIPERS_ENGINE_FONTFILELOADER_HPP
 
-#include <SFML/Graphics/Font.hpp>
-#include <set>
+#include <map>
+#include <string>
 #include <vvipers/Engine/Providers.hpp>
 
 namespace VVipers {
@@ -28,4 +28,4 @@ class FontFileLoader : public FontProvider {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_FONTFILELOADER_HPP
+#endif // VVIPERS_ENGINE_FONTFILELOADER_HPP

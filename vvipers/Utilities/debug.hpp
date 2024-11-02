@@ -1,5 +1,5 @@
-#ifndef VVIPERS_DEBUG_HPP
-#define VVIPERS_DEBUG_HPP
+#ifndef VVIPERS_UTILITIES_DEBUG_HPP
+#define VVIPERS_UTILITIES_DEBUG_HPP
 
 #include <iostream>
 #include <source_location>
@@ -129,4 +129,4 @@ inline void _implLogDebug(bool doTag, const std::source_location loc,
 #endif
 
 }  // namespace VVipers
-#endif
+#endif // VVIPERS_UTILITIES_DEBUG_HPP

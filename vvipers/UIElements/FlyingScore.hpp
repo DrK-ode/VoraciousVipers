@@ -1,9 +1,8 @@
-#ifndef VVIPERS_SCENES_GAMEELEMENTS_FLYINGSCORE_HPP
-#define VVIPERS_SCENES_GAMEELEMENTS_FLYINGSCORE_HPP
+#ifndef VVIPERS_UIELEMENTS_FLYINGSCORE_HPP
+#define VVIPERS_UIELEMENTS_FLYINGSCORE_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <string>
 #include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
 #include <vvipers/GameElements/Observer.hpp>
@@ -41,4 +40,4 @@ class FlyingScore : public sf::Drawable, public GameObject, public Observable {
 
 }  // namespace VVipers
 
-#endif // VVIPERS_SCENES_GAMEELEMENTS_FLYINGSCORE_HPP
+#endif // VVIPERS_UIELEMENTS_FLYINGSCORE_HPP

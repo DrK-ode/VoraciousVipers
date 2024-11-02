@@ -30,7 +30,7 @@ class MenuItem : public sf::Drawable {
     void setPosition(Vec2 position);
     virtual void onGeometryChange(){};
     virtual void onSelection(){};
-    virtual void handleEvent(const sf::Event& event){};
+    virtual void onEvent(const sf::Event& event){};
 
   private:
     Vec2 m_size;

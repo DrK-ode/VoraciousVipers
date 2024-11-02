@@ -1,3 +1,4 @@
+#include <SFML/Graphics/Font.hpp>
 #include <sstream>
 #include <vvipers/Engine/FontFileLoader.hpp>
 

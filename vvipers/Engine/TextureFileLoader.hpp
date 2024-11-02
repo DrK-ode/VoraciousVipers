@@ -1,5 +1,5 @@
-#ifndef VVIPERS_TEXTUREFILELOADER_HPP
-#define VVIPERS_TEXTUREFILELOADER_HPP
+#ifndef VVIPERS_ENGINE_TEXTUREFILELOADER_HPP
+#define VVIPERS_ENGINE_TEXTUREFILELOADER_HPP
 
 #include <map>
 #include <vvipers/Engine/Providers.hpp>
@@ -23,4 +23,4 @@ class TextureFileLoader : public TextureProvider {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_TEXTUREFILELOADER_HPP
+#endif  // VVIPERS_ENGINE_TEXTUREFILELOADER_HPP

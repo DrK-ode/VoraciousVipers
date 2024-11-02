@@ -1,9 +1,8 @@
-#ifndef VVIPERS_VECTORMATH_HPP
-#define VVIPERS_VECTORMATH_HPP
+#ifndef VVIPERS_UTILITIES_VECTORMATH_HPP
+#define VVIPERS_UTILITIES_VECTORMATH_HPP
 
 #include <cmath>
 #include <iostream>
-#include <vector>
 #include <SFML/System/Vector2.hpp>
 #include <vvipers/Utilities/VVMath.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -71,4 +70,4 @@ inline double distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
 
 }  // namespace VVipers
 
-#endif
+#endif // VVIPERS_UTILITIES_VECTORMATH_HPP

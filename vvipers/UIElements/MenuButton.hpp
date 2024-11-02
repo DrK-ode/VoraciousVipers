@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_UIELEMENTS_MENUBUTTON_HPP
-#define VVIPERS_SCENES_UIELEMENTS_MENUBUTTON_HPP
+#ifndef VVIPERS_UIELEMENTS_MENUBUTTON_HPP
+#define VVIPERS_UIELEMENTS_MENUBUTTON_HPP
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -28,4 +28,4 @@ class MenuButton : public MenuItem {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_UIELEMENTS_MENUBUTTON_HPP
+#endif  // VVIPERS_UIELEMENTS_MENUBUTTON_HPP

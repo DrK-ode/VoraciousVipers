@@ -1,5 +1,5 @@
-#ifndef VVIPERS_PROVIDERS_HPP
-#define VVIPERS_PROVIDERS_HPP
+#ifndef VVIPERS_ENGINE_PROVIDERS_HPP
+#define VVIPERS_ENGINE_PROVIDERS_HPP
 
 #include <string>
 #include <vector>
@@ -15,7 +15,7 @@ namespace VVipers {
 
 class ColorProvider {
     public:
-    ~ColorProvider() {}
+    virtual ~ColorProvider() {}
     virtual sf::Color getColor(size_t index) const = 0;
 };
 
@@ -77,4 +77,4 @@ class TextureProvider {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_PROVIDERS_HPP
+#endif  // VVIPERS_ENGINE_PROVIDERS_HPP

@@ -1,9 +1,8 @@
-#ifndef VVIPERS_FOOD_HPP
-#define VVIPERS_FOOD_HPP
+#ifndef VVIPERS_GAMEELEMENTS_FOOD_HPP
+#define VVIPERS_GAMEELEMENTS_FOOD_HPP
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
-#include <vector>
 #include <vvipers/Collision/Shape.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
 #include <vvipers/GameElements/Observer.hpp>
@@ -36,4 +35,4 @@ class Food : public GameObject, public CircleShape, public Observable {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_FOOD_HPP
+#endif  // VVIPERS_GAMEELEMENTS_FOOD_HPP

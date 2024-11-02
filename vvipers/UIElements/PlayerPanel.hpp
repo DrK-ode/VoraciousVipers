@@ -1,5 +1,5 @@
-#ifndef VVIPERS_PLAYERPANEL_HPP
-#define VVIPERS_PLAYERPANEL_HPP
+#ifndef VVIPERS_UIELEMENTS_PLAYERPANEL_HPP
+#define VVIPERS_UIELEMENTS_PLAYERPANEL_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -42,4 +42,4 @@ class PlayerPanel : public sf::Drawable, public Observer {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_PLAYERPANEL_HPP
+#endif  // VVIPERS_UIELEMENTS_PLAYERPANEL_HPP

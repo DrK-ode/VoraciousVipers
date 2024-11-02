@@ -55,7 +55,7 @@ std::string GameOverScene::getScoreString(
         ss << (*p)->name() << ": " << (*p)->score() << " (Viper level "
            << Player::calculateLevel((*p)->score()) << ")";
     }
-    return std::move(ss.str());
+    return ss.str();
 }
 
 void GameOverScene::draw(sf::RenderTarget& target,

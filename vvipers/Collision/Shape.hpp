@@ -1,5 +1,5 @@
-#ifndef VVIPERS_SCENES_COLLISION2_SHAPE_HPP
-#define VVIPERS_SCENES_COLLISION2_SHAPE_HPP
+#ifndef VVIPERS_COLLISION_SHAPE_HPP
+#define VVIPERS_COLLISION_SHAPE_HPP
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
@@ -30,7 +30,7 @@ class ConvexShape : public sf::ConvexShape, public ColliderPolygon {
   public:
     ConvexShape(size_t pointCount = 0, bool active = true)
         : sf::ConvexShape(pointCount), ColliderPolygon(active) {}
-    Vec2 getGlobalPoint(size_t i) const {
+    Vec2 getGlobalPoint(size_t i) const override {
         return getTransform().transformPoint(getPoint(i));
     }
     size_t getPointCount() const override {
@@ -42,7 +42,7 @@ class RectangleShape : public sf::RectangleShape, public ColliderPolygon {
   public:
     RectangleShape(const Vec2& size = Vec2(0., 0.), bool active = true)
         : sf::RectangleShape(sf::Vector2f(size)), ColliderPolygon(active) {}
-    Vec2 getGlobalPoint(size_t i) const {
+    Vec2 getGlobalPoint(size_t i) const override {
         return getTransform().transformPoint(getPoint(i));
     }
     size_t getPointCount() const override {
@@ -52,4 +52,4 @@ class RectangleShape : public sf::RectangleShape, public ColliderPolygon {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_COLLISION2_SHAPE_HPP
+#endif  // VVIPERS_COLLISION_SHAPE_HPP

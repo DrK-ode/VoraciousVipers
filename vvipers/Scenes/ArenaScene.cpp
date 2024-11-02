@@ -494,9 +494,6 @@ void ArenaScene::update(Time elapsedTime) {
 }
 
 std::shared_ptr<Scene> ArenaScene::makeTransition() {
-    // Setting the state after the transition has occured and this scene starts
-    // running again
-    setTransitionState(TransitionState::Continue);
     return m_transitionScene;
 }
 }  // namespace VVipers

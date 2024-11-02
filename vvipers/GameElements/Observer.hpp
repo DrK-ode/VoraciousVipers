@@ -1,5 +1,5 @@
-#ifndef VVIPERS_OBSERVER_HPP
-#define VVIPERS_OBSERVER_HPP
+#ifndef VVIPERS_GAMEELEMENTS_OBSERVER_HPP
+#define VVIPERS_GAMEELEMENTS_OBSERVER_HPP
 
 #include <map>
 #include <set>
@@ -45,4 +45,4 @@ class Observer {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_OBSERVER_HPP
+#endif  // VVIPERS_GAMEELEMENTS_OBSERVER_HPP

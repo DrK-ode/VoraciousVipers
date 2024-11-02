@@ -1,5 +1,5 @@
-#ifndef VVIPERS_GAMEOBJECT_HPP
-#define VVIPERS_GAMEOBJECT_HPP
+#ifndef VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP
+#define VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP
 
 namespace VVipers {
 
@@ -24,4 +24,4 @@ class GameObject {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_GAMEOBJECT_HPP
+#endif  // VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP

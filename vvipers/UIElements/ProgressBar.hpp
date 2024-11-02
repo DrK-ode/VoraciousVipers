@@ -1,5 +1,5 @@
-#ifndef VVIPERS_PROGRESSBAR_HPP
-#define VVIPERS_PROGRESSBAR_HPP
+#ifndef VVIPERS_UIELEMENTS_PROGRESSBAR_HPP
+#define VVIPERS_UIELEMENTS_PROGRESSBAR_HPP
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -58,4 +58,4 @@ class ProgressBar : public sf::Drawable {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_PROGRESSBAR_HPP
+#endif  // VVIPERS_UIELEMENTS_PROGRESSBAR_HPP

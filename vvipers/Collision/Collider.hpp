@@ -1,8 +1,7 @@
-#ifndef VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
-#define VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
+#ifndef VVIPERS_COLLISION_COLLIDER_HPP
+#define VVIPERS_COLLISION_COLLIDER_HPP
 
 #include <SFML/Graphics/Rect.hpp>
-#include <memory>
 #include <vvipers/Utilities/Vec2.hpp>
 
 namespace VVipers {
@@ -127,4 +126,4 @@ class ColliderSegmented : public Collider {
 
 }  // namespace VVipers
 
-#endif  // VVIPERS_SCENES_COLLISION2_COLLIDER_HPP
+#endif  // VVIPERS_COLLISION_COLLIDER_HPP

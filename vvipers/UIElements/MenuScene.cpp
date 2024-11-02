@@ -64,7 +64,7 @@ void MenuScene::handleKeyPressed(const sf::Event& event) {
         onReturn();
     } else {
         if (m_selectedIndex < m_menuItems.size())
-            m_menuItems[m_selectedIndex]->handleEvent(event);
+            m_menuItems[m_selectedIndex]->onEvent(event);
     }
 }
 
@@ -110,7 +110,7 @@ void MenuScene::handleMouseScroll(const sf::Event& event) {
 
 void MenuScene::handleTextEntered(const sf::Event& event) {
     if (m_selectedIndex < m_menuItems.size())
-        m_menuItems[m_selectedIndex]->handleEvent(event);
+        m_menuItems[m_selectedIndex]->onEvent(event);
 }
 
 void MenuScene::menuUp() {
