@@ -16,7 +16,7 @@ target_link_libraries(
   libvvipers
   ${GTEST_MAIN_LIBRARIES}
 )
-target_include_directories(vvtest PRIVATE ${PROJECT_SOURCE_DIR})
+target_include_directories(vvtest PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/include/)
 gtest_discover_tests(vvtest)
 configure_file(test.json ${CMAKE_CURRENT_BINARY_DIR}/test.json COPYONLY)
 configure_file(../res/preferences.json ${CMAKE_CURRENT_BINARY_DIR}/preferences.json COPYONLY)

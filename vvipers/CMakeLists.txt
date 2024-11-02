@@ -1,10 +1,10 @@
-configure_file(./config.hpp.in ${PROJECT_SOURCE_DIR}/vvipers/config.hpp)
+configure_file(./config.hpp.in ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp)
 
 set(INC_FILES
+    ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp
     Collision/Collider.hpp
     Collision/ColliderManager.hpp
     Collision/Shape.hpp
-    config.hpp
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
     Engine/FontFileLoader.hpp
@@ -76,5 +76,8 @@ set(SRC_FILES
 )
 
 add_library(libvvipers ${INC_FILES} ${SRC_FILES})
-target_include_directories(libvvipers PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(libvvipers sfml-graphics jsoncpp)
+
+get_target_property(JSONCPP_INCLUDE_DIR jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
+
+target_include_directories(libvvipers PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/include ${JSONCPP_INCLUDE_DIR})
+target_link_libraries(libvvipers sfml-graphics jsoncpp_lib)
