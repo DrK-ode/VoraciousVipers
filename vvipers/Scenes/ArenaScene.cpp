@@ -1,5 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
+#include <cmath>
 #include <memory>
 #include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
@@ -162,7 +163,7 @@ viper_ptr ArenaScene::addViper(
     Vec2 direction = Vec2(1, 0).rotate(angle);
     Vec2 offset = 0.5 * width * direction;
     Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpVec();
-    viper->setup(viperPosition, angle, 0);
+    viper->setup(viperPosition, angle, 50);
 
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_colliderManager.registerCollider(*viper.get());
@@ -322,7 +323,8 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void ArenaScene::handleCollisions() {
     for (auto& collision : m_colliderManager.checkForCollisions()) {
-        handleCollision(collision.m_colliderSegmentA, collision.m_colliderSegmentB);
+        handleCollision(collision.m_colliderSegmentA,
+                        collision.m_colliderSegmentB);
     }
 }
 
@@ -339,32 +341,40 @@ void ArenaScene::handleCollision(const ColliderSegment& cA,
         if (typeid(*colliderSegment.m_collider) == typeid(Viper)) {
             Viper* colliderViper = (Viper*)colliderSegment.m_collider;
             if (colliderViper->state() == Viper::Alive &&
-                colliderViper->isSegmentActive(colliderSegment.m_segmentIndex)) {
+                colliderViper->isSegmentActive(
+                    colliderSegment.m_segmentIndex)) {
                 if (typeid(*collideeSegment.m_collider) == typeid(Food)) {
                     Food* food = (Food*)collideeSegment.m_collider;
                     if (food->state() == GameObject::Alive)
                         eatFood(colliderViper, food);
-                } else if (typeid(*collideeSegment.m_collider) == typeid(Walls)) {
+                } else if (typeid(*collideeSegment.m_collider) ==
+                           typeid(Walls)) {
                     tagDebug("Killed by collision between Viper segment ",
-                             colliderSegment.m_segmentIndex, " and wall segment ",
+                             colliderSegment.m_segmentIndex,
+                             " and wall segment ",
                              collideeSegment.m_segmentIndex);
                     killViper(colliderViper);
-                } else if (typeid(*collideeSegment.m_collider) == typeid(Viper)) {
-                    auto dindex = colliderSegment.m_segmentIndex >
-                                          collideeSegment.m_segmentIndex
-                                      ? colliderSegment.m_segmentIndex -
-                                            collideeSegment.m_segmentIndex
-                                      : collideeSegment.m_segmentIndex -
-                                            colliderSegment.m_segmentIndex;
-                    // Check if it's just neighbouring segments touching or a
-                    // real collision
-                    if (dindex > 1) {
-                        tagDebug("Killed by collision between Viper segment ",
-                                 colliderSegment.m_segmentIndex,
-                                 " and Viper segment ",
-                                 collideeSegment.m_segmentIndex);
-                        killViper(colliderViper);
+                } else if (typeid(*collideeSegment.m_collider) ==
+                           typeid(Viper)) {
+                    // Self collision
+                    if (colliderViper == (Viper*)collideeSegment.m_collider) {
+                        auto segment_distance =
+                            std::abs(int(colliderSegment.m_segmentIndex -
+                                         collideeSegment.m_segmentIndex));
+                        // Check if it's just neighbouring segments touching or
+                        // a real collision
+                        if (segment_distance > 1) {
+                            tagDebug(
+                                "Killed by collision between Viper segment ",
+                                colliderSegment.m_segmentIndex,
+                                " and Viper segment ",
+                                collideeSegment.m_segmentIndex);
+                            killViper(colliderViper);
+                        }
                     }
+                    // Collision with other viper
+                    else
+                        killViper(colliderViper);
                 } else
                     throw std::runtime_error("Unknown collision happend");
             }
