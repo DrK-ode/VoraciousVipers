@@ -12,7 +12,8 @@ SteeringCommand KeyboardController::control() const {
     static bool lastLeft = false;
     keyPressed = sf::Keyboard::isKeyPressed(m_keys.left);
     if (keyPressed) {
-        cmd.turn -= 1.0;  // Hard turn left
+        // This is not the actual turn, but how much the viper wants to turn
+        cmd.turn -= 1.;
         if (!lastLeft)
             cmd.enable = true;
     } else if (lastLeft) {
@@ -23,7 +24,8 @@ SteeringCommand KeyboardController::control() const {
     static bool lastRight = false;
     keyPressed = sf::Keyboard::isKeyPressed(m_keys.right);
     if (keyPressed) {
-        cmd.turn += 1.;  // Hard turn right
+        // This is not the actual turn, but how much the viper wants to turn
+        cmd.turn += 1.;
         if (!lastRight)
             cmd.enable = true;
     } else if (lastRight) {
