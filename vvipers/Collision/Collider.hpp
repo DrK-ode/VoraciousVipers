@@ -12,14 +12,14 @@ class ColliderPolygon;
 class ColliderSegmented;
 
 struct ColliderSegment{
-    const Collider* collider = nullptr;
-    size_t segmentIndex = 0;
-    explicit operator bool() const {return collider;}
+    const Collider* m_collider = nullptr;
+    size_t m_segmentIndex = 0;
+    explicit operator bool() const {return m_collider;}
 };
 struct CollisionResult{
-    ColliderSegment colliderA;
-    ColliderSegment colliderB;
-    explicit operator bool() const { return colliderA and colliderB;}
+    ColliderSegment m_colliderSegmentA;
+    ColliderSegment m_colliderSegmentB;
+    explicit operator bool() const { return m_colliderSegmentA && m_colliderSegmentB;}
 };
 using CollisionVector = std::vector< CollisionResult >;
 
@@ -44,7 +44,7 @@ class Collider {
     static CollisionVector collisionBothSegmented(
         const ColliderSegmented& segmented1,
         const ColliderSegmented& segmented2);
-    // Not for the vcase of two segmented colliders
+    // Not to be used in the case of two segmented colliders
     static CollisionVector collisionSegmented(
         const ColliderSegmented& segmented1, const Collider& body2);
     static CollisionResult collisionCircleCircle(
