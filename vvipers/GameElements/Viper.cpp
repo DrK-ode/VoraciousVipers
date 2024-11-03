@@ -1,10 +1,12 @@
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <exception>
+#include <algorithm>
+#include <memory>
 #include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/config.hpp>
+#include "vvipers/GameElements/Track.hpp"
 
 namespace VVipers {
 
@@ -94,8 +96,7 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
     : ColliderSegmented(true),
       m_boostInc(0.),
       m_boostRechargeCooldown(0.),
-      m_growth(0.),
-      m_headPoint(nullptr) {
+      m_growth(0.) {
     if (!viperCfg.initialized)
         viperCfg.initialize(options, textures);
     m_boostCharge = viperCfg.boostMaxCharge;
@@ -107,7 +108,7 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
 void Viper::eat(const Food& food) {
     addGrowth(viperCfg.bodyDuration * (food.getRadius() * food.getRadius()) /
                   (Food::nominalFoodRadius * Food::nominalFoodRadius),
-              m_headPoint->getTime(), food.getColor());
+              m_track->head_time(), food.getColor());
     addBoostCharge(0.5s);
 }
 
@@ -122,8 +123,8 @@ void Viper::addGrowth(Time howMuch, Time when, sf::Color color) {
 }
 
 double Viper::getLength() const {
-    return m_track.length(m_headPoint->getTime(),
-                          m_headPoint->getTime() - m_temporalLength);
+    return m_track->length(m_track->head_time(),
+                          m_track->head_time() - m_temporalLength);
 }
 
 double Viper::getNominalWidth() const { return viperCfg.nominalSegmentWidth; }
@@ -137,46 +138,26 @@ void Viper::setup(const Vec2& tailPosition, double angle,
     Vec2 direction = Vec2(1, 0).rotate(angle);
     double length = timeAsSeconds(m_temporalLength) * getSpeed();
     auto viperVector = length * direction;
-    m_track.create_back(tailPosition + viperVector, m_temporalLength);
-    m_track.create_back(tailPosition, timeFromseconds(0));
-    m_headPoint = m_track.front();
+    m_track = std::unique_ptr<TemporalTrack>( new TemporalTrack(tailPosition + viperVector, m_temporalLength, tailPosition, timeFromseconds(0) ) );
 }
 
-TrackPoint* Viper::createNextHeadTrackPoint(Time elapsedTime) {
+void Viper::createNextHeadTrackPoint(Time elapsedTime) {
     Vec2 advance =
         Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
-    return m_track.create_front(*m_headPoint + advance,
-                                m_headPoint->getTime() + elapsedTime);
+    m_track->create_front(m_track->head_position() + advance,
+        m_track->head_time() + elapsedTime);
 }
 
 void Viper::cleanUpTrailingTrackPoints() {
     // Removes any point(s) the whole Viper has passed through
-    Time tailTime = m_headPoint->getTime() - m_temporalLength;
-    // Find the last two needed trackpoints
-    TrackPoint* afterTail = m_track.back();
-    while (afterTail && afterTail->getTime() <= tailTime)
-        afterTail = afterTail->prev();
-    if (!afterTail) {
-        m_track.clear();
-        if (state() == Alive or state() == Dying)
-            throw std::runtime_error(
-                "About to remove all TrackPoints, this cannot be right.");
-        return;
-    }
-    TrackPoint* beforeTail = afterTail->next();
-
-    // Remove the rest
-    while (beforeTail != m_track.back()) {
-        m_track.pop_back();
-    }
+    m_track->remove_trailing(m_track->head_time() - m_temporalLength);
 }
 
 void Viper::clearDinnerTimes() {
-    Time tailTime = m_headPoint->getTime() - m_temporalLength;
     // Slightly wasteful but there will never be more than a handful dinner
     // times stored at the same time.
     for (auto& dinnerTime : m_dinnerTimes)
-        if (dinnerTime.first < tailTime) {
+        if (dinnerTime.first < m_track->tail_time()) {
             m_growth += dinnerTime.second.amount;
             dinnerTime.second.amount = timeFromseconds(0);
         }
@@ -185,7 +166,7 @@ void Viper::clearDinnerTimes() {
     for (auto& dinnerTime : m_dinnerTimes)
         // Times 10 give us some margin but it would be nicer to specify
         // exactly...
-        if (dinnerTime.first + 10 * viperCfg.bodyDuration < tailTime) {
+        if (dinnerTime.first + 10 * viperCfg.bodyDuration < m_track->tail_time()) {
             m_dinnerTimes.erase(dinnerTime.first);
             break;
         }
@@ -214,7 +195,7 @@ void Viper::update(Time elapsedTime) {
     if (state() == Dying)
         die(elapsedTime);  // Allow the viper to die for a while
     else {
-        m_headPoint = createNextHeadTrackPoint(elapsedTime);
+        createNextHeadTrackPoint(elapsedTime);
         grow(elapsedTime);
     }
     updateMotion(elapsedTime);
@@ -329,7 +310,7 @@ void Viper::updateVertices() {
         std::min(m_temporalLength - headDuration, viperCfg.tailDuration);
     Time bodyDuration = m_temporalLength - headDuration - tailDuration;
 
-    Time headFront = m_headPoint->getTime();
+    Time headFront = m_track->head_time();
     Time bodyFront = headFront - headDuration;
     Time tailFront = bodyFront - bodyDuration;
 
@@ -412,9 +393,9 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
             // How far we have come so far.
             Time time = timeFront - sketch->at(iNode).y * actualLength;
             // This is the position at the snake axis
-            Vec2 mid = m_track.position(time);
+            Vec2 mid = m_track->position(time);
             // This vector reaches out the the side of the snake
-            Vec2 gradient = m_track.gradient(time);
+            Vec2 gradient = m_track->gradient(time);
             double width =
                 nominalWidth * viperCfg.nominalSpeed / gradient.abs();
             Vec2 perp =

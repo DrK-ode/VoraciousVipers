@@ -5,9 +5,10 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Vertex.hpp>
+#include <memory>
 #include <vector>
-#include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Collision/Collider.hpp>
+#include <vvipers/Engine/Providers.hpp>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
@@ -26,6 +27,7 @@ class Viper : public GameObject,
               public ColliderSegmented,
               public Observable {
   public:
+    // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
@@ -59,9 +61,7 @@ class Viper : public GameObject,
     /** Drawable override. Draws all parts of the viper to the target **/
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     /** @returns The track the viper follows. **/
-    const Track& getTrack() const { return m_track; }
-    /** @returns The first point on the track the Viper is following. **/
-    const TrackPoint* getHead() const { return m_headPoint; }
+    const TemporalTrack& getTemporalTrack() const { return *m_track; }
     /** @returns Normal (spatial) length of the Viper. **/
     double getLength() const;
     /** forawrds info from ViperCfg **/
@@ -104,7 +104,7 @@ class Viper : public GameObject,
     static ViperConfiguration viperCfg;
 
     enum class ViperPart { Head, Body, Tail };
-    TrackPoint* createNextHeadTrackPoint(Time elapsedTime);
+    void createNextHeadTrackPoint(Time elapsedTime);
     void cleanUpTrailingTrackPoints();
     void clearDinnerTimes();
     void grow(const Time& elapsedTime);
@@ -122,19 +122,18 @@ class Viper : public GameObject,
     double m_angularSpeed;  // degrees/s
     double m_nominalSpeed;  // px/s
     double m_speed;         // px/s
-    //double m_targetSpeed;   // px/s
-    double m_boostInc;      // Boost speed = (1 + m_boost) * nominal speed
-    Time m_boostCharge;     // fraction [0., 1.]
+    // double m_targetSpeed;   // px/s
+    double m_boostInc;   // Boost speed = (1 + m_boost) * nominal speed
+    Time m_boostCharge;  // fraction [0., 1.]
     Time m_boostRechargeCooldown;  // Countdown from viperBoostChargeCooldown
     Time m_temporalLength;         // s
     Time m_growth;                 // s
-    TrackPoint* m_headPoint;
-    Track m_track;
+    std::unique_ptr<TemporalTrack> m_track;
     sf::Color m_primaryColor;
     sf::Color m_secondaryColor;
-    struct Dinner{
-      Time amount;
-      sf::Color color;
+    struct Dinner {
+        Time amount;
+        sf::Color color;
     };
     std::map<Time, Dinner> m_dinnerTimes;
 

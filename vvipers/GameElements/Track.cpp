@@ -1,234 +1,151 @@
+#include <deque>
+#include <iterator>
 #include <sstream>
 #include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Utilities/Time.hpp"
+
 namespace VVipers {
 
-TrackPoint::TrackPoint(const Vec2& v, const Time& t)
-    : Vec2(v), m_time(t), m_next(nullptr), m_prev(nullptr), m_distToNext(0) {}
-
-void TrackPoint::setNext(TrackPoint* tp) {
-    m_next = tp;
-    m_distToNext = 0;
-    if (tp) {
-        tp->m_prev = this;
-        m_distToNext = distance(*this, *tp);
-    }
-}
-void TrackPoint::setPrev(TrackPoint* tp) {
-    m_prev = tp;
-    if (tp) {
-        tp->m_next = this;
-        tp->m_distToNext = distance(*tp, *this);
-    }
-}
-
-TrackPoint* TrackPoint::step(int32_t s) {
-    if (s > 0) {
-        if (!m_next) {
-            logWarning("No next TrackPoint.");
-            throw std::out_of_range(
-                "Trying to access TrackPoint beyond the Track end.");
-        }
-        return m_next->step(s - 1);
-    } else if (s < 0) {
-        if (!m_prev) {
-            logWarning("No previous TrackPoint.");
-            throw std::out_of_range(
-                "Trying to access TrackPoint beyond the Track end.");
-        }
-        return m_prev->step(s + 1);
-    } else
-        return this;
-}
-
-size_t TrackPoint::stepsUntil(const TrackPoint* target) const {
-    auto tp = this;
-    uint32_t n = 0;
-    while (tp != target) {
-        ++n;
-        tp = tp->m_next;
-    }
-    return n;
-}
-
-Track::Track() : m_size(0), m_front(nullptr), m_back(nullptr) {}
-
-void Track::clear() {
-    TrackPoint* tp;
-    while (m_front) {
-        tp = m_front->next();
-        delete m_front;
-        m_front = tp;
-    }
-    m_back = nullptr;
-}
-
-size_t Track::size(TrackPoint const* from, TrackPoint const* to) const {
-    if (!from)
-        return 0;
-    if (from == m_front && to == m_back)
-        return m_size;
-    return from->stepsUntil(to);
-}
-
-Vec2 Track::gradient(const Time& t) const {
-    if (m_size < 2) {
-        tagError("Cannot compute direction with < 2 TrackPoints.");
+Vec2 TemporalTrack::gradient(const Time& t) const {
+    if (m_points.size() < 2) {
+        tagError("Cannot compute a direction with < 2 TrackPoints.");
         throw std::runtime_error(
-            "Cannot compute direction with < 2 TrackPoints.");
+            "Cannot compute a direction with < 2 TrackPoints.");
     }
 
-    TrackPoint* p2 = m_front->next();
-    while (p2 && p2->getTime() > t)
-        p2 = p2->next();
-    if (!p2)  // t < time at end of track
-        p2 = m_back;
-    else if (p2 == m_front)  // t >= time at start of track
-        p2 = m_front->next();
-    TrackPoint* p1 = p2->prev();
-    return (*p1 - *p2) / timeAsSeconds(p1->getTime() - p2->getTime());
+    auto p2 = at_or_before(t);
+    if (p2 == m_points.cend())
+        p2 = m_points.crbegin().base();
+    if (p2 == m_points.cbegin())
+        ++p2;
+    auto p1 = prev(p2);
+    return (*p1 - *p2) / timeAsSeconds(p1->spawn_time - p2->spawn_time);
 }
 
-double Track::length() const {
-    if (!m_front)
-        return 0;
-    return length(m_front->getTime(), m_back->getTime());
+double TemporalTrack::length() const {
+    double length = 0.;
+    for (auto iter = m_points.cbegin(); iter != m_points.cend(); ++iter) {
+        length += iter->distance_from_previous_point;
+    }
+    return length;
 }
 
-double Track::length(const Time& t1, const Time& t2) const {
-    // Typically the front of the track is the youngest so we expect t1 > t2
-    // But if t2 > t1 we return a negative length
-    if (t1 < t2)
-        return -length(t2, t1);
-    // t1 or t2 outside the track's range
-    if (t1 > m_front->getTime() || t2 < m_back->getTime()) {
+double TemporalTrack::length(const Time& t1, const Time& t2) const {
+    if (t1 < t2) {
         std::stringstream msg;
         msg << "Requesting length between t1 = " << t1 << " and t2 = " << t2
-            << ", which is outside viper time interval(" << m_back->getTime()
-            << " - " << m_front->getTime() << ").";
+            << ", which means going backwards in time.";
         tagError(msg.str());
         throw std::runtime_error(msg.str());
     }
-    // Or if a zero time interval has been passed to the method
+    if (t1 > m_points.front().spawn_time || t2 < m_points.back().spawn_time) {
+        std::stringstream msg;
+        msg << "Requesting length between t1 = " << t1 << " and t2 = " << t2
+            << ", which is outside viper time interval("
+            << m_points.back().spawn_time << " - "
+            << m_points.front().spawn_time << ").";
+        tagError(msg.str());
+        throw std::runtime_error(msg.str());
+    }
     if (t1 == t2)
         return 0;
 
-    double L = 0.f;
-    // Find first track point
-    TrackPoint* p2 = m_front;
-    while (p2 && p2->getTime() > t1)
-        p2 = p2->next();
-    // Linear interpolation of the distance to the next TrackPoint
-    TrackPoint* p1 = p2->prev();
-    if (p1)  // Otherwise p2 == m_front and no distance needs to be added
-        L += p1->distanceToNext() *
-             ((p2->getTime() - t1) / (p2->getTime() - p1->getTime()));
-    // Add all distances until t2 has been passed
-    while (p2 && p2->getTime() > t2) {
-        L += p2->distanceToNext();
-        p2 = p2->next();
+    double length = 0.;
+    // p1 is guaranteed to exist and spawned after t2
+    auto p1 = at_or_later(t1);
+    // p2 is guaranteed to exist and spawned before t1
+    auto p2 = at_or_before(t2);
+    tagDebug(*p1, "                   ", *p2);
+    tagDebug(t1, "                   ", t2);
+    tagDebug(m_points.front());
+    tagDebug(m_points.back());
+    for (auto iter = p2; iter != p1; --iter) {
+        length += iter->distance_from_previous_point;
     }
-    if (!p2)  // p1 == m_back
-        return L;
-    // The full distance between p1 and p2 was added to L, this must be
-    // corrected for.
-    p1 = p2->prev();
-    L -= p1->distanceToNext() *
-         ((p2->getTime() - t2) / (p2->getTime() - p1->getTime()));
+    auto tmp1 = p1 + 1;
+    length -= tmp1->distance_from_previous_point *
+              ((p1->spawn_time - t1) / (p1->spawn_time - tmp1->spawn_time));
+    auto tmp2 = p2 - 1;
+    length -= p2->distance_from_previous_point *
+              ((p2->spawn_time - t2) / (p2->spawn_time - tmp2->spawn_time));
 
-    return L;
+    return length;
 }
 
-Vec2 Track::position(const Time& t) const {
-    TrackPoint* p2 = m_front;
-    while (p2 && p2->getTime() > t)
-        p2 = p2->next();
-    if (!p2)  // t < time at end of track
-        p2 = m_back;
-    else if (p2 == m_front)  // t >= time at start of track
-        p2 = m_front->next();
+Vec2 TemporalTrack::position(const Time& t) const {
+    auto p2 = at_or_before(t);
+    if (p2 == m_points.cend())
+        p2 = m_points.crbegin().base();
+    if (p2 == m_points.cbegin())
+        ++p2;
 
-    TrackPoint* p1 = p2->prev();
-    // The sought position lies between p1 and p2, linear interpolation (or
-    // extrapolation)
+    auto p1 = p2 - 1;
     return *p1 + (*p2 - *p1) *
-                     ((t - p1->getTime()) / (p2->getTime() - p1->getTime()));
+                     ((t - p1->spawn_time) / (p2->spawn_time - p1->spawn_time));
 }
 
-void Track::pop_back() {
-    if (empty())
-        return;
-    TrackPoint* delete_me = m_back;
-    m_back = m_back->prev();
-    m_back->setNext(nullptr);
-    delete delete_me;
-    --m_size;
+const std::deque<TemporalTrackPoint>::const_iterator
+TemporalTrack::at_or_before(
+    const Time& t, std::deque<TemporalTrackPoint>::const_iterator iter) const {
+    while (iter != m_points.cend() && iter->spawn_time > t)
+        ++iter;
+    return iter;
 }
 
-void Track::pop_front() {
-    if (empty())
-        return;
-    TrackPoint* delete_me = m_front;
-    m_front = m_front->next();
-    m_front->setPrev(nullptr);
-    delete delete_me;
-    --m_size;
+const std::deque<TemporalTrackPoint>::const_iterator TemporalTrack::at_or_later(
+    const Time& t, std::deque<TemporalTrackPoint>::const_iterator iter) const {
+    auto reverse_iter = std::make_reverse_iterator(iter);
+    while (reverse_iter != m_points.crend() && reverse_iter->spawn_time < t)
+        ++reverse_iter;
+    if (reverse_iter == m_points.crend())
+        return m_points.cend();
+    return prev(reverse_iter.base());
 }
 
-TrackPoint* Track::createPoint(const Vec2& v, const Time& t,
-                               TrackOrientation ori) {
-    TrackPoint* p = new TrackPoint(v, t);
-    switch (ori) {
-        case TrackOrientation::front:
-            push_front(p);
-            break;
-        case TrackOrientation::back:
-            push_back(p);
-            break;
+void TemporalTrack::create_back(const Vec2& v, const Time& t) {
+    if (!m_points.empty() && t > m_points.back().spawn_time)
+        throw std::runtime_error(
+            "Trying to create a temporal track point out of temporal "
+            "order.");
+    double d = m_points.empty() ? 0. : distance(m_points.back(), v);
+    m_points.emplace(m_points.cend(), v, t, d);
+}
+void TemporalTrack::create_front(const Vec2& v, const Time& t) {
+    if (!m_points.empty() && t < m_points.front().spawn_time)
+        throw std::runtime_error(
+            "Trying to create a temporal track point out of temporal "
+            "order.");
+    if (!m_points.empty()) {
+        m_points.front().distance_from_previous_point =
+            m_points.empty() ? 0. : distance(m_points.front(), v);
     }
-    return p;
+    m_points.emplace(m_points.cbegin(), v, t, 0);
 }
 
-void Track::push_back(TrackPoint* tp) {
-    if (empty())
-        m_front = m_back = tp;
-    else {
-        if (tp->getTime() > m_back->getTime())
-            throw std::runtime_error(
-                "Trying to push back a track point out of temporal order.");
-        m_back->setNext(tp);
-        tp->setPrev(m_back);
-        tp->setNext(nullptr);
-        m_back = tp;
-    }
-    ++m_size;
+void TemporalTrack::pop_back() {
+    if (m_points.size() <= 2)
+        throw std::runtime_error(
+            "Trying to reduce temporal track length to less than 2.");
+    return m_points.pop_back();
+}
+void TemporalTrack::pop_front() {
+    if (m_points.size() <= 2)
+        throw std::runtime_error(
+            "Trying to reduce temporal track length to less than 2.");
+    return m_points.pop_front();
 }
 
-void Track::push_front(TrackPoint* tp) {
-    if (empty())
-        m_front = m_back = tp;
-    else {
-        if (tp->getTime() < m_front->getTime())
-            throw std::runtime_error(
-                "Trying to push front a track point out of temporal order.");
-        m_front->setPrev(tp);
-        tp->setNext(m_front);
-        tp->setPrev(nullptr);
-        m_front = tp;
-    }
-    ++m_size;
+void TemporalTrack::remove_trailing(const Time& t){
+    // Never remove the first to points
+    auto first_to_erase = at_or_before(t, m_points.cbegin()+2);
+        m_points.erase(first_to_erase, m_points.cend());
 }
 
-std::ostream& operator<<(std::ostream& os, const Track& t) {
+std::ostream& operator<<(std::ostream& os, const TemporalTrack& t) {
     os << "Track size: " << t.size() << ", track length: " << t.length()
        << std::endl;
-    TrackPoint* p = t.front();
-    int i = 0;
-    while (p) {
-        os << "  Trackpoint " << i++ << ": " << *p << std::endl;
-        p = p->next();
-    }
     return os;
 }
 

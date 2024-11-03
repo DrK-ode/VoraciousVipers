@@ -1,5 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
+#include <cmath>
 #include <memory>
 #include <typeinfo>
 #include <vvipers/Engine/Providers.hpp>
@@ -162,7 +163,7 @@ viper_ptr ArenaScene::addViper(
     Vec2 direction = Vec2(1, 0).rotate(angle);
     Vec2 offset = 0.5 * width * direction;
     Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpVec();
-    viper->setup(viperPosition, angle, 0);
+    viper->setup(viperPosition, angle, 50);
 
     viper->addObserver(this, {GameEvent::EventType::Destroy});
     m_colliderManager.registerCollider(*viper.get());
@@ -283,7 +284,6 @@ Vec2 ArenaScene::findFreeSpace(
         if (occupied)
             continue;
         // Second, check against all existing objects in the game
-
         if (m_colliderManager.checkForCollisions(testObject).empty())
             // Return center position
             return position;
@@ -322,40 +322,62 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void ArenaScene::handleCollisions() {
-    for (auto& c : m_colliderManager.checkForCollisions()) {
-        handleCollision(c.colliderA, c.colliderB);
-        handleCollision(c.colliderB, c.colliderA);
+    for (auto& collision : m_colliderManager.checkForCollisions()) {
+        handleCollision(collision.m_colliderSegmentA,
+                        collision.m_colliderSegmentB);
     }
 }
 
 void ArenaScene::handleCollision(const ColliderSegment& cA,
                                  const ColliderSegment& cB) {
-    if (typeid(*cA.collider) == typeid(Viper)) {
-        Viper* viper = (Viper*)cA.collider;
-        if (viper->state() == Viper::Alive &&
-            viper->isSegmentActive(cA.segmentIndex)) {
-            if (typeid(*cB.collider) == typeid(Food)) {
-                Food* food = (Food*)cB.collider;
-                if (food->state() == GameObject::Alive)
-                    eatFood(viper, food);
-            } else if (typeid(*cB.collider) == typeid(Walls)) {
-                tagDebug("Killed by collision between Viper segment ",
-                         cA.segmentIndex, " and wall segment ",
-                         cB.segmentIndex);
-                killViper(viper);
-            } else if (typeid(*cB.collider) == typeid(Viper)) {
-                auto dindex = cA.segmentIndex > cB.segmentIndex
-                                  ? cA.segmentIndex - cB.segmentIndex
-                                  : cB.segmentIndex - cA.segmentIndex;
-                // Check if it's just neighbouring segments touching or a real
-                // collision
-                if (dindex > 1) {
-                    tagDebug("Killed by collision between Viper segments ",
-                             cA.segmentIndex, " and ", cB.segmentIndex);
-                    killViper(viper);
-                }
-            } else
-                throw std::runtime_error("Unknown collision happend");
+    /* Only collisions involving a viper is interesting so both ColliderSegments
+     * need to be checked in case they are a viper. If both are vipers we check
+     * for consequences one viper at a time. */
+    for (const auto colliderSegment : {cA, cB}) {
+        // A collidee is what the collider collides into :)
+        const auto collideeSegment =
+            colliderSegment.m_collider == cA.m_collider ? cB : cA;
+        // If it's not a viper, we don't care!
+        if (typeid(*colliderSegment.m_collider) == typeid(Viper)) {
+            Viper* colliderViper = (Viper*)colliderSegment.m_collider;
+            if (colliderViper->state() == Viper::Alive &&
+                colliderViper->isSegmentActive(
+                    colliderSegment.m_segmentIndex)) {
+                if (typeid(*collideeSegment.m_collider) == typeid(Food)) {
+                    Food* food = (Food*)collideeSegment.m_collider;
+                    if (food->state() == GameObject::Alive)
+                        eatFood(colliderViper, food);
+                } else if (typeid(*collideeSegment.m_collider) ==
+                           typeid(Walls)) {
+                    tagDebug("Killed by collision between Viper segment ",
+                             colliderSegment.m_segmentIndex,
+                             " and wall segment ",
+                             collideeSegment.m_segmentIndex);
+                    killViper(colliderViper);
+                } else if (typeid(*collideeSegment.m_collider) ==
+                           typeid(Viper)) {
+                    // Self collision
+                    if (colliderViper == (Viper*)collideeSegment.m_collider) {
+                        auto segment_distance =
+                            std::abs(int(colliderSegment.m_segmentIndex -
+                                         collideeSegment.m_segmentIndex));
+                        // Check if it's just neighbouring segments touching or
+                        // a real collision
+                        if (segment_distance > 1) {
+                            tagDebug(
+                                "Killed by collision between Viper segment ",
+                                colliderSegment.m_segmentIndex,
+                                " and Viper segment ",
+                                collideeSegment.m_segmentIndex);
+                            killViper(colliderViper);
+                        }
+                    }
+                    // Collision with other viper
+                    else
+                        killViper(colliderViper);
+                } else
+                    throw std::runtime_error("Unknown collision happend");
+            }
         }
     }
 }
@@ -366,16 +388,15 @@ void ArenaScene::handleSteering() {
             SteeringCommand cmd = controller->control();
 
             if (Viper* viper = player->viper()) {
-                /* Boost if the steering event says so and either:
-                 *    1) Boost in inactive and the boost power is full
-                 *    2) Boost is active and the boost power is not depleted
-                 */
-
                 // Protect against erroneous input from controller
                 if (std::abs(cmd.turn) > 1)
                     cmd.turn /= std::abs(cmd.turn);
                 double angularSpeed =
                     cmd.turn * degPerRad * viper->getMaxAngularSpeed();
+                /* Boost if the steering event says so and either:
+                 *    1) Boost in inactive and the boost power is full
+                 *    2) Boost is active and the boost power is not depleted
+                 */
                 double boost = 0.;
                 if (cmd.boost &&
                     ((viper->getBoost() > 0 and

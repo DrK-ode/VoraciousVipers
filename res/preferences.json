@@ -1,87 +1,94 @@
 {
-    "General": {
-        "windowSize": [1024, 768 ],
-        "FPS": 60,
-        "fonts": ["DroidSansMono"],
-        "defaultFont": "DroidSansMono",
-        "colorPalette": ["#a41531", "#e85324", "#ffcd23", "#0aac0f", "#2772c6", "#75009c" ]
+  "General": {
+    "windowSize": [1024, 768],
+    "FPS": 60,
+    "fonts": ["DroidSansMono"],
+    "defaultFont": "DroidSansMono",
+    "colorPalette": [
+      "#a41531",
+      "#e85324",
+      "#ffcd23",
+      "#0aac0f",
+      "#2772c6",
+      "#75009c"
+    ]
+  },
+  "Players": {
+    "numberOfPlayers": 2,
+    "names": ["DrK", "MrTest"],
+    "keys": [71, 72, 73, 0, 3, 22],
+    "primaryColors": ["#37E2D5", "#FBCB0A"],
+    "secondaryColors": ["#C70A80", "#590696"]
+  },
+  "Viper": {
+    "nominalSpeed": 100,
+    "nominalSegmentWidth": 30,
+    "boostMaxCharge": 3,
+    "boostRechargeRate": 0.2,
+    "boostRechargeCooldown": 0.5
+  },
+  "ViperModel": {
+    "ViperHead": {
+      "nominalLength": 35,
+      "nodes": [
+        [-0.03, 0],
+        [0.03, 0],
+        [-0.125, 0.02],
+        [0.125, 0.02],
+        [-0.25, 0.17],
+        [0.25, 0.17],
+        [-0.375, 0.33],
+        [0.375, 0.33],
+        [-0.44, 0.5],
+        [0.44, 0.5],
+        [-0.5, 0.67],
+        [0.5, 0.67],
+        [-0.44, 0.83],
+        [0.44, 0.83],
+        [-0.25, 1],
+        [0.25, 1]
+      ],
+      "textureFile": "viper_texture.png",
+      "textureCrop": [0, 0, 80, 120],
+      "repeated": false
     },
-    "Players": {
-        "numberOfPlayers": 2,
-        "names": ["DrK", "MrTest"],
-        "keys": [71, 72, 73, 0, 3, 22],
-        "primaryColors": ["#37E2D5", "#FBCB0A"],
-        "secondaryColors": ["#C70A80", "#590696"]
+    "ViperBody": {
+      "nominalLength": 30,
+      "nodes": [
+        [-0.25, 0],
+        [0.25, 0],
+        [-0.3, 0.1],
+        [0.3, 0.1],
+        [-0.4, 0.25],
+        [0.4, 0.25],
+        [-0.45, 0.5],
+        [0.45, 0.5],
+        [-0.4, 0.75],
+        [0.4, 0.75],
+        [-0.3, 0.9],
+        [0.3, 0.9],
+        [-0.25, 1],
+        [0.25, 1]
+      ],
+      "textureFile": "viper_texture.png",
+      "textureCrop": [0, 120, 80, 120],
+      "repeated": true
     },
-    "Viper": {
-        "nominalSpeed":         100,
-        "nominalSegmentWidth":  30,
-        "boostMaxCharge":        3,
-        "boostRechargeRate":     0.2,
-        "boostRechargeCooldown": 0.5
-    },
-    "ViperModel": {
-        "ViperHead": {
-            "nominalLength": 35,
-            "nodes": [
-                [-0.03,  0   ],
-                [ 0.03,  0   ],
-                [-0.125, 0.02],
-                [ 0.125, 0.02],
-                [-0.25,  0.17],
-                [ 0.25,  0.17],
-                [-0.375, 0.33],
-                [ 0.375, 0.33],
-                [-0.44,  0.5 ],
-                [ 0.44,  0.5 ],
-                [-0.5,   0.67],
-                [ 0.5,   0.67],
-                [-0.44,  0.83],
-                [ 0.44,  0.83],
-                [-0.25,  1   ],
-                [ 0.25,  1   ]
-            ],
-            "textureFile": "viper_texture.png",
-            "textureCrop": [0,0,80,120],
-            "repeated": false
-        },
-        "ViperBody": {
-            "nominalLength": 30,
-            "nodes": [
-                [-0.25, 0   ],
-                [ 0.25, 0   ],
-                [-0.3,  0.1 ],
-                [ 0.3,  0.1 ],
-                [-0.4,  0.25],
-                [ 0.4,  0.25],
-                [-0.45, 0.5 ],
-                [ 0.45, 0.5 ],
-                [-0.4,  0.75],
-                [ 0.4,  0.75],
-                [-0.3,  0.9 ],
-                [ 0.3,  0.9 ],
-                [-0.25, 1   ],
-                [ 0.25, 1   ]
-            ],
-            "textureFile": "viper_texture.png",
-            "textureCrop": [0,120,80,120],
-            "repeated": true
-        },
-        "ViperTail": {
-            "nominalLength": 20,
-            "nodes": [
-                [ -0.25, 0 ],
-                [  0.25, 0 ],
-                [-0.2, 0.25],
-                [ 0.2, 0.25],
-                [ -0.1, 0.5],
-                [  0.1, 0.5],
-                [-0.01, 1  ],
-                [ 0.01, 1  ]
-            ],
-            "textureFile": "viper_texture.png",
-            "textureCrop": [0,240,80,120],
-            "repeated": false
-        }
+    "ViperTail": {
+      "nominalLength": 20,
+      "nodes": [
+        [-0.25, 0],
+        [0.25, 0],
+        [-0.2, 0.25],
+        [0.2, 0.25],
+        [-0.1, 0.5],
+        [0.1, 0.5],
+        [-0.01, 1],
+        [0.01, 1]
+      ],
+      "textureFile": "viper_texture.png",
+      "textureCrop": [0, 240, 80, 120],
+      "repeated": false
     }
+  }
 }

@@ -88,10 +88,10 @@ CollisionVector Collider::collisionBothSegmented(
             auto result =
                 collisionPolygonPolygon(polygonSegment1, polygonSegment2);
             if (result) {
-                result.colliderA.collider = &segmented1;
-                result.colliderA.segmentIndex = i;
-                result.colliderB.collider = &segmented2;
-                result.colliderB.segmentIndex = j;
+                result.m_colliderSegmentA.m_collider = &segmented1;
+                result.m_colliderSegmentA.m_segmentIndex = i;
+                result.m_colliderSegmentB.m_collider = &segmented2;
+                result.m_colliderSegmentB.m_segmentIndex = j;
                 combinedResult.push_back(result);
             }
         }
@@ -115,8 +115,8 @@ CollisionVector Collider::collisionSegmented(
             result = collisionPolygonPolygon(
                 static_cast<const ColliderPolygon&>(body2), polygonSegment);
         if (result) {
-            result.colliderB.collider = &segmented1;
-            result.colliderB.segmentIndex = i;
+            result.m_colliderSegmentB.m_collider = &segmented1;
+            result.m_colliderSegmentB.m_segmentIndex = i;
             combinedResult.push_back(result);
         }
     }
@@ -139,8 +139,8 @@ CollisionResult Collider::collisionCircleCircle(const ColliderCircle& circle1,
     if ((&circle1 != &circle2) and
         (circle1.getPosition() - circle2.getPosition()).abs() <
             circle1.getRadius() + circle2.getRadius()) {
-        result.colliderA.collider = &circle1;
-        result.colliderB.collider = &circle2;
+        result.m_colliderSegmentA.m_collider = &circle1;
+        result.m_colliderSegmentB.m_collider = &circle2;
     }
     return result;
 }
@@ -216,8 +216,8 @@ CollisionResult Collider::collisionCirclePolygon(
         if (max1 < min2 || max2 < min1)
             return result;
     }
-    result.colliderA.collider = &circle;
-    result.colliderB.collider = &polygon;
+    result.m_colliderSegmentA.m_collider = &circle;
+    result.m_colliderSegmentB.m_collider = &polygon;
     return result;
 }
 
@@ -239,8 +239,8 @@ CollisionResult Collider::collisionPolygonPolygon(
         if (max1 < min2 || max2 < min1)
             return result;
     }
-    result.colliderA.collider = &polygon1;
-    result.colliderB.collider = &polygon2;
+    result.m_colliderSegmentA.m_collider = &polygon1;
+    result.m_colliderSegmentB.m_collider = &polygon2;
     return result;
 }
 

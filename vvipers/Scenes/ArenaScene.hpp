@@ -70,6 +70,7 @@ class ArenaScene : public Scene, public Observer {
 
     void processGameEvents();
     void handleCollision(const ColliderSegment& cA, const ColliderSegment& cB);
+    void handleViperCollision(const ColliderSegment& cA, const ColliderSegment& cB);
     void handleCollisions();
     void handleSteering();
     void handleDestruction(const DestroyEvent* event);
