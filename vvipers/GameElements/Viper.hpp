@@ -61,7 +61,7 @@ class Viper : public GameObject,
     /** @returns The track the viper follows. **/
     const Track& getTrack() const { return m_track; }
     /** @returns The first point on the track the Viper is following. **/
-    const TrackPoint* getHead() const { return m_headPoint; }
+    //const TrackPoint* getHead() const { return m_track.front(); }
     /** @returns Normal (spatial) length of the Viper. **/
     double getLength() const;
     /** forawrds info from ViperCfg **/
@@ -128,7 +128,6 @@ class Viper : public GameObject,
     Time m_boostRechargeCooldown;  // Countdown from viperBoostChargeCooldown
     Time m_temporalLength;         // s
     Time m_growth;                 // s
-    TrackPoint* m_headPoint;
     Track m_track;
     sf::Color m_primaryColor;
     sf::Color m_secondaryColor;

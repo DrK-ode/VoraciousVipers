@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <stdexcept>
 #include <vvipers/Utilities/Time.hpp>
 #include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/debug.hpp>
@@ -34,7 +35,7 @@ TEST_F(TrackTest, LengthTestInterpolation) {
 }
 
 TEST_F(TrackTest, LengthTestBackwards) {
-    EXPECT_DOUBLE_EQ(track.length(timeFromseconds(0), timeFromseconds(4)), -1.5);
+    EXPECT_THROW(track.length(timeFromseconds(0), timeFromseconds(4)), std::runtime_error);
 }
 
 TEST_F(TrackTest, DirectionTest) {
