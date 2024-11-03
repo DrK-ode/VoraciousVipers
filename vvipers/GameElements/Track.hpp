@@ -27,15 +27,16 @@ class Track {
     TrackPoint* back() const { return m_back; };
     void pop_back();
     void pop_front();
-    TrackPoint* createPoint(const Vec2&, const Time&, TrackOrientation);
+    TrackPoint* create_point(const Vec2&, const Time&, TrackOrientation);
     TrackPoint* create_back(const Vec2& v, const Time& t) {
-        return createPoint(v, t, TrackOrientation::back);
+        return create_point(v, t, TrackOrientation::back);
     }
     TrackPoint* create_front(const Vec2& v, const Time& t) {
-        return createPoint(v, t, TrackOrientation::front);
+        return create_point(v, t, TrackOrientation::front);
     }
 
   private:
+    const TrackPoint* at_or_earlier(const Time& t, const TrackPoint* starting_point = nullptr) const;
     void push_back(TrackPoint*);
     void push_front(TrackPoint*);
     size_t m_size;
@@ -47,11 +48,11 @@ std::ostream& operator<<(std::ostream& os, const Track& t);
 
 class TrackPoint : public Vec2 {
   public:
-    double distanceToNext() const { return m_distToNext; }
-    TrackPoint* next() const { return m_next; }
-    TrackPoint* prev() const { return m_prev; }
-    void setNext(TrackPoint* tp);
-    void setPrev(TrackPoint* tp);
+    double distanceToEarlier() const { return m_distToEarlier; }
+    TrackPoint* earlier() const { return m_earlier; }
+    TrackPoint* later() const { return m_later; }
+    void setEarlier(TrackPoint* tp);
+    void setLater(TrackPoint* tp);
     // Traverses the track in any direction and returns the destination point
     TrackPoint* step(int32_t);
     Time getTime() const { return m_time; }
@@ -71,11 +72,11 @@ class TrackPoint : public Vec2 {
   private:
     TrackPoint(const Vec2&, const Time&);
     Time m_time;
-    TrackPoint* m_next;
-    TrackPoint* m_prev;
-    double m_distToNext;
+    TrackPoint* m_earlier;
+    TrackPoint* m_later;
+    double m_distToEarlier;
 
-    friend TrackPoint* Track::createPoint(const Vec2&, const Time&,
+    friend TrackPoint* Track::create_point(const Vec2&, const Time&,
                                           TrackOrientation);
 };
 
