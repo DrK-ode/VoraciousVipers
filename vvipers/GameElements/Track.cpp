@@ -57,10 +57,6 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
     auto p1 = at_or_later(t1);
     // p2 is guaranteed to exist and spawned before t1
     auto p2 = at_or_before(t2);
-    tagDebug(*p1, "                   ", *p2);
-    tagDebug(t1, "                   ", t2);
-    tagDebug(m_points.front());
-    tagDebug(m_points.back());
     for (auto iter = p2; iter != p1; --iter) {
         length += iter->distance_from_previous_point;
     }
