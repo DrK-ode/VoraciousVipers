@@ -33,7 +33,7 @@ void Engine::gameLoop(double FPS) {
     Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
         sceneSelectionDuration(0), sleepDuration(0), debtDuration(0),
         debugDuration(0);
-    const Time nominalFrameDuration = timeFromseconds(1. / FPS);
+    const Time nominalFrameDuration = timeFromSeconds(1. / FPS);
     Time frameDuration = nominalFrameDuration;
     double fpsAverage = 0.;
     const size_t sampleSize = FPS;
@@ -73,10 +73,6 @@ void Engine::gameLoop(double FPS) {
         }
         debugDuration = clock.split();
         if (!firstFrame) {
-            if (tickDuration > 2 * nominalFrameDuration) {
-                // update(nominalFrameDuration);
-                tickDuration = nominalFrameDuration;
-            }
             update(tickDuration);
         }
         updateDuration = clock.split();
@@ -89,8 +85,8 @@ void Engine::gameLoop(double FPS) {
         sceneSelection();
         sceneSelectionDuration = clock.split();
 
-        sleepDuration = frameDuration - (debugDuration + updateDuration +
-                                         eventDuration + drawDuration);
+        sleepDuration = std::max( timeFromSeconds(0), frameDuration - (debugDuration + updateDuration +
+                                         eventDuration + drawDuration) );
         std::this_thread::sleep_for(sleepDuration);
         firstFrame = false;
     }

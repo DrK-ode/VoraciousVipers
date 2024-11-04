@@ -7,7 +7,7 @@ namespace VVipers {
 
 typedef std::chrono::duration<double> Time; // Holds number of nanoseconds as a double
 
-inline const Time timeFromseconds(double t) {
+inline const Time timeFromSeconds(double t) {
     return std::chrono::duration_cast<Time>(std::chrono::duration<double>(t));
 }
 

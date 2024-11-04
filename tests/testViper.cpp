@@ -51,9 +51,9 @@ TEST_F(ViperTest, lengthTest) {
         1.5 *
             options->getOptionDouble("ViperModel/ViperBody/nominalLength") +
         options->getOptionDouble("ViperModel/ViperTail/nominalLength");
-    viper->update(timeFromseconds(3.0));  // Let it grow
+    viper->update(timeFromSeconds(3.0));  // Let it grow
     EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
-    viper->update(timeFromseconds(3.0));  // Let it grow more
+    viper->update(timeFromSeconds(3.0));  // Let it grow more
     EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
 }
 

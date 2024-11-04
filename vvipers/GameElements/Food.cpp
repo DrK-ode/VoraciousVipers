@@ -21,10 +21,10 @@ Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
 }
 
 void Food::decay(Time elapsedTime) {
-    if (m_startOfDecay == timeFromseconds(0))
+    if (m_startOfDecay == timeFromSeconds(0))
         m_startOfDecay = m_age;
     auto decayTime = m_age - m_startOfDecay;
-    const Time timeForDying = timeFromseconds(0.25);
+    const Time timeForDying = timeFromSeconds(0.25);
 
     setRadius(m_originalRadius * (timeForDying - decayTime) / timeForDying);
     if (decayTime >= timeForDying)

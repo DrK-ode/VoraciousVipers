@@ -10,9 +10,9 @@ using namespace std::chrono_literals;
 namespace {
 
 TEST(TimeTest, BasicTest) {
-    EXPECT_EQ(Time(0.), timeFromseconds(0.));
+    EXPECT_EQ(Time(0.), timeFromSeconds(0.));
     EXPECT_EQ(timeAsSeconds(Time(1.0)), 1.0);
-    EXPECT_EQ(timeFromseconds(1.0) / timeFromseconds(2.0), 0.5);
+    EXPECT_EQ(timeFromSeconds(1.0) / timeFromSeconds(2.0), 0.5);
 }
 
 TEST(TimeTest, StopwatchTest) {

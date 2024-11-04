@@ -28,7 +28,7 @@ void FlashScreenScene::draw(sf::RenderTarget& target,
 
 void FlashScreenScene::update(Time elapsedTime) {
     m_timeLeft -= elapsedTime;
-    if (m_timeLeft <= timeFromseconds(0)) {
+    if (m_timeLeft <= timeFromSeconds(0)) {
         setTransitionState(TransitionState::Default);
     }
 }

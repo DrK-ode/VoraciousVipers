@@ -189,7 +189,7 @@ void ArenaScene::deleteViper(Viper* viper) {
 
 void ArenaScene::addFood(Vec2 position, double diameter) {
     auto food = std::make_unique<Food>(
-        position, diameter, timeFromseconds(Random::getDouble(5, 10)),
+        position, diameter, timeFromSeconds(Random::getDouble(5, 10)),
         getGame().getColorService().getColor(Random::getInt()));
     // Check for collisions
     m_colliderManager.registerCollider(*food.get());
@@ -400,7 +400,7 @@ void ArenaScene::handleSteering() {
                 double boost = 0.;
                 if (cmd.boost &&
                     ((viper->getBoost() > 0 and
-                      viper->getBoostCharge() > timeFromseconds(0)) or
+                      viper->getBoostCharge() > timeFromSeconds(0)) or
                      (viper->getBoost() == 0.0 and
                       viper->getBoostCharge() == viper->getBoostMax())))
                     boost = 1.;

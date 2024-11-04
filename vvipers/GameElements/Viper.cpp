@@ -22,28 +22,28 @@ class Viper::ViperConfiguration {
         nominalSpeed = options.getOptionDouble("Viper/nominalSpeed");
         nominalSegmentWidth =
             options.getOptionDouble("Viper/nominalSegmentWidth");  // px
-        boostMaxCharge = timeFromseconds(
+        boostMaxCharge = timeFromSeconds(
             options.getOptionDouble("Viper/boostMaxCharge"));  // s
         boostRechargeRate =
             options.getOptionDouble("Viper/boostRechargeRate");  // s per s
-        boostRechargeCooldown = timeFromseconds(options.getOptionDouble(
+        boostRechargeCooldown = timeFromSeconds(options.getOptionDouble(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
         headNominalLength = options.getOptionDouble(
             "ViperModel/ViperHead/nominalLength");                         // px
-        headDuration = timeFromseconds(headNominalLength / nominalSpeed);  // s
+        headDuration = timeFromSeconds(headNominalLength / nominalSpeed);  // s
         headNodes =
             options.getOption2DVectorArray("ViperModel/ViperHead/nodes");
 
         bodyNominalLength = options.getOptionDouble(
             "ViperModel/ViperBody/nominalLength");                         // px
-        bodyDuration = timeFromseconds(bodyNominalLength / nominalSpeed);  // s
+        bodyDuration = timeFromSeconds(bodyNominalLength / nominalSpeed);  // s
         bodyNodes =
             options.getOption2DVectorArray("ViperModel/ViperBody/nodes");
 
         tailNominalLength = options.getOptionDouble(
             "ViperModel/ViperTail/nominalLength");                         // px
-        tailDuration = timeFromseconds(tailNominalLength / nominalSpeed);  // s
+        tailDuration = timeFromSeconds(tailNominalLength / nominalSpeed);  // s
         tailNodes =
             options.getOption2DVectorArray("ViperModel/ViperTail/nodes");
 
@@ -114,7 +114,7 @@ void Viper::eat(const Food& food) {
 
 void Viper::die(const Time& elapsedTime) {
     m_temporalLength -= 4 * elapsedTime;
-    if (m_temporalLength <= timeFromseconds(0))
+    if (m_temporalLength <= timeFromSeconds(0))
         state(Dead);
 }
 
@@ -138,7 +138,7 @@ void Viper::setup(const Vec2& tailPosition, double angle,
     Vec2 direction = Vec2(1, 0).rotate(angle);
     double length = timeAsSeconds(m_temporalLength) * getSpeed();
     auto viperVector = length * direction;
-    m_track = std::unique_ptr<TemporalTrack>( new TemporalTrack(tailPosition + viperVector, m_temporalLength, tailPosition, timeFromseconds(0) ) );
+    m_track = std::unique_ptr<TemporalTrack>( new TemporalTrack(tailPosition + viperVector, m_temporalLength, tailPosition, timeFromSeconds(0) ) );
 }
 
 void Viper::createNextHeadTrackPoint(Time elapsedTime) {
@@ -159,7 +159,7 @@ void Viper::clearDinnerTimes() {
     for (auto& dinnerTime : m_dinnerTimes)
         if (dinnerTime.first < m_track->tail_time()) {
             m_growth += dinnerTime.second.amount;
-            dinnerTime.second.amount = timeFromseconds(0);
+            dinnerTime.second.amount = timeFromSeconds(0);
         }
     // This loop can only remove a maximum of one time per update. But that's
     // fine
@@ -207,7 +207,7 @@ void Viper::update(Time elapsedTime) {
 void Viper::addBoostCharge(Time charge) {
     auto oldCharge = m_boostCharge;
     m_boostCharge += charge;
-    m_boostCharge = std::max(m_boostCharge, timeFromseconds(0));
+    m_boostCharge = std::max(m_boostCharge, timeFromSeconds(0));
     m_boostCharge = std::min(m_boostCharge, getBoostMax());
 
     if (m_boostCharge != oldCharge) {
@@ -217,7 +217,7 @@ void Viper::addBoostCharge(Time charge) {
 }
 
 void Viper::updateBoostCharge(Time elapsedTime) {
-    if (m_boostRechargeCooldown == timeFromseconds(0)) {
+    if (m_boostRechargeCooldown == timeFromSeconds(0)) {
         addBoostCharge(elapsedTime * viperCfg.boostRechargeRate);
     } else if (m_boostInc > 0)
         addBoostCharge(-elapsedTime);
@@ -343,7 +343,7 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
      * 3) Assigns bodyparts to be used by the collision system. Only the first
      *    parts of the head are "active".
      */
-    if (temporalLength <= timeFromseconds(0))
+    if (temporalLength <= timeFromSeconds(0))
         return;
 
     // True width is calculated later and proportional to dL/dt
