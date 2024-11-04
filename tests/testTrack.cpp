@@ -15,12 +15,16 @@ class TrackTest : public ::testing::Test {
     void SetUp() override {
         track = std::unique_ptr<TemporalTrack>( new TemporalTrack(Vec2(0, 0), timeFromseconds(5), Vec2(1, 0), timeFromseconds(3)) );
         track->create_back(Vec2(1, 1), timeFromseconds(0));
+        track->create_back(Vec2(1, 2), timeFromseconds(-1));
+        track->create_back(Vec2(1, 3), timeFromseconds(-2));
+        track->create_back(Vec2(1, 4), timeFromseconds(-3));
+        track->create_back(Vec2(2, 4), timeFromseconds(-4));
     }
     std::unique_ptr<TemporalTrack> track;
 };
 
 TEST_F(TrackTest, LengthTestBasic) {
-    EXPECT_DOUBLE_EQ(track->length(), 2);
+    EXPECT_DOUBLE_EQ(track->length(), 6);
     EXPECT_DOUBLE_EQ(track->length(timeFromseconds(3), timeFromseconds(0)), 1.);
     EXPECT_DOUBLE_EQ(track->length(timeFromseconds(4), timeFromseconds(0)), 1.5);
     EXPECT_DOUBLE_EQ(track->length(timeFromseconds(5), timeFromseconds(1)), 1.+2./3.);
@@ -51,6 +55,18 @@ TEST_F(TrackTest, PositionTest) {
     EXPECT_EQ(track->position(timeFromseconds(2)), Vec2(1,1/3.));
     EXPECT_EQ(track->position(timeFromseconds(3)), Vec2(1,0));
     EXPECT_EQ(track->position(timeFromseconds(5)), Vec2(0,0));
+}
+
+TEST_F(TrackTest, SearchTest) {
+    EXPECT_EQ(track->at_or_before(timeFromseconds(3.), track->head(), track->tail() )->spawn_time, timeFromseconds(3.) );
+    EXPECT_EQ(track->at_or_before(timeFromseconds(3.5), track->head(), track->tail() )->spawn_time, timeFromseconds(3.) );
+    EXPECT_EQ(track->at_or_before(timeFromseconds(2.5), track->head(), track->tail() )->spawn_time, timeFromseconds(0.) );
+    EXPECT_EQ(track->at_or_later(timeFromseconds(3.), track->head(), track->tail() )->spawn_time, timeFromseconds(3.) );
+    EXPECT_EQ(track->at_or_later(timeFromseconds(3.5), track->head(), track->tail() )->spawn_time, timeFromseconds(5.) );
+    EXPECT_EQ(track->at_or_later(timeFromseconds(2.5), track->head(), track->tail() )->spawn_time, timeFromseconds(3.) );
+
+    EXPECT_EQ(track->at_or_before(timeFromseconds(3.), track->head()+2, track->tail() )->spawn_time, timeFromseconds(0.) );
+    EXPECT_EQ(track->at_or_later(timeFromseconds(3.), track->head()+2, track->tail() ), track->tail() );
 }
 
 }  // namespace
