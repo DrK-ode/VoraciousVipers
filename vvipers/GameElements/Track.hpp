@@ -1,6 +1,8 @@
 #ifndef VVIPERS_GAMEELEMENTS_TRACK_HPP
 #define VVIPERS_GAMEELEMENTS_TRACK_HPP
 
+#include <pthread.h>
+
 #include <cstddef>
 #include <deque>
 #include <vvipers/Utilities/Time.hpp>
@@ -25,8 +27,11 @@ class TemporalTrackPoint : public Vec2 {
 };
 
 inline std::ostream& operator<<(std::ostream& os, const TemporalTrackPoint& p) {
-    return os << Vec2(p) << ", t = " << p.spawn_time << ", delta L = " << p.distance_from_previous_point;
+    return os << Vec2(p) << ", t = " << p.spawn_time
+              << ", delta L = " << p.distance_from_previous_point;
 }
+
+typedef std::deque<TemporalTrackPoint>::const_iterator tt_const_iter;
 
 class TemporalTrack {
   public:
@@ -40,6 +45,8 @@ class TemporalTrack {
     double length() const;
     double length(const Time& from, const Time& to) const;
 
+    tt_const_iter head() const { return m_points.cbegin(); }
+    tt_const_iter tail() const { return m_points.cend(); }
     const Time& head_time() const { return m_points.front().spawn_time; }
     const Time& tail_time() const { return m_points.back().spawn_time; }
     const Vec2& head_position() const { return m_points.front(); }
@@ -54,22 +61,18 @@ class TemporalTrack {
     void pop_back();
     void pop_front();
 
-  private:
-    const std::deque<TemporalTrackPoint>::const_iterator at_or_before(
-        const Time& t,
-        const std::deque<TemporalTrackPoint>::const_iterator) const;
-    const std::deque<TemporalTrackPoint>::const_iterator at_or_before(
-        const Time& t) const {
-        return at_or_before(t, m_points.cbegin());
+    tt_const_iter at_or_before(const Time& t, const tt_const_iter& start,
+                               const tt_const_iter& end) const;
+    tt_const_iter at_or_later(const Time& t, const tt_const_iter& start,
+                              const tt_const_iter& end) const;
+    tt_const_iter at_or_before(const Time& t) const {
+        return at_or_before(t, m_points.cbegin(), m_points.cend());
     }
-    const std::deque<TemporalTrackPoint>::const_iterator at_or_later(
-        const Time& t,
-        const std::deque<TemporalTrackPoint>::const_iterator) const;
-    const std::deque<TemporalTrackPoint>::const_iterator at_or_later(
-        const Time& t) const {
-        return at_or_later(t, m_points.end());
+    tt_const_iter at_or_later(const Time& t) const {
+        return at_or_later(t, m_points.cbegin(), m_points.end());
     }
 
+  private:
     std::deque<TemporalTrackPoint> m_points;
 };
 

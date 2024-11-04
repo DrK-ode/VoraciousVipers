@@ -57,10 +57,6 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
     auto p1 = at_or_later(t1);
     // p2 is guaranteed to exist and spawned before t1
     auto p2 = at_or_before(t2);
-    tagDebug(*p1, "                   ", *p2);
-    tagDebug(t1, "                   ", t2);
-    tagDebug(m_points.front());
-    tagDebug(m_points.back());
     for (auto iter = p2; iter != p1; --iter) {
         length += iter->distance_from_previous_point;
     }
@@ -86,22 +82,26 @@ Vec2 TemporalTrack::position(const Time& t) const {
                      ((t - p1->spawn_time) / (p2->spawn_time - p1->spawn_time));
 }
 
-const std::deque<TemporalTrackPoint>::const_iterator
-TemporalTrack::at_or_before(
-    const Time& t, std::deque<TemporalTrackPoint>::const_iterator iter) const {
-    while (iter != m_points.cend() && iter->spawn_time > t)
-        ++iter;
-    return iter;
+// Find TemporalTrackPoint with spawn_time <= t
+tt_const_iter TemporalTrack::at_or_before(
+    const Time& t, const tt_const_iter& start_iter,
+    const tt_const_iter& end_iter) const {
+    size_t interval_length = end_iter - start_iter;
+    if( interval_length < 2) return start_iter->spawn_time <= t ? start_iter : m_points.cend();
+    tt_const_iter mid_iter = start_iter + interval_length / 2 - 1;
+    return t < mid_iter->spawn_time ? at_or_before(t, mid_iter+1, end_iter)
+                                    : at_or_before(t, start_iter, mid_iter+1);
 }
 
-const std::deque<TemporalTrackPoint>::const_iterator TemporalTrack::at_or_later(
-    const Time& t, std::deque<TemporalTrackPoint>::const_iterator iter) const {
-    auto reverse_iter = std::make_reverse_iterator(iter);
-    while (reverse_iter != m_points.crend() && reverse_iter->spawn_time < t)
-        ++reverse_iter;
-    if (reverse_iter == m_points.crend())
-        return m_points.cend();
-    return prev(reverse_iter.base());
+// Find TemporalTrackPoint with spawn_time >= t
+tt_const_iter TemporalTrack::at_or_later(
+    const Time& t, const tt_const_iter& start_iter,
+    const tt_const_iter& end_iter) const {
+    size_t interval_length = end_iter - start_iter;
+    if( interval_length < 2) return start_iter->spawn_time >= t ? start_iter : m_points.cend();
+    tt_const_iter mid_iter = start_iter + interval_length / 2;
+    return t > mid_iter->spawn_time ? at_or_later(t, start_iter, mid_iter)
+                                    : at_or_later(t, mid_iter, end_iter);
 }
 
 void TemporalTrack::create_back(const Vec2& v, const Time& t) {
@@ -137,10 +137,10 @@ void TemporalTrack::pop_front() {
     return m_points.pop_front();
 }
 
-void TemporalTrack::remove_trailing(const Time& t){
+void TemporalTrack::remove_trailing(const Time& t) {
     // Never remove the first to points
-    auto first_to_erase = at_or_before(t, m_points.cbegin()+2);
-        m_points.erase(first_to_erase, m_points.cend());
+    auto first_to_erase = at_or_before(t, m_points.cbegin() + 2, m_points.cend());
+    m_points.erase(first_to_erase, m_points.cend());
 }
 
 std::ostream& operator<<(std::ostream& os, const TemporalTrack& t) {
