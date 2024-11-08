@@ -145,7 +145,7 @@ template <typename T>
 void OptionsJSON::setOptionArray(const std::string& optionName,
                                  const std::vector<T>& optionValue) {
     auto array = Json::Value(Json::arrayValue);
-    for (auto element : optionValue)
+    for (T element : optionValue)
         array.append(element);
     setOptionValue(optionName, array);
 }
