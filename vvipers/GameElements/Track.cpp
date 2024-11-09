@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <deque>
 #include <iterator>
 #include <sstream>
@@ -83,25 +84,34 @@ Vec2 TemporalTrack::position(const Time& t) const {
 }
 
 // Find TemporalTrackPoint with spawn_time <= t
-tt_const_iter TemporalTrack::at_or_before(
-    const Time& t, const tt_const_iter& start_iter,
-    const tt_const_iter& end_iter) const {
-    size_t interval_length = end_iter - start_iter;
-    if( interval_length < 2) return start_iter->spawn_time <= t ? start_iter : m_points.cend();
-    tt_const_iter mid_iter = start_iter + interval_length / 2 - 1;
-    return t < mid_iter->spawn_time ? at_or_before(t, mid_iter+1, end_iter)
-                                    : at_or_before(t, start_iter, mid_iter+1);
+tt_const_iter TemporalTrack::at_or_before(const Time& t,
+                                          const tt_const_iter& start_iter,
+                                          const tt_const_iter& end_iter) const {
+    return std::lower_bound(start_iter, end_iter, t,
+                            [](const TemporalTrackPoint& tp, const Time& t) {
+                                return tp.spawn_time > t;
+                            });
 }
 
 // Find TemporalTrackPoint with spawn_time >= t
-tt_const_iter TemporalTrack::at_or_later(
-    const Time& t, const tt_const_iter& start_iter,
-    const tt_const_iter& end_iter) const {
-    size_t interval_length = end_iter - start_iter;
-    if( interval_length < 2) return start_iter->spawn_time >= t ? start_iter : m_points.cend();
-    tt_const_iter mid_iter = start_iter + interval_length / 2;
-    return t > mid_iter->spawn_time ? at_or_later(t, start_iter, mid_iter)
-                                    : at_or_later(t, mid_iter, end_iter);
+tt_const_iter TemporalTrack::at_or_later(const Time& t,
+                                         const tt_const_iter& start_iter,
+                                         const tt_const_iter& end_iter) const {
+    tt_const_iter iter =
+        std::upper_bound(start_iter, end_iter, t,
+                         [](const Time& t, const TemporalTrackPoint& tp) {
+                             return tp.spawn_time < t;
+                         });
+    /* Upper bound returns a TemporalTrackPoint with a spawn_time < t.
+     * If that is the first iterator in the interval there is no element with
+     * spawn_time >= t. If that is the end_iter the sought element is either the
+     * previous one or there is no suitable element within the interval. */
+    if (iter == start_iter)
+        return m_points.cend();
+    iter = std::prev(iter);
+    if (iter->spawn_time < t)
+        return m_points.cend();
+    return iter;
 }
 
 void TemporalTrack::create_back(const Vec2& v, const Time& t) {
@@ -139,7 +149,8 @@ void TemporalTrack::pop_front() {
 
 void TemporalTrack::remove_trailing(const Time& t) {
     // Never remove the first to points
-    auto first_to_erase = at_or_before(t, m_points.cbegin() + 2, m_points.cend());
+    auto first_to_erase =
+        at_or_before(t, m_points.cbegin() + 2, m_points.cend());
     m_points.erase(first_to_erase, m_points.cend());
 }
 
