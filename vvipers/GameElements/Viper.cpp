@@ -6,6 +6,7 @@
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/config.hpp>
+
 #include "vvipers/GameElements/Track.hpp"
 
 namespace VVipers {
@@ -124,7 +125,7 @@ void Viper::addGrowth(Time howMuch, Time when, sf::Color color) {
 
 double Viper::getLength() const {
     return m_track->length(m_track->head_time(),
-                          m_track->head_time() - m_temporalLength);
+                           m_track->head_time() - m_temporalLength);
 }
 
 double Viper::getNominalWidth() const { return viperCfg.nominalSegmentWidth; }
@@ -138,14 +139,16 @@ void Viper::setup(const Vec2& tailPosition, double angle,
     Vec2 direction = Vec2(1, 0).rotate(angle);
     double length = timeAsSeconds(m_temporalLength) * getSpeed();
     auto viperVector = length * direction;
-    m_track = std::unique_ptr<TemporalTrack>( new TemporalTrack(tailPosition + viperVector, m_temporalLength, tailPosition, timeFromSeconds(0) ) );
+    m_track = std::unique_ptr<TemporalTrack>(
+        new TemporalTrack(tailPosition + viperVector, m_temporalLength,
+                          tailPosition, timeFromSeconds(0)));
 }
 
 void Viper::createNextHeadTrackPoint(Time elapsedTime) {
     Vec2 advance =
         Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
     m_track->create_front(m_track->head_position() + advance,
-        m_track->head_time() + elapsedTime);
+                          m_track->head_time() + elapsedTime);
 }
 
 void Viper::cleanUpTrailingTrackPoints() {
@@ -166,7 +169,8 @@ void Viper::clearDinnerTimes() {
     for (auto& dinnerTime : m_dinnerTimes)
         // Times 10 give us some margin but it would be nicer to specify
         // exactly...
-        if (dinnerTime.first + 10 * viperCfg.bodyDuration < m_track->tail_time()) {
+        if (dinnerTime.first + 10 * viperCfg.bodyDuration <
+            m_track->tail_time()) {
             m_dinnerTimes.erase(dinnerTime.first);
             break;
         }
@@ -415,29 +419,33 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
 }
 
 sf::Color Viper::calcVertexColor(Time time) {
-    auto headSide = m_dinnerTimes.lower_bound(time);  // Closer to head
-    auto tailSide = m_dinnerTimes.end();
-    if (headSide != m_dinnerTimes.begin()) {
-        tailSide = headSide;
-        --tailSide;  // Closer to tail
-    }
+    // TODO: Loop through DinnerTimes instead of calling for every vertex.
 
-    auto distanceLimit = 2 * viperCfg.bodyDuration;
+    auto headSide = m_dinnerTimes.lower_bound(time);  // Closer to head
+    auto tailSide = headSide != m_dinnerTimes.cbegin() ? std::prev(headSide)
+                                                       : m_dinnerTimes.cend();
+
     double sFactor1 = 0;
     sf::Color color1 = sf::Color::Transparent;
     if (tailSide != m_dinnerTimes.end()) {
-        color1 = tailSide->second.color;
-        auto distance = time - tailSide->first;
-        if (distance < distanceLimit)
-            sFactor1 = (distanceLimit - distance) / (distanceLimit);
+        Time half_length = tailSide->second.amount;
+        Time mid_point = tailSide->first + 0.5 * half_length;
+        Time distance = std::chrono::abs(time - mid_point);
+        if (distance < 0.5 * half_length) {
+            color1 = tailSide->second.color;
+            sFactor1 =  1. - distance / half_length;
+        }
     }
     double sFactor2 = 0;
     sf::Color color2 = sf::Color::Transparent;
     if (headSide != m_dinnerTimes.end()) {
-        color2 = headSide->second.color;
-        auto distance = headSide->first - time;
-        if (distance < distanceLimit)
-            sFactor2 = (distanceLimit - distance) / (distanceLimit);
+        Time half_length = headSide->second.amount;
+        Time mid_point = headSide->first + 0.5 * half_length;
+        Time distance = std::chrono::abs(time - mid_point);
+        if (distance < 0.5 * half_length) {
+            color1 = headSide->second.color;
+            sFactor1 =  1. - distance / half_length;
+        }
     }
     double sumFactor = sFactor1 + sFactor2;
     if (sumFactor > 1) {
