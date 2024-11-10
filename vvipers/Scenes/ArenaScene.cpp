@@ -13,6 +13,7 @@
 #include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include "vvipers/Utilities/Time.hpp"
 
 namespace VVipers {
 
@@ -162,7 +163,7 @@ viper_ptr ArenaScene::addViper(
     double angle = viperZone->getRotation();
     Vec2 direction = Vec2(1, 0).rotate(angle);
     Vec2 offset = 0.5 * width * direction;
-    Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpVec();
+    Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpendicular();
     viper->setup(viperPosition, angle, 50);
 
     viper->addObserver(this, {GameEvent::EventType::Destroy});
@@ -507,8 +508,12 @@ void ArenaScene::processGameEvents() {
 
 void ArenaScene::update(Time elapsedTime) {
     handleSteering();
+    Stopwatch clock;
+    clock.start();
     handleObjectUpdates(elapsedTime);
+    tagInfo("Game object updates took: ", clock.split());
     handleCollisions();
+    tagInfo("Collision handling took: ", clock.split());
     dispenseFood();
     processGameEvents();
     checkForGameOver();

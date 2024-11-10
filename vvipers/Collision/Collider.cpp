@@ -182,10 +182,10 @@ std::vector<Vec2> getSATAxes(const ColliderPolygon& polygon) {
     for (size_t i = 1; i < polygon.getPointCount(); ++i)
         axes.push_back(
             (polygon.getGlobalPoint(i) - polygon.getGlobalPoint(i - 1))
-                .perpVec());
+                .perpendicular());
     axes.push_back((polygon.getGlobalPoint(0) -
                     polygon.getGlobalPoint(polygon.getPointCount() - 1))
-                       .perpVec());
+                       .perpendicular());
     return axes;
 }
 

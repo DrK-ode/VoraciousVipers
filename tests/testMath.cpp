@@ -22,10 +22,10 @@ TEST(VectorMathTest, absTest) {
 }
 
 TEST(VectorMathTest, perpVecTest) {
-    EXPECT_EQ(Vec2(1, 0).perpVec(), Vec2(0, 1));
-    EXPECT_EQ(Vec2(0, 1).perpVec(), Vec2(-1, 0));
-    EXPECT_EQ(Vec2(555, 666).perpVec().dot(Vec2(555, 666)), 0);
-    EXPECT_EQ(Vec2(1, 1).perpVec().abs(), Vec2(1, 1).abs());
+    EXPECT_EQ(Vec2(1, 0).perpendicular(), Vec2(0, 1));
+    EXPECT_EQ(Vec2(0, 1).perpendicular(), Vec2(-1, 0));
+    EXPECT_EQ(Vec2(555, 666).perpendicular().dot(Vec2(555, 666)), 0);
+    EXPECT_EQ(Vec2(1, 1).perpendicular().abs(), Vec2(1, 1).abs());
 }
 
 TEST(VectorMathTest, normalizeVecTest) {

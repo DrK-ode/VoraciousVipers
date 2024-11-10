@@ -385,26 +385,27 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
                 temporalLength - segmentLength * (numberOfSegments - 1);
         // Start on 0 if it is the first segment, otherwise on 2
         for (size_t iNode = (iSeg == 0) ? 0 : 2; iNode < sketch->size();
-             ++iNode) {
+             iNode += 2) {
             // How far we have come so far.
             Time time = timeFront - sketch->at(iNode).y * actualLength;
             // This is the position at the snake axis
             Vec2 mid = m_track->position(time);
             // This vector reaches out the the side of the snake
-            Vec2 gradient = m_track->velocity(time);
-            double width =
-                nominalWidth * viperCfg.nominalSpeed / gradient.abs();
+            Vec2 velocity = m_track->velocity(time);
+            double speed = velocity.abs();
             Vec2 perp =
-                gradient.normalized().perpVec() * (width * sketch->at(iNode).x);
-            // Resulting position
-            Vec2 position = mid + perp;
+                velocity.perpendicular() * (viperCfg.nominalSpeed / (speed * speed) *
+                                      nominalWidth * sketch->at(iNode).x);
             // Use the whole width of the texture and repeat the texture if
             // there are several segments
-            Vec2 textCoords =
+            Vec2 textCoords1 =
                 (Vec2(0.5f, iSeg) + sketch->at(iNode)) * textureSize;
+            Vec2 textCoords2 =
+                (Vec2(0.5f, iSeg) + sketch->at(iNode + 1)) * textureSize;
             // All vertices have the same color atm
             sf::Color color = calcVertexColor(time);
-            vertices->push_back({position, color, textCoords});
+            vertices->push_back({mid + perp, color, textCoords1});
+            vertices->push_back({mid - perp, color, textCoords2});
         }
         timeFront -= actualLength;  // Next segment will start here
     }

@@ -11,7 +11,7 @@ double Vec2::dot(const Vec2& v) const { return this->x * v.x + this->y * v.y; }
 
 Vec2 Vec2::normalized(double norm) const { return *this * norm / this->abs(); }
 
-Vec2 Vec2::perpVec() const { return Vec2(-this->y, this->x); }
+Vec2 Vec2::perpendicular() const { return Vec2(-this->y, this->x); }
 
 Vec2& Vec2::rotate(double degree) {
     double rads = degToRad(degree);
