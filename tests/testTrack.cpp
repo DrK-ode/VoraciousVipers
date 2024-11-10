@@ -66,7 +66,8 @@ TEST_F(TrackTest, DirectionTest) {
 
 TEST_F(TrackTest, PositionTest) {
     EXPECT_EQ(track->position(timeFromSeconds(0)), Vec2(1, 1));
-    EXPECT_EQ(track->position(timeFromSeconds(2)), Vec2(1, 1 / 3.));
+    EXPECT_DOUBLE_EQ(track->position(timeFromSeconds(2)).x, 1.);
+    EXPECT_DOUBLE_EQ(track->position(timeFromSeconds(2)).y, 1./3.);
     EXPECT_EQ(track->position(timeFromSeconds(3)), Vec2(1, 0));
     EXPECT_EQ(track->position(timeFromSeconds(5)), Vec2(0, 0));
 }

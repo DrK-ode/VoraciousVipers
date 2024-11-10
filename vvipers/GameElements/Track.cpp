@@ -96,15 +96,11 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
 }
 
 Vec2 TemporalTrack::position(const Time& t) const {
-    auto p2 = at_or_before(t);
-    if (p2 == m_points.cend())
-        p2 = m_points.crbegin().base();
-    if (p2 == m_points.cbegin())
-        ++p2;
+    auto p = at_or_before(t);
+    if (p == m_points.cend())
+        p = t > head().spawn_time ? m_points.cbegin() : std::prev(p);
 
-    auto p1 = p2 - 1;
-    return *p1 + (*p2 - *p1) *
-                     ((t - p1->spawn_time) / (p2->spawn_time - p1->spawn_time));
+    return *p + p->velocity * timeAsSeconds(t - p->spawn_time);
 }
 
 // Find TemporalTrackPoint with spawn_time <= t
