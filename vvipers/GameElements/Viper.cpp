@@ -145,10 +145,7 @@ void Viper::setup(const Vec2& tailPosition, double angle,
 }
 
 void Viper::createNextHeadTrackPoint(Time elapsedTime) {
-    Vec2 advance =
-        Vec2(m_speed * timeAsSeconds(elapsedTime), 0).rotate(m_angle);
-    m_track->create_front(m_track->head_position() + advance,
-                          m_track->head_time() + elapsedTime);
+    m_track->create_front(Vec2(m_speed, 0).rotate(m_angle), elapsedTime);
 }
 
 void Viper::cleanUpTrailingTrackPoints() {
@@ -318,14 +315,8 @@ void Viper::updateVertices() {
     Time bodyFront = headFront - headDuration;
     Time tailFront = bodyFront - bodyDuration;
 
-    // HEAD
-    m_verticesHead.clear();
     updateVertices(ViperPart::Head, headFront, headDuration);
-    // BODY
-    m_verticesBody.clear();
     updateVertices(ViperPart::Body, bodyFront, bodyDuration);
-    // TAIL
-    m_verticesTail.clear();
     updateVertices(ViperPart::Tail, tailFront, tailDuration);
 }
 
@@ -383,6 +374,7 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
             break;
         }
     }
+    vertices->clear();
 
     // Calc position and texture coordinates
     for (int iSeg = 0; iSeg < numberOfSegments; ++iSeg) {
@@ -399,7 +391,7 @@ void Viper::updateVertices(ViperPart part, Time timeFront,
             // This is the position at the snake axis
             Vec2 mid = m_track->position(time);
             // This vector reaches out the the side of the snake
-            Vec2 gradient = m_track->gradient(time);
+            Vec2 gradient = m_track->velocity(time);
             double width =
                 nominalWidth * viperCfg.nominalSpeed / gradient.abs();
             Vec2 perp =
@@ -433,7 +425,7 @@ sf::Color Viper::calcVertexColor(Time time) {
         Time distance = std::chrono::abs(time - mid_point);
         if (distance < 0.5 * half_length) {
             color1 = tailSide->second.color;
-            sFactor1 =  1. - distance / half_length;
+            sFactor1 = 1. - distance / half_length;
         }
     }
     double sFactor2 = 0;
@@ -444,7 +436,7 @@ sf::Color Viper::calcVertexColor(Time time) {
         Time distance = std::chrono::abs(time - mid_point);
         if (distance < 0.5 * half_length) {
             color1 = headSide->second.color;
-            sFactor1 =  1. - distance / half_length;
+            sFactor1 = 1. - distance / half_length;
         }
     }
     double sumFactor = sFactor1 + sFactor2;
