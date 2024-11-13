@@ -51,10 +51,10 @@ TEST(VectorMathTest, projectionVecTest) {
 }
 
 TEST(VectorMathTest, rotationTest) {
-    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate(90).y, 1.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate(-90).y, -1.);
-    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate(90).x, -1.);
-    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate(-90).x, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate_deg(90).y, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate_deg(-90).y, -1.);
+    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate_deg(90).x, -1.);
+    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate_deg(-90).x, 1.);
 }
 
 TEST(VectorMathTest, radToDegTest) {

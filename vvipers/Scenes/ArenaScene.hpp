@@ -5,9 +5,9 @@
 #include <SFML/Graphics/View.hpp>
 #include <memory>
 #include <vector>
+#include <vvipers/Collisions/CollisionManager.hpp>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Engine/Scene.hpp>
-#include <vvipers/Collision/ColliderManager.hpp>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
@@ -49,7 +49,7 @@ class ArenaScene : public Scene, public Observer {
                     std::vector<std::string>& secondaryColors,
                     std::vector<double>& keys, std::vector<sf::View>& views);
     void deletePlayer(player_ptr player);
-    viper_ptr addViper(std::vector<const Collider*>&);
+    void addVipers(size_t);
     void deleteViper(Viper* viper);
     void killViper(Viper* viper);
     void addFood(Vec2 position, double diameter);
@@ -60,17 +60,14 @@ class ArenaScene : public Scene, public Observer {
     Player* findPlayerWith(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
-    template <typename T>
-    Vec2 findFreeSpace(T&, bool allowRotation = false) const;
-    template <typename T>
-    Vec2 findFreeSpace(T&, bool allowRotation,
-                       const std::vector<const Collider*>& excludedRegions,
-                       sf::Rect<double> limits) const;
+    Vec2 find_free_circular_space(double radius);
+    std::pair<Vec2,double> find_free_rectangular_space(double width, double height, bool allow_rotation);
+
     void dispenseFood();
 
     void processGameEvents();
-    void handleCollision(const ColliderSegment& cA, const ColliderSegment& cB);
-    void handleViperCollision(const ColliderSegment& cA, const ColliderSegment& cB);
+    void handleCollision(const CollisionPair&);
+    void handleViperCollision(const CollisionPair&);
     void handleCollisions();
     void handleSteering();
     void handleDestruction(const DestroyEvent* event);
@@ -79,22 +76,23 @@ class ArenaScene : public Scene, public Observer {
 
     void processWindowEvents();
 
-    sf::View m_gameView;
+    sf::View _gameView;
     // The arena keeps partial ownership of the pause screen in order to be able
     // to reuse it
-    std::shared_ptr<Scene> m_transitionScene;
-    std::shared_ptr<Scene> m_pauseScene;
+    std::shared_ptr<Scene> _transitionScene;
+    std::shared_ptr<Scene> _pauseScene;
     // Arena and Player has joint ownership of controllers and vipers
-    std::set<controller_ptr> m_controllers;
-    std::set<viper_ptr> m_vipers;
-    std::set<player_ptr> m_players;
-    std::set<std::unique_ptr<PlayerPanel>> m_playerPanels;
-    std::set<food_ptr> m_food;
-    std::set<std::unique_ptr<FlyingScore>> m_flyingScores;
-    walls_ptr m_walls;
+    std::vector<controller_ptr> _controllers;
+    std::vector<viper_ptr> _vipers;
+    std::vector<player_ptr> _players;
+    std::vector<std::unique_ptr<PlayerPanel>> _player_panels;
+    std::vector<food_ptr> _food;
+    std::vector<std::unique_ptr<FlyingScore>> _flying_scores;
+    walls_ptr _walls;
 
-    std::multimap<GameEvent::EventType, const GameEvent*> m_eventsToBeProcessed;
-    ColliderManager m_colliderManager;
+    std::multimap<GameEvent::EventType, const GameEvent*>
+        _events_to_be_processed;
+    CollisionManager _collision_manager;
 };
 
 }  // namespace VVipers

@@ -13,8 +13,7 @@ Vec2 Vec2::normalized(double norm) const { return *this * norm / this->abs(); }
 
 Vec2 Vec2::perpendicular() const { return Vec2(-this->y, this->x); }
 
-Vec2& Vec2::rotate(double degree) {
-    double rads = degToRad(degree);
+Vec2& Vec2::rotate(double rads) {
     double s = std::sin(rads);
     double c = std::cos(rads);
     *this = Vec2(c * x - s * y, s * x + c * y);

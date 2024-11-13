@@ -16,7 +16,7 @@ void Player::setColors(sf::Color c1, sf::Color c2) {
     m_primaryColor = c1;
     m_secondaryColor = c2;
     if (m_viper)
-        m_viper->setColors(c1,c2);
+        m_viper->set_colors(c1,c2);
     ObjectModifiedEvent event(this);
     notify(&event);
 }

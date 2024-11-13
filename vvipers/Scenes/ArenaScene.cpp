@@ -13,7 +13,10 @@
 #include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/debug.hpp>
+
+#include "vvipers/Collisions/CollidingSegment.hpp"
 #include "vvipers/Utilities/Time.hpp"
+#include "vvipers/Utilities/VVMath.hpp"
 
 namespace VVipers {
 
@@ -61,13 +64,13 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
     const sf::Vector2f gameRelSize(1, 1 - statusBarRelSize.y);
     const sf::Vector2f gameSize(windowSize.x * gameRelSize.x,
                                 windowSize.y * gameRelSize.y);
-    m_gameView.setSize(gameSize);
-    m_gameView.setCenter(gameSize / 2);
-    m_gameView.setViewport(
+    _gameView.setSize(gameSize);
+    _gameView.setCenter(gameSize / 2);
+    _gameView.setViewport(
         sf::FloatRect({0.f, statusBarRelSize.y}, gameRelSize));
 
-    m_walls = std::make_unique<Walls>(gameSize);
-    m_colliderManager.registerCollider(*m_walls.get());
+    _walls = std::make_unique<Walls>(gameSize);
+    _collision_manager.register_colliding_body(*_walls.get());
 
     // The players must absolutely be added _after_ the level has been filled
     // with obstacles, otherwise they might end up inside or on top of them.
@@ -76,7 +79,7 @@ ArenaScene::ArenaScene(Game& game) : Scene(game) {
                playerKeys, statusBarViews);
 
     // Only create one pause screen so that it can be reused
-    m_pauseScene = std::make_shared<PauseScene>(getGame());
+    _pauseScene = std::make_shared<PauseScene>(getGame());
 }
 
 ArenaScene::~ArenaScene() {}
@@ -87,21 +90,19 @@ void ArenaScene::addPlayers(std::vector<std::string>& playerNames,
                             std::vector<double>& playerKeys,
                             std::vector<sf::View>& playerViews) {
     auto numberOfPlayers = playerNames.size();
-    std::vector<const Collider*> otherViperStartAreas;
+    // Vipers are added to the member vector _vipers
+    addVipers(numberOfPlayers);
     for (size_t i = 0; i < numberOfPlayers; ++i) {
         KeyboardController::KeyboardControls keys;
         keys.left = sf::Keyboard::Key(playerKeys[3 * i + 0]);
         keys.right = sf::Keyboard::Key(playerKeys[3 * i + 1]);
         keys.boost = sf::Keyboard::Key(playerKeys[3 * i + 2]);
         auto controller = createController(keys);
-        auto viper = addViper(otherViperStartAreas);
         auto player =
             addPlayer(playerNames[i], colorFromRGBString(primaryColors[i]),
-                      colorFromRGBString(secondaryColors[i]), controller, viper,
-                      playerViews[i]);
+                      colorFromRGBString(secondaryColors[i]), controller,
+                      _vipers[i], playerViews[i]);
     }
-    for (auto area : otherViperStartAreas)
-        delete area;
 }
 
 controller_ptr ArenaScene::createController(
@@ -125,52 +126,48 @@ player_ptr ArenaScene::addPlayer(const std::string& name,
                                  sf::View view) {
     auto player = make_shared<Player>(name, controller, viper);
     player->setColors(primaryColor, secondaryColor);
-    m_players.insert(player);
+    _players.push_back(player);
     auto panel = std::make_unique<PlayerPanel>(view, player.get(),
                                                getGame().getFontService());
     viper->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
     player->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
     // Container takes ownership, ptr panel is no longer valid
-    m_playerPanels.insert(std::move(panel));
+    _player_panels.push_back(std::move(panel));
     return player;
 }
 
 void ArenaScene::deletePlayer(player_ptr player) {
-    for (auto& panel : m_playerPanels) {
-        if (panel->getPlayer() == player.get()) {
-            m_playerPanels.erase(panel);
+    for (auto panel_iter = _player_panels.begin();
+         panel_iter != _player_panels.end(); ++panel_iter) {
+        if ((*panel_iter)->getPlayer() == player.get()) {
+            _player_panels.erase(panel_iter);
             break;  // Assumes only one panel per player
         }
     }
-    m_players.erase(player);
+    _players.erase(std::find(_players.begin(), _players.end(), player));
 }
 
-viper_ptr ArenaScene::addViper(
-    std::vector<const Collider*>& otherViperStartAreas) {
-    auto viper = std::make_shared<Viper>(getGame().getOptionsService(),
-                                         getGame().getTextureService());
+void ArenaScene::addVipers(size_t number_of_vipers) {
+    for (size_t i = 0; i < number_of_vipers; ++i) {
+        auto viper = std::make_shared<Viper>(getGame().getOptionsService(),
+                                             getGame().getTextureService());
 
-    double length = viper->getSpeed() * 5;  // 5s free space
-    double width = viper->getNominalWidth();
-    bool allowRotation = true;
-    // Give some margin to the width
-    RectangleShape* viperZone = new RectangleShape({length, 1.5 * width});
-    findFreeSpace(
-        *viperZone, allowRotation, otherViperStartAreas,
-        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y));
-    otherViperStartAreas.push_back(viperZone);
+        double length = viper->speed() * 5;  // 5s free space
+        double width = viper->nominal_width();
+        bool allowRotation = true;
+        // Give some margin to the width
+        auto [center, angle] =
+            find_free_rectangular_space(length, 1.5 * width, allowRotation);
 
-    double angle = viperZone->getRotation();
-    Vec2 direction = Vec2(1, 0).rotate(angle);
-    Vec2 offset = 0.5 * width * direction;
-    Vec2 viperPosition = viperZone->getPosition() + offset + offset.perpendicular();
-    viper->setup(viperPosition, angle, 50);
+        Vec2 direction = Vec2(1, 0).rotate(angle);
+        Vec2 viper_tail_position = center - 0.5 * length * direction;
+        viper->setup(viper_tail_position, angle, 50);
 
-    viper->addObserver(this, {GameEvent::EventType::Destroy});
-    m_colliderManager.registerCollider(*viper.get());
-    // Container takes ownership, ptr viper is no longer valid
-    m_vipers.insert(viper);
-    return viper;
+        viper->addObserver(this, {GameEvent::EventType::Destroy});
+        _collision_manager.register_colliding_body(*viper.get());
+        // Container takes ownership, ptr viper is no longer valid
+        _vipers.push_back(viper);
+    }
 }
 
 void ArenaScene::killViper(Viper* viper) {
@@ -180,10 +177,11 @@ void ArenaScene::killViper(Viper* viper) {
 }
 
 void ArenaScene::deleteViper(Viper* viper) {
-    m_colliderManager.deRegisterCollider(*viper);
-    for (auto& v : m_vipers)
-        if (v.get() == viper) {
-            m_vipers.erase(v);
+    _collision_manager.deregister_colliding_body(*viper);
+    for (auto viper_iter = _vipers.begin(); viper_iter != _vipers.end();
+         ++viper_iter)
+        if ((*viper_iter).get() == viper) {
+            _vipers.erase(viper_iter);
             break;
         }
 }
@@ -193,17 +191,17 @@ void ArenaScene::addFood(Vec2 position, double diameter) {
         position, diameter, timeFromSeconds(Random::getDouble(5, 10)),
         getGame().getColorService().getColor(Random::getInt()));
     // Check for collisions
-    m_colliderManager.registerCollider(*food.get());
+    _collision_manager.register_colliding_body(*food.get());
     food->addObserver(this, {GameEvent::EventType::Destroy});
     // Container takes ownership, ptr food is no longer valid
-    m_food.insert(std::move(food));
+    _food.push_back(std::move(food));
 }
 
 void ArenaScene::deleteFood(Food* food) {
-    m_colliderManager.deRegisterCollider(*food);
-    for (auto& f : m_food)
-        if (f.get() == food) {
-            m_food.erase(f);
+    _collision_manager.deregister_colliding_body(*food);
+    for (auto food_iter = _food.begin(); food_iter != _food.end(); ++food_iter)
+        if ((*food_iter).get() == food) {
+            _food.erase(food_iter);
             break;
         }
 }
@@ -211,15 +209,15 @@ void ArenaScene::deleteFood(Food* food) {
 void ArenaScene::eatFood(Viper* viper, Food* food) {
     viper->eat(*food);
     food->state(GameObject::Dying);
-    score_t score = food->getScoreValue();
+    score_t score = food->score_value();
     auto player = findPlayerWith(viper);
     player->score(score);
 
     PlayerPanel* panel = findPlayerPanel(player);
     auto flyingScore = std::make_unique<FlyingScore>(
         Vec2(getGame().getWindow().mapCoordsToPixel(food->getPosition(),
-                                                    m_gameView)),
-        4 * viper->getVelocity(),
+                                                    _gameView)),
+        4 * viper->velocity(),
         Vec2(getGame().getWindow().mapCoordsToPixel(panel->getScoreTarget(),
                                                     panel->getView())),
         1s, score, getGame().getFontService());
@@ -227,155 +225,141 @@ void ArenaScene::eatFood(Viper* viper, Food* food) {
     flyingScore->setFontSize(0.03 * getGame().getWindow().getSize().y, 1.0);
     flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
     flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
-    m_flyingScores.insert(std::move(flyingScore));
+    _flying_scores.push_back(std::move(flyingScore));
 }
 
 PlayerPanel* ArenaScene::findPlayerPanel(const Player* player) const {
-    for (auto& panel : m_playerPanels)
+    for (auto& panel : _player_panels)
         if (player == panel->getPlayer())
             return panel.get();
     return nullptr;
 }
 
 Player* ArenaScene::findPlayerWith(const Controller* controller) const {
-    for (auto player : m_players)
+    for (auto player : _players)
         if (player->controller() == controller)
             return player.get();
     return nullptr;
 }
 
 Player* ArenaScene::findPlayerWith(const Viper* viper) const {
-    for (auto player : m_players)
+    for (auto player : _players)
         if (player->viper() == viper)
             return player.get();
     return nullptr;
 }
 
-template <typename T>
-Vec2 ArenaScene::findFreeSpace(T& testObject, bool allowRotation) const {
-    std::vector<const Collider*> dummy;
-    auto gameArea =
-        sf::Rect<double>(0, 0, m_gameView.getSize().x, m_gameView.getSize().y);
-    return findFreeSpace(testObject, allowRotation, dummy, gameArea);
+Vec2 ArenaScene::find_free_circular_space(double radius) {
+    auto game_area =
+        sf::Rect<double>(0, 0, _gameView.getSize().x, _gameView.getSize().y);
+    const int max_attempts = 1000000;
+    for (int i = 0; i < max_attempts; ++i) {
+        Vec2 center(Random::getDouble(game_area.left, game_area.width),
+                    Random::getDouble(game_area.top, game_area.height));
+        if (!_collision_manager.is_circle_occupied(center, radius))
+            return center;
+    }
+    throw std::runtime_error("Could not find an empty area.");
 }
 
-template <typename T>
-Vec2 ArenaScene::findFreeSpace(
-    T& testObject, bool allowRotation,
-    const std::vector<const Collider*>& excludedRegions,
-    sf::Rect<double> limits) const {
-    // If one million is not enough something is wrong or the level design is
-    // bad
-    const int maxTries = 1000000;
-    for (int i = 0; i < maxTries; ++i) {
-        Vec2 position(Random::getDouble(limits.left, limits.width),
-                      Random::getDouble(limits.top, limits.height));
-        testObject.setPosition(position);
-        if (allowRotation) {
-            testObject.setRotation(Random::getDouble(0, 360));
-        }
-        // First, check against all excluded regions
-        bool occupied = false;
-        for (auto excluded : excludedRegions) {
-            if (Collider::collision(testObject, *excluded).size() > 0) {
-                occupied = true;
-                break;
-            }
-        }
-        if (occupied)
-            continue;
-        // Second, check against all existing objects in the game
-        if (m_colliderManager.checkForCollisions(testObject).empty())
-            // Return center position
-            return position;
+std::pair<Vec2, double> ArenaScene::find_free_rectangular_space(
+    double width, double height, bool allow_rotation) {
+    auto game_area_size = Vec2(_gameView.getSize().x, _gameView.getSize().y);
+    const int max_attempts = 1000000;
+    for (int i = 0; i < max_attempts; ++i) {
+        Vec2 center(Random::getDouble(0., game_area_size.x),
+                    Random::getDouble(0., game_area_size.y));
+        double angle = allow_rotation ? Random::getDouble(0, twopi) : 0.;
+        if (!_collision_manager.is_rectangle_occupied(center, width, height,
+                                                      angle))
+            return {center, angle};
     }
     throw std::runtime_error("Could not find an empty area.");
 }
 
 void ArenaScene::dispenseFood() {
-    while (m_food.size() < 2) {
+    while (_food.size() < 2) {
         double smallest = Food::nominalFoodRadius * 0.75;
         double largest = Food::nominalFoodRadius * 1.25;
-        double foodRadius = std::sqrt(
+        double food_radius = std::sqrt(
             Random::getDouble(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
-        CircleShape testCircle(foodRadius * 2);
-        findFreeSpace(testCircle);
-        addFood(testCircle.getPosition(), foodRadius);
+        addFood(find_free_circular_space(2 * food_radius), food_radius);
     }
 }
 
 void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.clear(sf::Color::Black);
-    for (const auto& panel : m_playerPanels) {
+    for (const auto& panel : _player_panels) {
         target.setView(panel->getView());
         target.draw(*panel, states);
     }
-    target.setView(m_gameView);
-    target.draw(*m_walls, states);
-    for (const auto& f : m_food)
+    target.setView(_gameView);
+    target.draw(*_walls, states);
+    for (const auto& f : _food)
         target.draw(*f, states);
-    for (const auto& v : m_vipers)
+    for (const auto& v : _vipers)
         target.draw(*v, states);
     target.setView(target.getDefaultView());
-    for (const auto& s : m_flyingScores)
+    for (const auto& s : _flying_scores)
         target.draw(*s, states);
 }
 
 void ArenaScene::handleCollisions() {
-    for (auto& collision : m_colliderManager.checkForCollisions()) {
-        handleCollision(collision.m_colliderSegmentA,
-                        collision.m_colliderSegmentB);
+    for (auto& collision : _collision_manager.check_for_collisions()) {
+        handleCollision(collision);
     }
 }
 
-void ArenaScene::handleCollision(const ColliderSegment& cA,
-                                 const ColliderSegment& cB) {
+void ArenaScene::handleCollision(const CollisionPair& collision) {
     /* Only collisions involving a viper is interesting so both ColliderSegments
      * need to be checked in case they are a viper. If both are vipers we check
      * for consequences one viper at a time. */
-    for (const auto colliderSegment : {cA, cB}) {
+    for (const auto& collider_segment : {collision.first, collision.second}) {
         // A collidee is what the collider collides into :)
-        const auto collideeSegment =
-            colliderSegment.m_collider == cA.m_collider ? cB : cA;
+        const auto collidee_segment =
+            collider_segment->base_object() == collision.first->base_object()
+                ? collision.second
+                : collision.first;
         // If it's not a viper, we don't care!
-        if (typeid(*colliderSegment.m_collider) == typeid(Viper)) {
-            Viper* colliderViper = (Viper*)colliderSegment.m_collider;
-            if (colliderViper->state() == Viper::Alive &&
-                colliderViper->isSegmentActive(
-                    colliderSegment.m_segmentIndex)) {
-                if (typeid(*collideeSegment.m_collider) == typeid(Food)) {
-                    Food* food = (Food*)collideeSegment.m_collider;
+        const CollidingBody* collider_base_object =
+            collider_segment->base_object();
+        if (typeid(*collider_base_object) == typeid(Viper)) {
+            Viper* collider_viper = (Viper*)&collider_base_object;
+            if (collider_viper->state() == Viper::Alive &&
+                collider_segment->segment_id() == 0) {
+                const CollidingBody* collidee_base_object =
+                    collidee_segment->base_object();
+                if (typeid(*collidee_base_object) == typeid(Food)) {
+                    Food* food = (Food*)&collidee_base_object;
                     if (food->state() == GameObject::Alive)
-                        eatFood(colliderViper, food);
-                } else if (typeid(*collideeSegment.m_collider) ==
-                           typeid(Walls)) {
+                        eatFood(collider_viper, food);
+                } else if (typeid(*collidee_base_object) == typeid(Walls)) {
                     tagDebug("Killed by collision between Viper segment ",
-                             colliderSegment.m_segmentIndex,
+                             collider_segment->segment_id(),
                              " and wall segment ",
-                             collideeSegment.m_segmentIndex);
-                    killViper(colliderViper);
-                } else if (typeid(*collideeSegment.m_collider) ==
-                           typeid(Viper)) {
+                             collidee_segment->segment_id());
+                    killViper(collider_viper);
+                } else if (typeid(*collidee_base_object) == typeid(Viper)) {
                     // Self collision
-                    if (colliderViper == (Viper*)collideeSegment.m_collider) {
+                    if (collider_viper == (Viper*)&collidee_base_object) {
                         auto segment_distance =
-                            std::abs(int(colliderSegment.m_segmentIndex -
-                                         collideeSegment.m_segmentIndex));
+                            std::abs(int(collider_segment->segment_id()) -
+                                     int(collidee_segment->segment_id()));
                         // Check if it's just neighbouring segments touching or
                         // a real collision
                         if (segment_distance > 1) {
                             tagDebug(
                                 "Killed by collision between Viper segment ",
-                                colliderSegment.m_segmentIndex,
+                                collider_segment->segment_id(),
                                 " and Viper segment ",
-                                collideeSegment.m_segmentIndex);
-                            killViper(colliderViper);
+                                collidee_segment->segment_id());
+                            killViper(collider_viper);
                         }
                     }
                     // Collision with other viper
                     else
-                        killViper(colliderViper);
+                        killViper(collider_viper);
                 } else
                     throw std::runtime_error("Unknown collision happend");
             }
@@ -384,7 +368,7 @@ void ArenaScene::handleCollision(const ColliderSegment& cA,
 }
 
 void ArenaScene::handleSteering() {
-    for (auto player : m_players) {
+    for (auto player : _players) {
         if (auto controller = player->controller()) {
             SteeringCommand cmd = controller->control();
 
@@ -393,17 +377,17 @@ void ArenaScene::handleSteering() {
                 if (std::abs(cmd.turn) > 1)
                     cmd.turn /= std::abs(cmd.turn);
                 double angularSpeed =
-                    cmd.turn * degPerRad * viper->getMaxAngularSpeed();
+                    cmd.turn * degPerRad * viper->max_angular_speed();
                 /* Boost if the steering event says so and either:
                  *    1) Boost in inactive and the boost power is full
                  *    2) Boost is active and the boost power is not depleted
                  */
                 double boost = 0.;
                 if (cmd.boost &&
-                    ((viper->getBoost() > 0 and
-                      viper->getBoostCharge() > timeFromSeconds(0)) or
-                     (viper->getBoost() == 0.0 and
-                      viper->getBoostCharge() == viper->getBoostMax())))
+                    ((viper->boost_amount() > 0 and
+                      viper->boost_charge() > timeFromSeconds(0)) or
+                     (viper->boost_amount() == 0.0 and
+                      viper->boost_charge() == viper->boost_max())))
                     boost = 1.;
                 viper->steer(angularSpeed, boost);
             }
@@ -419,9 +403,10 @@ void ArenaScene::handleDestruction(const DestroyEvent* event) {
     else if (typeid(*event->objectPtr) == typeid(Food))
         deleteFood((Food*)event->objectPtr);
     else if (typeid(*event->objectPtr) == typeid(FlyingScore)) {
-        for (auto& fs : m_flyingScores) {
-            if (fs.get() == event->objectPtr) {
-                m_flyingScores.erase(fs);
+        for (auto flying_score_iter = _flying_scores.begin();
+             flying_score_iter != _flying_scores.end(); ++flying_score_iter) {
+            if ((*flying_score_iter).get() == event->objectPtr) {
+                _flying_scores.erase(flying_score_iter);
                 break;
             }
         }
@@ -430,25 +415,25 @@ void ArenaScene::handleDestruction(const DestroyEvent* event) {
 }
 
 void ArenaScene::handleObjectUpdates(Time elapsedTime) {
-    for (auto& v : m_vipers)
+    for (auto& v : _vipers)
         v->update(elapsedTime);
-    for (auto& f : m_food)
+    for (auto& f : _food)
         f->update(elapsedTime);
-    for (auto& s : m_flyingScores)
+    for (auto& s : _flying_scores)
         s->update(elapsedTime);
 }
 
 void ArenaScene::checkForGameOver() {
-    for (auto player : m_players)
+    for (auto player : _players)
         if (player->viper() && player->viper()->state() == GameObject::Alive)
             return;  // Keep on playing as long as someone is alive
 
     setTransitionState(TransitionState::Spawn);
     // This scene must be kept alive since GameOverScreen reads
     std::vector<std::shared_ptr<const Player>> players;
-    for (auto p : m_players)
+    for (auto p : _players)
         players.push_back(p);
-    m_transitionScene = make_shared<GameOverScene>(getGame(), players);
+    _transitionScene = make_shared<GameOverScene>(getGame(), players);
 }
 
 void ArenaScene::onNotify(const GameEvent* event) {
@@ -456,7 +441,7 @@ void ArenaScene::onNotify(const GameEvent* event) {
     switch (event->type()) {
         default: {
             // Otherwise save it for later
-            m_eventsToBeProcessed.insert(
+            _events_to_be_processed.insert(
                 std::pair<GameEvent::EventType, GameEvent*>(event->type(),
                                                             event->clone()));
             break;
@@ -479,7 +464,7 @@ void ArenaScene::processEvent(const sf::Event& event) {
                 case sf::Keyboard::Escape: {
                     setSceneState(SceneState::Paused);
                     setTransitionState(TransitionState::Spawn);
-                    m_transitionScene = m_pauseScene;
+                    _transitionScene = _pauseScene;
                     break;
                 }
                 default: {
@@ -496,14 +481,14 @@ void ArenaScene::processEvent(const sf::Event& event) {
 
 void ArenaScene::processGameEvents() {
     auto [beginDestroyEvents, endDestroyEvents] =
-        m_eventsToBeProcessed.equal_range(GameEvent::EventType::Destroy);
+        _events_to_be_processed.equal_range(GameEvent::EventType::Destroy);
     for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter)
         handleDestruction(static_cast<const DestroyEvent*>(iter->second));
     // Delete fully processed events?
     // For now just delete all...
-    for (auto& event : m_eventsToBeProcessed)
+    for (auto& event : _events_to_be_processed)
         delete event.second;
-    m_eventsToBeProcessed.clear();
+    _events_to_be_processed.clear();
 }
 
 void ArenaScene::update(Time elapsedTime) {
@@ -519,7 +504,5 @@ void ArenaScene::update(Time elapsedTime) {
     checkForGameOver();
 }
 
-std::shared_ptr<Scene> ArenaScene::makeTransition() {
-    return m_transitionScene;
-}
+std::shared_ptr<Scene> ArenaScene::makeTransition() { return _transitionScene; }
 }  // namespace VVipers

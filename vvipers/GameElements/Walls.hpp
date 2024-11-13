@@ -2,31 +2,27 @@
 #define VVIPERS_GAMEELEMENTS_WALLS_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <vector>
-#include <vvipers/Collision/Collider.hpp>
-#include <vvipers/Collision/Shape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <memory>
 #include <vvipers/GameElements/GameObject.hpp>
+#include "vvipers/Collisions/CollidingBody.hpp"
+#include "vvipers/Collisions/CollidingSegment.hpp"
 
 namespace VVipers {
 
-class Walls : public GameObject, public sf::Drawable, public ColliderSegmented {
+class Walls : public GameObject, public sf::Drawable, public CollidingBody {
   public:
     Walls(Vec2 levelSize);
-
+    std::vector<std::shared_ptr<const CollidingSegment>> colliding_segments() const override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    size_t getSegmentCount() const override { return m_rects.size(); }
-    size_t getSegmentPointCount(size_t) const override { return 4; }
-    Vec2 getSegmentGlobalPoint(size_t i, size_t j) const override {
-        return m_rects[i].getGlobalPoint(j);
-    };
-    bool isSegmentActive(size_t i) const override { return false; }
 
   protected:
     virtual void constructLevel();
 
   private:
-    Vec2 m_levelSize;
-    std::vector<RectangleShape> m_rects;
+    Vec2 _level_size;
+    std::vector<std::vector<sf::Vertex>> _polygons;
 };
 
 }  // namespace VVipers
