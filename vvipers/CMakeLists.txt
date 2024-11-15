@@ -35,6 +35,7 @@ set(INC_FILES
     UIElements/PlayerPanel.hpp
     UIElements/ProgressBar.hpp
     Utilities/debug.hpp
+    Utilities/Shape.hpp
     Utilities/Time.hpp
     Utilities/Vec2.hpp
     Utilities/VVColor.hpp
@@ -72,6 +73,7 @@ set(SRC_FILES
     UIElements/MenuScene.cpp
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
+    Utilities/Shape.cpp
     Utilities/Vec2.cpp
 )
 
