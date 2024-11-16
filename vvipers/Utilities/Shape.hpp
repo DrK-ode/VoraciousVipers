@@ -1,8 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
-
 #include "vvipers/Utilities/Vec2.hpp"
 
 namespace VVipers {
@@ -71,7 +68,6 @@ class Polygon : public Shape {
     bool overlap(const Shape&) const override;
     std::tuple<double, double> projection_on_vector(const Vec2&) const override;
     void rotate(double) override;
-    std::vector<sf::Vertex> triangle_strip(sf::Color = sf::Color()) const;
 
   private:
     Vec2 _anchor;

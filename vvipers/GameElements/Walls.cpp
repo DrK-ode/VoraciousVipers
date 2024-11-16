@@ -11,6 +11,7 @@
 #include <vvipers/Utilities/debug.hpp>
 
 #include "vvipers/Collisions/CollidingBody.hpp"
+#include "vvipers/Utilities/TriangleStripArray.hpp"
 #include "vvipers/Utilities/Vec2.hpp"
 
 namespace VVipers {
@@ -29,49 +30,50 @@ void Walls::constructLevel() {
     const double width = _level_size.x;
     const double height = _level_size.y;
     const double edge = 5;
+    auto color = sf::Color(0x80, 0x80, 0x80, 255);
 
-    std::vector<Vec2> top;
-    top.emplace_back(0, 0);
-    top.emplace_back(width, 0);
-    top.emplace_back(width, edge);
-    top.emplace_back(0, edge);
-    std::vector<Vec2> bottom;
-    bottom.emplace_back(0, height - edge);
-    bottom.emplace_back(width, height - edge);
-    bottom.emplace_back(width, height);
-    bottom.emplace_back(0, height);
-    std::vector<Vec2> left;
-    left.emplace_back(0, edge);
-    left.emplace_back(edge, edge);
-    left.emplace_back(edge, height - edge);
-    left.emplace_back(0, height - edge);
-    std::vector<Vec2> right;
-    right.emplace_back(width - edge, edge);
-    right.emplace_back(width, edge);
-    right.emplace_back(width, height - edge);
-    right.emplace_back(width - edge, height - edge);
-    std::vector<Vec2> middle;
-    middle.emplace_back(width * 0.25, height * 0.375);
-    middle.emplace_back(width * 0.75, height * 0.375);
-    middle.emplace_back(width * 0.75, height * 0.625);
-    middle.emplace_back(width * 0.25, height * 0.625);
+    TriangleStripArray top;
+    top.vertices.emplace_back(Vec2(0, 0), color);
+    top.vertices.emplace_back(Vec2(width, 0), color);
+    top.vertices.emplace_back(Vec2(0, edge), color);
+    top.vertices.emplace_back(Vec2(width, edge), color);
+    TriangleStripArray bottom;
+    bottom.vertices.emplace_back(Vec2(0, height - edge), color);
+    bottom.vertices.emplace_back(Vec2(width, height - edge), color);
+    bottom.vertices.emplace_back(Vec2(0, height), color);
+    bottom.vertices.emplace_back(Vec2(width, height), color);
+    TriangleStripArray left;
+    left.vertices.emplace_back(Vec2(0, edge), color);
+    left.vertices.emplace_back(Vec2(edge, edge), color);
+    left.vertices.emplace_back(Vec2(0, height - edge), color);
+    left.vertices.emplace_back(Vec2(edge, height - edge), color);
+    TriangleStripArray right;
+    right.vertices.emplace_back(Vec2(width - edge, edge), color);
+    right.vertices.emplace_back(Vec2(width, edge), color);
+    right.vertices.emplace_back(Vec2(width - edge, height - edge), color);
+    right.vertices.emplace_back(Vec2(width, height - edge), color);
+    TriangleStripArray middle;
+    middle.vertices.emplace_back(Vec2(width * 0.25, height * 0.375), color);
+    middle.vertices.emplace_back(Vec2(width * 0.75, height * 0.375), color);
+    middle.vertices.emplace_back(Vec2(width * 0.25, height * 0.625), color);
+    middle.vertices.emplace_back(Vec2(width * 0.75, height * 0.625), color);
 
-    _polygons.emplace_back(std::make_shared<Polygon>(std::move(top)));
-    _polygons.emplace_back(std::make_shared<Polygon>(std::move(left)));
-    _polygons.emplace_back(std::make_shared<Polygon>(std::move(right)));
-    _polygons.emplace_back(std::make_shared<Polygon>(std::move(bottom)));
-    _polygons.emplace_back(std::make_shared<Polygon>(std::move(middle)));
+    _triangle_strips.emplace_back(std::move(top));
+    _triangle_strips.emplace_back(std::move(left));
+    _triangle_strips.emplace_back(std::move(right));
+    _triangle_strips.emplace_back(std::move(bottom));
+    _triangle_strips.emplace_back(std::move(middle));
 
     // TODO: Textures
-    auto color = sf::Color(0x80, 0x80, 0x80, 255);
-    for (auto& polygon : _polygons) {
-        _vertex_vectors.emplace_back(polygon->triangle_strip(color));
+    for (auto& strip : _triangle_strips) {
+        _polygons.emplace_back(
+            std::make_shared<Polygon>(std::move(strip.create_polygons(1)[0])));
     }
 }
 
 void Walls::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (auto vertices : _vertex_vectors)
-        target.draw(&vertices[0], vertices.size(), sf::TriangleStrip, states);
+    for (auto& strip : _triangle_strips)
+        strip.draw(target, states);
 }
 
 }  // namespace VVipers

@@ -134,9 +134,9 @@ class Viper : public GameObject,
     };
     std::map<Time, Dinner> _dinner_times;
 
-    TriangleStripArray _vertices_head;
-    TriangleStripArray _vertices_body;
-    TriangleStripArray _vertices_tail;
+    TriangleStripArray _triangle_strip_head;
+    TriangleStripArray _triangle_strip_body;
+    TriangleStripArray _triangle_strip_tail;
 
     std::vector<std::shared_ptr<Polygon>> _polygons;
 };

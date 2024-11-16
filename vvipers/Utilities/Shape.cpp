@@ -1,10 +1,6 @@
 #include "vvipers/Utilities/Shape.hpp"
 
-#include <SFML/Graphics/PrimitiveType.hpp>
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
-#include "vvipers/Utilities/debug.hpp"
 
 namespace VVipers {
 
@@ -117,15 +113,6 @@ void Polygon::rotate(double rads) {
     for (Vec2& corner : _corners) {
         corner = _anchor + (corner - _anchor).rotate(rads);
     }
-}
-
-std::vector<sf::Vertex> Polygon::triangle_strip(sf::Color color) const {
-    std::vector<sf::Vertex> vertices;
-    for (size_t i = 0; i < _corners.size(); ++i) {
-        size_t index = i % 2 == 0 ? i / 2 : _corners.size() - (i + 1) / 2;
-        vertices.emplace_back((sf::Vector2f)_corners[index], color);
-    }
-    return vertices;
 }
 
 }  // namespace VVipers

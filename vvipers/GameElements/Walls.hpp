@@ -7,6 +7,8 @@
 #include <memory>
 #include <vvipers/GameElements/GameObject.hpp>
 #include "vvipers/Collisions/CollidingBody.hpp"
+#include "vvipers/Utilities/Shape.hpp"
+#include "vvipers/Utilities/TriangleStripArray.hpp"
 
 namespace VVipers {
 
@@ -22,8 +24,8 @@ class Walls : public GameObject, public sf::Drawable, public CollidingBody {
 
   private:
     Vec2 _level_size;
+    std::vector<TriangleStripArray> _triangle_strips;
     std::vector<std::shared_ptr<Polygon>> _polygons;
-    std::vector<std::vector<sf::Vertex>> _vertex_vectors;
 };
 
 }  // namespace VVipers

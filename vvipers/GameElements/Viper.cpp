@@ -151,9 +151,9 @@ void Viper::setup(const Vec2& tail_position, double angle,
     _track = std::unique_ptr<TemporalTrack>(
         new TemporalTrack(tail_position + viper_vector, _temporal_length,
                           tail_position, timeFromSeconds(0)));
-    _vertices_head.texture = _viper_cfg.head_texture;
-    _vertices_body.texture = _viper_cfg.body_texture;
-    _vertices_tail.texture = _viper_cfg.tail_texture;
+    _triangle_strip_head.texture = _viper_cfg.head_texture;
+    _triangle_strip_body.texture = _viper_cfg.body_texture;
+    _triangle_strip_tail.texture = _viper_cfg.tail_texture;
     update_vertices_and_polygons();
 }
 
@@ -271,9 +271,9 @@ void Viper::update_motion(const Time& elapsedTime) {
 }
 
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    _vertices_head.draw(target, states);
-    _vertices_body.draw(target, states);
-    _vertices_tail.draw(target, states);
+    _triangle_strip_head.draw(target, states);
+    _triangle_strip_body.draw(target, states);
+    _triangle_strip_tail.draw(target, states);
 }
 
 void Viper::create_vertex_vectors_and_polygons_for_body_part(
@@ -289,20 +289,20 @@ void Viper::create_vertex_vectors_and_polygons_for_body_part(
         case ViperPart::Head: {
             nominal_segment_duration = _viper_cfg.head_duration;
             nodes = &_viper_cfg.head_nodes;
-            vertex_vector = &_vertices_head;
+            vertex_vector = &_triangle_strip_head;
             break;
         }
         case ViperPart::Body: {
             number_of_segments = part_duration / _viper_cfg.body_duration + 1;
             nominal_segment_duration = _viper_cfg.body_duration;
             nodes = &_viper_cfg.body_nodes;
-            vertex_vector = &_vertices_body;
+            vertex_vector = &_triangle_strip_body;
             break;
         }
         case ViperPart::Tail: {
             nominal_segment_duration = _viper_cfg.tail_duration;
             nodes = &_viper_cfg.tail_nodes;
-            vertex_vector = &_vertices_tail;
+            vertex_vector = &_triangle_strip_tail;
             break;
         }
     }
@@ -364,9 +364,9 @@ void Viper::update_vertices_and_polygons() {
     Time tail_start = body_start - body_duration;
 
     _polygons.clear();
-    _vertices_head.vertices.clear();
-    _vertices_body.vertices.clear();
-    _vertices_tail.vertices.clear();
+    _triangle_strip_head.vertices.clear();
+    _triangle_strip_body.vertices.clear();
+    _triangle_strip_tail.vertices.clear();
     create_vertex_vectors_and_polygons_for_body_part(ViperPart::Head,
                                                      head_start, head_duration);
     create_vertex_vectors_and_polygons_for_body_part(ViperPart::Body,
