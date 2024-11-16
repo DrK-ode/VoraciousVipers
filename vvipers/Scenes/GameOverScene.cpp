@@ -51,7 +51,7 @@ std::string GameOverScene::getScoreString(std::vector<const Player*>& players) {
         if (p != players.cbegin())
             ss << '\n';
         ss << (*p)->name() << ": " << (*p)->score() << " (Viper level "
-           << Player::calculateLevel((*p)->score()) << ")";
+           << Player::calculate_level((*p)->score()) << ")";
     }
     return ss.str();
 }

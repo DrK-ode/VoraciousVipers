@@ -94,7 +94,7 @@ class Viper : public GameObject,
     /** Updates state of the Viper. Should normally be called by the onNotify
      * member function. **/
     void update(Time elapsedTime);
-    Vec2 velocity() const { return Vec2(_speed, 0).rotate_deg(_angle); }
+    Vec2 velocity() const { return Vec2(_speed, 0).rotate(_angle); }
 
   private:
     class ViperConfiguration;

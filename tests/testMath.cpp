@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/VVMath.hpp>
+#include <vvipers/Utilities/Vec2.hpp>
 
 using namespace VVipers;
 
@@ -51,10 +51,10 @@ TEST(VectorMathTest, projectionVecTest) {
 }
 
 TEST(VectorMathTest, rotationTest) {
-    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate_deg(90).y, 1.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate_deg(-90).y, -1.);
-    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate_deg(90).x, -1.);
-    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate_deg(-90).x, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate(pi / 2.).y, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 0).rotate(-pi / 2.).y, -1.);
+    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate(pi / 2.).x, -1.);
+    EXPECT_DOUBLE_EQ(Vec2(0, 1).rotate(-pi / 2.).x, 1.);
 }
 
 TEST(VectorMathTest, radToDegTest) {

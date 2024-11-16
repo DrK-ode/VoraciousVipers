@@ -35,8 +35,8 @@ void startGame() {
 }  // namespace VVipers
 
 int main(int argc, const char** argv) {
-    //VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
-    VVipers::debug::verbosity = VVipers::Verbosity::all;
+    VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
+    //VVipers::debug::verbosity = VVipers::Verbosity::all;
     // Handle input arguments?
     VVipers::startGame();
     return 0;

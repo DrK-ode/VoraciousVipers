@@ -1,4 +1,3 @@
-#include <sstream>
 #include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/GameElements/Viper.hpp>
@@ -31,17 +30,17 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     // Setup boost bar
     m_boostBar.setSize(boostBarSize);
     m_boostBar.setBorderWidth(2);
-    m_boostBar.setBarColor(player->getSecondaryColor());
-    m_boostBar.setBorderColor(player->getPrimaryColor());
+    m_boostBar.setBarColor(player->secondary_color());
+    m_boostBar.setBorderColor(player->primary_color());
     m_boostBar.setVertical(true);
     m_boostBar.setProgress( timeAsSeconds(player->viper()->boost_charge()));
     // Setup score bar
     m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);
-    m_scoreBar.setBarColor(player->getSecondaryColor());
-    m_scoreBar.setBorderColor(player->getPrimaryColor());
+    m_scoreBar.setBarColor(player->secondary_color());
+    m_scoreBar.setBorderColor(player->primary_color());
     m_scoreBar.setTextProperties(m_font, 0.8 * characterSize,
-                                 player->getPrimaryColor(),
+                                 player->primary_color(),
                                  ProgressBar::ProgressTextStyle::IntegerRatio);
     m_scoreBar.setShowText(true);
     updateScoreString();
@@ -74,7 +73,7 @@ void PlayerPanel::onNotify(const GameEvent* event) {
 
 void PlayerPanel::updateNameString() {
     m_nameText.setString(m_player->name());
-    m_nameText.setFillColor(m_player->getPrimaryColor());
+    m_nameText.setFillColor(m_player->primary_color());
 }
 
 void PlayerPanel::updateScoreString() {
@@ -97,7 +96,7 @@ void PlayerPanel::addScore(score_t score) {
 
 void PlayerPanel::updateScoreLimits() {
     m_scoreBar.setProgressLimits(
-        0, Player::calculateLevelLimit(Player::calculateLevel(m_score) + 1));
+        0, Player::calculate_level_limit(Player::calculate_level(m_score) + 1));
 }
 
 }  // namespace VVipers

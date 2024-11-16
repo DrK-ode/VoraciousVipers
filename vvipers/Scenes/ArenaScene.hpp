@@ -37,7 +37,7 @@ class ArenaScene : public Scene, public Observer {
         const KeyboardController::KeyboardControls& keys);
     Player* add_player(const std::string& name, sf::Color primaryColor,
                       sf::Color secondaryColor,
-                      std::unique_ptr<Controller> controller, Viper* viper,
+                      std::unique_ptr<Controller> controller, std::shared_ptr<Viper> viper,
                       sf::View view);
     void add_players(std::vector<std::string>& names,
                     std::vector<std::string>& primaryColors,
@@ -48,7 +48,6 @@ class ArenaScene : public Scene, public Observer {
     void delete_viper(Viper* viper);
     void kill_viper(Viper* viper);
     void add_food(Vec2 position, double diameter);
-    void eat_food(Viper*, Food*);
     void delete_food(Food* food);
 
     PlayerPanel* find_player_panel(const Player* player) const;
@@ -64,7 +63,9 @@ class ArenaScene : public Scene, public Observer {
 
     void process_game_events();
     void handle_collision(const CollisionPair&);
-    void handle_viper_collision(const CollisionPair&);
+    void handle_viper_food_collision(Viper*, size_t, Food*, size_t);
+    void handle_viper_viper_collision(Viper*, size_t, Viper*, size_t);
+    void handle_viper_walls_collision(Viper*, size_t, Walls*, size_t);
     void handle_collisions();
     void handle_steering();
     void handle_destruction(const DestroyEvent* event);
@@ -79,8 +80,7 @@ class ArenaScene : public Scene, public Observer {
     std::shared_ptr<Scene> _transition_scene;
     std::shared_ptr<Scene> _pause_scene;
     // Arena and Player has joint ownership of controllers and vipers
-    std::vector<std::unique_ptr<Controller>> _controllers;
-    std::vector<std::unique_ptr<Viper>> _vipers;
+    std::vector<std::shared_ptr<Viper>> _vipers;
     std::vector<std::unique_ptr<Player>> _players;
     std::vector<std::unique_ptr<PlayerPanel>> _player_panels;
     std::vector<std::unique_ptr<Food>> _food;

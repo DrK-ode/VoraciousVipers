@@ -145,7 +145,7 @@ void Viper::setup(const Vec2& tail_position, double angle,
     _temporal_length = _viper_cfg.head_duration + _viper_cfg.tail_duration;
     _growth = number_of_body_segments * _viper_cfg.body_duration;
 
-    Vec2 direction = Vec2(1, 0).rotate_deg(angle);
+    Vec2 direction = Vec2(1, 0).rotate(angle);
     double length = timeAsSeconds(_temporal_length) * speed();
     auto viper_vector = length * direction;
     _track = std::unique_ptr<TemporalTrack>(
@@ -158,7 +158,7 @@ void Viper::setup(const Vec2& tail_position, double angle,
 }
 
 void Viper::create_next_head_temporal_track_point(Time elapsedTime) {
-    _track->create_front(Vec2(_speed, 0).rotate_deg(_angle), elapsedTime);
+    _track->create_front(Vec2(_speed, 0).rotate(_angle), elapsedTime);
 }
 
 void Viper::clean_up_trailing_temporal_track_points() {
@@ -206,8 +206,9 @@ void Viper::update(Time elapsedTime) {
         notify(&event);
         return;
     }
-    if (state() == Dying)
+    if (state() == Dying){
         die(elapsedTime);  // Allow the viper to die for a while
+    }
     else {
         create_next_head_temporal_track_point(elapsedTime);
         grow(elapsedTime);
