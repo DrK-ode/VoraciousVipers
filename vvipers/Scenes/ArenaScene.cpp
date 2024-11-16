@@ -131,6 +131,11 @@ Player* ArenaScene::add_player(const std::string& name, sf::Color primaryColor,
         view, player.get(), getGame().getFontService()));
     viper->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
     player->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
+
+    std::stringstream ss;
+    ss << name << "'s viper";
+    viper->set_name(ss.str());
+
     return player.get();
 }
 

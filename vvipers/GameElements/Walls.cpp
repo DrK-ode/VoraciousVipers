@@ -10,11 +10,14 @@
 #include <vvipers/Utilities/VVMath.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Collisions/CollidingBody.hpp"
 #include "vvipers/Utilities/Vec2.hpp"
 
 namespace VVipers {
 
-Walls::Walls(Vec2 levelSize) : _level_size(levelSize) { constructLevel(); }
+Walls::Walls(Vec2 levelSize) : CollidingBody("Walls"), _level_size(levelSize) {
+    constructLevel();
+}
 
 std::shared_ptr<const Shape> Walls::body_part_shape(size_t index) const {
     if (index >= number_of_body_parts())

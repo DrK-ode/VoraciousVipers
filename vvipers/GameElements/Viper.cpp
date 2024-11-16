@@ -10,8 +10,8 @@
 #include <vvipers/Utilities/debug.hpp>
 #include <vvipers/config.hpp>
 
+#include "vvipers/Collisions/CollidingBody.hpp"
 #include "vvipers/GameElements/Track.hpp"
-#include "vvipers/Scenes/ArenaScene.hpp"
 
 namespace VVipers {
 
@@ -101,7 +101,7 @@ class Viper::ViperConfiguration {
 Viper::ViperConfiguration Viper::_viper_cfg;
 
 Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
-    : _boost_increase(0.), _boost_recharge_cooldown(0.), _growth(0.) {
+    : CollidingBody("Viper"),_boost_increase(0.), _boost_recharge_cooldown(0.), _growth(0.) {
     if (!_viper_cfg.initialized)
         _viper_cfg.initialize(options, textures);
     _boost_charge = _viper_cfg.boost_max_charge;
@@ -135,18 +135,18 @@ double Viper::length() const {
 
 double Viper::nominal_width() const { return _viper_cfg.nominal_segment_width; }
 
-void Viper::setup(const Vec2& tailPosition, double angle,
-                  double numberOfBodySegments) {
+void Viper::setup(const Vec2& tail_position, double angle,
+                  double number_of_body_segments) {
     _angle = angle;
     _temporal_length = _viper_cfg.head_duration + _viper_cfg.tail_duration;
-    _growth = numberOfBodySegments * _viper_cfg.body_duration;
+    _growth = number_of_body_segments * _viper_cfg.body_duration;
 
     Vec2 direction = Vec2(1, 0).rotate_deg(angle);
     double length = timeAsSeconds(_temporal_length) * speed();
-    auto viperVector = length * direction;
+    auto viper_vector = length * direction;
     _track = std::unique_ptr<TemporalTrack>(
-        new TemporalTrack(tailPosition + viperVector, _temporal_length,
-                          tailPosition, timeFromSeconds(0)));
+        new TemporalTrack(tail_position + viper_vector, _temporal_length,
+                          tail_position, timeFromSeconds(0)));
     update_vertices();
 }
 

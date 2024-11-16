@@ -11,12 +11,17 @@ namespace VVipers {
 
 class CollidingBody {
   public:
+    CollidingBody(const std::string& str) : _name(str) {}
     virtual ~CollidingBody() {}
+    virtual std::shared_ptr<const Shape> body_part_shape(
+        size_t index) const = 0;
+    std::string name() const { return _name; }
     virtual size_t number_of_body_parts() const = 0;
-    virtual std::shared_ptr<const Shape> body_part_shape(size_t index) const = 0;
-    bool operator==(const CollidingBody& other) const{
-        return this == &other;
-    }
+    void set_name(const std::string& str) { _name = str; }
+    bool operator==(const CollidingBody& other) const { return this == &other; }
+
+  private:
+    std::string _name;
 };
 
 }  // Namespace VVipers

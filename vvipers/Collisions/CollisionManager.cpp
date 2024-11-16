@@ -32,6 +32,9 @@ CollisionVector CollisionManager::check_for_collisions() {
             }
         }
     }
+    for( auto& c : all_collisions){
+        tagDebug(c.first.body->name(), "[", c.first.index, "] collided with ", c.second.body->name(), "[", c.second.index, "].");
+    }
     return all_collisions;
 }
 

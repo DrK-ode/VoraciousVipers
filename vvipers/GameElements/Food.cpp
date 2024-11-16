@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
+#include "vvipers/Collisions/CollidingBody.hpp"
 
 namespace VVipers {
 
@@ -10,6 +11,7 @@ const double Food::nominalFoodRadius(15);
 
 Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
     : sf::CircleShape(radius, 7),
+    CollidingBody("Food"),
       _age(0),
       _bonus_expire(bonusExpired),
       _original_radius(radius),
