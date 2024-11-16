@@ -12,6 +12,7 @@
 
 #include "vvipers/Collisions/CollidingBody.hpp"
 #include "vvipers/GameElements/Track.hpp"
+#include "vvipers/Utilities/TriangleStripArray.hpp"
 
 namespace VVipers {
 
@@ -101,7 +102,10 @@ class Viper::ViperConfiguration {
 Viper::ViperConfiguration Viper::_viper_cfg;
 
 Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
-    : CollidingBody("Viper"),_boost_increase(0.), _boost_recharge_cooldown(0.), _growth(0.) {
+    : CollidingBody("Viper"),
+      _boost_increase(0.),
+      _boost_recharge_cooldown(0.),
+      _growth(0.) {
     if (!_viper_cfg.initialized)
         _viper_cfg.initialize(options, textures);
     _boost_charge = _viper_cfg.boost_max_charge;
@@ -147,7 +151,10 @@ void Viper::setup(const Vec2& tail_position, double angle,
     _track = std::unique_ptr<TemporalTrack>(
         new TemporalTrack(tail_position + viper_vector, _temporal_length,
                           tail_position, timeFromSeconds(0)));
-    update_vertices();
+    _vertices_head.texture = _viper_cfg.head_texture;
+    _vertices_body.texture = _viper_cfg.body_texture;
+    _vertices_tail.texture = _viper_cfg.tail_texture;
+    update_vertices_and_polygons();
 }
 
 void Viper::create_next_head_temporal_track_point(Time elapsedTime) {
@@ -206,7 +213,7 @@ void Viper::update(Time elapsedTime) {
         grow(elapsedTime);
     }
     update_motion(elapsedTime);
-    update_vertices();
+    update_vertices_and_polygons();
     clean_up_trailing_temporal_track_points();
     clean_up_dinner_times();
 }
@@ -264,33 +271,24 @@ void Viper::update_motion(const Time& elapsedTime) {
 }
 
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    states.texture = _viper_cfg.head_texture;
-    target.draw(&_vertices_head[0], _vertices_head.size(),
-                sf::PrimitiveType::TriangleStrip, states);
-    states.texture = _viper_cfg.body_texture;
-    target.draw(&_vertices_body[0], _vertices_body.size(),
-                sf::PrimitiveType::TriangleStrip, states);
-    states.texture = _viper_cfg.tail_texture;
-    target.draw(&_vertices_tail[0], _vertices_tail.size(),
-                sf::PrimitiveType::TriangleStrip, states);
+    _vertices_head.draw(target, states);
+    _vertices_body.draw(target, states);
+    _vertices_tail.draw(target, states);
 }
 
-void Viper::update_vertices_for_body_part(ViperPart viper_part,
-                                          const Time& part_start,
-                                          const Time& part_duration) {
+void Viper::create_vertex_vectors_and_polygons_for_body_part(
+    ViperPart viper_part, const Time& part_start, const Time& part_duration) {
     if (part_duration <= timeFromSeconds(0))
         return;
 
-    std::vector<sf::Vertex>* vertex_vector;
+    TriangleStripArray* vertex_vector;
     std::vector<Vec2>* nodes;
-    Vec2 texture_size;
     size_t number_of_segments = 1;
     Time nominal_segment_duration;
     switch (viper_part) {
         case ViperPart::Head: {
             nominal_segment_duration = _viper_cfg.head_duration;
             nodes = &_viper_cfg.head_nodes;
-            texture_size = _viper_cfg.head_texture->getSize();
             vertex_vector = &_vertices_head;
             break;
         }
@@ -298,36 +296,27 @@ void Viper::update_vertices_for_body_part(ViperPart viper_part,
             number_of_segments = part_duration / _viper_cfg.body_duration + 1;
             nominal_segment_duration = _viper_cfg.body_duration;
             nodes = &_viper_cfg.body_nodes;
-            texture_size = _viper_cfg.body_texture->getSize();
             vertex_vector = &_vertices_body;
             break;
         }
         case ViperPart::Tail: {
             nominal_segment_duration = _viper_cfg.tail_duration;
             nodes = &_viper_cfg.tail_nodes;
-            texture_size = _viper_cfg.tail_texture->getSize();
             vertex_vector = &_vertices_tail;
             break;
         }
     }
 
-    vertex_vector->clear();
+    Vec2 texture_size = vertex_vector->texture->getSize();
     for (size_t segment_index = 0; segment_index < number_of_segments;
          ++segment_index) {
-        std::vector<Vec2> corners;
-        corners.resize(2 * nodes->size());
         size_t nodes_shared_with_prev_segment = segment_index == 0 ? 0 : 1;
-        for (size_t i = 0; i < nodes_shared_with_prev_segment; ++i) {
-            auto& last_shape_corners = _shapes.back()->corners();
-            corners[0] = last_shape_corners[last_shape_corners.size() / 2 - 1];
-            corners[corners.size() - 1] =
-                last_shape_corners[last_shape_corners.size() / 2];
-        }
         Time segment_start =
             part_start - segment_index * nominal_segment_duration;
         Time segment_duration =
             std::min(nominal_segment_duration,
                      part_duration - segment_index * nominal_segment_duration);
+
         for (size_t node_index = nodes_shared_with_prev_segment;
              node_index < nodes->size(); ++node_index) {
             Time time =
@@ -338,28 +327,27 @@ void Viper::update_vertices_for_body_part(ViperPart viper_part,
                          _viper_cfg.nominal_segment_width *
                          (*nodes)[node_index].x / velocity.dot(velocity);
 
-            Vec2 position_right = position + width;
-            Vec2 position_left = position - width;
             Vec2 texture_coordinates_right =
                 (Vec2(0.5f, segment_index) + (*nodes)[node_index]) *
                 texture_size;
             Vec2 texture_coordinates_left =
                 Vec2(texture_size.x - texture_coordinates_right.x,
                      texture_coordinates_right.y);
+
             sf::Color color = calculate_vertex_color(time);
 
-            vertex_vector->emplace_back(position_right, color,
-                                        texture_coordinates_right);
-            vertex_vector->emplace_back(position_left, color,
-                                        texture_coordinates_left);
-            corners[node_index] = position_right;
-            corners[corners.size() - node_index - 1] = position_left;
+            vertex_vector->vertices.emplace_back(position + width, color,
+                                                 texture_coordinates_right);
+            vertex_vector->vertices.emplace_back(position - width, color,
+                                                 texture_coordinates_left);
         }
-        _shapes.emplace_back(std::make_shared<Polygon>(corners));
+    }
+    for (auto& polygon : vertex_vector->create_polygons(number_of_segments)) {
+        _polygons.push_back(std::make_shared<Polygon>(std::move(polygon)));
     }
 }
 
-void Viper::update_vertices() {
+void Viper::update_vertices_and_polygons() {
     Time head_duration = std::min(_temporal_length, _viper_cfg.head_duration);
     if (_temporal_length <
         _viper_cfg.head_duration + _viper_cfg.tail_duration) {
@@ -375,10 +363,16 @@ void Viper::update_vertices() {
     Time body_start = head_start - head_duration;
     Time tail_start = body_start - body_duration;
 
-    _shapes.clear();
-    update_vertices_for_body_part(ViperPart::Head, head_start, head_duration);
-    update_vertices_for_body_part(ViperPart::Body, body_start, body_duration);
-    update_vertices_for_body_part(ViperPart::Tail, tail_start, tail_duration);
+    _polygons.clear();
+    _vertices_head.vertices.clear();
+    _vertices_body.vertices.clear();
+    _vertices_tail.vertices.clear();
+    create_vertex_vectors_and_polygons_for_body_part(ViperPart::Head,
+                                                     head_start, head_duration);
+    create_vertex_vectors_and_polygons_for_body_part(ViperPart::Body,
+                                                     body_start, body_duration);
+    create_vertex_vectors_and_polygons_for_body_part(ViperPart::Tail,
+                                                     tail_start, tail_duration);
 }
 
 sf::Color Viper::calculate_vertex_color(Time time) {

@@ -15,6 +15,7 @@
 #include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/Time.hpp>
+#include "vvipers/Utilities/TriangleStripArray.hpp"
 
 namespace VVipers {
 /**
@@ -29,8 +30,8 @@ class Viper : public GameObject,
   public:
     // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
-    size_t number_of_body_parts() const override {return _shapes.size();}
-    std::shared_ptr<const Shape> body_part_shape(size_t index) const override {return _shapes[index];}
+    size_t number_of_body_parts() const override {return _polygons.size();}
+    std::shared_ptr<const Shape> body_part_shape(size_t index) const override {return _polygons[index];}
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
     void add_growth(Time howMuch, Time when, sf::Color color);
@@ -105,8 +106,8 @@ class Viper : public GameObject,
     void clean_up_dinner_times();
     void grow(const Time& elapsedTime);
 
-    void update_vertices();
-    void update_vertices_for_body_part(ViperPart, const Time& timeFront, const Time& temporalLength);
+    void update_vertices_and_polygons();
+    void create_vertex_vectors_and_polygons_for_body_part(ViperPart, const Time& timeFront, const Time& temporalLength);
     sf::Color calculate_vertex_color(Time time);
 
     void update_motion(const Time& elapsedTime);
@@ -133,11 +134,11 @@ class Viper : public GameObject,
     };
     std::map<Time, Dinner> _dinner_times;
 
-    std::vector<sf::Vertex> _vertices_head;
-    std::vector<sf::Vertex> _vertices_body;
-    std::vector<sf::Vertex> _vertices_tail;
+    TriangleStripArray _vertices_head;
+    TriangleStripArray _vertices_body;
+    TriangleStripArray _vertices_tail;
 
-    std::vector<std::shared_ptr<Polygon>> _shapes;
+    std::vector<std::shared_ptr<Polygon>> _polygons;
 };
 
 }  // namespace VVipers

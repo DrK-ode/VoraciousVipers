@@ -36,6 +36,7 @@ set(INC_FILES
     Utilities/debug.hpp
     Utilities/Shape.hpp
     Utilities/Time.hpp
+    Utilities/TriangleStripArray.hpp
     Utilities/Vec2.hpp
     Utilities/VVColor.hpp
     Utilities/VVMath.hpp
@@ -72,6 +73,7 @@ set(SRC_FILES
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
     Utilities/Shape.cpp
+    Utilities/TriangleStripArray.cpp
     Utilities/Vec2.cpp
 )
 
