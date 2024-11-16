@@ -24,7 +24,7 @@ class ViperTest : public ::testing::Test {
             options->setOptionString(resPathOptStr, RESOURCE_PATH);
         auto textures = std::make_unique<TextureFileLoader>(*options.get());
         viper = std::make_unique<Viper>(*options, *textures);
-        viper->setup(Vec2(0, 0), 180.f, 1.5);
+        viper->setup(Vec2(0, 0), 0.f, 1.5);
     }
 
     std::unique_ptr<Viper> viper;
@@ -32,7 +32,7 @@ class ViperTest : public ::testing::Test {
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_DOUBLE_EQ(viper->angle(), 180.);
+    EXPECT_DOUBLE_EQ(viper->angle(), 0.);
     viper->set_angle(90.);
     EXPECT_DOUBLE_EQ(viper->angle(), 90.);
     viper->set_angle(-90.);

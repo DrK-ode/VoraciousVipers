@@ -1,5 +1,8 @@
 #pragma once
 
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
+
 #include "vvipers/Utilities/Vec2.hpp"
 
 namespace VVipers {
@@ -13,8 +16,8 @@ class BoundingBox {
     BoundingBox(double x1, double x2, double y1, double y2)
         : x_min(x1), x_max(x2), y_min(y1), y_max(y2) {}
     bool overlap(const BoundingBox& other) const {
-        return this->x_min > other.x_max || this->x_max < other.x_min ||
-               this->y_min > other.y_max || this->y_max < other.y_min;
+        return !(this->x_min > other.x_max || this->x_max < other.x_min ||
+                 this->y_min > other.y_max || this->y_max < other.y_min);
     }
     double x_min, x_max, y_min, y_max;
 };
@@ -22,6 +25,7 @@ class BoundingBox {
 class Shape {
   public:
     Shape(ShapeType type) : _type(type) {}
+    virtual ~Shape() {}
     virtual BoundingBox bounding_box() const = 0;
     virtual void move_to(const Vec2&) = 0;
     virtual bool overlap(const Shape&) const = 0;
@@ -56,19 +60,21 @@ class Circle : public Shape {
 
 class Polygon : public Shape {
   public:
-    Polygon(const Vec2& center, const std::vector<Vec2>& corners)
-        : Shape(ShapeType::Polygon), _center(center), _corners(corners) {}
+    Polygon(const Vec2& anchor, const std::vector<Vec2>& corners)
+        : Shape(ShapeType::Polygon), _anchor(anchor), _corners(corners) {}
+    Polygon(const std::vector<Vec2>& corners);
     BoundingBox bounding_box() const override;
-    const Vec2& center() const { return _center; }
-    std::vector<Vec2> corners() const { return _corners; }
-    void move_to(const Vec2& new_center) override { _center = new_center; }
+    const Vec2& anchor() const { return _anchor; }
+    const std::vector<Vec2>& corners() const { return _corners; }
+    void move_to(const Vec2& new_center) override { _anchor = new_center; }
     std::vector<Vec2> normal_vectors() const;
     bool overlap(const Shape&) const override;
     std::tuple<double, double> projection_on_vector(const Vec2&) const override;
     void rotate(double) override;
+    std::vector<sf::Vertex> triangle_strip(sf::Color = sf::Color()) const;
 
   private:
-    Vec2 _center;
+    Vec2 _anchor;
     std::vector<Vec2> _corners;
 };
 }  // namespace VVipers

@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <memory>
 #include <vector>
 #include <vvipers/GameElements/Player.hpp>
 #include <vvipers/Engine/Scene.hpp>
@@ -16,16 +15,16 @@ class Game;
 class GameOverScene : public Scene {
   public:
     GameOverScene(Game& game,
-                   std::vector<std::shared_ptr<const Player>> players);
+                   std::vector<const Player*> players);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void processEvent(const sf::Event& event) override;
     void update(Time elapsedTime) override;
 
   private:
     std::string getScoreString(
-        std::vector<std::shared_ptr<const Player>>& players);
+        std::vector<const Player*>& players);
 
-    std::vector<std::shared_ptr<const Player>> m_players;
+    std::vector<const Player*> m_players;
     sf::Text m_gameOverText;
     sf::Text m_scoreText;
     sf::RectangleShape m_background;

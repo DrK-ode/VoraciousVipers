@@ -3,7 +3,6 @@ configure_file(./config.hpp.in ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp)
 set(INC_FILES
     ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp
     Collisions/CollidingBody.hpp
-    Collisions/CollidingSegment.hpp
     Collisions/CollisionManager.hpp
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
@@ -43,7 +42,6 @@ set(INC_FILES
 )
 
 set(SRC_FILES
-    Collisions/CollidingSegment.cpp
     Collisions/CollisionManager.cpp
     Engine/ColorPalette.cpp
     Engine/Engine.cpp

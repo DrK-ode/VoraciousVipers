@@ -1,9 +1,8 @@
+#include <SFML/Graphics/CircleShape.hpp>
 #include <memory>
-#include <vector>
+#include <stdexcept>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
-
-#include "vvipers/Collisions/CollidingSegment.hpp"
 
 namespace VVipers {
 
@@ -20,17 +19,18 @@ Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
     _color_saturation = s;
     _color_lightness = std::clamp(l, 0.3, 0.7);
     sf::CircleShape::setPosition(position);
+    sf::CircleShape::setOrigin(radius, radius);
     sf::CircleShape::setFillColor(color);
     sf::CircleShape::setOutlineThickness(5);
-    _colliding_segment = std::shared_ptr<CollidingSegment>(
-        new CollidingCircle(getPosition(), CircleShape::getRadius(), this));
+    _shape = std::make_shared<Circle>(CircleShape::getPosition(),
+                                      CircleShape::getRadius());
 }
 
-std::vector<std::shared_ptr<const CollidingSegment>> Food::colliding_segments()
-    const {
-    std::vector<std::shared_ptr<const CollidingSegment>> vec;
-    vec.push_back(_colliding_segment);
-    return vec;
+std::shared_ptr<const VVipers::Shape> Food::body_part_shape(
+    size_t index) const {
+    if (index >= number_of_body_parts())
+        throw std::runtime_error("Requested body part index is too large.");
+    return _shape;
 }
 
 sf::Color Food::color() const {

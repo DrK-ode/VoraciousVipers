@@ -17,7 +17,7 @@ typedef uint64_t level_t;
 
 class Player : public GameObject, public Observable {
   public:
-    Player(const std::string& name, std::shared_ptr<Controller> c, std::shared_ptr<Viper> v);
+    Player(const std::string& name, std::unique_ptr<Controller> c, Viper* v);
 
     static level_t calculateLevel(score_t score) { return score / 1000 + 1; }
     static score_t calculateLevelLimit(level_t level) {
@@ -28,20 +28,20 @@ class Player : public GameObject, public Observable {
     sf::Color getSecondaryColor() const { return m_secondaryColor; }
     void setColors(sf::Color c1, sf::Color c2);
     const Controller* controller() const { return m_controller.get(); }
-    void controller(std::shared_ptr<Controller> c) { m_controller = c; }
+    //void controller(std::shared_ptr<Controller> c) { m_controller = c; }
     std::string name() const { return m_name; }
     score_t score() const { return m_score; };
     void score(score_t score) { m_score += score; };
-    Viper* viper() const { return m_viper.get(); }
-    void viper(std::shared_ptr<Viper> v) { m_viper = v; }
+    Viper* viper() const { return m_viper; }
+    //void viper(std::shared_ptr<Viper> v) { m_viper = v; }
 
   private:
     std::string m_name;
     sf::Color m_primaryColor;
     sf::Color m_secondaryColor;
-    std::shared_ptr<Controller> m_controller;
+    std::unique_ptr<Controller> m_controller;
     score_t m_score;
-    std::shared_ptr<Viper> m_viper;
+    Viper* m_viper;
 };
 
 }  // namespace VVipers

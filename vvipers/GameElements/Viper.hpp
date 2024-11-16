@@ -29,7 +29,8 @@ class Viper : public GameObject,
   public:
     // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
-    std::vector<std::shared_ptr<const CollidingSegment>> colliding_segments() const override;
+    size_t number_of_body_parts() const override {return _shapes.size();}
+    std::shared_ptr<const Shape> body_part_shape(size_t index) const override {return _shapes[index];}
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
     void add_growth(Time howMuch, Time when, sf::Color color);
@@ -96,7 +97,7 @@ class Viper : public GameObject,
 
   private:
     class ViperConfiguration;
-    static ViperConfiguration _viperCfg;
+    static ViperConfiguration _viper_cfg;
 
     enum class ViperPart { Head, Body, Tail };
     void create_next_head_temporal_track_point(Time elapsedTime);
@@ -105,7 +106,7 @@ class Viper : public GameObject,
     void grow(const Time& elapsedTime);
 
     void update_vertices();
-    void update_vertices_for_body_part(ViperPart, Time timeFront, const Time& temporalLength);
+    void update_vertices_for_body_part(ViperPart, const Time& timeFront, const Time& temporalLength);
     sf::Color calculate_vertex_color(Time time);
 
     void update_motion(const Time& elapsedTime);
@@ -135,6 +136,8 @@ class Viper : public GameObject,
     std::vector<sf::Vertex> _vertices_head;
     std::vector<sf::Vertex> _vertices_body;
     std::vector<sf::Vertex> _vertices_tail;
+
+    std::vector<std::shared_ptr<Polygon>> _shapes;
 };
 
 }  // namespace VVipers

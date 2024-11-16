@@ -14,9 +14,9 @@ TemporalTrack::TemporalTrack(const Vec2& p1, const Time& t1, const Vec2& p2,
     if (t1 <= t2)
         throw std::runtime_error(
             "Trying to initiate a temporal track out of temporal order.");
-    m_points.emplace(m_points.cend(), p1, t1, Vec2(), timeFromSeconds(0.));
-    m_points.emplace(m_points.cend(), p2, t2,
-                     (p1 - p2) / timeAsSeconds(t1 - t2), t1 - t2);
+    Vec2 v = (p1 - p2) / timeAsSeconds(t1 - t2);
+    m_points.emplace(m_points.cend(), p1, t1, v, timeFromSeconds(0.));
+    m_points.emplace(m_points.cend(), p2, t2, v, t1 - t2);
 }
 
 void TemporalTrack::create_back(const Vec2& v, const Time& delta) {

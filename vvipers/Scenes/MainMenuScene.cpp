@@ -1,3 +1,4 @@
+#include <memory>
 #include <vvipers/Scenes/ArenaScene.hpp>
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
@@ -38,17 +39,17 @@ void MainMenuScene::onMenuItemActivation(MenuItem* menuItem) {
     if (menuItem == m_playButton.get()) {
         setSceneState(SceneState::Paused);
         setTransitionState(TransitionState::Spawn);
-        m_transitionTo = std::make_unique<ArenaScene>(getGame());
+        m_transitionTo = std::make_shared<ArenaScene>(getGame());
     } else if (menuItem == m_optionsButton.get()) {
         setSceneState(SceneState::Paused);
         setTransitionState(TransitionState::Spawn);
-        m_transitionTo = std::make_unique<OptionsMenuScene>(getGame());
+        m_transitionTo = std::make_shared<OptionsMenuScene>(getGame());
     } else if (menuItem == m_quitButton.get()) {
         setSceneState(SceneState::Paused);
         setTransitionState(TransitionState::Quit);
     }
 }
 
-scene_ptr MainMenuScene::makeTransition() { return std::move(m_transitionTo); }
+std::shared_ptr<Scene> MainMenuScene::makeTransition() { return m_transitionTo; }
 
 }  // namespace VVipers

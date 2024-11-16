@@ -1,48 +1,45 @@
-#include <iterator>
-#include <memory>
 #include <vector>
 #include <vvipers/Collisions/CollisionManager.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
-#include "vvipers/Collisions/CollidingSegment.hpp"
-
 namespace VVipers {
 
-void CollisionManager::update_colliding_segments() {
-    _colliding_segments.clear();
-    for (auto body : _colliding_bodies) {
-        auto segments = body->colliding_segments();
-        _colliding_segments.insert(_colliding_segments.end(),
-                                   std::make_move_iterator(segments.begin()),
-                                   std::make_move_iterator(segments.end()));
+std::vector<CollisionManager::CollisionEntity>
+CollisionManager::collect_collision_items() {
+    std::vector<CollisionEntity> body_parts;
+    for (const CollidingBody* body : _colliding_bodies) {
+        for (size_t i = 0; i < body->number_of_body_parts(); ++i) {
+            body_parts.emplace_back(body, i);
+        }
     }
+    return body_parts;
 }
 
 CollisionVector CollisionManager::check_for_collisions() {
-    update_colliding_segments();
+    auto collision_items = collect_collision_items();
+
     CollisionVector all_collisions;
-    for (auto first_segment_iter = _colliding_segments.begin();
-         first_segment_iter != _colliding_segments.end();
-         ++first_segment_iter) {
-        for (auto second_segment_iter = first_segment_iter;
-             second_segment_iter != _colliding_segments.end();
-             ++second_segment_iter) {
-            if (first_segment_iter->get()->collision(
-                    *second_segment_iter->get())) {
-                all_collisions.emplace_back(*first_segment_iter,
-                                            *second_segment_iter);
+    for (auto first_item_iter = collision_items.begin();
+         first_item_iter != collision_items.end(); ++first_item_iter) {
+        for (auto second_item_iter = first_item_iter + 1;
+             second_item_iter != collision_items.end(); ++second_item_iter) {
+            if (first_item_iter->shape->overlap(*second_item_iter->shape)) {
+                all_collisions.emplace_back(
+                    CollisionItem(first_item_iter->body,
+                                    first_item_iter->index),
+                    CollisionItem(second_item_iter->body,
+                                    second_item_iter->index));
             }
         }
     }
     return all_collisions;
 }
 
-bool CollisionManager::is_occupied(const CollidingSegment& test_object) {
-    update_colliding_segments();
-    std::vector<CollisionPointer> all_collisions;
-    for (auto segment_iter = _colliding_segments.begin();
-         segment_iter != _colliding_segments.end(); ++segment_iter) {
-        if (test_object.collision(*segment_iter->get())) {
+bool CollisionManager::is_occupied(const Shape& test_object) {
+    auto collision_items = collect_collision_items();
+    for (auto segment_iter = collision_items.begin();
+         segment_iter != collision_items.end(); ++segment_iter) {
+        if (test_object.overlap(*segment_iter->shape)) {
             return true;
         }
     }
@@ -50,26 +47,21 @@ bool CollisionManager::is_occupied(const CollidingSegment& test_object) {
 }
 
 bool CollisionManager::is_circle_occupied(const Vec2& center, double radius) {
-    CollidingCircle test_object = CollidingCircle(center, radius, nullptr);
+    Circle test_object = Circle(center, radius);
     return is_occupied(test_object);
 }
 
 bool CollisionManager::is_rectangle_occupied(const Vec2& center, double width,
-                                   double height, double angle) {
+                                             double height, double angle) {
     std::vector<Vec2> corners;
     double half_w = 0.5 * width;
     double half_h = 0.5 * height;
-    const double cos = std::cos(angle);
-    const double sin = std::sin(angle);
-    corners.emplace_back(center.x - half_w * cos - half_h * sin,
-                         center.y + half_h * cos - half_w * sin);
-    corners.emplace_back(center.x + half_w * cos - half_h * sin,
-                         center.y + half_h * cos + half_w * sin);
-    corners.emplace_back(center.x + half_w * cos + half_h * sin,
-                         center.y - half_h * cos + half_w * sin);
-    corners.emplace_back(center.x - half_w * cos + half_h * sin,
-                         center.y - half_h * cos - half_w * sin);
-    CollidingPolygon test_object = CollidingPolygon(corners, nullptr);
+    corners.emplace_back(center.x - half_w, center.y + half_h);
+    corners.emplace_back(center.x + half_w, center.y + half_h);
+    corners.emplace_back(center.x + half_w, center.y - half_h);
+    corners.emplace_back(center.x - half_w, center.y - half_h);
+    Polygon test_object = Polygon(center, corners);
+    test_object.rotate(angle);
     return is_occupied(test_object);
 }
 

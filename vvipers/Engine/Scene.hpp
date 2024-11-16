@@ -10,7 +10,6 @@ namespace VVipers {
 
 class Scene;
 class Game;
-using scene_ptr = std::shared_ptr<Scene>;
 
 class Scene : public sf::Drawable {
   public:
@@ -33,7 +32,7 @@ class Scene : public sf::Drawable {
     virtual void processEvent(const sf::Event& event) = 0;
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
-    virtual scene_ptr makeTransition() { return scene_ptr(); }
+    virtual std::shared_ptr<Scene> makeTransition() { return std::shared_ptr<Scene>(); }
     virtual void onActivation();
     SceneState getSceneState() const { return m_sceneState; }
     void setSceneState(SceneState state) { m_sceneState = state; }

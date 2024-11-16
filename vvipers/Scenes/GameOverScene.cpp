@@ -9,8 +9,7 @@
 
 namespace VVipers {
 
-GameOverScene::GameOverScene(Game& game,
-                             std::vector<std::shared_ptr<const Player>> players)
+GameOverScene::GameOverScene(Game& game, std::vector<const Player*> players)
     : Scene(game), m_players(players) {
     Vec2 size = getGame().getWindow().getSize();
     m_gameOverText.setFont(*getGame().getFontService().getDefaultFont());
@@ -20,7 +19,7 @@ GameOverScene::GameOverScene(Game& game,
     auto lbp = m_gameOverText.getLocalBounds();
     m_gameOverText.setOrigin(Vec2(lbp.left + lbp.width, lbp.top + lbp.height) /
                              2);
-    m_gameOverText.setFillColor( game.getColorService().getColor(0));
+    m_gameOverText.setFillColor(game.getColorService().getColor(0));
     m_gameOverText.setOutlineColor(game.getColorService().getColor(1));
     m_gameOverText.setOutlineThickness(0.005 * size.y);
 
@@ -42,8 +41,7 @@ GameOverScene::GameOverScene(Game& game,
     setTransparent(true);
 }
 
-std::string GameOverScene::getScoreString(
-    std::vector<std::shared_ptr<const Player>>& players) {
+std::string GameOverScene::getScoreString(std::vector<const Player*>& players) {
     std::sort(players.begin(), players.end(),
               [](const auto& lhs, const auto& rhs) {
                   return lhs->score() > rhs->score();
