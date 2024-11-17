@@ -1,18 +1,17 @@
-#ifndef VVIPERS_UTILITIES_VVMATH_HPP
-#define VVIPERS_UTILITIES_VVMATH_HPP
+#pragma once
 
 #include <cmath>
-#include <random>
 #include <limits>
+#include <random>
 
 namespace VVipers {
 const double pi = 3.14159265358979323846;
 const double twopi = 2 * pi;
-const double radPerDeg = pi / 180.f;
-const double degPerRad = 180.f / pi;
-inline double degToRad(double deg) { return deg * radPerDeg; }
-inline double radToDeg(double rad) { return rad * degPerRad; }
-inline double mod180Deg(double deg) {
+const double rad_per_deg = pi / 180.f;
+const double deg_per_rad = 180.f / pi;
+inline double rad_from_deg(double deg) { return deg * rad_per_deg; }
+inline double deg_from_rad(double rad) { return rad * deg_per_rad; }
+inline double mod_180_deg(double deg) {
     deg = std::fmod(deg, 360.f);
     if (deg > 180.f)
         deg -= 360.f;
@@ -20,7 +19,7 @@ inline double mod180Deg(double deg) {
         deg += 360.f;
     return deg;
 }
-inline double modPiRad(double rad) {
+inline double mod_pi_rad(double rad) {
     rad = std::fmod(rad, twopi);
     if (rad > pi)
         rad -= twopi;
@@ -32,26 +31,25 @@ inline double modPiRad(double rad) {
 typedef std::ranlux48_base generatorEngine_t;
 class Random {
   public:
-    static double getDouble() {
+    static double random_double() {
         static std::uniform_real_distribution<double> distribution(0., 1.);
-        return distribution(m_generator);
+        return distribution(_generator);
     }
     // Both first and last inclusive
-    static int getInt(int first = 0, int last = std::numeric_limits<int>::max() ) {
-        return getDouble(first, last+1);
+    static int random_int(int first = 0,
+                          int last = std::numeric_limits<int>::max()) {
+        return random_double(first, last + 1);
     }
     // First inclusive, last exclusive
-    static double getDouble(double first, double last) {
-        return first + getDouble() * (last - first);
+    static double random_double(double first, double last) {
+        return first + random_double() * (last - first);
     }
 
   private:
-    static std::random_device m_randomDevice;
-    static generatorEngine_t m_generator;
+    static std::random_device _random_device;
+    static generatorEngine_t _generator;
 };
-inline std::random_device Random::m_randomDevice;
-inline generatorEngine_t Random::m_generator( Random::m_randomDevice() );
+inline std::random_device Random::_random_device;
+inline generatorEngine_t Random::_generator(Random::_random_device());
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_UTILITIES_VVMATH_HPP

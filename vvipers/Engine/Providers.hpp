@@ -1,10 +1,9 @@
-#ifndef VVIPERS_ENGINE_PROVIDERS_HPP
-#define VVIPERS_ENGINE_PROVIDERS_HPP
+#pragma once
 
+#include <SFML/Graphics/Color.hpp>
 #include <string>
 #include <vector>
 #include <vvipers/Utilities/Vec2.hpp>
-#include <SFML/Graphics/Color.hpp>
 
 namespace sf {
 class Font;
@@ -14,56 +13,55 @@ class Texture;
 namespace VVipers {
 
 class ColorProvider {
-    public:
+  public:
     virtual ~ColorProvider() {}
-    virtual sf::Color getColor(size_t index) const = 0;
+    virtual sf::Color get_color(size_t index) const = 0;
 };
 
 class FontProvider {
   public:
     virtual ~FontProvider() {}
-    virtual const sf::Font* getDefaultFont() const = 0;
+    virtual const sf::Font* default_font() const = 0;
     /** @returns default font if the wanted font is not found **/
-    virtual const sf::Font* getFont(const std::string& fontname) const = 0;
+    virtual const sf::Font* font(const std::string& fontname) const = 0;
 };
 
 class OptionsProvider {
   public:
     virtual ~OptionsProvider() {}
-    virtual bool getOptionBoolean(const std::string& optionName) const = 0;
-    virtual std::string getOptionString(
+    virtual bool option_boolean(const std::string& optionName) const = 0;
+    virtual std::string option_string(const std::string& optionName) const = 0;
+    virtual double option_double(const std::string& optionName) const = 0;
+    virtual Vec2 option_2d_vector(const std::string& optionName) const = 0;
+    virtual std::vector<bool> option_boolean_array(
         const std::string& optionName) const = 0;
-    virtual double getOptionDouble(const std::string& optionName) const = 0;
-    virtual Vec2 getOption2DVector(const std::string& optionName) const = 0;
-    virtual std::vector<bool> getOptionBooleanArray(
+    virtual std::vector<double> option_double_array(
         const std::string& optionName) const = 0;
-    virtual std::vector<double> getOptionDoubleArray(
+    virtual std::vector<std::string> option_string_array(
         const std::string& optionName) const = 0;
-    virtual std::vector<std::string> getOptionStringArray(
+    virtual std::vector<Vec2> option_2d_vector_array(
         const std::string& optionName) const = 0;
-    virtual std::vector<Vec2> getOption2DVectorArray(
-        const std::string& optionName) const = 0;
-    virtual bool isOptionSet(const std::string& optionName) const = 0;
+    virtual bool is_option_set(const std::string& optionName) const = 0;
     virtual void write(std::ostream& output) const = 0;
 
-    virtual void setOptionBoolean(const std::string& optionName,
-                                  bool optionValue) = 0;
-    virtual void setOptionDouble(const std::string& optionName,
-                                 double optionValue) = 0;
-    virtual void setOptionString(const std::string& optionName,
-                                 const std::string& optionValue) = 0;
-    virtual void setOption2DVector(const std::string& optionName,
-                                   Vec2 value) = 0;
-    virtual void setOptionBooleanArray(
+    virtual void set_option_boolean(const std::string& optionName,
+                                    bool optionValue) = 0;
+    virtual void set_option_double(const std::string& optionName,
+                                   double optionValue) = 0;
+    virtual void set_option_string(const std::string& optionName,
+                                   const std::string& optionValue) = 0;
+    virtual void set_option_2d_vector(const std::string& optionName,
+                                      Vec2 value) = 0;
+    virtual void set_option_boolean_array(
         const std::string& optionName,
         const std::vector<bool>& booleanArray) = 0;
-    virtual void setOptionDoubleArray(
+    virtual void set_option_double_array(
         const std::string& optionName,
         const std::vector<double>& doubleArray) = 0;
-    virtual void setOptionStringArray(
+    virtual void set_option_string_array(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) = 0;
-    virtual void setOption2DVectorArray(
+    virtual void set_option_2d_vector_array(
         const std::string& optionName,
         const std::vector<Vec2>& vectorArray) = 0;
 };
@@ -71,10 +69,8 @@ class OptionsProvider {
 class TextureProvider {
   public:
     virtual ~TextureProvider() {}
-    virtual const sf::Texture* getTexture(
+    virtual const sf::Texture* texture(
         const std::string& texturename) const = 0;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_ENGINE_PROVIDERS_HPP

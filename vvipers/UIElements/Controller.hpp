@@ -38,7 +38,7 @@ class KeyboardController : public Controller {
 class MouseController : public Controller {
   public:
     MouseController(Game& game);
-    ~MouseController() { m_game.setGrabMouse(false); }
+    ~MouseController() { m_game.set_grab_mouse(false); }
 
   private:
     virtual SteeringCommand control() const override;

@@ -6,7 +6,7 @@
 namespace VVipers {
 
 MenuScene::MenuScene(Game& game)
-    : Scene(game), m_menuView(game.getWindow().getDefaultView()), m_selectedIndex(-1), m_layout(Vertical) {}
+    : Scene(game), m_menuView(game.window().getDefaultView()), m_selectedIndex(-1), m_layout(Vertical) {}
 
 void MenuScene::addItem(MenuItem* menuItem) { m_menuItems.push_back(menuItem); }
 
@@ -18,7 +18,7 @@ void MenuScene::delItem(size_t index) {
 }
 
 void MenuScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    drawBackground(target,states);
+    draw_background(target,states);
     target.setView(m_menuView);
     for (auto& menuItem : m_menuItems)
         target.draw(*menuItem, states);
@@ -69,10 +69,10 @@ void MenuScene::handleKeyPressed(const sf::Event& event) {
 }
 
 void MenuScene::handleMouseMoved(const sf::Event& event) {
-    if ( getGame().isMouseGrabbed())
+    if ( game().is_mouse_grabbed())
         return;
     auto oldSelectedIndex = m_selectedIndex;
-    auto& window = getGame().getWindow();
+    auto& window = game().window();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_menuView);
     auto pointedAt = menuItemAtCoords(localCoord);
@@ -86,9 +86,9 @@ void MenuScene::handleMouseMoved(const sf::Event& event) {
 }
 
 void MenuScene::handleMouseButtonPressed(const sf::Event& event) {
-    if ( getGame().isMouseGrabbed())
+    if ( game().is_mouse_grabbed())
         activateSelected();
-    auto& window = getGame().getWindow();
+    auto& window = game().window();
     Vec2 localCoord =
         window.mapPixelToCoords(sf::Mouse::getPosition(window), m_menuView);
     auto clickedMenuItem= menuItemAtCoords(localCoord);
@@ -132,10 +132,10 @@ void MenuScene::menuDown() {
     swapSelected(oldSelectedIndex, m_selectedIndex);
 }
 
-void MenuScene::processEvent(const sf::Event& event) {
+void MenuScene::process_event(const sf::Event& event) {
     switch (event.type) {
         case sf::Event::Closed: {
-            setTransitionState(TransitionState::Quit);
+            set_transition_state(TransitionState::Quit);
             break;
         }
         case sf::Event::TextEntered: {
@@ -183,7 +183,7 @@ void MenuScene::setSelectedIndex(size_t index) {
 
 void MenuScene::activateSelected() {
     if (m_selectedIndex < m_menuItems.size())
-        onMenuItemActivation(m_menuItems[m_selectedIndex]);
+        on_menu_item_activation(m_menuItems[m_selectedIndex]);
 }
 
 void MenuScene::swapSelected(size_t oldSelectedIndex, size_t newSelectedIndex) {
@@ -201,9 +201,9 @@ void MenuScene::updateMenuItems(Time elapsedTime) {
         menuItem->update(elapsedTime);
 }
 
-void MenuScene::onActivation() {
-    setSceneState(Scene::SceneState::Running);
-    setTransitionState(TransitionState::Continue);
+void MenuScene::on_activation() {
+    set_scene_state(Scene::SceneState::Running);
+    set_transition_state(TransitionState::Continue);
     m_selectedIndex = 0;
 }
 

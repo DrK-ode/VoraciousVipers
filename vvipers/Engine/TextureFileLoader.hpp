@@ -1,5 +1,4 @@
-#ifndef VVIPERS_ENGINE_TEXTUREFILELOADER_HPP
-#define VVIPERS_ENGINE_TEXTUREFILELOADER_HPP
+#pragma once
 
 #include <map>
 #include <vvipers/Engine/Providers.hpp>
@@ -12,15 +11,12 @@ class TextureFileLoader : public TextureProvider {
   public:
     TextureFileLoader(const OptionsProvider& options);
     ~TextureFileLoader();
-    const sf::Texture* getTexture(
-        const std::string& texturename) const override;
+    const sf::Texture* texture(const std::string& texturename) const override;
 
   private:
-    const sf::Texture* loadTexture(const std::string& filename, sf::FloatRect,
-                                   bool repeatable);
-    std::map<const std::string, const sf::Texture*> m_textures;
+    const sf::Texture* load_texture(const std::string& filename, sf::FloatRect,
+                                    bool repeatable);
+    std::map<const std::string, const sf::Texture*> _textures;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_ENGINE_TEXTUREFILELOADER_HPP

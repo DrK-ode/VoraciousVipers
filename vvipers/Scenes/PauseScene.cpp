@@ -8,49 +8,49 @@
 namespace VVipers {
 
 PauseScene::PauseScene(Game& game) : MenuScene(game) {
-    Vec2 size = game.getWindow().getSize();
+    Vec2 size = game.window().getSize();
 
-    m_background.setSize(size);
-    m_background.setFillColor(sf::Color(0,0,0,0x80));
+    _background.setSize(size);
+    _background.setFillColor(sf::Color(0,0,0,0x80));
 
     // Center and size in original coordinates
-    Vec2 menuRelSize(0.7, 0.2);
-    sf::View menuView(0.5 * menuRelSize * size, menuRelSize * size);
+    Vec2 menu_relative_size(0.7, 0.2);
+    sf::View menu_view(0.5 * menu_relative_size * size, menu_relative_size * size);
     // Relative position and size in screen coordinates
-    menuView.setViewport(
-        sf::FloatRect(0.5 * (Vec2(1, 1) - menuRelSize), menuRelSize));
-    setMenuView(menuView);
+    menu_view.setViewport(
+        sf::FloatRect(0.5 * (Vec2(1, 1) - menu_relative_size), menu_relative_size));
+    setMenuView(menu_view);
 
-    m_continueButton = std::make_unique<MenuButton>();
-    m_continueButton->setLabel("Continue");
-    m_continueButton->setFont(*game.getFontService().getDefaultFont());
-    addItem(m_continueButton.get());
+    _continue_button = std::make_unique<MenuButton>();
+    _continue_button->setLabel("Continue");
+    _continue_button->setFont(*game.font_service().default_font());
+    addItem(_continue_button.get());
 
-    m_quitButton = std::make_unique<MenuButton>();
-    m_quitButton->setLabel("Quit to main menu");
-    m_quitButton->setFont(*game.getFontService().getDefaultFont());
-    addItem(m_quitButton.get());
+    _quit_button = std::make_unique<MenuButton>();
+    _quit_button->setLabel("Quit to main menu");
+    _quit_button->setFont(*game.font_service().default_font());
+    addItem(_quit_button.get());
 
     setSelectedIndex(0);
     distributeMenuItems();
-    setColors(sf::Color::Transparent, game.getColorService().getColor(0),
-              game.getColorService().getColor(1));
+    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+              game.color_service().get_color(1));
 
-    setTransparent(true);
+    set_transparency(true);
 }
 
-void PauseScene::drawBackground(sf::RenderTarget& target,
+void PauseScene::draw_background(sf::RenderTarget& target,
                                 sf::RenderStates states) const {
-    target.draw(m_background, states);
+    target.draw(_background, states);
 }
 
-void PauseScene::onMenuItemActivation(MenuItem* menuItem) {
-    if (menuItem == m_continueButton.get()) {
-        setSceneState(SceneState::Paused);
-        setTransitionState(TransitionState::Return);
-    } else if (menuItem == m_quitButton.get()) {
-        setSceneState(SceneState::Paused);
-        setTransitionState(TransitionState::Default);
+void PauseScene::on_menu_item_activation(MenuItem* menu_item) {
+    if (menu_item == _continue_button.get()) {
+        set_scene_state(SceneState::Paused);
+        set_transition_state(TransitionState::Return);
+    } else if (menu_item == _quit_button.get()) {
+        set_scene_state(SceneState::Paused);
+        set_transition_state(TransitionState::Default);
     }
 }
 

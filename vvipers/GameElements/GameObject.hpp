@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP
-#define VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP
+#pragma once
 
 namespace VVipers {
 
@@ -16,12 +15,10 @@ class GameObject {
     void state(ObjectState state);
 
   protected:
-    virtual void stateChanged(ObjectState from, ObjectState into) {}
+    virtual void state_changed(ObjectState from, ObjectState into) {}
 
   private:
     ObjectState m_state;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_GAMEELEMENTS_GAMEOBJECT_HPP

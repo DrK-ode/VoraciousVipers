@@ -1,58 +1,56 @@
-#ifndef VVIPERS_UTILITIES_TIME_HPP
-#define VVIPERS_UTILITIES_TIME_HPP
+#pragma once
 
 #include <chrono>
 
 namespace VVipers {
 
-typedef std::chrono::duration<double> Time; // Holds number of nanoseconds as a double
+typedef std::chrono::duration<double>
+    Time;  // Holds number of nanoseconds as a double
 
-inline const Time timeFromSeconds(double t) {
+inline const Time time_from_seconds(double t) {
     return std::chrono::duration_cast<Time>(std::chrono::duration<double>(t));
 }
 
-template<typename T,typename U>
-inline double timeAsSeconds(const std::chrono::duration<T,U>& t) {
+template <typename T, typename U>
+inline double time_as_seconds(const std::chrono::duration<T, U>& t) {
     return std::chrono::duration_cast<std::chrono::duration<double>>(t).count();
 }
 
 class Stopwatch {
   public:
-    Stopwatch() : m_isRunning(false) {}
+    Stopwatch() : _is_running(false) {}
     std::chrono::high_resolution_clock::duration restart() {
-        auto tmp = m_isRunning
+        auto tmp = _is_running
                        ? stop()
                        : std::chrono::high_resolution_clock::duration(0);
         start();
         return tmp;
     }
     void start() {
-        if (m_isRunning)
+        if (_is_running)
             throw std::logic_error("Stopwatch is already running.");
-        m_isRunning = true;
-        m_startTime = m_lastSplit = m_clock.now();
+        _is_running = true;
+        _start_time = _last_split = _clock.now();
     }
     std::chrono::high_resolution_clock::duration split() {
-        if (!m_isRunning)
+        if (!_is_running)
             throw std::logic_error("Stopwatch is not running.");
-        auto tmp = m_lastSplit;
-        m_lastSplit = m_clock.now();
-        return m_lastSplit - tmp;
+        auto tmp = _last_split;
+        _last_split = _clock.now();
+        return _last_split - tmp;
     }
     std::chrono::high_resolution_clock::duration stop() {
-        if (!m_isRunning)
+        if (!_is_running)
             throw std::logic_error("Stopwatch is not running.");
-        m_isRunning = false;
-        return m_clock.now() - m_startTime;
+        _is_running = false;
+        return _clock.now() - _start_time;
     }
 
   private:
-    std::chrono::high_resolution_clock m_clock;
-    bool m_isRunning;
-    std::chrono::high_resolution_clock::time_point m_startTime;
-    std::chrono::high_resolution_clock::time_point m_lastSplit;
+    std::chrono::high_resolution_clock _clock;
+    bool _is_running;
+    std::chrono::high_resolution_clock::time_point _start_time;
+    std::chrono::high_resolution_clock::time_point _last_split;
 };
 
 }  // namespace VVipers
-
-#endif // VVIPERS_UTILITIES_TIME_HPP

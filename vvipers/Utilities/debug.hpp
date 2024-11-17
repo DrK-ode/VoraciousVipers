@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UTILITIES_DEBUG_HPP
-#define VVIPERS_UTILITIES_DEBUG_HPP
+#pragma once
 
 #include <iostream>
 #include <source_location>
@@ -7,10 +6,10 @@
 
 namespace VVipers {
 
-enum class Verbosity { silent = 0, onlyErrors, errorsAndWarnings, all };
+enum class Verbosity { Silent = 0, OnlyErrors, ErrorsAndWarnings, All };
 
 namespace debug {
-inline Verbosity verbosity = Verbosity::all;
+inline Verbosity verbosity = Verbosity::All;
 }
 
 #ifndef __INTELLISENSE__  // Because intellisense bugs on
@@ -21,43 +20,43 @@ inline void tag(const std::source_location& location, std::ostream& os) {
     os << '@' << filename.substr(filename.find_last_of("/\\") + 1) << ":"
        << location.line() << " " << location.function_name() << std::endl;
 }
-inline void infoTag(
+inline void info_tag(
     const std::source_location& location = std::source_location::current()) {
-    if (debug::verbosity >= Verbosity::all)
+    if (debug::verbosity >= Verbosity::All)
         tag(location, std::cout);
 }
-inline void warningTag(
+inline void warning_tag(
     const std::source_location& location = std::source_location::current()) {
-    if (debug::verbosity >= Verbosity::errorsAndWarnings)
+    if (debug::verbosity >= Verbosity::ErrorsAndWarnings)
         tag(location, std::cerr);
 }
-inline void errorTag(
+inline void error_tag(
     const std::source_location& location = std::source_location::current()) {
-    if (debug::verbosity >= Verbosity::onlyErrors)
+    if (debug::verbosity >= Verbosity::OnlyErrors)
         tag(location, std::cerr);
 }
 
-inline void debugTag(
+inline void debug_tag(
     const std::source_location& location = std::source_location::current()) {
     tag(location, std::cerr);
 }
 #else
 inline void tag(const std::source_location& location = std::source_location(),
                 std::ostream& os = std::cout) {}
-inline void infoTag(
+inline void info_tag(
     const std::source_location& location = std::source_location()) {}
-inline void warningTag(
+inline void warning_tag(
     const std::source_location& location = std::source_location()) {}
-inline void errorTag(
+inline void error_tag(
     const std::source_location& location = std::source_location()) {}
-inline void debugTag(
+inline void debug_tag(
     const std::source_location& location = std::source_location()) {}
 #endif
 
 template <typename... Args>
-inline void _implLogInfo(bool doTag, const std::source_location loc,
-                         Args&&... args) {
-    if (debug::verbosity >= Verbosity::all) {
+inline void _impl_log_info(bool doTag, const std::source_location loc,
+                           Args&&... args) {
+    if (debug::verbosity >= Verbosity::All) {
         if (doTag)
             tag(loc, std::cout);
         std::cout << "   INFO   ";
@@ -66,9 +65,9 @@ inline void _implLogInfo(bool doTag, const std::source_location loc,
 }
 
 template <typename... Args>
-inline void _implLogWarning(bool doTag, const std::source_location loc,
-                            Args&&... args) {
-    if (debug::verbosity >= Verbosity::errorsAndWarnings) {
+inline void _impl_log_warning(bool doTag, const std::source_location loc,
+                              Args&&... args) {
+    if (debug::verbosity >= Verbosity::ErrorsAndWarnings) {
         if (doTag)
             tag(loc, std::cerr);
         std::cerr << "   WARN   ";
@@ -77,9 +76,9 @@ inline void _implLogWarning(bool doTag, const std::source_location loc,
 }
 
 template <typename... Args>
-inline void _implLogError(bool doTag, const std::source_location loc,
-                          Args&&... args) {
-    if (debug::verbosity >= Verbosity::onlyErrors) {
+inline void _impl_log_error(bool doTag, const std::source_location loc,
+                            Args&&... args) {
+    if (debug::verbosity >= Verbosity::OnlyErrors) {
         if (doTag)
             tag(loc, std::cerr);
         std::cerr << "   ERR    ";
@@ -88,8 +87,8 @@ inline void _implLogError(bool doTag, const std::source_location loc,
 }
 
 template <typename... Args>
-inline void _implLogDebug(bool doTag, const std::source_location loc,
-                          Args&&... args) {
+inline void _impl_log_debug(bool doTag, const std::source_location loc,
+                            Args&&... args) {
     if (doTag)
         tag(loc, std::cerr);
     std::cerr << "   DEBUG  ";
@@ -99,34 +98,37 @@ inline void _implLogDebug(bool doTag, const std::source_location loc,
 #ifndef __INTELLISENSE__  // Because intellisense bugs on
                           // std::source_location::current() and this removes
                           // the error squiggles
-#define logInfo(...) \
-    _implLogInfo(false, std::source_location::current(), __VA_ARGS__)
+#define log_info(...) \
+    _impl_log_info(false, std::source_location::current(), __VA_ARGS__)
 #define logWarning(...) \
-    _implLogWarning(false, std::source_location::current(), __VA_ARGS__)
-#define logError(...) \
-    _implLogError(false, std::source_location::current(), __VA_ARGS__)
-#define logDebug(...) \
-    _implLogDebug(false, std::source_location::current(), __VA_ARGS__)
+    _impl_log_warning(false, std::source_location::current(), __VA_ARGS__)
+#define log_error(...) \
+    _impl_log_error(false, std::source_location::current(), __VA_ARGS__)
+#define log_debug(...) \
+    _impl_log_debug(false, std::source_location::current(), __VA_ARGS__)
 #define tagInfo(...) \
-    _implLogInfo(true, std::source_location::current(), __VA_ARGS__)
-#define tagWarning(...) \
-    _implLogWarning(true, std::source_location::current(), __VA_ARGS__)
-#define tagError(...) \
-    _implLogError(true, std::source_location::current(), __VA_ARGS__)
-#define tagDebug(...) \
-    _implLogDebug(true, std::source_location::current(), __VA_ARGS__)
+    _impl_log_info(true, std::source_location::current(), __VA_ARGS__)
+#define tag_warning(...) \
+    _impl_log_warning(true, std::source_location::current(), __VA_ARGS__)
+#define tag_error(...) \
+    _impl_log_error(true, std::source_location::current(), __VA_ARGS__)
+#define tag_debug(...) \
+    _impl_log_Debug(true, std::source_location::current(), __VA_ARGS__)
 #else
-#define logInfo(...) _implLogInfo(false, std::source_location(), __VA_ARGS__)
-#define logWarning(...) \
-    _implLogWarning(false, std::source_location(), __VA_ARGS__)
-#define logError(...) _implLogError(false, std::source_location(), __VA_ARGS__)
-#define logDebug(...) _implLogDebug(false, std::source_location(), __VA_ARGS__)
-#define tagInfo(...) _implLogInfo(true, std::source_location(), __VA_ARGS__)
-#define tagWarning(...) \
-    _implLogWarning(true, std::source_location(), __VA_ARGS__)
-#define tagError(...) _implLogError(true, std::source_location(), __VA_ARGS__)
-#define tagDebug(...) _implLogDebug(true, std::source_location(), __VA_ARGS__)
+#define log_info(...) _impl_log_Info(false, std::source_location(), __VA_ARGS__)
+#define log_warning(...) \
+    _impl_log_warning(false, std::source_location(), __VA_ARGS__)
+#define log_error(...) \
+    _impl_log_error(false, std::source_location(), __VA_ARGS__)
+#define log_debug(...) \
+    _impl_log_debug(false, std::source_location(), __VA_ARGS__)
+#define tag_info(...) _impl_log_info(true, std::source_location(), __VA_ARGS__)
+#define tag_warning(...) \
+    _impl_log_warning(true, std::source_location(), __VA_ARGS__)
+#define tag_error(...) \
+    _impl_log_error(true, std::source_location(), __VA_ARGS__)
+#define tag_debug(...) \
+    _impl_log_debug(true, std::source_location(), __VA_ARGS__)
 #endif
 
 }  // namespace VVipers
-#endif // VVIPERS_UTILITIES_DEBUG_HPP

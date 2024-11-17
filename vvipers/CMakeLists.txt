@@ -2,9 +2,8 @@ configure_file(./config.hpp.in ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp)
 
 set(INC_FILES
     ${PROJECT_BINARY_DIR}/include/vvipers/config.hpp
-    Collision/Collider.hpp
-    Collision/ColliderManager.hpp
-    Collision/Shape.hpp
+    Collisions/CollidingBody.hpp
+    Collisions/CollisionManager.hpp
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
     Engine/FontFileLoader.hpp
@@ -35,15 +34,16 @@ set(INC_FILES
     UIElements/PlayerPanel.hpp
     UIElements/ProgressBar.hpp
     Utilities/debug.hpp
+    Utilities/Shape.hpp
     Utilities/Time.hpp
+    Utilities/TriangleStripArray.hpp
     Utilities/Vec2.hpp
     Utilities/VVColor.hpp
     Utilities/VVMath.hpp
 )
 
 set(SRC_FILES
-    Collision/Collider.cpp
-    Collision/ColliderManager.cpp
+    Collisions/CollisionManager.cpp
     Engine/ColorPalette.cpp
     Engine/Engine.cpp
     Engine/FontFileLoader.cpp
@@ -72,6 +72,8 @@ set(SRC_FILES
     UIElements/MenuScene.cpp
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
+    Utilities/Shape.cpp
+    Utilities/TriangleStripArray.cpp
     Utilities/Vec2.cpp
 )
 

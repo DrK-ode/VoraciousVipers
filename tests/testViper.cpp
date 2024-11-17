@@ -16,15 +16,15 @@ namespace {
 class ViperTest : public ::testing::Test {
   public:
     ViperTest() {
-        debug::verbosity = Verbosity::onlyErrors;
+        debug::verbosity = Verbosity::OnlyErrors;
         std::ifstream input("preferences.json");
         options = std::make_unique<OptionsJSON>(input);
         const std::string resPathOptStr("General/resourceDirectoryPath");
-        if (!options->isOptionSet(resPathOptStr))
-            options->setOptionString(resPathOptStr, RESOURCE_PATH);
+        if (!options->is_option_set(resPathOptStr))
+            options->set_option_string(resPathOptStr, RESOURCE_PATH);
         auto textures = std::make_unique<TextureFileLoader>(*options.get());
         viper = std::make_unique<Viper>(*options, *textures);
-        viper->setup(Vec2(0, 0), 180.f, 1.5);
+        viper->setup(Vec2(0, 0), 0.f, 1.5);
     }
 
     std::unique_ptr<Viper> viper;
@@ -32,29 +32,29 @@ class ViperTest : public ::testing::Test {
 };
 
 TEST_F(ViperTest, angleTest) {
-    EXPECT_DOUBLE_EQ(viper->getAngle(), 180.);
-    viper->setAngle(90.);
-    EXPECT_DOUBLE_EQ(viper->getAngle(), 90.);
-    viper->setAngle(-90.);
-    EXPECT_DOUBLE_EQ(viper->getAngle(), -90.);
-    viper->setAngle(270.);
-    EXPECT_DOUBLE_EQ(viper->getAngle(), -90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), 0.);
+    viper->set_angle(90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), 90.);
+    viper->set_angle(-90.);
+    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
+    viper->set_angle(270.);
+    EXPECT_DOUBLE_EQ(viper->angle(), -90.);
 }
 
 TEST_F(ViperTest, velocityTest) {
-    EXPECT_DOUBLE_EQ(viper->getSpeed(), viper->getVelocity().abs());
+    EXPECT_DOUBLE_EQ(viper->speed(), viper->velocity().abs());
 }
 
 TEST_F(ViperTest, lengthTest) {
     double expectedLength =
-        options->getOptionDouble("ViperModel/ViperHead/nominalLength") +
+        options->option_double("ViperModel/ViperHead/nominalLength") +
         1.5 *
-            options->getOptionDouble("ViperModel/ViperBody/nominalLength") +
-        options->getOptionDouble("ViperModel/ViperTail/nominalLength");
-    viper->update(timeFromSeconds(3.0));  // Let it grow
-    EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
-    viper->update(timeFromSeconds(3.0));  // Let it grow more
-    EXPECT_DOUBLE_EQ(viper->getLength(), expectedLength);
+            options->option_double("ViperModel/ViperBody/nominalLength") +
+        options->option_double("ViperModel/ViperTail/nominalLength");
+    viper->update(time_from_seconds(3.0));  // Let it grow
+    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
+    viper->update(time_from_seconds(3.0));  // Let it grow more
+    EXPECT_DOUBLE_EQ(viper->length(), expectedLength);
 }
 
 }  // namespace

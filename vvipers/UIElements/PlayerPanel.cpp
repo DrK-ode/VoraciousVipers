@@ -1,4 +1,3 @@
-#include <sstream>
 #include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/GameElements/Viper.hpp>
@@ -8,7 +7,7 @@ namespace VVipers {
 PlayerPanel::PlayerPanel(sf::View view, const Player* player,
                          const FontProvider& fontProvider)
     : m_view(view), m_player(player), m_score(player->score()) {
-    m_font = fontProvider.getDefaultFont();
+    m_font = fontProvider.default_font();
     // Set text properties
     m_nameText.setFont(*m_font);
     const int characterSize = 0.25 * m_view.getSize().y;  // px
@@ -31,17 +30,17 @@ PlayerPanel::PlayerPanel(sf::View view, const Player* player,
     // Setup boost bar
     m_boostBar.setSize(boostBarSize);
     m_boostBar.setBorderWidth(2);
-    m_boostBar.setBarColor(player->getSecondaryColor());
-    m_boostBar.setBorderColor(player->getPrimaryColor());
+    m_boostBar.setBarColor(player->secondary_color());
+    m_boostBar.setBorderColor(player->primary_color());
     m_boostBar.setVertical(true);
-    m_boostBar.setProgress( timeAsSeconds(player->viper()->getBoostCharge()));
+    m_boostBar.setProgress( time_as_seconds(player->viper()->boost_charge()));
     // Setup score bar
     m_scoreBar.setSize(scoreBarSize);
     m_scoreBar.setBorderWidth(2);
-    m_scoreBar.setBarColor(player->getSecondaryColor());
-    m_scoreBar.setBorderColor(player->getPrimaryColor());
+    m_scoreBar.setBarColor(player->secondary_color());
+    m_scoreBar.setBorderColor(player->primary_color());
     m_scoreBar.setTextProperties(m_font, 0.8 * characterSize,
-                                 player->getPrimaryColor(),
+                                 player->primary_color(),
                                  ProgressBar::ProgressTextStyle::IntegerRatio);
     m_scoreBar.setShowText(true);
     updateScoreString();
@@ -54,7 +53,7 @@ void PlayerPanel::draw(sf::RenderTarget& target,
     target.draw(m_boostBar, states);
 }
 
-void PlayerPanel::onNotify(const GameEvent* event) {
+void PlayerPanel::on_notify(const GameEvent* event) {
     if (event->type() == GameEvent::EventType::Scoring) {
         auto scoringEvent = static_cast<const ScoringEvent*>(event);
         // We trust that nobody sends another player's score
@@ -62,11 +61,11 @@ void PlayerPanel::onNotify(const GameEvent* event) {
     } else if (event->type() == GameEvent::EventType::ObjectModified) {
         const ObjectModifiedEvent* boostEvent =
             static_cast<const ObjectModifiedEvent*>(event);
-        if (typeid(*boostEvent->objectPtr) == typeid(Viper)) {
+        if (typeid(*boostEvent->object_pointer) == typeid(Viper)) {
             const Viper* viper =
-                static_cast<const Viper*>(boostEvent->objectPtr);
-            m_boostBar.setProgress(viper->getBoostCharge() / viper->getBoostMax());
-        } else if (typeid(*boostEvent->objectPtr) == typeid(Player)) {
+                static_cast<const Viper*>(boostEvent->object_pointer);
+            m_boostBar.setProgress(viper->boost_charge() / viper->boost_max());
+        } else if (typeid(*boostEvent->object_pointer) == typeid(Player)) {
             updateNameString();
         }
     }
@@ -74,7 +73,7 @@ void PlayerPanel::onNotify(const GameEvent* event) {
 
 void PlayerPanel::updateNameString() {
     m_nameText.setString(m_player->name());
-    m_nameText.setFillColor(m_player->getPrimaryColor());
+    m_nameText.setFillColor(m_player->primary_color());
 }
 
 void PlayerPanel::updateScoreString() {
@@ -97,7 +96,7 @@ void PlayerPanel::addScore(score_t score) {
 
 void PlayerPanel::updateScoreLimits() {
     m_scoreBar.setProgressLimits(
-        0, Player::calculateLevelLimit(Player::calculateLevel(m_score) + 1));
+        0, Player::calculate_level_limit(Player::calculate_level(m_score) + 1));
 }
 
 }  // namespace VVipers

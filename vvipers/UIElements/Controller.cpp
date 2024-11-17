@@ -48,13 +48,13 @@ SteeringCommand KeyboardController::control() const {
 }
 
 MouseController::MouseController(Game& game) : m_game(game) {
-    m_game.setGrabMouse(true);
-    sf::Mouse::setPosition(sf::Vector2i(0.5 * m_game.getWindow().getSize()),
-                           m_game.getWindow());
+    m_game.set_grab_mouse(true);
+    sf::Mouse::setPosition(sf::Vector2i(0.5 * m_game.window().getSize()),
+                           m_game.window());
 }
 
 SteeringCommand MouseController::control() const {
-    auto& window = m_game.getWindow();
+    auto& window = m_game.window();
     const sf::Vector2i windowHalfSize(window.getSize().x / 2,
                                       window.getSize().y / 2);
     const double degPerPx = 1;  // Essentially the mouse sensitivity

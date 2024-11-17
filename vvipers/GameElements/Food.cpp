@@ -1,53 +1,69 @@
+#include <SFML/Graphics/CircleShape.hpp>
+#include <memory>
+#include <stdexcept>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/Utilities/VVColor.hpp>
+
+#include "vvipers/Collisions/CollidingBody.hpp"
 
 namespace VVipers {
 
 const double Food::nominalFoodRadius(15);
 
 Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
-    : CircleShape(radius, 7, true),
-      m_startOfDecay(0),
-      m_age(0),
-      m_bonusExpire(bonusExpired),
-      m_originalRadius(radius) {
-    auto [h, s, l] = fromRGBtoHSL(color.r, color.g, color.b);
-    m_colorH = h;
-    m_colorS = s;
-    m_colorL = std::clamp(l, 0.3, 0.7);
-    setPosition(position);
-    setFillColor(color);
-    setOutlineThickness(5);
+    : sf::CircleShape(radius, 7),
+      CollidingBody("Food"),
+      _age(0),
+      _bonus_expire(bonusExpired),
+      _original_radius(radius),
+      _start_of_decay(0) {
+    auto [h, s, l] = hsl_from_rgb(color.r, color.g, color.b);
+    _color_hue = h;
+    _color_saturation = s;
+    _color_lightness = std::clamp(l, 0.3, 0.7);
+    sf::CircleShape::setPosition(position);
+    sf::CircleShape::setOrigin(radius, radius);
+    sf::CircleShape::setFillColor(color);
+    sf::CircleShape::setOutlineThickness(5);
+    _shape = std::make_shared<Circle>(CircleShape::getPosition(),
+                                      CircleShape::getRadius());
+}
+
+std::shared_ptr<const VVipers::Shape> Food::segment_shape(size_t index) const {
+    if (index >= number_of_segments())
+        throw std::runtime_error("Requested body part index is too large.");
+    return _shape;
+}
+
+sf::Color Food::color() const {
+    return color_from_hsl(_color_hue, _color_saturation, _color_lightness);
 }
 
 void Food::decay(Time elapsedTime) {
-    if (m_startOfDecay == timeFromSeconds(0))
-        m_startOfDecay = m_age;
-    auto decayTime = m_age - m_startOfDecay;
-    const Time timeForDying = timeFromSeconds(0.25);
+    if (_start_of_decay == time_from_seconds(0))
+        _start_of_decay = _age;
+    auto decayTime = _age - _start_of_decay;
+    const Time timeForDying = time_from_seconds(0.25);
 
-    setRadius(m_originalRadius * (timeForDying - decayTime) / timeForDying);
+    setRadius(_original_radius * (timeForDying - decayTime) / timeForDying);
     if (decayTime >= timeForDying)
         state(Dead);
 }
 
-bool Food::isBonusEligible() const { return m_age < m_bonusExpire; }
+bool Food::is_bonus_eligible() const { return _age < _bonus_expire; }
 
-double Food::getScoreValue() const {
-    double score = 10. * (getRadius() * getRadius()) /
-                   (nominalFoodRadius * nominalFoodRadius);
-    if (isBonusEligible())
+double Food::score_value() const {
+    double score =
+        10. * (sf::CircleShape::getRadius() * sf::CircleShape::getRadius()) /
+        (nominalFoodRadius * nominalFoodRadius);
+    if (is_bonus_eligible())
         score *= 2;
     return score;
 }
 
-sf::Color Food::getColor() const {
-    return colorFromHSL(m_colorH, m_colorS, m_colorL);
-}
-
 void Food::update(Time elapsedTime) {
-    m_age += elapsedTime;
-    rotate(2 * nominalFoodRadius / getRadius());
+    _age += elapsedTime;
+    rotate(2 * nominalFoodRadius / sf::CircleShape::getRadius());
     if (state() == Dead) {
         DestroyEvent event(this);
         notify(&event);
@@ -56,10 +72,11 @@ void Food::update(Time elapsedTime) {
     if (state() == Dying)
         decay(elapsedTime);
     else {
-        double L = isBonusEligible() ? m_colorL + 0.1 : m_colorL - 0.1;
-        setOutlineColor(colorFromHSL(
-            m_colorH, m_colorS,
-            L + 0.1 * std::sin(fmod(10 * timeAsSeconds(m_age), twopi))));
+        double L = is_bonus_eligible() ? _color_lightness + 0.1
+                                       : _color_lightness - 0.1;
+        sf::CircleShape::setOutlineColor(color_from_hsl(
+            _color_hue, _color_saturation,
+            L + 0.1 * std::sin(fmod(10 * time_as_seconds(_age), twopi))));
     }
 }
 

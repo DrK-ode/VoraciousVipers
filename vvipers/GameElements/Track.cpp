@@ -9,26 +9,53 @@
 
 namespace VVipers {
 
-Vec2 TemporalTrack::gradient(const Time& t) const {
+TemporalTrack::TemporalTrack(const Vec2& p1, const Time& t1, const Vec2& p2,
+                             const Time& t2) {
+    if (t1 <= t2)
+        throw std::runtime_error(
+            "Trying to initiate a temporal track out of temporal order.");
+    Vec2 v = (p1 - p2) / time_as_seconds(t1 - t2);
+    m_points.emplace(m_points.cend(), p1, t1, v, time_from_seconds(0.));
+    m_points.emplace(m_points.cend(), p2, t2, v, t1 - t2);
+}
+
+void TemporalTrack::create_back(const Vec2& v, const Time& delta) {
+    if (delta <= time_from_seconds(0.))
+        throw std::runtime_error(
+            "Trying to create a temporal track point out of temporal "
+            "order.");
+    m_points.emplace(m_points.cend(), tail() + v * time_as_seconds(delta),
+                     tail().spawn_time - delta, v, delta);
+}
+
+void TemporalTrack::create_front(const Vec2& v, const Time& delta) {
+    if (delta <= time_from_seconds(0.))
+        throw std::runtime_error(
+            "Trying to create a temporal track point out of temporal "
+            "order.");
+    m_points.front().delta_t = delta;
+    m_points.front().velocity = v;
+    m_points.emplace(m_points.cbegin(), head() + v * time_as_seconds(delta),
+                     head().spawn_time + delta, v, time_from_seconds(0.));
+}
+
+Vec2 TemporalTrack::velocity(const Time& t) const {
     if (m_points.size() < 2) {
-        tagError("Cannot compute a direction with < 2 TrackPoints.");
+        tag_error("Cannot compute a direction with < 2 TrackPoints.");
         throw std::runtime_error(
             "Cannot compute a direction with < 2 TrackPoints.");
     }
 
-    auto p2 = at_or_before(t);
-    if (p2 == m_points.cend())
-        p2 = m_points.crbegin().base();
-    if (p2 == m_points.cbegin())
-        ++p2;
-    auto p1 = prev(p2);
-    return (*p1 - *p2) / timeAsSeconds(p1->spawn_time - p2->spawn_time);
+    auto tp = at_or_before(t);
+    if (tp == m_points.cend())
+        tp = std::prev(tp);
+    return tp->velocity;
 }
 
 double TemporalTrack::length() const {
     double length = 0.;
     for (auto iter = m_points.cbegin(); iter != m_points.cend(); ++iter) {
-        length += iter->distance_from_previous_point;
+        length += iter->velocity.abs() * time_as_seconds(iter->delta_t);
     }
     return length;
 }
@@ -38,7 +65,7 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
         std::stringstream msg;
         msg << "Requesting length between t1 = " << t1 << " and t2 = " << t2
             << ", which means going backwards in time.";
-        tagError(msg.str());
+        tag_error(msg.str());
         throw std::runtime_error(msg.str());
     }
     if (t1 > m_points.front().spawn_time || t2 < m_points.back().spawn_time) {
@@ -47,7 +74,7 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
             << ", which is outside viper time interval("
             << m_points.back().spawn_time << " - "
             << m_points.front().spawn_time << ").";
-        tagError(msg.str());
+        tag_error(msg.str());
         throw std::runtime_error(msg.str());
     }
     if (t1 == t2)
@@ -59,28 +86,21 @@ double TemporalTrack::length(const Time& t1, const Time& t2) const {
     // p2 is guaranteed to exist and spawned before t1
     auto p2 = at_or_before(t2);
     for (auto iter = p2; iter != p1; --iter) {
-        length += iter->distance_from_previous_point;
+        length += iter->velocity.abs() * time_as_seconds(iter->delta_t);
     }
-    auto tmp1 = p1 + 1;
-    length -= tmp1->distance_from_previous_point *
-              ((p1->spawn_time - t1) / (p1->spawn_time - tmp1->spawn_time));
-    auto tmp2 = p2 - 1;
-    length -= p2->distance_from_previous_point *
-              ((p2->spawn_time - t2) / (p2->spawn_time - tmp2->spawn_time));
+    auto tmp1 = std::next(p1);
+    length -= tmp1->velocity.abs() * time_as_seconds(p1->spawn_time - t1);
+    length -= p2->velocity.abs() * time_as_seconds(t2 - p2->spawn_time);
 
     return length;
 }
 
 Vec2 TemporalTrack::position(const Time& t) const {
-    auto p2 = at_or_before(t);
-    if (p2 == m_points.cend())
-        p2 = m_points.crbegin().base();
-    if (p2 == m_points.cbegin())
-        ++p2;
+    auto p = at_or_before(t);
+    if (p == m_points.cend())
+        p = t > head().spawn_time ? m_points.cbegin() : std::prev(p);
 
-    auto p1 = p2 - 1;
-    return *p1 + (*p2 - *p1) *
-                     ((t - p1->spawn_time) / (p2->spawn_time - p1->spawn_time));
+    return *p + p->velocity * time_as_seconds(t - p->spawn_time);
 }
 
 // Find TemporalTrackPoint with spawn_time <= t
@@ -114,32 +134,13 @@ tt_const_iter TemporalTrack::at_or_later(const Time& t,
     return iter;
 }
 
-void TemporalTrack::create_back(const Vec2& v, const Time& t) {
-    if (!m_points.empty() && t > m_points.back().spawn_time)
-        throw std::runtime_error(
-            "Trying to create a temporal track point out of temporal "
-            "order.");
-    double d = m_points.empty() ? 0. : distance(m_points.back(), v);
-    m_points.emplace(m_points.cend(), v, t, d);
-}
-void TemporalTrack::create_front(const Vec2& v, const Time& t) {
-    if (!m_points.empty() && t < m_points.front().spawn_time)
-        throw std::runtime_error(
-            "Trying to create a temporal track point out of temporal "
-            "order.");
-    if (!m_points.empty()) {
-        m_points.front().distance_from_previous_point =
-            m_points.empty() ? 0. : distance(m_points.front(), v);
-    }
-    m_points.emplace(m_points.cbegin(), v, t, 0);
-}
-
 void TemporalTrack::pop_back() {
     if (m_points.size() <= 2)
         throw std::runtime_error(
             "Trying to reduce temporal track length to less than 2.");
     return m_points.pop_back();
 }
+
 void TemporalTrack::pop_front() {
     if (m_points.size() <= 2)
         throw std::runtime_error(

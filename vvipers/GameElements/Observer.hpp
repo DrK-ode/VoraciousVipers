@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_OBSERVER_HPP
-#define VVIPERS_GAMEELEMENTS_OBSERVER_HPP
+#pragma once
 
 #include <map>
 #include <set>
@@ -14,16 +13,16 @@ class Observable {
     /** The dtor will remove all observers **/
     virtual ~Observable();
     /** Will also update the observer's list of Observables **/
-    void addObserver(Observer* observer,
-                     const std::set<GameEvent::EventType>& eventTypes);
+    void add_observer(Observer* observer,
+                      const std::set<GameEvent::EventType>& eventTypes);
     /** Will also update the observer's list of Observables **/
-    void removeObserver(Observer* observer);
+    void remove_observer(Observer* observer);
 
   protected:
     void notify(const GameEvent* event) const;
 
   private:
-    std::map<Observer*, std::set<GameEvent::EventType> > m_observers;
+    std::map<Observer*, std::set<GameEvent::EventType> > _observers;
 };
 
 class Observer {
@@ -32,17 +31,15 @@ class Observer {
     /** The object event is pointing to is only guaranteed to exist at the time
      * of notification. If access to the event is needed later on it should be
      * cloned. **/
-    virtual void onNotify(const GameEvent* event) = 0;
+    virtual void on_notify(const GameEvent* event) = 0;
 
   private:
     /** The Observable will add itself to this set in order to be able to clean
      * up when an Observer or Observable is deleted. **/
-    std::set<Observable*> m_observing;
-    friend void Observable::addObserver(Observer*,
-                                        const std::set<GameEvent::EventType>&);
-    friend void Observable::removeObserver(Observer*);
+    std::set<Observable*> _observing;
+    friend void Observable::add_observer(Observer*,
+                                         const std::set<GameEvent::EventType>&);
+    friend void Observable::remove_observer(Observer*);
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_GAMEELEMENTS_OBSERVER_HPP

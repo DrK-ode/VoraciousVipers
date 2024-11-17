@@ -1,5 +1,4 @@
-#ifndef VVIPERS_FLASHSCREEN_HPP
-#define VVIPERS_FLASHSCREEN_HPP
+#pragma once
 
 #include <SFML/Graphics/Text.hpp>
 #include <vvipers/Engine/Scene.hpp>
@@ -11,16 +10,14 @@ class Game;
 
 class FlashScreenScene : public Scene {
   public:
-    FlashScreenScene(Game& game, Time duration = timeFromSeconds(2));
+    FlashScreenScene(Game& game, Time duration = time_from_seconds(2));
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void processEvent(const sf::Event& event) override;
+    void process_event(const sf::Event& event) override;
     void update(Time elapsedTime) override;
 
   private:
-    Time m_timeLeft;
-    sf::Text m_text;
+    Time _time_left;
+    sf::Text _text;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_FLASHSCREEN_HPP

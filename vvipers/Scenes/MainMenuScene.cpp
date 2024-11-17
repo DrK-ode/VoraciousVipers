@@ -1,3 +1,4 @@
+#include <memory>
 #include <vvipers/Scenes/ArenaScene.hpp>
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
@@ -6,49 +7,49 @@
 namespace VVipers {
 
 MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
-    auto size = game.getWindow().getSize();
+    auto size = game.window().getSize();
     // Center and size in original coordinates
     sf::View menuView(Vec2(0.25 * size), 0.5 * Vec2(size.x, size.y));
     // Relative position and size in screen coordinates
     menuView.setViewport(sf::FloatRect(0.25, 0.25, 0.5, 0.5));
     setMenuView(menuView);
 
-    m_playButton = std::make_unique<MenuButton>();
-    m_playButton->setLabel("Play");
-    m_playButton->setFont(*game.getFontService().getDefaultFont());
-    addItem(m_playButton.get());
+    _play_button = std::make_unique<MenuButton>();
+    _play_button->setLabel("Play");
+    _play_button->setFont(*game.font_service().default_font());
+    addItem(_play_button.get());
 
-    m_optionsButton = std::make_unique<MenuButton>();
-    m_optionsButton->setLabel("Options");
-    m_optionsButton->setFont(*game.getFontService().getDefaultFont());
-    addItem(m_optionsButton.get());
+    _options_button = std::make_unique<MenuButton>();
+    _options_button->setLabel("Options");
+    _options_button->setFont(*game.font_service().default_font());
+    addItem(_options_button.get());
 
-    m_quitButton = std::make_unique<MenuButton>();
-    m_quitButton->setLabel("Quit");
-    m_quitButton->setFont(*game.getFontService().getDefaultFont());
-    addItem(m_quitButton.get());
+    _quit_button = std::make_unique<MenuButton>();
+    _quit_button->setLabel("Quit");
+    _quit_button->setFont(*game.font_service().default_font());
+    addItem(_quit_button.get());
 
     distributeMenuItems();
     setSelectedIndex(0);
-    setColors(sf::Color::Transparent, game.getColorService().getColor(0),
-              game.getColorService().getColor(1));
+    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+              game.color_service().get_color(1));
 }
 
-void MainMenuScene::onMenuItemActivation(MenuItem* menuItem) {
-    if (menuItem == m_playButton.get()) {
-        setSceneState(SceneState::Paused);
-        setTransitionState(TransitionState::Spawn);
-        m_transitionTo = std::make_unique<ArenaScene>(getGame());
-    } else if (menuItem == m_optionsButton.get()) {
-        setSceneState(SceneState::Paused);
-        setTransitionState(TransitionState::Spawn);
-        m_transitionTo = std::make_unique<OptionsMenuScene>(getGame());
-    } else if (menuItem == m_quitButton.get()) {
-        setSceneState(SceneState::Paused);
-        setTransitionState(TransitionState::Quit);
+void MainMenuScene::on_menu_item_activation(MenuItem* menuItem) {
+    if (menuItem == _play_button.get()) {
+        set_scene_state(SceneState::Paused);
+        set_transition_state(TransitionState::Spawn);
+        _transition_to = std::make_shared<ArenaScene>(game());
+    } else if (menuItem == _options_button.get()) {
+        set_scene_state(SceneState::Paused);
+        set_transition_state(TransitionState::Spawn);
+        _transition_to = std::make_shared<OptionsMenuScene>(game());
+    } else if (menuItem == _quit_button.get()) {
+        set_scene_state(SceneState::Paused);
+        set_transition_state(TransitionState::Quit);
     }
 }
 
-scene_ptr MainMenuScene::makeTransition() { return std::move(m_transitionTo); }
+std::shared_ptr<Scene> MainMenuScene::make_transition() { return _transition_to; }
 
 }  // namespace VVipers

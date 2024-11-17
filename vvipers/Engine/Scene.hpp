@@ -1,16 +1,14 @@
-#ifndef VVIPERS_ENGINE_SCENE_HPP
-#define VVIPERS_ENGINE_SCENE_HPP
+#pragma once
 
-#include <memory>
-#include <vvipers/Utilities/Time.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Window/Event.hpp>
+#include <memory>
+#include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {
 
 class Scene;
 class Game;
-using scene_ptr = std::shared_ptr<Scene>;
 
 class Scene : public sf::Drawable {
   public:
@@ -30,28 +28,28 @@ class Scene : public sf::Drawable {
     };
 
     Scene(Game& game);
-    virtual void processEvent(const sf::Event& event) = 0;
+    virtual void process_event(const sf::Event& event) = 0;
     virtual void update(Time elapsedTime) = 0;
     // Go to a subScene, can be null if transition state is Return or Quit
-    virtual scene_ptr makeTransition() { return scene_ptr(); }
-    virtual void onActivation();
-    SceneState getSceneState() const { return m_sceneState; }
-    void setSceneState(SceneState state) { m_sceneState = state; }
-    TransitionState getTransitionState() const { return m_transitionState; }
-    void setTransitionState(TransitionState state) {
-        m_transitionState = state;
+    virtual std::shared_ptr<Scene> make_transition() {
+        return std::shared_ptr<Scene>();
     }
-    bool isTransparent() const { return m_isTransparent; }
-    void setTransparent(bool transparent) { m_isTransparent = transparent; }
-    Game& getGame() { return m_game; }
+    virtual void on_activation();
+    SceneState scene_state() const { return _scene_state; }
+    void set_scene_state(SceneState state) { _scene_state = state; }
+    TransitionState transition_state() const { return _transition_state; }
+    void set_transition_state(TransitionState state) {
+        _transition_state = state;
+    }
+    bool is_transparent() const { return _is_transparent; }
+    void set_transparency(bool transparent) { _is_transparent = transparent; }
+    Game& game() { return _game; }
 
   private:
-    Game& m_game;
-    SceneState m_sceneState;
-    TransitionState m_transitionState;
-    bool m_isTransparent;
+    Game& _game;
+    SceneState _scene_state;
+    TransitionState _transition_state;
+    bool _is_transparent;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_ENGINE_SCENE_HPP
