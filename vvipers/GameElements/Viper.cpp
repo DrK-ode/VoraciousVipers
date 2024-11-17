@@ -25,40 +25,40 @@ class Viper::ViperConfiguration {
   private:
     void initialize(const OptionsProvider& options,
                     const TextureProvider& textures) {
-        nominal_speed = options.getOptionDouble("Viper/nominalSpeed");
+        nominal_speed = options.option_double("Viper/nominalSpeed");
         nominal_segment_width =
-            options.getOptionDouble("Viper/nominalSegmentWidth");  // px
-        boost_max_charge = timeFromSeconds(
-            options.getOptionDouble("Viper/boostMaxCharge"));  // s
+            options.option_double("Viper/nominalSegmentWidth");  // px
+        boost_max_charge = time_from_seconds(
+            options.option_double("Viper/boostMaxCharge"));  // s
         boost_recharge_rate =
-            options.getOptionDouble("Viper/boostRechargeRate");  // s per s
-        boost_recharge_cooldown = timeFromSeconds(options.getOptionDouble(
+            options.option_double("Viper/boostRechargeRate");  // s per s
+        boost_recharge_cooldown = time_from_seconds(options.option_double(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
-        head_nominal_length = options.getOptionDouble(
+        head_nominal_length = options.option_double(
             "ViperModel/ViperHead/nominalLength");  // px
         head_duration =
-            timeFromSeconds(head_nominal_length / nominal_speed);  // s
+            time_from_seconds(head_nominal_length / nominal_speed);  // s
         head_nodes =
-            options.getOption2DVectorArray("ViperModel/ViperHead/nodes");
+            options.option_2d_vector_array("ViperModel/ViperHead/nodes");
 
-        body_nominal_length = options.getOptionDouble(
+        body_nominal_length = options.option_double(
             "ViperModel/ViperBody/nominalLength");  // px
         body_duration =
-            timeFromSeconds(body_nominal_length / nominal_speed);  // s
+            time_from_seconds(body_nominal_length / nominal_speed);  // s
         body_nodes =
-            options.getOption2DVectorArray("ViperModel/ViperBody/nodes");
+            options.option_2d_vector_array("ViperModel/ViperBody/nodes");
 
-        tail_nominal_length = options.getOptionDouble(
+        tail_nominal_length = options.option_double(
             "ViperModel/ViperTail/nominalLength");  // px
         tail_duration =
-            timeFromSeconds(tail_nominal_length / nominal_speed);  // s
+            time_from_seconds(tail_nominal_length / nominal_speed);  // s
         tail_nodes =
-            options.getOption2DVectorArray("ViperModel/ViperTail/nodes");
+            options.option_2d_vector_array("ViperModel/ViperTail/nodes");
 
-        head_texture = textures.getTexture("ViperHead");
-        body_texture = textures.getTexture("ViperBody");
-        tail_texture = textures.getTexture("ViperTail");
+        head_texture = textures.texture("ViperHead");
+        body_texture = textures.texture("ViperBody");
+        tail_texture = textures.texture("ViperTail");
 
         // Find for which index the head is the widest
         last_active_index = 0;
@@ -124,7 +124,7 @@ void Viper::eat(const Food& food) {
 
 void Viper::die(const Time& elapsedTime) {
     _temporal_length -= 4 * elapsedTime;
-    if (_temporal_length <= timeFromSeconds(0))
+    if (_temporal_length <= time_from_seconds(0))
         state(Dead);
 }
 
@@ -146,11 +146,11 @@ void Viper::setup(const Vec2& tail_position, double angle,
     _growth = number_of_body_segments * _viper_cfg.body_duration;
 
     Vec2 direction = Vec2(1, 0).rotate(angle);
-    double length = timeAsSeconds(_temporal_length) * speed();
+    double length = time_as_seconds(_temporal_length) * speed();
     auto viper_vector = length * direction;
     _track = std::unique_ptr<TemporalTrack>(
         new TemporalTrack(tail_position + viper_vector, _temporal_length,
-                          tail_position, timeFromSeconds(0)));
+                          tail_position, time_from_seconds(0)));
     _triangle_strip_head.texture = _viper_cfg.head_texture;
     _triangle_strip_body.texture = _viper_cfg.body_texture;
     _triangle_strip_tail.texture = _viper_cfg.tail_texture;
@@ -172,7 +172,7 @@ void Viper::clean_up_dinner_times() {
     for (auto& dinnerTime : _dinner_times)
         if (dinnerTime.first < _track->tail_time()) {
             _growth += dinnerTime.second.amount;
-            dinnerTime.second.amount = timeFromSeconds(0);
+            dinnerTime.second.amount = time_from_seconds(0);
         }
     // This loop can only remove a maximum of one time per update. But that's
     // fine
@@ -222,7 +222,7 @@ void Viper::update(Time elapsedTime) {
 void Viper::add_boost_charge(Time charge) {
     auto oldCharge = _boost_charge;
     _boost_charge += charge;
-    _boost_charge = std::max(_boost_charge, timeFromSeconds(0));
+    _boost_charge = std::max(_boost_charge, time_from_seconds(0));
     _boost_charge = std::min(_boost_charge, boost_max());
 
     if (_boost_charge != oldCharge) {
@@ -232,7 +232,7 @@ void Viper::add_boost_charge(Time charge) {
 }
 
 void Viper::update_boost_charge(Time elapsedTime) {
-    if (_boost_recharge_cooldown == timeFromSeconds(0)) {
+    if (_boost_recharge_cooldown == time_from_seconds(0)) {
         add_boost_charge(elapsedTime * _viper_cfg.boost_recharge_rate);
     } else if (_boost_increase > 0)
         add_boost_charge(-elapsedTime);
@@ -253,17 +253,17 @@ void Viper::update_speed(const Time& elapsedTime) {
         // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
             std::min(2 * _viper_cfg.nominal_speed,
-                     (targetSpeed - _speed) / timeAsSeconds(elapsedTime));
+                     (targetSpeed - _speed) / time_as_seconds(elapsedTime));
     } else if (_speed > targetSpeed) {
         acceleration =
             std::max(-_viper_cfg.nominal_speed,
-                     (targetSpeed - _speed) / timeAsSeconds(elapsedTime));
+                     (targetSpeed - _speed) / time_as_seconds(elapsedTime));
     }
-    _speed += acceleration * timeAsSeconds(elapsedTime);
+    _speed += acceleration * time_as_seconds(elapsedTime);
 }
 
 void Viper::update_angle(const Time& elapsedTime) {
-    _angle += _angularSpeed * timeAsSeconds(elapsedTime);
+    _angle += _angularSpeed * time_as_seconds(elapsedTime);
 }
 
 void Viper::update_motion(const Time& elapsedTime) {
@@ -279,7 +279,7 @@ void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void Viper::create_vertex_vectors_and_polygons_for_body_part(
     ViperPart viper_part, const Time& part_start, const Time& part_duration) {
-    if (part_duration <= timeFromSeconds(0))
+    if (part_duration <= time_from_seconds(0))
         return;
 
     TriangleStripArray* vertex_vector;
@@ -412,8 +412,8 @@ sf::Color Viper::calculate_vertex_color(Time time) {
     }
     // Blends the main color with the blend of the two food colors (normally
     // only one will be present)
-    return blendColors(_primaryColor, 1. - sumFactor,
-                       blendColors(color1, sFactor1, color2, sFactor2),
+    return blend_colors(_primaryColor, 1. - sumFactor,
+                       blend_colors(color1, sFactor1, color2, sFactor2),
                        sumFactor);
 }
 

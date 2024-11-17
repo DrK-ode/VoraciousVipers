@@ -4,16 +4,16 @@
 namespace VVipers {
 
 ColorPalette::ColorPalette(const OptionsProvider& options) {
-    auto colorStrings = options.getOptionStringArray("General/colorPalette");
+    auto colorStrings = options.option_string_array("General/colorPalette");
     for (auto& colorString : colorStrings) {
-        m_palette.push_back(colorFromRGBString(colorString));
+        _palette.push_back(color_from_rgb_string(colorString));
     }
-    if (m_palette.empty())
+    if (_palette.empty())
         throw std::runtime_error("No colors found");
 }
 
-sf::Color ColorPalette::getColor(size_t index) const {
-    return m_palette[index % m_palette.size()];
+sf::Color ColorPalette::get_color(size_t index) const {
+    return _palette[index % _palette.size()];
 }
 
 }  // namespace VVipers

@@ -1,15 +1,15 @@
-#ifndef VVIPERS_UTILITIES_VVCOLOR_HPP
-#define VVIPERS_UTILITIES_VVCOLOR_HPP
+#pragma once
 
 #include <SFML/Graphics/Color.hpp>
 #include <cmath>
+#include <cstdint>
 #include <sstream>
 #include <tuple>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
 
-inline sf::Color colorFromRGBString(const std::string& str) {
+inline sf::Color color_from_rgb_string(const std::string& str) {
     if (str.size() != 7 or str.at(0) != '#')
         throw std::runtime_error("Found invalid color string.");
     unsigned int x;
@@ -23,7 +23,7 @@ inline sf::Color colorFromRGBString(const std::string& str) {
 }
 
 // Following the conversion algorithm presented on Wikipedia
-inline std::tuple<double, double, double> fromHSLtoRGB(double H, double S,
+inline std::tuple<double, double, double> rgb_from_hsl(double H, double S,
                                                        double L) {
     H = std::fmod(H, 1.0);
     if (H < 0)
@@ -67,7 +67,7 @@ inline std::tuple<double, double, double> fromHSLtoRGB(double H, double S,
 }
 
 // Following the conversion algorithm presented on Wikipedia
-inline std::tuple<double, double, double> fromRGBtoHSL(double R, double G,
+inline std::tuple<double, double, double> hsl_from_rgb(double R, double G,
                                                        double B) {
     if (R < 0. or R > 1. or G < 0. or G > 1. or B < 0. or B > 1.)
         throw std::runtime_error("Invalid RGB values.");
@@ -94,27 +94,26 @@ inline std::tuple<double, double, double> fromRGBtoHSL(double R, double G,
     return {H, S, L};
 }
 
-inline std::tuple<double, double, double> fromRGBtoHSL(uint8_t R, uint8_t G,
+inline std::tuple<double, double, double> hsl_from_rgb(uint8_t R, uint8_t G,
                                                        uint8_t B) {
-    return fromRGBtoHSL(R / 255., G / 255., B / 255.);
+    return hsl_from_rgb(R / 255., G / 255., B / 255.);
 }
 
-inline sf::Color colorFromRGB(double R, double G, double B) {
+inline sf::Color color_from_rgb(double R, double G, double B) {
     return sf::Color(std::min(uint32_t(255), uint32_t(256 * R)),
                      std::min(uint32_t(255), uint32_t(256 * G)),
                      std::min(uint32_t(255), uint32_t(256 * B)));
 }
 
-inline sf::Color colorFromHSL(double H, double S, double L) {
-    auto [R, G, B] = fromHSLtoRGB(H, S, L);
-    return colorFromRGB(R, G, B);
+inline sf::Color color_from_hsl(double H, double S, double L) {
+    auto [R, G, B] = rgb_from_hsl(H, S, L);
+    return color_from_rgb(R, G, B);
 }
 
-inline sf::Color blendColors(sf::Color c1, double f1, sf::Color c2, double f2) {
+inline sf::Color blend_colors(sf::Color c1, double f1, sf::Color c2,
+                              double f2) {
     return sf::Color(c1.r * f1 + c2.r * f2, c1.g * f1 + c2.g * f2,
                      c1.b * f1 + c2.b * f2);
 }
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_UTILITIES_VVCOLOR_HPP

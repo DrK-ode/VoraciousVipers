@@ -1,5 +1,4 @@
-#ifndef VVIPERS_SCENES_OPTIONSMENUSCENE_HPP
-#define VVIPERS_SCENES_OPTIONSMENUSCENE_HPP
+#pragma once
 
 #include <memory>
 #include <vvipers/Engine/Game.hpp>
@@ -11,12 +10,10 @@ namespace VVipers {
 class OptionsMenuScene : public MenuScene {
   public:
     OptionsMenuScene(Game& game);
-    void onMenuItemActivation(MenuItem* menuItem) override;
+    void on_menu_item_activation(MenuItem* menuItem) override;
 
   private:
-    std::unique_ptr<MenuButton> m_backButton;
+    std::unique_ptr<MenuButton> _back_button;
 };
 
 }  // namespace VVipers
-
-#endif // VVIPERS_SCENES_OPTIONSMENUSCENE_HPP

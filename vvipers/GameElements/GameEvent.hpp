@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP
-#define VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP
+#pragma once
 
 #include <vvipers/Utilities/Time.hpp>
 
@@ -23,14 +22,14 @@ class GameEvent {
         ObjectModified
     };
     virtual GameEvent* clone() const = 0;
-    EventType type() const { return m_type; }
-    virtual ~GameEvent(){};
+    EventType type() const { return _type; }
+    virtual ~GameEvent() {};
 
   protected:
-    GameEvent(EventType type) : m_type(type) {}
+    GameEvent(EventType type) : _type(type) {}
 
   private:
-    EventType m_type;
+    EventType _type;
 };
 
 class ApplicationEvent : public GameEvent {
@@ -62,9 +61,9 @@ class MenuEvent : public GameEvent {
 class ObjectModifiedEvent : public GameEvent {
   public:
     ObjectModifiedEvent(const GameObject* optr)
-        : GameEvent(EventType::ObjectModified), objectPtr(optr) {}
+        : GameEvent(EventType::ObjectModified), object_pointer(optr) {}
     GameEvent* clone() const override { return new ObjectModifiedEvent(*this); }
-    const GameObject* objectPtr;
+    const GameObject* object_pointer;
 };
 
 class ScoringEvent : public GameEvent {
@@ -79,11 +78,9 @@ class ScoringEvent : public GameEvent {
 class UpdateEvent : public GameEvent {
   public:
     UpdateEvent(const Time& time)
-        : GameEvent(EventType::Update), elapsedTime(time) {}
+        : GameEvent(EventType::Update), elapsed_time(time) {}
     GameEvent* clone() const override { return new UpdateEvent(*this); }
-    const Time elapsedTime;
+    const Time elapsed_time;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_GAMEELEMENTS_GAMEEVENT_HPP

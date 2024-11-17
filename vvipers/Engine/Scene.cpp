@@ -4,14 +4,14 @@
 namespace VVipers {
 
 Scene::Scene(Game& game)
-    : m_game(game),
-      m_sceneState(SceneState::Running),
-      m_transitionState(TransitionState::Continue),
-      m_isTransparent(false) {}
+    : _game(game),
+      _scene_state(SceneState::Running),
+      _transition_state(TransitionState::Continue),
+      _is_transparent(false) {}
 
-void Scene::onActivation() {
-    setSceneState(Scene::SceneState::Running);
-    setTransitionState(TransitionState::Continue);
+void Scene::on_activation() {
+    set_scene_state(Scene::SceneState::Running);
+    set_transition_state(TransitionState::Continue);
 }
 
 }  // namespace VVipers

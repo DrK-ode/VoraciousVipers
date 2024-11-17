@@ -27,15 +27,15 @@ using namespace std::chrono_literals;
 
 ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
     size_t numberOfPlayers =
-        game.getOptionsService().getOptionDouble("Players/numberOfPlayers");
+        game.options_service().option_double("Players/numberOfPlayers");
     auto playerNames =
-        game.getOptionsService().getOptionStringArray("Players/names");
+        game.options_service().option_string_array("Players/names");
     auto playerPrimaryColors =
-        game.getOptionsService().getOptionStringArray("Players/primaryColors");
-    auto playerSecondaryColors = game.getOptionsService().getOptionStringArray(
-        "Players/secondaryColors");
+        game.options_service().option_string_array("Players/primaryColors");
+    auto playerSecondaryColors =
+        game.options_service().option_string_array("Players/secondaryColors");
     auto playerKeys =
-        game.getOptionsService().getOptionDoubleArray("Players/keys");
+        game.options_service().option_double_array("Players/keys");
     auto numberOfDivisions = numberOfPlayers + 1;
     if ((playerNames.size() < numberOfPlayers) or
         (playerPrimaryColors.size() < numberOfPlayers) or
@@ -49,7 +49,7 @@ ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
     playerSecondaryColors.resize(numberOfPlayers);
     playerKeys.resize(3 * numberOfPlayers);
 
-    Vec2 windowSize = getGame().getWindow().getSize();
+    Vec2 windowSize = game.window().getSize();
     const sf::Vector2f statusBarRelSize(1. / numberOfDivisions, 0.1);
     const sf::Vector2f statusBarSize(windowSize.x * statusBarRelSize.x,
                                      windowSize.y * statusBarRelSize.y);
@@ -82,7 +82,7 @@ ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
                 playerKeys, statusBarViews);
 
     // Only create one pause screen so that it can be reused
-    _pause_scene = std::make_shared<PauseScene>(getGame());
+    _pause_scene = std::make_shared<PauseScene>(game);
 }
 
 ArenaScene::~ArenaScene() {}
@@ -101,8 +101,8 @@ void ArenaScene::add_players(std::vector<std::string>& playerNames,
         keys.right = sf::Keyboard::Key(playerKeys[3 * i + 1]);
         keys.boost = sf::Keyboard::Key(playerKeys[3 * i + 2]);
         auto controller = create_controller(keys);
-        add_player(playerNames[i], colorFromRGBString(primaryColors[i]),
-                   colorFromRGBString(secondaryColors[i]),
+        add_player(playerNames[i], color_from_rgb_string(primaryColors[i]),
+                   color_from_rgb_string(secondaryColors[i]),
                    std::move(controller), _vipers[i], playerViews[i]);
     }
 }
@@ -112,7 +112,7 @@ std::unique_ptr<Controller> ArenaScene::create_controller(
     if ((keys.left == sf::Keyboard::Unknown) and
         (keys.right == sf::Keyboard::Unknown) and
         (keys.boost == sf::Keyboard::Unknown)) {
-        return std::make_unique<MouseController>(getGame());
+        return std::make_unique<MouseController>(game());
     } else if ((keys.left != sf::Keyboard::Unknown) and
                (keys.right != sf::Keyboard::Unknown) and
                (keys.boost != sf::Keyboard::Unknown)) {
@@ -129,9 +129,9 @@ Player* ArenaScene::add_player(const std::string& name, sf::Color primaryColor,
         make_unique<Player>(name, std::move(controller), viper));
     player->set_colors(primaryColor, secondaryColor);
     auto& panel = _player_panels.emplace_back(std::make_unique<PlayerPanel>(
-        view, player.get(), getGame().getFontService()));
-    viper->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
-    player->addObserver(panel.get(), {GameEvent::EventType::ObjectModified});
+        view, player.get(), game().font_service()));
+    viper->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
+    player->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
 
     std::stringstream ss;
     ss << name << "'s viper";
@@ -156,7 +156,7 @@ void ArenaScene::delete_player(Player* player) {
 void ArenaScene::add_vipers(size_t number_of_vipers) {
     for (size_t i = 0; i < number_of_vipers; ++i) {
         auto& viper = _vipers.emplace_back(std::make_unique<Viper>(
-            getGame().getOptionsService(), getGame().getTextureService()));
+            game().options_service(), game().texture_service()));
         double length = viper->speed() * 5;  // 5s free space
         double width = viper->nominal_width();
         bool allowRotation = true;
@@ -168,7 +168,7 @@ void ArenaScene::add_vipers(size_t number_of_vipers) {
         Vec2 viper_tail_position = center - 0.5 * length * direction;
         viper->setup(viper_tail_position, angle, 50);
 
-        viper->addObserver(this, {GameEvent::EventType::Destroy});
+        viper->add_observer(this, {GameEvent::EventType::Destroy});
         _collision_manager.register_colliding_body(viper.get());
     }
 }
@@ -189,11 +189,11 @@ void ArenaScene::delete_viper(Viper* viper) {
 
 void ArenaScene::add_food(Vec2 position, double diameter) {
     auto& food = _food.emplace_back(std::make_unique<Food>(
-        position, diameter, timeFromSeconds(Random::getDouble(5, 10)),
-        getGame().getColorService().getColor(Random::getInt())));
+        position, diameter, time_from_seconds(Random::random_double(5, 10)),
+        game().color_service().get_color(Random::random_int())));
     // Check for collisions
     _collision_manager.register_colliding_body(food.get());
-    food->addObserver(this, {GameEvent::EventType::Destroy});
+    food->add_observer(this, {GameEvent::EventType::Destroy});
 }
 
 void ArenaScene::delete_food(Food* food) {
@@ -241,8 +241,8 @@ Vec2 ArenaScene::find_free_circular_space(double radius) {
         sf::Rect<double>(0, 0, _game_view.getSize().x, _game_view.getSize().y);
     const int max_attempts = 1000000;
     for (int i = 0; i < max_attempts; ++i) {
-        Vec2 center(Random::getDouble(game_area.left, game_area.width),
-                    Random::getDouble(game_area.top, game_area.height));
+        Vec2 center(Random::random_double(game_area.left, game_area.width),
+                    Random::random_double(game_area.top, game_area.height));
         if (!_collision_manager.is_circle_occupied(center, radius))
             return center;
     }
@@ -254,9 +254,9 @@ std::pair<Vec2, double> ArenaScene::find_free_rectangular_space(
     auto game_area_size = Vec2(_game_view.getSize().x, _game_view.getSize().y);
     const int max_attempts = 100000;
     for (int i = 0; i < max_attempts; ++i) {
-        Vec2 center(Random::getDouble(0., game_area_size.x),
-                    Random::getDouble(0., game_area_size.y));
-        double angle = allow_rotation ? Random::getDouble(0, twopi) : 0.;
+        Vec2 center(Random::random_double(0., game_area_size.x),
+                    Random::random_double(0., game_area_size.y));
+        double angle = allow_rotation ? Random::random_double(0, twopi) : 0.;
         if (!_collision_manager.is_rectangle_occupied(center, width, height,
                                                       angle))
             return {center, angle};
@@ -269,7 +269,7 @@ void ArenaScene::dispense_food() {
         double smallest = Food::nominalFoodRadius * 0.75;
         double largest = Food::nominalFoodRadius * 1.25;
         double food_radius = std::sqrt(
-            Random::getDouble(smallest * smallest, largest * largest));
+            Random::random_double(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
         add_food(find_free_circular_space(2 * food_radius), food_radius);
     }
@@ -293,7 +293,7 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void ArenaScene::handle_collisions() {
-    BoundingBox the_world( _game_view.getCenter(), _game_view.getSize() );
+    BoundingBox the_world(_game_view.getCenter(), _game_view.getSize());
     for (auto& collision : _collision_manager.check_for_collisions(the_world)) {
         handle_collision(collision);
     }
@@ -310,17 +310,17 @@ void ArenaScene::handle_collision(const CollisionPair& collision) {
                                    : collision.first;
         // If it's not a viper, we don't care!
         if (typeid(*collider.body) == typeid(Viper)) {
-            Viper* collider_viper = (Viper*) collider.body;
+            Viper* collider_viper = (Viper*)collider.body;
             if (typeid(*collidee.body) == typeid(Food)) {
                 handle_viper_food_collision(collider_viper, collider.index,
-                                            (Food*) collidee.body,
+                                            (Food*)collidee.body,
                                             collidee.index);
             } else if (typeid(*collidee.body) == typeid(Walls)) {
                 handle_viper_walls_collision(collider_viper, collider.index,
-                                             (Walls*) collidee.body,
+                                             (Walls*)collidee.body,
                                              collidee.index);
             } else if (typeid(*collidee.body) == typeid(Viper)) {
-                Viper* collidee_viper = (Viper*) collidee.body;
+                Viper* collidee_viper = (Viper*)collidee.body;
                 handle_viper_viper_collision(collider_viper, collider.index,
                                              collidee_viper, collidee.index);
             } else
@@ -346,16 +346,16 @@ void ArenaScene::handle_viper_food_collision(Viper* viper,
     PlayerPanel* panel = find_player_panel(player);
     auto& flyingScore =
         _flying_scores.emplace_back(std::make_unique<FlyingScore>(
-            Vec2(getGame().getWindow().mapCoordsToPixel(food->getPosition(),
-                                                        _game_view)),
+            Vec2(game().window().mapCoordsToPixel(food->getPosition(),
+                                                  _game_view)),
             4 * viper->velocity(),
-            Vec2(getGame().getWindow().mapCoordsToPixel(panel->getScoreTarget(),
-                                                        panel->getView())),
-            1s, score, getGame().getFontService()));
+            Vec2(game().window().mapCoordsToPixel(panel->getScoreTarget(),
+                                                  panel->getView())),
+            1s, score, game().font_service()));
     flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
-    flyingScore->setFontSize(0.03 * getGame().getWindow().getSize().y, 1.0);
-    flyingScore->addObserver(this, {GameEvent::EventType::Destroy});
-    flyingScore->addObserver(panel, {GameEvent::EventType::Scoring});
+    flyingScore->setFontSize(0.03 * game().window().getSize().y, 1.0);
+    flyingScore->add_observer(this, {GameEvent::EventType::Destroy});
+    flyingScore->add_observer(panel, {GameEvent::EventType::Scoring});
 }
 
 void ArenaScene::handle_viper_viper_collision(Viper* collider_viper,
@@ -372,9 +372,9 @@ void ArenaScene::handle_viper_viper_collision(Viper* collider_viper,
         // Check if it's just neighbouring segments touching or
         // a real collision
         if (segment_distance > 1) {
-            tagDebug("Killed by collision between Viper segment ",
-                     collider_segment_index, " and Viper segment ",
-                     collidee_segment_index);
+            log_debug(collider_viper->name(),
+                      " was killed by a collision with ",
+                      collidee_viper->name(), "[", collidee_segment_index, "]");
             kill_viper(collider_viper);
         }
     }
@@ -390,8 +390,8 @@ void ArenaScene::handle_viper_walls_collision(Viper* viper,
     if (viper->state() != Viper::Alive || viper_segment_index != 0)
         return;
 
-    tagDebug("Killed by collision between Viper segment ", viper_segment_index,
-             " and wall segment ", walls_segment_index);
+    log_debug(viper->name(), " was killed by a collision with ", walls->name(),
+              "[", walls_segment_index, "]");
     kill_viper(viper);
 }
 
@@ -404,8 +404,7 @@ void ArenaScene::handle_steering() {
                 // Protect against erroneous input from controller
                 if (std::abs(cmd.turn) > 1)
                     cmd.turn /= std::abs(cmd.turn);
-                double angularSpeed =
-                    cmd.turn * viper->max_angular_speed();
+                double angularSpeed = cmd.turn * viper->max_angular_speed();
                 /* Boost if the steering event says so and either:
                  *    1) Boost in inactive and the boost power is full
                  *    2) Boost is active and the boost power is not depleted
@@ -413,7 +412,7 @@ void ArenaScene::handle_steering() {
                 double boost = 0.;
                 if (cmd.boost &&
                     ((viper->boost_amount() > 0 and
-                      viper->boost_charge() > timeFromSeconds(0)) or
+                      viper->boost_charge() > time_from_seconds(0)) or
                      (viper->boost_amount() == 0.0 and
                       viper->boost_charge() == viper->boost_max())))
                     boost = 1.;
@@ -456,15 +455,15 @@ void ArenaScene::check_for_game_over() {
         if (player->viper() && player->viper()->state() == GameObject::Alive)
             return;  // Keep on playing as long as someone is alive
 
-    setTransitionState(TransitionState::Spawn);
+    set_transition_state(TransitionState::Spawn);
     // This scene must be kept alive since GameOverScreen reads
     std::vector<const Player*> players;
     for (auto& p : _players)
         players.push_back(p.get());
-    _transition_scene = make_shared<GameOverScene>(getGame(), players);
+    _transition_scene = make_shared<GameOverScene>(game(), players);
 }
 
-void ArenaScene::onNotify(const GameEvent* event) {
+void ArenaScene::on_notify(const GameEvent* event) {
     // If directly processable, do it!
     switch (event->type()) {
         default: {
@@ -477,11 +476,11 @@ void ArenaScene::onNotify(const GameEvent* event) {
     }
 }
 
-void ArenaScene::processEvent(const sf::Event& event) {
+void ArenaScene::process_event(const sf::Event& event) {
     switch (event.type) {
         case sf::Event::Closed: {
-            setSceneState(SceneState::Paused);
-            setTransitionState(TransitionState::Quit);
+            set_scene_state(SceneState::Paused);
+            set_transition_state(TransitionState::Quit);
             break;
         }
         case sf::Event::Resized: {
@@ -490,8 +489,8 @@ void ArenaScene::processEvent(const sf::Event& event) {
         case sf::Event::KeyPressed: {
             switch (event.key.code) {
                 case sf::Keyboard::Escape: {
-                    setSceneState(SceneState::Paused);
-                    setTransitionState(TransitionState::Spawn);
+                    set_scene_state(SceneState::Paused);
+                    set_transition_state(TransitionState::Spawn);
                     _transition_scene = _pause_scene;
                     break;
                 }
@@ -524,9 +523,9 @@ void ArenaScene::update(Time elapsedTime) {
     Stopwatch clock;
     clock.start();
     handle_object_updates(elapsedTime);
-    tagInfo("Game object updates took: ", clock.split());
+    log_info("  Game object updates took: ", clock.split());
     handle_collisions();
-    tagInfo("Collision handling took: ", clock.split());
+    log_info("  Collision handling took: ", clock.split());
     dispense_food();
     process_game_events();
     check_for_game_over();

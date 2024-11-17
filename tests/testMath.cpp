@@ -37,17 +37,17 @@ TEST(VectorMathTest, normalizeVecTest) {
 }
 
 TEST(VectorMathTest, projectionVecTest) {
-    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(1, 0)), Vec2(1, 0));
-    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(0, 0)), Vec2(0, 0));
-    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(-1, 0)), Vec2(1, 0));
-    EXPECT_EQ(Vec2(1, 1).projectionVector(Vec2(0, -1)), Vec2(0, 1));
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(1, 0)), 1.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(0, 0)), 0.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(-1, 0)), -1.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionScalar(Vec2(0, -1)), -1.);
+    EXPECT_EQ(Vec2(1, 1).vector_projection(Vec2(1, 0)), Vec2(1, 0));
+    EXPECT_EQ(Vec2(1, 1).vector_projection(Vec2(0, 0)), Vec2(0, 0));
+    EXPECT_EQ(Vec2(1, 1).vector_projection(Vec2(-1, 0)), Vec2(1, 0));
+    EXPECT_EQ(Vec2(1, 1).vector_projection(Vec2(0, -1)), Vec2(0, 1));
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).scalar_projection(Vec2(1, 0)), 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).scalar_projection(Vec2(0, 0)), 0.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).scalar_projection(Vec2(-1, 0)), -1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).scalar_projection(Vec2(0, -1)), -1.);
     // Rounding errors unless you compare x and y separately
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionVector(Vec2(-1, -1)).x, 1.);
-    EXPECT_DOUBLE_EQ(Vec2(1, 1).projectionVector(Vec2(-1, -1)).y, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).vector_projection(Vec2(-1, -1)).x, 1.);
+    EXPECT_DOUBLE_EQ(Vec2(1, 1).vector_projection(Vec2(-1, -1)).y, 1.);
 }
 
 TEST(VectorMathTest, rotationTest) {
@@ -58,37 +58,37 @@ TEST(VectorMathTest, rotationTest) {
 }
 
 TEST(VectorMathTest, radToDegTest) {
-    EXPECT_DOUBLE_EQ(0., radToDeg(0));
-    EXPECT_DOUBLE_EQ(45., radToDeg(pi / 4));
-    EXPECT_DOUBLE_EQ(90., radToDeg(pi / 2));
-    EXPECT_DOUBLE_EQ(-45., radToDeg(-pi / 4));
-    EXPECT_DOUBLE_EQ(-90., radToDeg(-pi / 2));
+    EXPECT_DOUBLE_EQ(0., deg_from_rad(0));
+    EXPECT_DOUBLE_EQ(45., deg_from_rad(pi / 4));
+    EXPECT_DOUBLE_EQ(90., deg_from_rad(pi / 2));
+    EXPECT_DOUBLE_EQ(-45., deg_from_rad(-pi / 4));
+    EXPECT_DOUBLE_EQ(-90., deg_from_rad(-pi / 2));
 }
 
 TEST(VectorMathTest, degToRadTest) {
-    EXPECT_DOUBLE_EQ(0., degToRad(0));
-    EXPECT_DOUBLE_EQ(pi / 4, degToRad(45));
-    EXPECT_DOUBLE_EQ(pi / 2, degToRad(90));
-    EXPECT_DOUBLE_EQ(-pi / 4, degToRad(-45));
-    EXPECT_DOUBLE_EQ(-pi / 2, degToRad(-90));
+    EXPECT_DOUBLE_EQ(0., rad_from_deg(0));
+    EXPECT_DOUBLE_EQ(pi / 4, rad_from_deg(45));
+    EXPECT_DOUBLE_EQ(pi / 2, rad_from_deg(90));
+    EXPECT_DOUBLE_EQ(-pi / 4, rad_from_deg(-45));
+    EXPECT_DOUBLE_EQ(-pi / 2, rad_from_deg(-90));
 }
 
 TEST(VectorMathTest, modDegTest) {
-    EXPECT_DOUBLE_EQ(90., mod180Deg(90));
-    EXPECT_DOUBLE_EQ(-90., mod180Deg(-90));
-    EXPECT_DOUBLE_EQ(0., mod180Deg(360));
-    EXPECT_DOUBLE_EQ(-90., mod180Deg(270));
-    EXPECT_DOUBLE_EQ(0., mod180Deg(-360));
-    EXPECT_DOUBLE_EQ(90., mod180Deg(-270));
+    EXPECT_DOUBLE_EQ(90., mod_180_deg(90));
+    EXPECT_DOUBLE_EQ(-90., mod_180_deg(-90));
+    EXPECT_DOUBLE_EQ(0., mod_180_deg(360));
+    EXPECT_DOUBLE_EQ(-90., mod_180_deg(270));
+    EXPECT_DOUBLE_EQ(0., mod_180_deg(-360));
+    EXPECT_DOUBLE_EQ(90., mod_180_deg(-270));
 }
 
 TEST(VectorMathTest, modRadTest) {
-    EXPECT_DOUBLE_EQ(pi / 2, modPiRad(pi / 2));
-    EXPECT_DOUBLE_EQ(-pi / 2, modPiRad(-pi / 2));
-    EXPECT_DOUBLE_EQ(0, modPiRad(twopi));
-    EXPECT_DOUBLE_EQ(-pi / 2, modPiRad(3 * pi / 2));
-    EXPECT_DOUBLE_EQ(0, modPiRad(-twopi));
-    EXPECT_DOUBLE_EQ(pi / 2, modPiRad(-3 * pi / 2));
+    EXPECT_DOUBLE_EQ(pi / 2, mod_pi_rad(pi / 2));
+    EXPECT_DOUBLE_EQ(-pi / 2, mod_pi_rad(-pi / 2));
+    EXPECT_DOUBLE_EQ(0, mod_pi_rad(twopi));
+    EXPECT_DOUBLE_EQ(-pi / 2, mod_pi_rad(3 * pi / 2));
+    EXPECT_DOUBLE_EQ(0, mod_pi_rad(-twopi));
+    EXPECT_DOUBLE_EQ(pi / 2, mod_pi_rad(-3 * pi / 2));
 }
 
 }  // namespace

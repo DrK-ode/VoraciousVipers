@@ -20,7 +20,7 @@ class MenuScene : public Scene {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void distributeMenuItems();
     void setColors( sf::Color fill, sf::Color border, sf::Color text);
-    void processEvent(const sf::Event& event) override;
+    void process_event(const sf::Event& event) override;
     /** Overide if you need to do anything else but calling update on all menu
      * items. **/
     void update(Time elapsedTime) override;
@@ -36,12 +36,12 @@ class MenuScene : public Scene {
     size_t getNumberOfMenuItems() const { return m_menuItems.size(); }
     LayoutOrientation getLayoutOrientation() const { return m_layout; }
     void setLayoutOrientation(LayoutOrientation lo) { m_layout = lo; }
-    virtual void onMenuItemActivation(MenuItem* menuItem){};
-    virtual void onReturn() { setTransitionState(TransitionState::Return); }
-    virtual void onActivation() override;
+    virtual void on_menu_item_activation(MenuItem* menuItem){};
+    virtual void onReturn() { set_transition_state(TransitionState::Return); }
+    virtual void on_activation() override;
 
   protected:
-    virtual void drawBackground(sf::RenderTarget& target,
+    virtual void draw_background(sf::RenderTarget& target,
                         sf::RenderStates states) const {};
 
   private:

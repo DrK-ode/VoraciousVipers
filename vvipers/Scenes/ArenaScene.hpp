@@ -1,5 +1,4 @@
-#ifndef VVIPERS_SCENES_ARENASCENE_HPP
-#define VVIPERS_SCENES_ARENASCENE_HPP
+#pragma once
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -27,22 +26,24 @@ class ArenaScene : public Scene, public Observer {
     ArenaScene(Game& game);
     ~ArenaScene();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void onNotify(const GameEvent* event) override;
-    void processEvent(const sf::Event& event) override;
+    void on_notify(const GameEvent* event) override;
+    void process_event(const sf::Event& event) override;
     void update(Time elapsedTime) override;
-    std::shared_ptr<Scene> makeTransition() override {return _transition_scene;}
+    std::shared_ptr<Scene> make_transition() override {
+        return _transition_scene;
+    }
 
   private:
     std::unique_ptr<Controller> create_controller(
         const KeyboardController::KeyboardControls& keys);
     Player* add_player(const std::string& name, sf::Color primaryColor,
-                      sf::Color secondaryColor,
-                      std::unique_ptr<Controller> controller, std::shared_ptr<Viper> viper,
-                      sf::View view);
+                       sf::Color secondaryColor,
+                       std::unique_ptr<Controller> controller,
+                       std::shared_ptr<Viper> viper, sf::View view);
     void add_players(std::vector<std::string>& names,
-                    std::vector<std::string>& primaryColors,
-                    std::vector<std::string>& secondaryColors,
-                    std::vector<double>& keys, std::vector<sf::View>& views);
+                     std::vector<std::string>& primaryColors,
+                     std::vector<std::string>& secondaryColors,
+                     std::vector<double>& keys, std::vector<sf::View>& views);
     void delete_player(Player* player);
     void add_vipers(size_t);
     void delete_viper(Viper* viper);
@@ -93,5 +94,3 @@ class ArenaScene : public Scene, public Observer {
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_SCENES_ARENASCENE_HPP

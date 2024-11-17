@@ -13,13 +13,13 @@ FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
       m_timeOfFlight(timeOfFlight),
       m_currentTime(0),
       m_score(score) {
-    auto tof = timeAsSeconds(m_timeOfFlight);
+    auto tof = time_as_seconds(m_timeOfFlight);
     // Constant acceleration
     m_acceleration = 2 *
                      (target - m_initialPosition - m_initialVelocity * tof) /
                      (tof * tof);
     // Load and set font
-    m_font = fontProvider.getDefaultFont();
+    m_font = fontProvider.default_font();
     m_text.setFont(*m_font);
     updateText();
     auto lb = m_text.getLocalBounds();
@@ -47,7 +47,7 @@ void FlyingScore::update(Time elapsedTime) {
         state(Dead);
     else {
         m_currentTime += elapsedTime;
-        auto t = timeAsSeconds(m_currentTime);
+        auto t = time_as_seconds(m_currentTime);
         auto currentPosition = m_initialPosition + m_initialVelocity * t +
                                0.5 * m_acceleration * t * t;
         m_text.setPosition(currentPosition);

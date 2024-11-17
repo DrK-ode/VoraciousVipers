@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_FOOD_HPP
-#define VVIPERS_GAMEELEMENTS_FOOD_HPP
+#pragma once
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -39,5 +38,3 @@ class Food : public GameObject, public sf::CircleShape, public CollidingBody, pu
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_GAMEELEMENTS_FOOD_HPP

@@ -1,18 +1,17 @@
-#ifndef VVIPERS_UTILITIES_VECTORMATH_HPP
-#define VVIPERS_UTILITIES_VECTORMATH_HPP
+#pragma once
 
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <iostream>
-#include <SFML/System/Vector2.hpp>
 #include <vvipers/Utilities/VVMath.hpp>
-#include <SFML/Graphics/Rect.hpp>
 
 namespace VVipers {
 
 class Vec2 : public sf::Vector2<double> {
   public:
-    Vec2(){};
-    Vec2(double x, double y) : sf::Vector2<double>(x, y){};
+    Vec2() {};
+    Vec2(double x, double y) : sf::Vector2<double>(x, y) {};
     template <typename U>
     Vec2(const sf::Vector2<U>& v) : sf::Vector2<double>(v) {}
     double abs() const;
@@ -22,9 +21,9 @@ class Vec2 : public sf::Vector2<double> {
     Vec2 perpendicular() const;
     /** Rotates vector counter clockwise (clockwise on screen) **/
     Vec2& rotate(double rads);
-    double projectionScalar( Vec2 v ) const;
-    Vec2 projectionVector( Vec2 v ) const;
-    double squared() const {return x*x+y*y;}
+    double scalar_projection(Vec2 v) const;
+    Vec2 vector_projection(Vec2 v) const;
+    double squared() const { return x * x + y * y; }
     operator sf::Vector2f() { return sf::Vector2f(x, y); }
 };
 
@@ -69,5 +68,3 @@ inline double abs(const Vec2& v) { return v.abs(); }
 inline double distance(const Vec2& a, const Vec2& b) { return abs(b - a); }
 
 }  // namespace VVipers
-
-#endif // VVIPERS_UTILITIES_VECTORMATH_HPP

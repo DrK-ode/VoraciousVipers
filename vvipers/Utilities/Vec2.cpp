@@ -20,14 +20,14 @@ Vec2& Vec2::rotate(double rads) {
     return *this;
 }
 
-double Vec2::projectionScalar(Vec2 v) const {
+double Vec2::scalar_projection(Vec2 v) const {
     double vAbs = v.abs();
     if (vAbs < 1e-9)
         return 0.;
     return this->dot(v) / vAbs;
 }
 
-Vec2 Vec2::projectionVector(Vec2 v) const {
+Vec2 Vec2::vector_projection(Vec2 v) const {
     double v2 = v.dot(v);
     if (v2 == 0.)
         return v;

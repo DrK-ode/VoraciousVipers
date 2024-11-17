@@ -1,5 +1,4 @@
-#ifndef VVIPERS_ENGINE_OPTIONSJSON_HPP
-#define VVIPERS_ENGINE_OPTIONSJSON_HPP
+#pragma once
 
 #include <json/json.h>
 
@@ -16,61 +15,64 @@ class OptionsJSON : public OptionsProvider {
     OptionsJSON(std::istream& input);
     virtual ~OptionsJSON() {}
 
-    bool getOptionBoolean(const std::string& optionName) const override;
-    std::string getOptionString(const std::string& optionName) const override;
-    double getOptionDouble(const std::string& optionName) const override;
-    Vec2 getOption2DVector(const std::string& optionName) const override;
-    std::vector<bool> getOptionBooleanArray(
+    bool option_boolean(const std::string& optionName) const override;
+    std::string option_string(const std::string& optionName) const override;
+    double option_double(const std::string& optionName) const override;
+    Vec2 option_2d_vector(const std::string& optionName) const override;
+    std::vector<bool> option_boolean_array(
         const std::string& optionName) const override;
-    std::vector<double> getOptionDoubleArray(
+    std::vector<double> option_double_array(
         const std::string& optionName) const override;
-    std::vector<std::string> getOptionStringArray(
+    std::vector<std::string> option_string_array(
         const std::string& optionName) const override;
-    std::vector<Vec2> getOption2DVectorArray(
+    std::vector<Vec2> option_2d_vector_array(
         const std::string& optionName) const override;
-    bool isOptionSet(const std::string& optionName) const override {
-        return !getOptionValue(optionName).isNull();
+    bool is_option_set(const std::string& optionName) const override {
+        return !option_value(optionName).isNull();
     }
     void write(std::ostream& output) const override;
 
-    void setOptionBoolean(const std::string& optionName,
-                          bool optionValue) override {
-        setOptionValue(optionName, Json::Value(optionValue));
+    void set_option_boolean(const std::string& optionName,
+                            bool optionValue) override {
+        set_option_value(optionName, Json::Value(optionValue));
     }
-    void setOptionDouble(const std::string& optionName,
-                         double optionValue) override {
-        setOptionValue(optionName, Json::Value(optionValue));
+    void set_option_double(const std::string& optionName,
+                           double optionValue) override {
+        set_option_value(optionName, Json::Value(optionValue));
     }
-    void setOptionString(const std::string& optionName,
-                         const std::string& optionValue) override {
-        setOptionValue(optionName, Json::Value(optionValue));
+    void set_option_string(const std::string& optionName,
+                           const std::string& optionValue) override {
+        set_option_value(optionName, Json::Value(optionValue));
     }
-    void setOption2DVector(const std::string& optionName, Vec2 value) override {
-        setOptionDoubleArray(optionName,
-                             std::vector<double>({value.x, value.y}));
+    void set_option_2d_vector(const std::string& optionName,
+                              Vec2 value) override {
+        set_option_double_array(optionName,
+                                std::vector<double>({value.x, value.y}));
     }
-    void setOptionBooleanArray(const std::string& optionName,
-                               const std::vector<bool>& booleanArray) override;
-    void setOptionDoubleArray(const std::string& optionName,
-                              const std::vector<double>& doubleArray) override;
-    void setOptionStringArray(
+    void set_option_boolean_array(
+        const std::string& optionName,
+        const std::vector<bool>& booleanArray) override;
+    void set_option_double_array(
+        const std::string& optionName,
+        const std::vector<double>& doubleArray) override;
+    void set_option_string_array(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) override;
-    void setOption2DVectorArray(const std::string& optionName,
-                                const std::vector<Vec2>& vectorArray) override;
+    void set_option_2d_vector_array(
+        const std::string& optionName,
+        const std::vector<Vec2>& vectorArray) override;
 
   private:
-    const Json::Value getOptionValue(const std::string& optionName) const;
-    const Json::Value getOptionArray(const std::string& optionName) const;
+    const Json::Value option_value(const std::string& optionName) const;
+    const Json::Value option_array(const std::string& optionName) const;
 
-    void setOptionValue(const std::string& optionName, const Json::Value value);
+    void set_option_value(const std::string& optionName,
+                          const Json::Value value);
     template <typename T>
-    void setOptionArray(const std::string& optionName,
-                        const std::vector<T>& value);
+    void set_option_array(const std::string& optionName,
+                          const std::vector<T>& value);
 
-    Json::Value m_jsonRoot;
+    Json::Value _json_root;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_ENGINE_OPTIONSJSON_HPP

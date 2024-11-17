@@ -1,5 +1,4 @@
-#ifndef VVIPERS_ENGINE_COLORPALETTE_HPP
-#define VVIPERS_ENGINE_COLORPALETTE_HPP
+#pragma once
 
 #include <SFML/Graphics/Color.hpp>
 #include <vector>
@@ -10,12 +9,10 @@ namespace VVipers {
 class ColorPalette : public ColorProvider {
   public:
     ColorPalette(const OptionsProvider& options);
-    sf::Color getColor(size_t index) const override;
+    sf::Color get_color(size_t index) const override;
 
   private:
-    std::vector<sf::Color> m_palette;
+    std::vector<sf::Color> _palette;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_ENGINE_COLORPALETTE_HPP

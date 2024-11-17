@@ -1,10 +1,9 @@
-#ifndef VVIPERS_SCENES_PAUSESCENE_HPP
-#define VVIPERS_SCENES_PAUSESCENE_HPP
+#pragma once
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
-#include <vvipers/UIElements/MenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuScene.hpp>
 
 namespace VVipers {
 
@@ -13,17 +12,14 @@ class Game;
 class PauseScene : public MenuScene {
   public:
     PauseScene(Game& game);
-    void drawBackground(sf::RenderTarget& target,
-                        sf::RenderStates states) const override;
-    void onMenuItemActivation(MenuItem* menuItem) override;
+    void draw_background(sf::RenderTarget& target,
+                         sf::RenderStates states) const override;
+    void on_menu_item_activation(MenuItem* menuItem) override;
 
   private:
-    sf::Text m_pauseText;
-    std::unique_ptr<MenuButton> m_continueButton;
-    std::unique_ptr<MenuButton> m_quitButton;
-    sf::RectangleShape m_background;
+    std::unique_ptr<MenuButton> _continue_button;
+    std::unique_ptr<MenuButton> _quit_button;
+    sf::RectangleShape _background;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_SCENES_PAUSESCENE_HPP

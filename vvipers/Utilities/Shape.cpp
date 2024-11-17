@@ -6,7 +6,7 @@ namespace VVipers {
 
 std::tuple<double, double> Circle::projection_on_vector(
     const Vec2& axis) const {
-    auto proj = this->_center.projectionScalar(axis);
+    auto proj = this->_center.scalar_projection(axis);
     double maximum = proj + this->_radius;
     double minimum = proj - this->_radius;
     return {minimum, maximum};
@@ -102,7 +102,7 @@ std::tuple<double, double> Polygon::projection_on_vector(
     double maximum = std::numeric_limits<double>::lowest();
     size_t n_corners = this->_corners.size();
     for (size_t i = 0; i < n_corners; ++i) {
-        double projection = this->_corners[i].projectionScalar(axis);
+        double projection = this->_corners[i].scalar_projection(axis);
         minimum = std::min(projection, minimum);
         maximum = std::max(projection, maximum);
     }

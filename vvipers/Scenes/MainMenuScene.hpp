@@ -1,26 +1,23 @@
-#ifndef VVIPERS_SCENES_MAINMENUSCENE_HPP
-#define VVIPERS_SCENES_MAINMENUSCENE_HPP
+#pragma once
 
 #include <memory>
 #include <vvipers/Engine/Game.hpp>
-#include <vvipers/UIElements/MenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
+#include <vvipers/UIElements/MenuScene.hpp>
 
 namespace VVipers {
 
 class MainMenuScene : public MenuScene {
   public:
     MainMenuScene(Game& game);
-    void onMenuItemActivation(MenuItem* menuItem) override;
-    std::shared_ptr<Scene> makeTransition() override;
+    void on_menu_item_activation(MenuItem* menuItem) override;
+    std::shared_ptr<Scene> make_transition() override;
 
   private:
-    std::unique_ptr<MenuButton> m_playButton;
-    std::unique_ptr<MenuButton> m_optionsButton;
-    std::unique_ptr<MenuButton> m_quitButton;
-    std::shared_ptr<Scene> m_transitionTo;
+    std::unique_ptr<MenuButton> _play_button;
+    std::unique_ptr<MenuButton> _options_button;
+    std::unique_ptr<MenuButton> _quit_button;
+    std::shared_ptr<Scene> _transition_to;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_SCENES_MAINMENUSCENE_HPP

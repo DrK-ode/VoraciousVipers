@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_VIPER_HPP
-#define VVIPERS_GAMEELEMENTS_VIPER_HPP
+#pragma once
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -15,6 +14,7 @@
 #include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/GameElements/Track.hpp>
 #include <vvipers/Utilities/Time.hpp>
+
 #include "vvipers/Utilities/TriangleStripArray.hpp"
 
 namespace VVipers {
@@ -30,8 +30,10 @@ class Viper : public GameObject,
   public:
     // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
-    size_t number_of_segments() const override {return _polygons.size();}
-    std::shared_ptr<const Shape> segment_shape(size_t index) const override {return _polygons[index];}
+    size_t number_of_segments() const override { return _polygons.size(); }
+    std::shared_ptr<const Shape> segment_shape(size_t index) const override {
+        return _polygons[index];
+    }
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
     void add_growth(Time howMuch, Time when, sf::Color color);
@@ -39,7 +41,7 @@ class Viper : public GameObject,
     double angle() const { return _angle; }
     /** Sets the direction of the head and keeps the angle stored within ±180
      * degrees. **/
-    void set_angle(double a) { _angle = mod180Deg(a); }
+    void set_angle(double a) { _angle = mod_180_deg(a); }
     /** @returns the amount of boost the Viper is currently receiving **/
     double boost_amount() const { return _boost_increase; }
     /** @returns the current stored boost duration **/
@@ -107,7 +109,8 @@ class Viper : public GameObject,
     void grow(const Time& elapsedTime);
 
     void update_vertices_and_polygons();
-    void create_vertex_vectors_and_polygons_for_body_part(ViperPart, const Time& timeFront, const Time& temporalLength);
+    void create_vertex_vectors_and_polygons_for_body_part(
+        ViperPart, const Time& timeFront, const Time& temporalLength);
     sf::Color calculate_vertex_color(Time time);
 
     void update_motion(const Time& elapsedTime);
@@ -120,11 +123,11 @@ class Viper : public GameObject,
     double _nominalSpeed;  // px/s
     double _speed;         // px/s
     // double m_targetSpeed;   // px/s
-    double _boost_increase;   // Boost speed = (1 + m_boost) * nominal speed
-    Time _boost_charge;  // fraction [0., 1.]
+    double _boost_increase;  // Boost speed = (1 + m_boost) * nominal speed
+    Time _boost_charge;      // fraction [0., 1.]
     Time _boost_recharge_cooldown;  // Countdown from viperBoostChargeCooldown
-    Time _temporal_length;         // s
-    Time _growth;                 // s
+    Time _temporal_length;          // s
+    Time _growth;                   // s
     std::unique_ptr<TemporalTrack> _track;
     sf::Color _primaryColor;
     sf::Color _secondaryColor;
@@ -142,4 +145,3 @@ class Viper : public GameObject,
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_GAMEELEMENTS_VIPER_HPP

@@ -1,5 +1,4 @@
-#ifndef VVIPERS_COLLISIONS_COLLIDING_BODY_HPP
-#define VVIPERS_COLLISIONS_COLLIDING_BODY_HPP
+#pragma once
 
 #include <SFML/Graphics/Rect.hpp>
 #include <memory>
@@ -24,5 +23,3 @@ class CollidingBody {
 };
 
 }  // Namespace VVipers
-
-#endif  // VVIPERS_COLLISIONS_COLLIDING_BODY_HPP

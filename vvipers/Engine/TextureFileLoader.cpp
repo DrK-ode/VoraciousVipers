@@ -8,21 +8,21 @@ namespace VVipers {
 
 TextureFileLoader::TextureFileLoader(const OptionsProvider& options) {
     auto resourceDirectoryPath =
-        options.getOptionString("General/resourceDirectoryPath");
+        options.option_string("General/resourceDirectoryPath");
 
     std::stringstream ss;
     for (auto viperPart : {"ViperHead", "ViperBody", "ViperTail"}) {
         ss.str("");
         ss << "ViperModel/" << viperPart << "/textureFile";
-        auto filename = options.getOptionString(ss.str());
+        auto filename = options.option_string(ss.str());
         ss.str("");
         ss << "ViperModel/" << viperPart << "/textureCrop";
-        auto cropRect = options.getOptionDoubleArray(ss.str());
+        auto cropRect = options.option_double_array(ss.str());
         if (cropRect.size() != 4)
             throw std::runtime_error("cropRect is of the wrong size.");
         ss.str("");
         ss << "ViperModel/" << viperPart << "/repeated";
-        auto repeated = options.getOptionBoolean(ss.str());
+        auto repeated = options.option_boolean(ss.str());
 
         ss.str("");
         ss << resourceDirectoryPath << filename;
@@ -31,20 +31,20 @@ TextureFileLoader::TextureFileLoader(const OptionsProvider& options) {
         texture->loadFromFile(ss.str(), area);
         texture->setRepeated(repeated);
 
-        m_textures[viperPart] = texture;
+        _textures[viperPart] = texture;
     }
 }
 
 TextureFileLoader::~TextureFileLoader() {}
 
-const sf::Texture* TextureFileLoader::getTexture(
+const sf::Texture* TextureFileLoader::texture(
     const std::string& texturename) const {
-    if (m_textures.contains(texturename))
-        return m_textures.at(texturename);
+    if (_textures.contains(texturename))
+        return _textures.at(texturename);
     return nullptr;
 }
 
-const sf::Texture* TextureFileLoader::loadTexture(const std::string& filename,
+const sf::Texture* TextureFileLoader::load_texture(const std::string& filename,
                                                   sf::FloatRect,
                                                   bool repeatable) {
     return nullptr;

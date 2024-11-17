@@ -1,5 +1,4 @@
-#ifndef VVIPERS_COLLISION_COLLIDERMANAGER_HPP
-#define VVIPERS_COLLISION_COLLIDERMANAGER_HPP
+#pragma once
 
 #include <set>
 #include <vvipers/GameElements/GameObject.hpp>
@@ -47,5 +46,3 @@ class CollisionManager {
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_COLLISION_COLLIDERMANAGER_HPP

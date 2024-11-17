@@ -1,5 +1,4 @@
-#ifndef VVIPERS_GAMEELEMENTS_TRACK_HPP
-#define VVIPERS_GAMEELEMENTS_TRACK_HPP
+#pragma once
 
 #include <pthread.h>
 
@@ -86,4 +85,3 @@ class TemporalTrack {
 std::ostream& operator<<(std::ostream& os, const TemporalTrack& t);
 
 }  // namespace VVipers
-#endif  // VVIPERS_GAMEELEMENTS_TRACK_HPP
