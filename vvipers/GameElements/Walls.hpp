@@ -15,8 +15,8 @@ namespace VVipers {
 class Walls : public GameObject, public sf::Drawable, public CollidingBody {
   public:
     Walls(Vec2 levelSize);
-    size_t number_of_body_parts() const override {return _polygons.size();}
-    std::shared_ptr<const Shape> body_part_shape(size_t index) const override;
+    size_t number_of_segments() const override {return _polygons.size();}
+    std::shared_ptr<const Shape> segment_shape(size_t index) const override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
   protected:

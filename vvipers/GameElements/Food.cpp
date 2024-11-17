@@ -28,9 +28,9 @@ Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
                                       CircleShape::getRadius());
 }
 
-std::shared_ptr<const VVipers::Shape> Food::body_part_shape(
+std::shared_ptr<const VVipers::Shape> Food::segment_shape(
     size_t index) const {
-    if (index >= number_of_body_parts())
+    if (index >= number_of_segments())
         throw std::runtime_error("Requested body part index is too large.");
     return _shape;
 }

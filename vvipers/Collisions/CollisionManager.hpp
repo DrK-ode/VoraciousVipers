@@ -1,7 +1,6 @@
 #ifndef VVIPERS_COLLISION_COLLIDERMANAGER_HPP
 #define VVIPERS_COLLISION_COLLIDERMANAGER_HPP
 
-#include <memory>
 #include <set>
 #include <vvipers/GameElements/GameObject.hpp>
 
@@ -13,26 +12,21 @@ namespace VVipers {
 struct CollisionItem {
     const CollidingBody* body;
     size_t index;
+    bool operator<(const CollisionItem& other) const {
+        if (body != other.body)
+            return body < other.body;
+        return index < other.index;
+    }
 };
+
 using CollisionPair = std::pair<CollisionItem, CollisionItem>;
-using CollisionVector = std::vector<CollisionPair>;
 
 class CollisionManager {
-  private:
-    struct CollisionEntity {
-        CollisionEntity(const CollidingBody* body, size_t body_part_index)
-            : index(body_part_index),
-              body(body),
-              shape(body->body_part_shape(body_part_index)),
-              bounding_box(shape->bounding_box()) {}
-        const size_t index;
-        const CollidingBody* body;
-        const std::shared_ptr<const Shape> shape;
-        const BoundingBox bounding_box;
-    };
-
   public:
-    CollisionVector check_for_collisions();
+    CollisionManager(size_t population_limit, double size_limit)
+        : _population_limit(population_limit), _size_limit(size_limit) {}
+    std::set<CollisionPair> check_for_collisions(
+        const BoundingBox& starting_area) const;
     bool is_circle_occupied(const Vec2& center, double radius);
     bool is_rectangle_occupied(const Vec2& center, double width, double height,
                                double angle = 0.);
@@ -46,8 +40,10 @@ class CollisionManager {
 
   private:
     bool is_occupied(const Shape&);
-    std::vector<CollisionEntity> collect_collision_items();
     std::set<const CollidingBody*> _colliding_bodies;
+
+    size_t _population_limit;
+    double _size_limit;
 };
 
 }  // namespace VVipers

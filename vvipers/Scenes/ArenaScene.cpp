@@ -25,7 +25,7 @@ namespace VVipers {
 
 using namespace std::chrono_literals;
 
-ArenaScene::ArenaScene(Game& game) : Scene(game) {
+ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
     size_t numberOfPlayers =
         game.getOptionsService().getOptionDouble("Players/numberOfPlayers");
     auto playerNames =
@@ -293,7 +293,8 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void ArenaScene::handle_collisions() {
-    for (auto& collision : _collision_manager.check_for_collisions()) {
+    BoundingBox the_world( _game_view.getCenter(), _game_view.getSize() );
+    for (auto& collision : _collision_manager.check_for_collisions(the_world)) {
         handle_collision(collision);
     }
 }

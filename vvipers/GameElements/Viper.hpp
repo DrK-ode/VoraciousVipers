@@ -30,8 +30,8 @@ class Viper : public GameObject,
   public:
     // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
-    size_t number_of_body_parts() const override {return _polygons.size();}
-    std::shared_ptr<const Shape> body_part_shape(size_t index) const override {return _polygons[index];}
+    size_t number_of_segments() const override {return _polygons.size();}
+    std::shared_ptr<const Shape> segment_shape(size_t index) const override {return _polygons[index];}
     /** Adds time the Viper should spend growing and where along the viper that
      * growth is. **/
     void add_growth(Time howMuch, Time when, sf::Color color);

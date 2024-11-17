@@ -20,8 +20,8 @@ Walls::Walls(Vec2 levelSize) : CollidingBody("Walls"), _level_size(levelSize) {
     constructLevel();
 }
 
-std::shared_ptr<const Shape> Walls::body_part_shape(size_t index) const {
-    if (index >= number_of_body_parts())
+std::shared_ptr<const Shape> Walls::segment_shape(size_t index) const {
+    if (index >= number_of_segments())
         throw std::runtime_error("Requested body part index is too large.");
     return _polygons[index];
 }

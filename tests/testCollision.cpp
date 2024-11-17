@@ -12,13 +12,9 @@ namespace {
 
 class Body : public CollidingBody {
   public:
-    Body(std::shared_ptr<const Shape> shape)
-        : CollidingBody("TestBody"), _shape(shape) {}
-    virtual size_t number_of_body_parts() const override { return 1; }
-    virtual std::shared_ptr<const Shape> body_part_shape(
-        size_t index) const override {
-        return _shape;
-    }
+    Body(std::shared_ptr<const Shape> shape) : CollidingBody("TestBody"), _shape(shape) {}
+    virtual size_t number_of_segments() const override { return 1; }
+    virtual std::shared_ptr<const Shape> segment_shape(size_t index) const override { return _shape; }
     const std::shared_ptr<const Shape> _shape;
 };
 
@@ -56,13 +52,13 @@ TEST(CollisionTest, ManagerTest) {
     corners.emplace_back(50, 25);
     Body body4(std::make_shared<Polygon>(corners));
 
-    CollisionManager manager;
+    CollisionManager manager(4, 500);
     manager.register_colliding_body(&body1);
     manager.register_colliding_body(&body2);
     manager.register_colliding_body(&body3);
-    EXPECT_EQ(manager.check_for_collisions().size(), 2);
+    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(), 2);
     manager.register_colliding_body(&body4);
-    EXPECT_EQ(manager.check_for_collisions().size(), 3);
+    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(), 3);
 }
 
 }  // namespace
