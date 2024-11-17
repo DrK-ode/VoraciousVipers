@@ -15,17 +15,15 @@ namespace VVipers {
 
 void startGame() {
     std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
-    auto options = std::make_unique<OptionsJSON>(cfgFile);  // The one and only instance
+    auto options =
+        std::make_unique<OptionsJSON>(cfgFile);  // The one and only instance
     const std::string resPathOptStr("General/resourceDirectoryPath");
     if (!options->is_option_set(resPathOptStr))
         options->set_option_string(resPathOptStr, RESOURCE_PATH);
 
-    auto game = std::make_unique<Game>( std::move(options) );
-
-    auto firstScene = std::make_shared<FlashScreenScene>(*game.get());
-    auto mainMenu = std::make_shared<MainMenuScene>(*game.get());
-
-    Engine engine(std::move(game));
+    Engine engine(std::move(options));
+    auto firstScene = std::make_shared<FlashScreenScene>(*engine.game());
+    auto mainMenu = std::make_shared<MainMenuScene>(*engine.game());
     engine.load_scene(firstScene);
     engine.set_default_scene(mainMenu);
 
@@ -35,7 +33,7 @@ void startGame() {
 }  // namespace VVipers
 
 int main(int argc, const char** argv) {
-    //VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
+    // VVipers::debug::verbosity = VVipers::Verbosity::errorsAndWarnings;
     VVipers::debug::verbosity = VVipers::Verbosity::All;
     // Handle input arguments?
     VVipers::startGame();
