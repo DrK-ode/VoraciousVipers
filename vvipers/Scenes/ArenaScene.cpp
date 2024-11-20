@@ -154,19 +154,19 @@ void ArenaScene::delete_player(Player* player) {
 }
 
 void ArenaScene::add_vipers(size_t number_of_vipers) {
+    std::vector<Polygon> starting_areas;
     for (size_t i = 0; i < number_of_vipers; ++i) {
         auto& viper = _vipers.emplace_back(std::make_unique<Viper>(
             game().options_service(), game().texture_service()));
-        double length = viper->speed() * 5;  // 5s free space
+        double length = viper->speed() * 5;  // 5 seconds free space
         double width = viper->nominal_width();
-        bool allowRotation = true;
         // Give some margin to the width
-        auto [center, angle] =
-            find_free_rectangular_space(length, 1.5 * width, allowRotation);
+        Polygon starting_area(Vec2(length, 1.5 * width));
+        starting_area.set_anchor(Vec2(-0.5 * length, 0));
+        find_free_space_for(starting_area, true, starting_areas);
+        starting_areas.push_back(starting_area);
 
-        Vec2 direction = Vec2(1, 0).rotate(angle);
-        Vec2 viper_tail_position = center - 0.5 * length * direction;
-        viper->setup(viper_tail_position, angle, 50);
+        viper->setup(starting_area.anchor(), starting_area.angle(), 5);
 
         viper->add_observer(this, {GameEvent::EventType::Destroy});
         _collision_manager.register_colliding_body(viper.get());
@@ -236,30 +236,28 @@ Player* ArenaScene::find_player_with_viper(const Viper* viper) const {
     return iter->get();
 }
 
-Vec2 ArenaScene::find_free_circular_space(double radius) {
+void ArenaScene::find_free_space_for(Shape& shape, bool allow_rotation, const std::vector<Polygon>& exclusion_zones) const {
     auto game_area =
         sf::Rect<double>(0, 0, _game_view.getSize().x, _game_view.getSize().y);
     const int max_attempts = 1000000;
     for (int i = 0; i < max_attempts; ++i) {
         Vec2 center(Random::random_double(game_area.left, game_area.width),
                     Random::random_double(game_area.top, game_area.height));
-        if (!_collision_manager.is_circle_occupied(center, radius))
-            return center;
-    }
-    throw std::runtime_error("Could not find an empty area.");
-}
-
-std::pair<Vec2, double> ArenaScene::find_free_rectangular_space(
-    double width, double height, bool allow_rotation) {
-    auto game_area_size = Vec2(_game_view.getSize().x, _game_view.getSize().y);
-    const int max_attempts = 100000;
-    for (int i = 0; i < max_attempts; ++i) {
-        Vec2 center(Random::random_double(0., game_area_size.x),
-                    Random::random_double(0., game_area_size.y));
-        double angle = allow_rotation ? Random::random_double(0, twopi) : 0.;
-        if (!_collision_manager.is_rectangle_occupied(center, width, height,
-                                                      angle))
-            return {center, angle};
+        shape.move_to(center);
+        if (allow_rotation)
+            shape.rotate(Random::random_double(0, twopi));
+        bool excluded = false;
+        for( auto& zone : exclusion_zones){
+            if( zone.overlap(shape)){
+                excluded = true;
+                break;
+            }
+        }
+        if( excluded){
+            continue;
+        }
+        if (!_collision_manager.is_occupied(shape))
+            return;
     }
     throw std::runtime_error("Could not find an empty area.");
 }
@@ -271,7 +269,9 @@ void ArenaScene::dispense_food() {
         double food_radius = std::sqrt(
             Random::random_double(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
-        add_food(find_free_circular_space(2 * food_radius), food_radius);
+        Circle placeholder(2 * food_radius);
+        find_free_space_for(placeholder);
+        add_food(placeholder.center(), food_radius);
     }
 }
 

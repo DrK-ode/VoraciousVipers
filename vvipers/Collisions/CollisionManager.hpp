@@ -26,19 +26,16 @@ class CollisionManager {
         : _population_limit(population_limit), _size_limit(size_limit) {}
     std::set<CollisionPair> check_for_collisions(
         const BoundingBox& starting_area) const;
-    bool is_circle_occupied(const Vec2& center, double radius);
-    bool is_rectangle_occupied(const Vec2& center, double width, double height,
-                               double angle = 0.);
     void deregister_colliding_body(const CollidingBody* collider) {
         // If present remove it
         _colliding_bodies.erase(collider);
     }
+    bool is_occupied(const Shape&) const;
     void register_colliding_body(const CollidingBody* collider) {
         _colliding_bodies.insert(collider);
     }
 
   private:
-    bool is_occupied(const Shape&);
     std::set<const CollidingBody*> _colliding_bodies;
 
     size_t _population_limit;

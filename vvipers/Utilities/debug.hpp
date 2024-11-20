@@ -113,7 +113,7 @@ inline void _impl_log_debug(bool doTag, const std::source_location loc,
 #define tag_error(...) \
     _impl_log_error(true, std::source_location::current(), __VA_ARGS__)
 #define tag_debug(...) \
-    _impl_log_Debug(true, std::source_location::current(), __VA_ARGS__)
+    _impl_log_debug(true, std::source_location::current(), __VA_ARGS__)
 #else
 #define log_info(...) _impl_log_Info(false, std::source_location(), __VA_ARGS__)
 #define log_warning(...) \

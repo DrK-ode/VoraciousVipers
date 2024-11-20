@@ -6,17 +6,38 @@
 #include <vvipers/Utilities/Shape.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Utilities/VVMath.hpp"
+
 using namespace VVipers;
 
 namespace {
 
 class Body : public CollidingBody {
   public:
-    Body(std::shared_ptr<const Shape> shape) : CollidingBody("TestBody"), _shape(shape) {}
+    Body(std::shared_ptr<const Shape> shape)
+        : CollidingBody("TestBody"), _shape(shape) {}
     virtual size_t number_of_segments() const override { return 1; }
-    virtual std::shared_ptr<const Shape> segment_shape(size_t index) const override { return _shape; }
+    virtual std::shared_ptr<const Shape> segment_shape(
+        size_t index) const override {
+        return _shape;
+    }
     const std::shared_ptr<const Shape> _shape;
 };
+
+TEST(CollisionTest, ShapeRotationTest) {
+    Polygon poly(Vec2(10, 2));
+    poly.set_anchor(Vec2(-5, 0));
+    poly.move_to(Vec2(0, 0));
+    EXPECT_EQ(poly.corners()[0], Vec2(0, 1));
+    EXPECT_EQ(poly.corners()[1], Vec2(10, 1));
+    EXPECT_EQ(poly.corners()[2], Vec2(10, -1));
+    EXPECT_EQ(poly.corners()[3], Vec2(0, -1));
+    poly.rotate(pi / 2.);
+    EXPECT_LT((poly.corners()[0] - Vec2(-1, 0)).abs(), 0.000001);
+    EXPECT_LT((poly.corners()[1] - Vec2(-1, 10)).abs(), 0.000001);
+    EXPECT_LT((poly.corners()[2] - Vec2(1, 10)).abs(), 0.000001);
+    EXPECT_LT((poly.corners()[3] - Vec2(1, 0)).abs(), 0.000001);
+}
 
 TEST(CollisionTest, ShapeTest) {
     std::vector<Vec2> corners;
@@ -56,9 +77,11 @@ TEST(CollisionTest, ManagerTest) {
     manager.register_colliding_body(&body1);
     manager.register_colliding_body(&body2);
     manager.register_colliding_body(&body3);
-    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(), 2);
+    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(),
+              2);
     manager.register_colliding_body(&body4);
-    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(), 3);
+    EXPECT_EQ(manager.check_for_collisions(BoundingBox(0, 500, 0, 500)).size(),
+              3);
 }
 
 }  // namespace

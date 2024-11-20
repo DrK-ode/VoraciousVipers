@@ -26,9 +26,17 @@ bool Circle::overlap(const Shape& other) const {
 }
 
 Polygon::Polygon(const std::vector<Vec2>& corners)
-    : Shape(ShapeType::Polygon), _corners(corners) {
+    : Shape(ShapeType::Polygon), _angle(0), _corners(corners) {
     BoundingBox box = this->bounding_box();
     _anchor = Vec2(box.x_max - box.x_min, box.y_max - box.y_min);
+}
+
+Polygon::Polygon(const Vec2& rectangle_size)
+    : Shape(ShapeType::Polygon), _anchor(0, 0), _angle(0) {
+    _corners.emplace_back(-0.5 * rectangle_size.x, +0.5 * rectangle_size.y);
+    _corners.emplace_back(+0.5 * rectangle_size.x, +0.5 * rectangle_size.y);
+    _corners.emplace_back(+0.5 * rectangle_size.x, -0.5 * rectangle_size.y);
+    _corners.emplace_back(-0.5 * rectangle_size.x, -0.5 * rectangle_size.y);
 }
 
 BoundingBox Polygon::bounding_box() const {
@@ -45,6 +53,14 @@ BoundingBox Polygon::bounding_box() const {
         y_max = std::max(y_max, point.y);
     }
     return {x_min, x_max, y_min, y_max};
+}
+
+void Polygon::move_to(const Vec2& new_center) {
+    auto translation = new_center - _anchor;
+    for( auto& corner : _corners){
+        corner += translation;
+    }
+    _anchor = new_center;
 }
 
 std::vector<Vec2> Polygon::normal_vectors() const {
@@ -113,6 +129,7 @@ void Polygon::rotate(double rads) {
     for (Vec2& corner : _corners) {
         corner = _anchor + (corner - _anchor).rotate(rads);
     }
+    _angle += rads;
 }
 
 }  // namespace VVipers

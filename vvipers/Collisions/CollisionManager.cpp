@@ -86,7 +86,7 @@ std::set<CollisionPair> CollisionManager::check_for_collisions(
     return all_collisions;
 }
 
-bool CollisionManager::is_occupied(const Shape& test_object) {
+bool CollisionManager::is_occupied(const Shape& test_object) const {
     bool return_value = false;
     auto collision_items = collect_collision_items(_colliding_bodies);
     for (auto segment_iter = collision_items.begin();
@@ -97,25 +97,6 @@ bool CollisionManager::is_occupied(const Shape& test_object) {
         }
     }
     return return_value;
-}
-
-bool CollisionManager::is_circle_occupied(const Vec2& center, double radius) {
-    Circle test_object = Circle(center, radius);
-    return is_occupied(test_object);
-}
-
-bool CollisionManager::is_rectangle_occupied(const Vec2& center, double width,
-                                             double height, double angle) {
-    std::vector<Vec2> corners;
-    double half_w = 0.5 * width;
-    double half_h = 0.5 * height;
-    corners.emplace_back(center.x - half_w, center.y + half_h);
-    corners.emplace_back(center.x + half_w, center.y + half_h);
-    corners.emplace_back(center.x + half_w, center.y - half_h);
-    corners.emplace_back(center.x - half_w, center.y - half_h);
-    Polygon test_object = Polygon(center, corners);
-    test_object.rotate(angle);
-    return is_occupied(test_object);
 }
 
 }  // namespace VVipers

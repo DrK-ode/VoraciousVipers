@@ -55,10 +55,9 @@ class ArenaScene : public Scene, public Observer {
     Player* find_player_with_viper(const Viper*) const;
     Player* findPlayerWith(const Controller*) const;
 
-    Vec2 find_free_circular_space(double radius);
-    std::pair<Vec2, double> find_free_rectangular_space(double width,
-                                                        double height,
-                                                        bool allow_rotation);
+    void find_free_space_for(Shape& shape, bool allow_rotation = false,
+                             const std::vector<Polygon>& exclusion_zones =
+                                 std::vector<Polygon>()) const;
 
     void dispense_food();
 
