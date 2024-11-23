@@ -166,7 +166,7 @@ void Engine::scene_selection() {
 
 void Engine::update(Time elapsedTime) {
     for (auto& scene : _scenes)
-        if (scene->scene_state() == Scene::SceneState::Running)
+        if (scene->run_state() == Scene::RunState::Running)
             scene->update(elapsedTime);
 }
 
@@ -174,11 +174,16 @@ void Engine::draw() {
     auto& window = _window;
     window.clear(sf::Color::Black);
     auto sceneIter = _scenes.rbegin();
-    while ((*sceneIter)->is_transparent() &&
-           std::next(sceneIter) != _scenes.rend())
+    // Find top-most scene that is solid
+    while (std::next(sceneIter) != _scenes.rend() &&
+           (*sceneIter)->draw_state() != Scene::DrawState::Solid) {
         ++sceneIter;
+    }
     while (sceneIter != _scenes.rbegin()) {
-        window.draw(*(sceneIter--)->get());
+        if ((*sceneIter)->draw_state() != Scene::DrawState::Skip) {
+            window.draw(*(sceneIter)->get());
+        }
+        sceneIter--;
     }
     window.draw(*_scenes.back());
     window.display();

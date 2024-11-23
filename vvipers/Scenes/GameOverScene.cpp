@@ -6,6 +6,7 @@
 #include <vvipers/Scenes/GameOverScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include "vvipers/Engine/Scene.hpp"
 
 namespace VVipers {
 
@@ -39,7 +40,7 @@ GameOverScene::GameOverScene(Game& game, std::vector<const Player*> players)
     _background.setSize(size);
     _background.setFillColor(sf::Color(0, 0, 0, 0x80));
 
-    set_transparency(true);
+    set_draw_state(DrawState::Transparent);
 }
 
 std::string GameOverScene::score_string(std::vector<const Player*>& players) {

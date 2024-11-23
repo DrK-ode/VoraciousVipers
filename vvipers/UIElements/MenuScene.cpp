@@ -202,9 +202,8 @@ void MenuScene::updateMenuItems(Time elapsedTime) {
 }
 
 void MenuScene::on_activation() {
-    set_scene_state(Scene::SceneState::Running);
+    set_run_state(Scene::RunState::Running);
     set_transition_state(TransitionState::Continue);
-    m_selectedIndex = 0;
 }
 
 }  // namespace VVipers

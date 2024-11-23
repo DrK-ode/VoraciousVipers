@@ -1,5 +1,6 @@
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
+#include "vvipers/Engine/Scene.hpp"
 
 namespace VVipers
 {
@@ -19,12 +20,12 @@ OptionsMenuScene::OptionsMenuScene(Game& game) : MenuScene(game) {
 
     setSelectedIndex(0);
     distributeMenuItems();
-    set_transparency(true);
+    set_draw_state(DrawState::Transparent);
 }
 
 void OptionsMenuScene::on_menu_item_activation(MenuItem* menuItem){
     if( menuItem == _back_button.get()){
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Return );
     }
 }

@@ -166,7 +166,7 @@ void ArenaScene::add_vipers(size_t number_of_vipers) {
         find_free_space_for(starting_area, true, starting_areas);
         starting_areas.push_back(starting_area);
 
-        viper->setup(starting_area.anchor(), starting_area.angle(), 5);
+        viper->setup(starting_area.anchor(), starting_area.angle(), 0.5);
 
         viper->add_observer(this, {GameEvent::EventType::Destroy});
         _collision_manager.register_colliding_body(viper.get());
@@ -479,7 +479,7 @@ void ArenaScene::on_notify(const GameEvent* event) {
 void ArenaScene::process_event(const sf::Event& event) {
     switch (event.type) {
         case sf::Event::Closed: {
-            set_scene_state(SceneState::Paused);
+            set_run_state(RunState::Paused);
             set_transition_state(TransitionState::Quit);
             break;
         }
@@ -489,7 +489,7 @@ void ArenaScene::process_event(const sf::Event& event) {
         case sf::Event::KeyPressed: {
             switch (event.key.code) {
                 case sf::Keyboard::Escape: {
-                    set_scene_state(SceneState::Paused);
+                    set_run_state(RunState::Paused);
                     set_transition_state(TransitionState::Spawn);
                     _transition_scene = _pause_scene;
                     break;

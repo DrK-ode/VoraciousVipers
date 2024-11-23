@@ -12,10 +12,8 @@ class Game;
 
 class Scene : public sf::Drawable {
   public:
-    /** Whether to update the Scene or not (regardless if it is on the top of
-     * the stack) **/
-    enum class SceneState { Running, Paused };
-    /** Different ways of transitioning **/
+    enum class RunState { Running, Paused };
+    enum class DrawState { Solid, Transparent, Skip };
     enum class TransitionState {
         Clear,     // Pop the whole stack and push the new Scene.
         Default,   // Pop the whole stack and push the default Scene.
@@ -28,28 +26,28 @@ class Scene : public sf::Drawable {
     };
 
     Scene(Game& game);
-    virtual void process_event(const sf::Event& event) = 0;
-    virtual void update(Time elapsedTime) = 0;
+    DrawState draw_state() const { return _draw_state; }
+    Game& game() { return _game; }
     // Go to a subScene, can be null if transition state is Return or Quit
     virtual std::shared_ptr<Scene> make_transition() {
         return std::shared_ptr<Scene>();
     }
     virtual void on_activation();
-    SceneState scene_state() const { return _scene_state; }
-    void set_scene_state(SceneState state) { _scene_state = state; }
+    virtual void process_event(const sf::Event& event) = 0;
+    RunState run_state() const { return _run_state; }
+    void set_draw_state(DrawState state) { _draw_state = state; }
+    void set_run_state(RunState state) { _run_state = state; }
     TransitionState transition_state() const { return _transition_state; }
     void set_transition_state(TransitionState state) {
         _transition_state = state;
     }
-    bool is_transparent() const { return _is_transparent; }
-    void set_transparency(bool transparent) { _is_transparent = transparent; }
-    Game& game() { return _game; }
+    virtual void update(Time elapsedTime) = 0;
 
   private:
     Game& _game;
-    SceneState _scene_state;
+    RunState _run_state;
+    DrawState _draw_state;
     TransitionState _transition_state;
-    bool _is_transparent;
 };
 
 }  // namespace VVipers

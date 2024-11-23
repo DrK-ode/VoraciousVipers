@@ -3,6 +3,7 @@
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
+#include "vvipers/UIElements/MenuScene.hpp"
 
 namespace VVipers {
 
@@ -37,17 +38,24 @@ MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
 
 void MainMenuScene::on_menu_item_activation(MenuItem* menuItem) {
     if (menuItem == _play_button.get()) {
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
+        set_draw_state(DrawState::Skip);
         set_transition_state(TransitionState::Spawn);
         _transition_to = std::make_shared<ArenaScene>(game());
     } else if (menuItem == _options_button.get()) {
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
+        set_draw_state(DrawState::Skip);
         set_transition_state(TransitionState::Spawn);
         _transition_to = std::make_shared<OptionsMenuScene>(game());
     } else if (menuItem == _quit_button.get()) {
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Quit);
     }
+}
+
+void MainMenuScene::on_activation(){
+    MenuScene::on_activation();
+    set_draw_state(DrawState::Solid);
 }
 
 std::shared_ptr<Scene> MainMenuScene::make_transition() { return _transition_to; }

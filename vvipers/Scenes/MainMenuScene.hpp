@@ -10,6 +10,7 @@ namespace VVipers {
 class MainMenuScene : public MenuScene {
   public:
     MainMenuScene(Game& game);
+    void on_activation() override;
     void on_menu_item_activation(MenuItem* menuItem) override;
     std::shared_ptr<Scene> make_transition() override;
 

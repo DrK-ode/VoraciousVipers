@@ -4,6 +4,7 @@
 #include <vvipers/Scenes/PauseScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include "vvipers/Engine/Scene.hpp"
 
 namespace VVipers {
 
@@ -36,7 +37,7 @@ PauseScene::PauseScene(Game& game) : MenuScene(game) {
     setColors(sf::Color::Transparent, game.color_service().get_color(0),
               game.color_service().get_color(1));
 
-    set_transparency(true);
+    set_draw_state(DrawState::Transparent);
 }
 
 void PauseScene::draw_background(sf::RenderTarget& target,
@@ -46,10 +47,10 @@ void PauseScene::draw_background(sf::RenderTarget& target,
 
 void PauseScene::on_menu_item_activation(MenuItem* menu_item) {
     if (menu_item == _continue_button.get()) {
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Return);
     } else if (menu_item == _quit_button.get()) {
-        set_scene_state(SceneState::Paused);
+        set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Default);
     }
 }
