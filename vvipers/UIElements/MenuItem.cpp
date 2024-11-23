@@ -8,17 +8,17 @@ sf::FloatRect MenuItem::getLocalBounds() const {
 
 void MenuItem::setSize(Vec2 size) {
     m_size = size;
-    onGeometryChange();
+    on_geometry_change();
 }
 
 void MenuItem::setPosition(Vec2 position) {
     m_position = position;
-    onGeometryChange();
+    on_geometry_change();
 }
 
 void MenuItem::setSelected(bool selected) {
     m_selected = selected;
-    onSelection();
+    on_selection();
 }
 
 }  // namespace VVipers

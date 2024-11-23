@@ -46,7 +46,7 @@ void MenuScene::distributeMenuItems() {
 
 void MenuScene::setColors( sf::Color fill, sf::Color border, sf::Color text){
     for( auto menuItem : m_menuItems ){
-        menuItem->setColors(fill,border,text);
+        menuItem->set_colors(fill,border,text);
     }
 }
 

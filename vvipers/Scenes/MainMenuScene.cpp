@@ -16,18 +16,18 @@ MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
     setMenuView(menuView);
 
     _play_button = std::make_unique<MenuButton>();
-    _play_button->setLabel("Play");
-    _play_button->setFont(*game.font_service().default_font());
+    _play_button->set_label("Play");
+    _play_button->set_font(*game.font_service().default_font());
     addItem(_play_button.get());
 
     _options_button = std::make_unique<MenuButton>();
-    _options_button->setLabel("Options");
-    _options_button->setFont(*game.font_service().default_font());
+    _options_button->set_label("Options");
+    _options_button->set_font(*game.font_service().default_font());
     addItem(_options_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
-    _quit_button->setLabel("Quit");
-    _quit_button->setFont(*game.font_service().default_font());
+    _quit_button->set_label("Quit");
+    _quit_button->set_font(*game.font_service().default_font());
     addItem(_quit_button.get());
 
     distributeMenuItems();

@@ -23,13 +23,13 @@ PauseScene::PauseScene(Game& game) : MenuScene(game) {
     setMenuView(menu_view);
 
     _continue_button = std::make_unique<MenuButton>();
-    _continue_button->setLabel("Continue");
-    _continue_button->setFont(*game.font_service().default_font());
+    _continue_button->set_label("Continue");
+    _continue_button->set_font(*game.font_service().default_font());
     addItem(_continue_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
-    _quit_button->setLabel("Quit to main menu");
-    _quit_button->setFont(*game.font_service().default_font());
+    _quit_button->set_label("Quit to main menu");
+    _quit_button->set_font(*game.font_service().default_font());
     addItem(_quit_button.get());
 
     setSelectedIndex(0);

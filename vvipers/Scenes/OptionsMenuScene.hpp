@@ -14,6 +14,8 @@ class OptionsMenuScene : public MenuScene {
 
   private:
     std::unique_ptr<MenuButton> _back_button;
+    std::unique_ptr<MenuButton> _players_button;
+    std::unique_ptr<MenuButton> _player_conf_button;
 };
 
 }  // namespace VVipers
