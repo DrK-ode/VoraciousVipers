@@ -18,10 +18,13 @@ class OptionsJSON : public OptionsProvider {
     bool option_boolean(const std::string& optionName) const override;
     std::string option_string(const std::string& optionName) const override;
     double option_double(const std::string& optionName) const override;
+    int option_int(const std::string& optionName) const override;
     Vec2 option_2d_vector(const std::string& optionName) const override;
     std::vector<bool> option_boolean_array(
         const std::string& optionName) const override;
     std::vector<double> option_double_array(
+        const std::string& optionName) const override;
+    std::vector<int> option_int_array(
         const std::string& optionName) const override;
     std::vector<std::string> option_string_array(
         const std::string& optionName) const override;
@@ -40,6 +43,10 @@ class OptionsJSON : public OptionsProvider {
                            double optionValue) override {
         set_option_value(optionName, Json::Value(optionValue));
     }
+    void set_option_int(const std::string& optionName,
+                           int optionValue) override {
+        set_option_value(optionName, Json::Value(optionValue));
+    }
     void set_option_string(const std::string& optionName,
                            const std::string& optionValue) override {
         set_option_value(optionName, Json::Value(optionValue));
@@ -55,6 +62,9 @@ class OptionsJSON : public OptionsProvider {
     void set_option_double_array(
         const std::string& optionName,
         const std::vector<double>& doubleArray) override;
+    void set_option_int_array(
+        const std::string& optionName,
+        const std::vector<int>& intArray) override;
     void set_option_string_array(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) override;

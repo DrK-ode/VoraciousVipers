@@ -43,18 +43,17 @@ ArenaScene::PlayerData ArenaScene::read_player_conf(size_t player) {
         game().options_service().option_string(base_name + "primaryColor"));
     auto color2 = color_from_rgb_string(
         game().options_service().option_string(base_name + "secondaryColor"));
-    auto keys_double =
-        game().options_service().option_double_array(base_name + "keys");
-    std::vector<int> keys_int(keys_double.cbegin(), keys_double.cend());
-    if (keys_int.size() != 3)
+    auto keys =
+        game().options_service().option_int_array(base_name + "keys");
+    if (keys.size() != 3)
         throw std::runtime_error(
             "Wrong number of keys in player configuration.");
-    return {name, color1, color2, keys_int};
+    return {name, color1, color2, keys};
 }
 
 ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
     size_t number_of_players =
-        game.options_service().option_double("Players/numberOfPlayers");
+        game.options_service().option_int("Players/numberOfPlayers");
     std::vector<PlayerData> player_data;
     for (size_t player = 0; player < number_of_players; ++player) {
         player_data.push_back(read_player_conf(player));
