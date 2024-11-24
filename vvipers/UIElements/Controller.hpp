@@ -24,9 +24,9 @@ class Controller {
 class KeyboardController : public Controller {
   public:
     struct KeyboardControls {
-        sf::Keyboard::Key left;
-        sf::Keyboard::Key right;
-        sf::Keyboard::Key boost;
+        sf::Keyboard::Scancode left;
+        sf::Keyboard::Scancode right;
+        sf::Keyboard::Scancode boost;
     };
     KeyboardController(const KeyboardControls& keys) : m_keys(keys) {}
 

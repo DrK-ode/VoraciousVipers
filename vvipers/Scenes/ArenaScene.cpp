@@ -43,8 +43,7 @@ ArenaScene::PlayerData ArenaScene::read_player_conf(size_t player) {
         game().options_service().option_string(base_name + "primaryColor"));
     auto color2 = color_from_rgb_string(
         game().options_service().option_string(base_name + "secondaryColor"));
-    auto keys =
-        game().options_service().option_int_array(base_name + "keys");
+    auto keys = game().options_service().option_int_array(base_name + "keys");
     if (keys.size() != 3)
         throw std::runtime_error(
             "Wrong number of keys in player configuration.");
@@ -104,9 +103,9 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
     // Vipers are added to the member vector _vipers
     for (int i = 0; i < numberOfPlayers; ++i) {
         KeyboardController::KeyboardControls keys;
-        keys.left = sf::Keyboard::Key(player_data[i].keys[0]);
-        keys.right = sf::Keyboard::Key(player_data[i].keys[1]);
-        keys.boost = sf::Keyboard::Key(player_data[i].keys[2]);
+        keys.left = sf::Keyboard::Scancode(player_data[i].keys[0]);
+        keys.right = sf::Keyboard::Scancode(player_data[i].keys[1]);
+        keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
         auto controller = create_controller(keys);
         add_player(player_data[i], std::move(controller), add_viper(),
                    playerViews[i]);
@@ -115,13 +114,13 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
 
 std::unique_ptr<Controller> ArenaScene::create_controller(
     const KeyboardController::KeyboardControls& keys) {
-    if ((keys.left == sf::Keyboard::Unknown) and
-        (keys.right == sf::Keyboard::Unknown) and
-        (keys.boost == sf::Keyboard::Unknown)) {
+    if ((keys.left == sf::Keyboard::Scan::Unknown) and
+        (keys.right == sf::Keyboard::Scan::Unknown) and
+        (keys.boost == sf::Keyboard::Scan::Unknown)) {
         return std::make_unique<MouseController>(game());
-    } else if ((keys.left != sf::Keyboard::Unknown) and
-               (keys.right != sf::Keyboard::Unknown) and
-               (keys.boost != sf::Keyboard::Unknown)) {
+    } else if ((keys.left != sf::Keyboard::Scan::Unknown) and
+               (keys.right != sf::Keyboard::Scan::Unknown) and
+               (keys.boost != sf::Keyboard::Scan::Unknown)) {
         return std::make_unique<KeyboardController>(keys);
     } else
         throw std::runtime_error("Inconsistently set controller keys.");
@@ -160,8 +159,8 @@ void ArenaScene::delete_player(Player* player) {
 
 std::shared_ptr<Viper> ArenaScene::add_viper() {
     static std::vector<Polygon> starting_areas;
-    auto viper = std::make_shared<Viper>(
-        game().options_service(), game().texture_service());
+    auto viper = std::make_shared<Viper>(game().options_service(),
+                                         game().texture_service());
     double length = viper->speed() * 5;  // 5 seconds free space
     double width = viper->nominal_width();
     // Give some margin to the width
@@ -494,8 +493,8 @@ void ArenaScene::process_event(const sf::Event& event) {
             break;
         }
         case sf::Event::KeyPressed: {
-            switch (event.key.code) {
-                case sf::Keyboard::Escape: {
+            switch (event.key.scancode) {
+                case sf::Keyboard::Scan::Escape: {
                     set_run_state(RunState::Paused);
                     set_transition_state(TransitionState::Spawn);
                     _transition_scene = _pause_scene;
