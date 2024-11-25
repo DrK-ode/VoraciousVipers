@@ -19,7 +19,7 @@ class Observable {
     void remove_observer(Observer* observer);
 
   protected:
-    void notify(const GameEvent* event) const;
+    void notify(const GameEvent& event) const;
 
   private:
     std::map<Observer*, std::set<GameEvent::EventType> > _observers;
@@ -31,7 +31,7 @@ class Observer {
     /** The object event is pointing to is only guaranteed to exist at the time
      * of notification. If access to the event is needed later on it should be
      * cloned. **/
-    virtual void on_notify(const GameEvent* event) = 0;
+    virtual void on_notify(const GameEvent& event) {};
 
   private:
     /** The Observable will add itself to this set in order to be able to clean

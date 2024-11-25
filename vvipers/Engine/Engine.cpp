@@ -12,7 +12,7 @@
 
 namespace VVipers {
 
-Engine::Engine(std::unique_ptr<const OptionsProvider> options) {
+Engine::Engine(std::unique_ptr<OptionsProvider> options) {
     _game = std::make_unique<Game>(std::move(options), this);
     Vec2 windowSize =
         _game->options_service().option_2d_vector("General/windowSize");

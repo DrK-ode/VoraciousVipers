@@ -7,10 +7,11 @@
 #include <SFML/Window/Event.hpp>
 #include <vvipers/Engine/Game.hpp>
 #include <vvipers/Utilities/Time.hpp>
+#include "vvipers/GameElements/Observer.hpp"
 
 namespace VVipers {
 
-class MenuItem : public sf::Drawable {
+class MenuItem : public sf::Drawable, public Observable {
   public:
     MenuItem() : m_selected(false){};
     bool contains(double x, double y) const {
@@ -30,7 +31,7 @@ class MenuItem : public sf::Drawable {
     void setPosition(Vec2 position);
     virtual void on_geometry_change(){};
     virtual void on_selection(){};
-    virtual void onEvent(const sf::Event& event){};
+    virtual void on_event(const sf::Event& event){};
 
   private:
     Vec2 m_size;

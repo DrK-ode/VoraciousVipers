@@ -30,7 +30,7 @@ void MenuButton::on_geometry_change() {
     _box.setPosition(position);
     _box.setSize(size);
 
-    unsigned int font_size = 100;
+    /*unsigned int font_size = 50;
     auto margin = 0.2 * size.y;
     while(font_size > 10){
         _text.setCharacterSize(font_size);
@@ -39,7 +39,8 @@ void MenuButton::on_geometry_change() {
             break;
         }
         --font_size;
-    }
+        }*/
+    _text.setCharacterSize(60);
     auto bounds = _text.getLocalBounds();
     _text.setOrigin(bounds.left + 0.5 * bounds.width,
                      bounds.top + 0.5 * bounds.height);

@@ -35,22 +35,22 @@ class Viper::ViperConfiguration {
         boost_recharge_cooldown = time_from_seconds(options.option_double(
             "Viper/boostRechargeCooldown"));  // Countdown start
 
-        head_nominal_length = options.option_double(
-            "ViperModel/ViperHead/nominalLength");  // px
+        head_nominal_length =
+            options.option_double("ViperModel/ViperHead/nominalLength");  // px
         head_duration =
             time_from_seconds(head_nominal_length / nominal_speed);  // s
         head_nodes =
             options.option_2d_vector_array("ViperModel/ViperHead/nodes");
 
-        body_nominal_length = options.option_double(
-            "ViperModel/ViperBody/nominalLength");  // px
+        body_nominal_length =
+            options.option_double("ViperModel/ViperBody/nominalLength");  // px
         body_duration =
             time_from_seconds(body_nominal_length / nominal_speed);  // s
         body_nodes =
             options.option_2d_vector_array("ViperModel/ViperBody/nodes");
 
-        tail_nominal_length = options.option_double(
-            "ViperModel/ViperTail/nominalLength");  // px
+        tail_nominal_length =
+            options.option_double("ViperModel/ViperTail/nominalLength");  // px
         tail_duration =
             time_from_seconds(tail_nominal_length / nominal_speed);  // s
         tail_nodes =
@@ -202,14 +202,12 @@ double Viper::max_angular_speed() const {
 
 void Viper::update(Time elapsedTime) {
     if (state() == Dead) {
-        DestroyEvent event(this);
-        notify(&event);
+        notify(DestroyEvent(this));
         return;
     }
-    if (state() == Dying){
+    if (state() == Dying) {
         die(elapsedTime);  // Allow the viper to die for a while
-    }
-    else {
+    } else {
         create_next_head_temporal_track_point(elapsedTime);
         grow(elapsedTime);
     }
@@ -226,8 +224,7 @@ void Viper::add_boost_charge(Time charge) {
     _boost_charge = std::min(_boost_charge, boost_max());
 
     if (_boost_charge != oldCharge) {
-        ObjectModifiedEvent event(this);
-        notify(&event);
+        notify(ObjectModifiedEvent(this));
     }
 }
 
@@ -413,8 +410,8 @@ sf::Color Viper::calculate_vertex_color(Time time) {
     // Blends the main color with the blend of the two food colors (normally
     // only one will be present)
     return blend_colors(_primaryColor, 1. - sumFactor,
-                       blend_colors(color1, sFactor1, color2, sFactor2),
-                       sumFactor);
+                        blend_colors(color1, sFactor1, color2, sFactor2),
+                        sumFactor);
 }
 
 }  // namespace VVipers

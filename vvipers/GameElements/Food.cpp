@@ -65,8 +65,7 @@ void Food::update(Time elapsedTime) {
     _age += elapsedTime;
     rotate(2 * nominalFoodRadius / sf::CircleShape::getRadius());
     if (state() == Dead) {
-        DestroyEvent event(this);
-        notify(&event);
+        notify(DestroyEvent(this));
         return;
     }
     if (state() == Dying)

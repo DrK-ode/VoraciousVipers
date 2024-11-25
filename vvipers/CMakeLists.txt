@@ -26,6 +26,7 @@ set(INC_FILES
     Scenes/MainMenuScene.hpp
     Scenes/OptionsMenuScene.hpp
     Scenes/PauseScene.hpp
+    Scenes/PlayerConfScene.hpp
     UIElements/Controller.hpp
     UIElements/FlyingScore.hpp
     UIElements/MenuButton.hpp
@@ -33,6 +34,7 @@ set(INC_FILES
     UIElements/MenuScene.hpp
     UIElements/PlayerPanel.hpp
     UIElements/ProgressBar.hpp
+    UIElements/SelectionButton.hpp
     Utilities/debug.hpp
     Utilities/Shape.hpp
     Utilities/Time.hpp
@@ -65,6 +67,7 @@ set(SRC_FILES
     Scenes/MainMenuScene.cpp
     Scenes/OptionsMenuScene.cpp
     Scenes/PauseScene.cpp
+    Scenes/PlayerConfScene.cpp
     UIElements/Controller.cpp
     UIElements/FlyingScore.cpp
     UIElements/MenuButton.cpp
@@ -72,6 +75,7 @@ set(SRC_FILES
     UIElements/MenuScene.cpp
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
+    UIElements/SelectionButton.cpp
     Utilities/Shape.cpp
     Utilities/TriangleStripArray.cpp
     Utilities/Vec2.cpp

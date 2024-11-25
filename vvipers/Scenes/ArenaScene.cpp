@@ -58,7 +58,7 @@ ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
         player_data.push_back(read_player_conf(player));
     }
 
-    auto numberOfDivisions = number_of_players + 1;
+    auto numberOfDivisions = number_of_players;
     Vec2 window_size = game.window().getSize();
     const sf::Vector2f status_bar_relative_size(1. / numberOfDivisions, 0.1);
     const sf::Vector2f status_bar_size(
@@ -100,14 +100,14 @@ ArenaScene::~ArenaScene() {}
 void ArenaScene::add_players(std::vector<PlayerData>& player_data,
                              std::vector<sf::View>& playerViews) {
     auto numberOfPlayers = player_data.size();
-    // Vipers are added to the member vector _vipers
+    std::vector<Polygon> excluded_starting_areas;
     for (int i = 0; i < numberOfPlayers; ++i) {
         KeyboardController::KeyboardControls keys;
         keys.left = sf::Keyboard::Scancode(player_data[i].keys[0]);
         keys.right = sf::Keyboard::Scancode(player_data[i].keys[1]);
         keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
         auto controller = create_controller(keys);
-        add_player(player_data[i], std::move(controller), add_viper(),
+        add_player(player_data[i], std::move(controller), add_viper(excluded_starting_areas),
                    playerViews[i]);
     }
 }
@@ -157,8 +157,8 @@ void ArenaScene::delete_player(Player* player) {
                      }));
 }
 
-std::shared_ptr<Viper> ArenaScene::add_viper() {
-    static std::vector<Polygon> starting_areas;
+std::shared_ptr<Viper> ArenaScene::add_viper(
+    std::vector<Polygon>& excluded_starting_areas) {
     auto viper = std::make_shared<Viper>(game().options_service(),
                                          game().texture_service());
     double length = viper->speed() * 5;  // 5 seconds free space
@@ -166,8 +166,8 @@ std::shared_ptr<Viper> ArenaScene::add_viper() {
     // Give some margin to the width
     Polygon starting_area(Vec2(length, 1.5 * width));
     starting_area.set_anchor(Vec2(-0.5 * length, 0));
-    find_free_space_for(starting_area, true, starting_areas);
-    starting_areas.push_back(starting_area);
+    find_free_space_for(starting_area, true, excluded_starting_areas);
+    excluded_starting_areas.push_back(starting_area);
 
     viper->setup(starting_area.anchor(), starting_area.angle(), 0.5);
 
@@ -428,17 +428,17 @@ void ArenaScene::handle_steering() {
     }
 }
 
-void ArenaScene::handle_destruction(const DestroyEvent* event) {
-    if (typeid(*event->objectPtr) == typeid(Viper))
+void ArenaScene::handle_destruction(const DestroyEvent& event) {
+    if (typeid(*event.objectPtr) == typeid(Viper))
         // we could retrieve the non-const ptr from the player but this is
         // easier
-        delete_viper((Viper*)event->objectPtr);
-    else if (typeid(*event->objectPtr) == typeid(Food))
-        delete_food((Food*)event->objectPtr);
-    else if (typeid(*event->objectPtr) == typeid(FlyingScore)) {
+        delete_viper((Viper*)event.objectPtr);
+    else if (typeid(*event.objectPtr) == typeid(Food))
+        delete_food((Food*)event.objectPtr);
+    else if (typeid(*event.objectPtr) == typeid(FlyingScore)) {
         for (auto flying_score_iter = _flying_scores.begin();
              flying_score_iter != _flying_scores.end(); ++flying_score_iter) {
-            if ((*flying_score_iter).get() == event->objectPtr) {
+            if ((*flying_score_iter).get() == event.objectPtr) {
                 _flying_scores.erase(flying_score_iter);
                 break;
             }
@@ -469,14 +469,14 @@ void ArenaScene::check_for_game_over() {
     _transition_scene = make_shared<GameOverScene>(game(), players);
 }
 
-void ArenaScene::on_notify(const GameEvent* event) {
+void ArenaScene::on_notify(const GameEvent& event) {
     // If directly processable, do it!
-    switch (event->type()) {
+    switch (event.type()) {
         default: {
             // Otherwise save it for later
             _events_to_be_processed.insert(
-                std::pair<GameEvent::EventType, GameEvent*>(event->type(),
-                                                            event->clone()));
+                std::pair<GameEvent::EventType, GameEvent*>(event.type(),
+                                                            event.clone()));
             break;
         }
     }
@@ -515,12 +515,9 @@ void ArenaScene::process_event(const sf::Event& event) {
 void ArenaScene::process_game_events() {
     auto [beginDestroyEvents, endDestroyEvents] =
         _events_to_be_processed.equal_range(GameEvent::EventType::Destroy);
-    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter)
-        handle_destruction(static_cast<const DestroyEvent*>(iter->second));
-    // Delete fully processed events?
-    // For now just delete all...
-    for (auto& event : _events_to_be_processed)
-        delete event.second;
+    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter) {
+        handle_destruction(*dynamic_cast<const DestroyEvent*>(iter->second));
+    }
     _events_to_be_processed.clear();
 }
 

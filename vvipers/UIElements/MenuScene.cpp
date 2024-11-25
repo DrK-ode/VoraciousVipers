@@ -2,13 +2,16 @@
 #include <vvipers/UIElements/MenuScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
 MenuScene::MenuScene(Game& game)
     : Scene(game), m_menuView(game.window().getDefaultView()), m_selectedIndex(-1), m_layout(Vertical) {}
 
-void MenuScene::addItem(MenuItem* menuItem) { m_menuItems.push_back(menuItem); }
+void MenuScene::addItem(MenuItem* menuItem) {
+    m_menuItems.push_back(menuItem);
+}
 
 void MenuScene::delItem(size_t index) {
     m_menuItems.erase(m_menuItems.begin() + index);
@@ -64,7 +67,7 @@ void MenuScene::handleKeyPressed(const sf::Event& event) {
         onReturn();
     } else {
         if (m_selectedIndex < m_menuItems.size())
-            m_menuItems[m_selectedIndex]->onEvent(event);
+            m_menuItems[m_selectedIndex]->on_event(event);
     }
 }
 
@@ -79,6 +82,7 @@ void MenuScene::handleMouseMoved(const sf::Event& event) {
     for (size_t i = 0; i < m_menuItems.size(); ++i) {
         if (m_menuItems[i] == pointedAt) {
             m_selectedIndex = i;
+            m_menuItems[i]->on_event(event);
             break;
         }
     }
@@ -96,6 +100,7 @@ void MenuScene::handleMouseButtonPressed(const sf::Event& event) {
     for( size_t i = 0; i < m_menuItems.size(); ++i )
         if( m_menuItems[i] == clickedMenuItem ){
             m_selectedIndex = i;
+            m_menuItems[i]->on_event(event);
             activateSelected();
             return;
         }
@@ -110,7 +115,7 @@ void MenuScene::handleMouseScroll(const sf::Event& event) {
 
 void MenuScene::handleTextEntered(const sf::Event& event) {
     if (m_selectedIndex < m_menuItems.size())
-        m_menuItems[m_selectedIndex]->onEvent(event);
+        m_menuItems[m_selectedIndex]->on_event(event);
 }
 
 void MenuScene::menuUp() {
@@ -202,7 +207,7 @@ void MenuScene::updateMenuItems(Time elapsedTime) {
 }
 
 void MenuScene::on_activation() {
-    set_run_state(Scene::RunState::Running);
+    set_run_state(RunState::Running);
     set_transition_state(TransitionState::Continue);
 }
 

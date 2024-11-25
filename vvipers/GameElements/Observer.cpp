@@ -19,9 +19,9 @@ void Observable::remove_observer(Observer* observer) {
     observer->_observing.erase(this);
 }
 
-void Observable::notify(const GameEvent* event) const {
+void Observable::notify(const GameEvent& event) const {
     for (auto& observer : _observers)
-        if (observer.second.contains(event->type()))
+        if (observer.second.contains(event.type()))
             observer.first->on_notify(event);
 }
 

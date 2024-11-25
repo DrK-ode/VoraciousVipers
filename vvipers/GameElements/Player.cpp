@@ -18,8 +18,7 @@ void Player::set_colors(sf::Color c1, sf::Color c2) {
     _secondary_color = c2;
     if (_viper)
         _viper->set_colors(c1, c2);
-    ObjectModifiedEvent event(this);
-    notify(&event);
+    notify(ObjectModifiedEvent(this));
 }
 
 }  // namespace VVipers

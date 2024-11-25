@@ -1,13 +1,14 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
-#include <vvipers/UIElements/FlyingScore.hpp>
-#include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/Engine/Providers.hpp>
+#include <vvipers/GameElements/GameEvent.hpp>
+#include <vvipers/UIElements/FlyingScore.hpp>
 
 namespace VVipers {
 
 FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
-                         Vec2 target, Time timeOfFlight, uint64_t score, const FontProvider& fontProvider)
+                         Vec2 target, Time timeOfFlight, uint64_t score,
+                         const FontProvider& fontProvider)
     : m_initialPosition(initialPosition),
       m_initialVelocity(initialVelocity),
       m_timeOfFlight(timeOfFlight),
@@ -39,8 +40,7 @@ void FlyingScore::updateText() {
 
 void FlyingScore::update(Time elapsedTime) {
     if (state() == Dead) {
-        DestroyEvent event(this);
-        notify(&event);
+        notify(DestroyEvent(this));
         return;
     }
     if (state() == Dying)
@@ -53,8 +53,7 @@ void FlyingScore::update(Time elapsedTime) {
         m_text.setPosition(currentPosition);
         if (m_currentTime >= m_timeOfFlight) {
             state(Dying);
-            ScoringEvent event(nullptr, m_score);
-            notify(&event);
+            notify(ScoringEvent(m_score));
         }
     }
 }

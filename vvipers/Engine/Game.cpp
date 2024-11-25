@@ -8,7 +8,7 @@
 
 namespace VVipers {
 
-Game::Game(std::unique_ptr<const OptionsProvider> options, Engine* engine)
+Game::Game(std::unique_ptr<OptionsProvider> options, Engine* engine)
     : _engine(engine),
       _options_provider(std::move(options)),
       _font_provider(std::make_unique<FontFileLoader>(*_options_provider)),

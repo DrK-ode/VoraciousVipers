@@ -14,8 +14,7 @@ namespace {
 
 TEST(JsonTest, basicReadTest) {
     debug::verbosity = Verbosity::Silent;
-    std::ifstream input("test.json");
-    auto options = std::make_unique<OptionsJSON>(input);
+    auto options = std::make_unique<OptionsJSON>("test.json");
 
     EXPECT_FALSE(options->is_option_set("value100"));
     EXPECT_TRUE(options->is_option_set("value1"));
@@ -35,8 +34,7 @@ TEST(JsonTest, basicReadTest) {
 
 TEST(JsonTest, subdirTest) {
     debug::verbosity = Verbosity::Silent;
-    std::ifstream input("test.json");
-    auto options = std::make_unique<OptionsJSON>(input);
+    auto options = std::make_unique<OptionsJSON>("test.json");
 
     EXPECT_THROW(options->option_double("value5"), Json::LogicError);
     EXPECT_THROW(options->option_string("value5"), Json::LogicError);
@@ -47,16 +45,14 @@ TEST(JsonTest, subdirTest) {
 
 TEST(JsonTest, arrayTest) {
     debug::verbosity = Verbosity::Silent;
-    std::ifstream input("test.json");
-    auto options = std::make_unique<OptionsJSON>(input);
+    auto options = std::make_unique<OptionsJSON>("test.json");
     std::vector<double> dblArray = {1, 2, 3, 4, 5, 6};
     EXPECT_EQ(options->option_double_array("value6"), dblArray);
 }
 
 TEST(JsonTest, setTest) {
     debug::verbosity = Verbosity::Silent;
-    std::ifstream input("test.json");
-    auto options = std::make_unique<OptionsJSON>(input);
+    auto options = std::make_unique<OptionsJSON>("test.json");
 
     std::vector<double> dblArray = {1, 2, 3};
     std::vector<Vec2> vec2Array = {Vec2(1, 11), Vec2(2, 22), Vec2(3, 33)};

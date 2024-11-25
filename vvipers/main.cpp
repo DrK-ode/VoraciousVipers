@@ -1,4 +1,3 @@
-#include <fstream>
 #include <memory>
 #include <vvipers/Engine/Engine.hpp>
 #include <vvipers/Engine/FontFileLoader.hpp>
@@ -14,9 +13,8 @@
 namespace VVipers {
 
 void startGame() {
-    std::ifstream cfgFile(CONFIGURATION_FILE_PATH);
     auto options =
-        std::make_unique<OptionsJSON>(cfgFile);  // The one and only instance
+        std::make_unique<OptionsJSON>(CONFIGURATION_FILE_PATH);  // The one and only instance
     const std::string resPathOptStr("General/resourceDirectoryPath");
     if (!options->is_option_set(resPathOptStr))
         options->set_option_string(resPathOptStr, RESOURCE_PATH);

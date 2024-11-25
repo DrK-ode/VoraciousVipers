@@ -1,6 +1,7 @@
 #include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/GameElements/Viper.hpp>
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
@@ -53,19 +54,19 @@ void PlayerPanel::draw(sf::RenderTarget& target,
     target.draw(m_boostBar, states);
 }
 
-void PlayerPanel::on_notify(const GameEvent* event) {
-    if (event->type() == GameEvent::EventType::Scoring) {
-        auto scoringEvent = static_cast<const ScoringEvent*>(event);
+void PlayerPanel::on_notify(const GameEvent& event) {
+    if (event.type() == GameEvent::EventType::Scoring) {
+        const ScoringEvent& scoringEvent = dynamic_cast<const ScoringEvent&>(event);
         // We trust that nobody sends another player's score
-        addScore(scoringEvent->score);
-    } else if (event->type() == GameEvent::EventType::ObjectModified) {
-        const ObjectModifiedEvent* boostEvent =
-            static_cast<const ObjectModifiedEvent*>(event);
-        if (typeid(*boostEvent->object_pointer) == typeid(Viper)) {
+        addScore(scoringEvent.score);
+    } else if (event.type() == GameEvent::EventType::ObjectModified) {
+        const ObjectModifiedEvent& boostEvent =
+            dynamic_cast<const ObjectModifiedEvent&>(event);
+        if (typeid(*boostEvent.object_pointer) == typeid(Viper)) {
             const Viper* viper =
-                static_cast<const Viper*>(boostEvent->object_pointer);
+                static_cast<const Viper*>(boostEvent.object_pointer);
             m_boostBar.setProgress(viper->boost_charge() / viper->boost_max());
-        } else if (typeid(*boostEvent->object_pointer) == typeid(Player)) {
+        } else if (typeid(*boostEvent.object_pointer) == typeid(Player)) {
             updateNameString();
         }
     }

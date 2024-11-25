@@ -32,15 +32,6 @@ class GameEvent {
     EventType _type;
 };
 
-class ApplicationEvent : public GameEvent {
-  public:
-    enum class ApplicationEventType { Exit };
-    ApplicationEvent(ApplicationEventType type)
-        : GameEvent(EventType::Application), eventType(type) {}
-    GameEvent* clone() const override { return new ApplicationEvent(*this); }
-    const ApplicationEventType eventType;
-};
-
 class DestroyEvent : public GameEvent {
   public:
     DestroyEvent(const GameObject* optr)
@@ -68,19 +59,9 @@ class ObjectModifiedEvent : public GameEvent {
 
 class ScoringEvent : public GameEvent {
   public:
-    ScoringEvent(const Player* p, uint64_t s)
-        : GameEvent(EventType::Scoring), player(p), score(s) {}
+    ScoringEvent(uint64_t s) : GameEvent(EventType::Scoring), score(s) {}
     GameEvent* clone() const override { return new ScoringEvent(*this); }
-    const Player* player;
     const uint64_t score;
-};
-
-class UpdateEvent : public GameEvent {
-  public:
-    UpdateEvent(const Time& time)
-        : GameEvent(EventType::Update), elapsed_time(time) {}
-    GameEvent* clone() const override { return new UpdateEvent(*this); }
-    const Time elapsed_time;
 };
 
 }  // namespace VVipers

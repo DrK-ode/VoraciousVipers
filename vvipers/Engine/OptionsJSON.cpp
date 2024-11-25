@@ -1,9 +1,11 @@
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include <fstream>
 
 namespace VVipers {
 
-OptionsJSON::OptionsJSON(std::istream& input) {
+OptionsJSON::OptionsJSON(const std::string& file_path) : _file_path(file_path) {
+    std::ifstream input(file_path.c_str());
     Json::Reader reader;
     reader.parse(input, _json_root);
 }
@@ -205,7 +207,8 @@ void OptionsJSON::set_option_2d_vector_array(
     set_option_value(optionName, array);
 }
 
-void OptionsJSON::write(std::ostream& output) const {
+void OptionsJSON::write() const {
+    std::ofstream output(_file_path.c_str());
     output << _json_root << std::endl;
 }
 

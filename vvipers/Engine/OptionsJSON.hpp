@@ -2,7 +2,6 @@
 
 #include <json/json.h>
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
@@ -12,7 +11,7 @@ namespace VVipers {
 
 class OptionsJSON : public OptionsProvider {
   public:
-    OptionsJSON(std::istream& input);
+    OptionsJSON(const std::string&);
     virtual ~OptionsJSON() {}
 
     bool option_boolean(const std::string& optionName) const override;
@@ -33,7 +32,7 @@ class OptionsJSON : public OptionsProvider {
     bool is_option_set(const std::string& optionName) const override {
         return !option_value(optionName).isNull();
     }
-    void write(std::ostream& output) const override;
+    void write() const override;
 
     void set_option_boolean(const std::string& optionName,
                             bool optionValue) override {
@@ -82,6 +81,7 @@ class OptionsJSON : public OptionsProvider {
     void set_option_array(const std::string& optionName,
                           const std::vector<T>& value);
 
+    const std::string _file_path;
     Json::Value _json_root;
 };
 

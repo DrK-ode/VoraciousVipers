@@ -11,11 +11,11 @@ class Engine;
 
 class Game {
   public:
-    Game(std::unique_ptr<const OptionsProvider> options, Engine* engine);
+    Game(std::unique_ptr<OptionsProvider> options, Engine* engine);
 
     const ColorProvider& color_service() const { return *_color_provider; }
     const FontProvider& font_service() const { return *_font_provider; }
-    const OptionsProvider& options_service() const {
+    OptionsProvider& options_service() const {
         return *_options_provider;
     }
     void set_grab_mouse(bool grabbed);
@@ -27,7 +27,7 @@ class Game {
 
   private:
     Engine* const _engine;
-    const std::unique_ptr<const OptionsProvider> _options_provider;
+    const std::unique_ptr<OptionsProvider> _options_provider;
     const std::unique_ptr<const FontProvider> _font_provider;
     const std::unique_ptr<const TextureProvider> _texture_provider;
     const std::unique_ptr<const ColorProvider> _color_provider;

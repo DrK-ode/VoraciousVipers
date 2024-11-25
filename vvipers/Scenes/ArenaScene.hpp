@@ -26,7 +26,7 @@ class ArenaScene : public Scene, public Observer {
     ArenaScene(Game& game);
     ~ArenaScene();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void on_notify(const GameEvent* event) override;
+    void on_notify(const GameEvent& event) override;
     void process_event(const sf::Event& event) override;
     void update(Time elapsedTime) override;
     std::shared_ptr<Scene> make_transition() override {
@@ -44,7 +44,8 @@ class ArenaScene : public Scene, public Observer {
     Player* add_player(const PlayerData&, std::unique_ptr<Controller>,
                        std::shared_ptr<Viper>, sf::View view);
     void add_players(std::vector<PlayerData>&, std::vector<sf::View>&);
-    std::shared_ptr<Viper> add_viper();
+    std::shared_ptr<Viper> add_viper(
+        std::vector<Polygon>& excluded_starting_areas);
     void check_for_game_over();
     std::unique_ptr<Controller> create_controller(
         const KeyboardController::KeyboardControls& keys);
@@ -60,7 +61,7 @@ class ArenaScene : public Scene, public Observer {
                                  std::vector<Polygon>()) const;
     void handle_collision(const CollisionPair&);
     void handle_collisions();
-    void handle_destruction(const DestroyEvent* event);
+    void handle_destruction(const DestroyEvent& event);
     void handle_object_updates(Time elapsedTime);
     void handle_steering();
     void handle_viper_food_collision(Viper*, size_t, Food*, size_t);

@@ -9,7 +9,7 @@ namespace VVipers {
 
 class Engine {
   public:
-    Engine(std::unique_ptr<const OptionsProvider> options);
+    Engine(std::unique_ptr<OptionsProvider> options);
     Game* game() const { return _game.get(); }
     void set_default_scene(std::shared_ptr<Scene> defaultScene) {
         _defaultScene = std::move(defaultScene);

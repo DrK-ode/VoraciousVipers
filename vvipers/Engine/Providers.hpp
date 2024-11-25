@@ -45,7 +45,7 @@ class OptionsProvider {
     virtual std::vector<Vec2> option_2d_vector_array(
         const std::string& optionName) const = 0;
     virtual bool is_option_set(const std::string& optionName) const = 0;
-    virtual void write(std::ostream& output) const = 0;
+    virtual void write() const = 0;
 
     virtual void set_option_boolean(const std::string& optionName,
                                     bool optionValue) = 0;
