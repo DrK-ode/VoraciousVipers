@@ -1,5 +1,4 @@
-#ifndef VVIPERS_SCENES_UIELEMENTS_MENUITEM_HPP
-#define VVIPERS_SCENES_UIELEMENTS_MENUITEM_HPP
+#pragma once
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -13,32 +12,30 @@ namespace VVipers {
 
 class MenuItem : public sf::Drawable, public Observable {
   public:
-    MenuItem() : m_selected(false){};
+    MenuItem() : _selected(false){};
     bool contains(double x, double y) const {
-        return getLocalBounds().contains(x, y);
+        return local_bounds().contains(x, y);
     }
     bool contains(Vec2 point) const { return contains(point.x, point.y); }
     virtual void draw(sf::RenderTarget& target,
                       sf::RenderStates states) const override{};
     virtual void set_colors( sf::Color fill, sf::Color border, sf::Color text) {};
     virtual void update(Time elapsedTime){};
-    void setSelected(bool selected);
-    bool isSelected() const { return m_selected; }
-    sf::FloatRect getLocalBounds() const;
-    Vec2 getSize() const { return m_size; }
-    void setSize(Vec2 size);
-    Vec2 getPosition() const { return m_position; }
-    void setPosition(Vec2 position);
+    void set_selected(bool selected);
+    bool is_selected() const { return _selected; }
+    sf::FloatRect local_bounds() const;
+    Vec2 size() const { return _size; }
+    void set_size(Vec2 size);
+    Vec2 position() const { return _position; }
+    void set_position(Vec2 position);
     virtual void on_geometry_change(){};
     virtual void on_selection(){};
     virtual void on_event(const sf::Event& event){};
 
   private:
-    Vec2 m_size;
-    Vec2 m_position;
-    bool m_selected;
+    Vec2 _size;
+    Vec2 _position;
+    bool _selected;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_SCENES_UIELEMENTS_MENUITEM_HPP

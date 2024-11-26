@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_FLYINGSCORE_HPP
-#define VVIPERS_UIELEMENTS_FLYINGSCORE_HPP
+#pragma once
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -21,23 +20,21 @@ class FlyingScore : public sf::Drawable, public GameObject, public Observable {
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void update(Time elapsedTime);
-    void setColor(sf::Color fillColor,
+    void set_color(sf::Color fillColor,
                   sf::Color outlineColor = sf::Color::Transparent);
-    void setFontSize(unsigned int characterSize, double outlineThickness = 0.);
+    void set_font_size(unsigned int characterSize, double outlineThickness = 0.);
 
   private:
-    void updateText();
+    void update_text();
 
-    Vec2 m_initialPosition;  // px
-    Vec2 m_initialVelocity;  // px/s
-    Vec2 m_acceleration;     // px/s²
-    Time m_timeOfFlight;     // s
-    Time m_currentTime;      // s
-    uint64_t m_score;
-    sf::Text m_text;
-    const sf::Font* m_font;
+    Vec2 _initial_position;  // px
+    Vec2 _initial_velocity;  // px/s
+    Vec2 _acceleration;     // px/s²
+    Time _time_of_flight;     // s
+    Time _current_time;      // s
+    uint64_t _score;
+    sf::Text _text;
+    const sf::Font* _font;
 };
 
 }  // namespace VVipers
-
-#endif // VVIPERS_UIELEMENTS_FLYINGSCORE_HPP

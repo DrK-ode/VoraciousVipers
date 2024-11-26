@@ -1,103 +1,107 @@
-#include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/GameElements/Viper.hpp>
+#include <vvipers/UIElements/PlayerPanel.hpp>
+
 #include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
 PlayerPanel::PlayerPanel(sf::View view, const Player* player,
-                         const FontProvider& fontProvider)
-    : m_view(view), m_player(player), m_score(player->score()) {
-    m_font = fontProvider.default_font();
+                         const FontProvider& font_provider)
+    : _view(view), _player(player), _score(player->score()) {
+    _font = font_provider.default_font();
     // Set text properties
-    m_nameText.setFont(*m_font);
-    const int characterSize = 0.25 * m_view.getSize().y;  // px
-    m_nameText.setCharacterSize(characterSize);
+    _name_text.setFont(*_font);
+    const int characterSize = 0.25 * _view.getSize().y;  // px
+    _name_text.setCharacterSize(characterSize);
     // Set the name string and the position (dependent on string size)
-    updateNameString();
+    update_name_string();
     // Set positions
-    Vec2 spacing = Vec2(0.025, 0.1) * Vec2(m_view.getSize());
-    Vec2 boostBarPos = spacing;
-    Vec2 boostBarSize = Vec2(0.05, 0.8) * Vec2(m_view.getSize());
-    Vec2 scoreBarSize =
-        Vec2(m_view.getSize().x - 3 * spacing.x - boostBarSize.x, 0.25 * m_view.getSize().y);
-    Vec2 namePosition = boostBarPos + Vec2(spacing.x + boostBarSize.x,
-                                           m_nameText.getLocalBounds().top);
-    Vec2 scoreBarPos =
-        Vec2(namePosition.x, m_view.getSize().y - 2 * spacing.y - scoreBarSize.y);
-    m_boostBar.setPosition(spacing);
-    m_nameText.setPosition(namePosition);
-    m_scoreBar.setPosition(scoreBarPos);
+    Vec2 spacing = Vec2(0.025, 0.1) * Vec2(_view.getSize());
+    Vec2 boost_bar_position = spacing;
+    Vec2 boost_bar_size = Vec2(0.05, 0.8) * Vec2(_view.getSize());
+    Vec2 score_bar_size =
+        Vec2(_view.getSize().x - 3 * spacing.x - boost_bar_size.x,
+             0.25 * _view.getSize().y);
+    Vec2 name_position =
+        boost_bar_position +
+        Vec2(spacing.x + boost_bar_size.x, _name_text.getLocalBounds().top);
+    Vec2 score_bar_position = Vec2(
+        name_position.x, _view.getSize().y - 2 * spacing.y - score_bar_size.y);
+    _boost_bar.set_position(spacing);
+    _name_text.setPosition(name_position);
+    _score_bar.set_position(score_bar_position);
     // Setup boost bar
-    m_boostBar.setSize(boostBarSize);
-    m_boostBar.setBorderWidth(2);
-    m_boostBar.setBarColor(player->secondary_color());
-    m_boostBar.setBorderColor(player->primary_color());
-    m_boostBar.setVertical(true);
-    m_boostBar.setProgress( time_as_seconds(player->viper()->boost_charge()));
+    _boost_bar.set_size(boost_bar_size);
+    _boost_bar.set_border_width(2);
+    _boost_bar.set_bar_color(player->secondary_color());
+    _boost_bar.set_border_color(player->primary_color());
+    _boost_bar.set_vertical(true);
+    _boost_bar.set_progress(time_as_seconds(player->viper()->boost_charge()));
     // Setup score bar
-    m_scoreBar.setSize(scoreBarSize);
-    m_scoreBar.setBorderWidth(2);
-    m_scoreBar.setBarColor(player->secondary_color());
-    m_scoreBar.setBorderColor(player->primary_color());
-    m_scoreBar.setTextProperties(m_font, 0.8 * characterSize,
+    _score_bar.set_size(score_bar_size);
+    _score_bar.set_border_width(2);
+    _score_bar.set_bar_color(player->secondary_color());
+    _score_bar.set_border_color(player->primary_color());
+    _score_bar.set_text_properties(_font, 0.8 * characterSize,
                                  player->primary_color(),
                                  ProgressBar::ProgressTextStyle::IntegerRatio);
-    m_scoreBar.setShowText(true);
-    updateScoreString();
+    _score_bar.set_show_text(true);
+    update_score_string();
 }
 
 void PlayerPanel::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
-    target.draw(m_nameText, states);
-    target.draw(m_scoreBar, states);
-    target.draw(m_boostBar, states);
+    target.draw(_name_text, states);
+    target.draw(_score_bar, states);
+    target.draw(_boost_bar, states);
 }
 
 void PlayerPanel::on_notify(const GameEvent& event) {
     if (event.type() == GameEvent::EventType::Scoring) {
-        const ScoringEvent& scoringEvent = dynamic_cast<const ScoringEvent&>(event);
+        const ScoringEvent& scoringEvent =
+            dynamic_cast<const ScoringEvent&>(event);
         // We trust that nobody sends another player's score
-        addScore(scoringEvent.score);
+        add_score(scoringEvent.score);
     } else if (event.type() == GameEvent::EventType::ObjectModified) {
         const ObjectModifiedEvent& boostEvent =
             dynamic_cast<const ObjectModifiedEvent&>(event);
         if (typeid(*boostEvent.object_pointer) == typeid(Viper)) {
             const Viper* viper =
                 static_cast<const Viper*>(boostEvent.object_pointer);
-            m_boostBar.setProgress(viper->boost_charge() / viper->boost_max());
+            _boost_bar.set_progress(viper->boost_charge() / viper->boost_max());
         } else if (typeid(*boostEvent.object_pointer) == typeid(Player)) {
-            updateNameString();
+            update_name_string();
         }
     }
 }
 
-void PlayerPanel::updateNameString() {
-    m_nameText.setString(m_player->name());
-    m_nameText.setFillColor(m_player->primary_color());
+void PlayerPanel::update_name_string() {
+    _name_text.setString(_player->name());
+    _name_text.setFillColor(_player->primary_color());
 }
 
-void PlayerPanel::updateScoreString() {
-    updateScoreLimits();
-    m_scoreBar.setProgress(m_score);
+void PlayerPanel::update_score_string() {
+    update_score_limits();
+    _score_bar.set_progress(_score);
 }
 
-Vec2 PlayerPanel::getScoreTarget() const {
-    auto lb = m_scoreBar.getLocalBounds();
-    auto [low, high] = m_scoreBar.getProgressLimits();
-    return m_scoreBar.getPosition() +
-           Vec2(0.5, (m_scoreBar.getProgress() - low) / (high - low)) *
-               Vec2(lb.left + lb.width, lb.top + lb.height);
+Vec2 PlayerPanel::score_target() const {
+    auto bounds = _score_bar.local_bounds();
+    auto [low, high] = _score_bar.progress_limits();
+    return _score_bar.position() +
+           Vec2(0.5, (_score_bar.progress() - low) / (high - low)) *
+               Vec2(bounds.left + bounds.width, bounds.top + bounds.height);
 }
 
-void PlayerPanel::addScore(score_t score) {
-    m_score += score;
-    updateScoreString();
+void PlayerPanel::add_score(score_t score) {
+    _score += score;
+    update_score_string();
 }
 
-void PlayerPanel::updateScoreLimits() {
-    m_scoreBar.setProgressLimits(
-        0, Player::calculate_level_limit(Player::calculate_level(m_score) + 1));
+void PlayerPanel::update_score_limits() {
+    _score_bar.set_progress_limits(
+        0, Player::calculate_level_limit(Player::calculate_level(_score) + 1));
 }
 
 }  // namespace VVipers

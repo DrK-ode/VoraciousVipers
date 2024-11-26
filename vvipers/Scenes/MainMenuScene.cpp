@@ -13,26 +13,26 @@ MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
     sf::View menuView(Vec2(0.25 * size), 0.5 * Vec2(size.x, size.y));
     // Relative position and size in screen coordinates
     menuView.setViewport(sf::FloatRect(0.25, 0.25, 0.5, 0.5));
-    setMenuView(menuView);
+    set_menu_view(menuView);
 
     _play_button = std::make_unique<MenuButton>();
     _play_button->set_label("Play");
     _play_button->set_font(*game.font_service().default_font());
-    addItem(_play_button.get());
+    add_item(_play_button.get());
 
     _options_button = std::make_unique<MenuButton>();
     _options_button->set_label("Options");
     _options_button->set_font(*game.font_service().default_font());
-    addItem(_options_button.get());
+    add_item(_options_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
     _quit_button->set_label("Quit");
     _quit_button->set_font(*game.font_service().default_font());
-    addItem(_quit_button.get());
+    add_item(_quit_button.get());
 
-    distributeMenuItems();
-    setSelectedIndex(0);
-    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+    distribute_menu_items();
+    set_selected_index(0);
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
               game.color_service().get_color(1));
 }
 

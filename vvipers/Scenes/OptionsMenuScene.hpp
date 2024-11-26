@@ -16,7 +16,7 @@ class OptionsMenuScene : public MenuScene {
     std::shared_ptr<Scene> make_transition() override;
     void on_activation() override;
     void on_notify(const GameEvent&) override;
-    void onReturn() override;
+    void on_return() override;
 
   private:
     std::unique_ptr<MenuButton> _back_button;

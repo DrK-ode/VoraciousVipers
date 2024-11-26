@@ -14,7 +14,7 @@ class PlayerConfScene : public MenuScene {
     void on_menu_item_activation(MenuItem* menuItem) override;
     std::shared_ptr<Scene> make_transition() override;
     void on_notify(const GameEvent& event) override;
-    void onReturn() override;
+    void on_return() override;
 
   private:
     std::vector<std::string> keys_to_strings(const std::vector<int>&) const;

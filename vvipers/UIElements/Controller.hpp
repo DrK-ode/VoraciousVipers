@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_CONTROLLER_HPP
-#define VVIPERS_UIELEMENTS_CONTROLLER_HPP
+#pragma once
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -28,22 +27,21 @@ class KeyboardController : public Controller {
         sf::Keyboard::Scancode right;
         sf::Keyboard::Scancode boost;
     };
-    KeyboardController(const KeyboardControls& keys) : m_keys(keys) {}
+    KeyboardController(const KeyboardControls& keys) : _keys(keys) {}
 
   private:
     virtual SteeringCommand control() const override;
-    KeyboardControls m_keys;
+    KeyboardControls _keys;
 };
 
 class MouseController : public Controller {
   public:
     MouseController(Game& game);
-    ~MouseController() { m_game.set_grab_mouse(false); }
+    ~MouseController() { _game.set_grab_mouse(false); }
 
   private:
     virtual SteeringCommand control() const override;
-    Game& m_game;
+    Game& _game;
 };
 
 }  // namespace VVipers
-#endif  // VVIPERS_UIELEMENTS_CONTROLLER_HPP

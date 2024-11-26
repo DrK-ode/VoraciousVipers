@@ -20,21 +20,21 @@ PauseScene::PauseScene(Game& game) : MenuScene(game) {
     // Relative position and size in screen coordinates
     menu_view.setViewport(
         sf::FloatRect(0.5 * (Vec2(1, 1) - menu_relative_size), menu_relative_size));
-    setMenuView(menu_view);
+    set_menu_view(menu_view);
 
     _continue_button = std::make_unique<MenuButton>();
     _continue_button->set_label("Continue");
     _continue_button->set_font(*game.font_service().default_font());
-    addItem(_continue_button.get());
+    add_item(_continue_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
     _quit_button->set_label("Quit to main menu");
     _quit_button->set_font(*game.font_service().default_font());
-    addItem(_quit_button.get());
+    add_item(_quit_button.get());
 
-    setSelectedIndex(0);
-    distributeMenuItems();
-    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+    set_selected_index(0);
+    distribute_menu_items();
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
               game.color_service().get_color(1));
 
     set_draw_state(DrawState::Transparent);

@@ -16,38 +16,38 @@ PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
                       Vec2(.75 * size.x, .5 * size.y));
     // Relative position and size in screen coordinates
     menuView.setViewport(sf::FloatRect(.125, .25, .75, .5));
-    setMenuView(menuView);
+    set_menu_view(menuView);
 
     std::vector<size_t> player_numbers = {1, 2, 3, 4};
     _player_button =
         std::make_unique<SelectionButton<size_t>>("Player: ", player_numbers);
     _player_button->set_font(*game.font_service().default_font());
-    addItem(_player_button.get());
+    add_item(_player_button.get());
     _player_button->add_observer(this, {GameEvent::EventType::Menu});
 
     _set_left_button = std::make_unique<MenuButton>();
     _set_left_button->set_font(*game.font_service().default_font());
-    addItem(_set_left_button.get());
+    add_item(_set_left_button.get());
 
     _set_right_button = std::make_unique<MenuButton>();
     _set_right_button->set_font(*game.font_service().default_font());
-    addItem(_set_right_button.get());
+    add_item(_set_right_button.get());
 
     _set_boost_button = std::make_unique<MenuButton>();
     _set_boost_button->set_font(*game.font_service().default_font());
-    addItem(_set_boost_button.get());
+    add_item(_set_boost_button.get());
 
     _back_button = std::make_unique<MenuButton>();
     _back_button->set_label("Back");
     _back_button->set_font(*game.font_service().default_font());
-    addItem(_back_button.get());
+    add_item(_back_button.get());
 
     update_labels();
 
-    setSelectedIndex(0);
-    distributeMenuItems();
+    set_selected_index(0);
+    distribute_menu_items();
     set_draw_state(DrawState::Transparent);
-    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
               game.color_service().get_color(1));
 }
 
@@ -99,10 +99,10 @@ void PlayerConfScene::update_labels() {
     _set_right_button->set_label("Right: " + key_strings[1]);
     _set_boost_button->set_label("Boost: " + key_strings[2]);
 
-    distributeMenuItems();
+    distribute_menu_items();
 }
 
-void PlayerConfScene::onReturn() {
+void PlayerConfScene::on_return() {
     set_run_state(RunState::Paused);
     set_transition_state(TransitionState::Return);
     game().options_service().write();

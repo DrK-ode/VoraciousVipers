@@ -6,36 +6,36 @@
 
 namespace VVipers {
 
-FlyingScore::FlyingScore(Vec2 initialPosition, Vec2 initialVelocity,
-                         Vec2 target, Time timeOfFlight, uint64_t score,
-                         const FontProvider& fontProvider)
-    : m_initialPosition(initialPosition),
-      m_initialVelocity(initialVelocity),
-      m_timeOfFlight(timeOfFlight),
-      m_currentTime(0),
-      m_score(score) {
-    auto tof = time_as_seconds(m_timeOfFlight);
+FlyingScore::FlyingScore(Vec2 initial_position, Vec2 initial_velocity,
+                         Vec2 target, Time time_of_flight, uint64_t score,
+                         const FontProvider& font_provider)
+    : _initial_position(initial_position),
+      _initial_velocity(initial_velocity),
+      _time_of_flight(time_of_flight),
+      _current_time(0),
+      _score(score) {
+    auto tof = time_as_seconds(_time_of_flight);
     // Constant acceleration
-    m_acceleration = 2 *
-                     (target - m_initialPosition - m_initialVelocity * tof) /
-                     (tof * tof);
+    _acceleration = 2 * (target - _initial_position - _initial_velocity * tof) /
+                    (tof * tof);
     // Load and set font
-    m_font = fontProvider.default_font();
-    m_text.setFont(*m_font);
-    updateText();
-    auto lb = m_text.getLocalBounds();
-    m_text.setOrigin(0.5 * (lb.left + lb.width), 0.5 * (lb.top + lb.height));
+    _font = font_provider.default_font();
+    _text.setFont(*_font);
+    update_text();
+    auto bounds = _text.getLocalBounds();
+    _text.setOrigin(0.5 * (bounds.left + bounds.width),
+                    0.5 * (bounds.top + bounds.height));
 }
 
 void FlyingScore::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
-    target.draw(m_text, states);
+    target.draw(_text, states);
 }
 
-void FlyingScore::updateText() {
+void FlyingScore::update_text() {
     std::stringstream ss;
-    ss << '+' << m_score;
-    m_text.setString(ss.str());
+    ss << '+' << _score;
+    _text.setString(ss.str());
 }
 
 void FlyingScore::update(Time elapsedTime) {
@@ -46,27 +46,27 @@ void FlyingScore::update(Time elapsedTime) {
     if (state() == Dying)
         state(Dead);
     else {
-        m_currentTime += elapsedTime;
-        auto t = time_as_seconds(m_currentTime);
-        auto currentPosition = m_initialPosition + m_initialVelocity * t +
-                               0.5 * m_acceleration * t * t;
-        m_text.setPosition(currentPosition);
-        if (m_currentTime >= m_timeOfFlight) {
+        _current_time += elapsedTime;
+        auto t = time_as_seconds(_current_time);
+        auto currentPosition = _initial_position + _initial_velocity * t +
+                               0.5 * _acceleration * t * t;
+        _text.setPosition(currentPosition);
+        if (_current_time >= _time_of_flight) {
             state(Dying);
-            notify(ScoringEvent(m_score));
+            notify(ScoringEvent(_score));
         }
     }
 }
 
-void FlyingScore::setColor(sf::Color fillColor, sf::Color outlineColor) {
-    m_text.setFillColor(fillColor);
-    m_text.setOutlineColor(outlineColor);
+void FlyingScore::set_color(sf::Color fill_color, sf::Color outline_color) {
+    _text.setFillColor(fill_color);
+    _text.setOutlineColor(outline_color);
 }
 
-void FlyingScore::setFontSize(unsigned int characterSize,
-                              double outlineThickness) {
-    m_text.setCharacterSize(characterSize);
-    m_text.setOutlineThickness(outlineThickness);
+void FlyingScore::set_font_size(unsigned int character_size,
+                                double outline_thickness) {
+    _text.setCharacterSize(character_size);
+    _text.setOutlineThickness(outline_thickness);
 }
 
 }  // namespace VVipers

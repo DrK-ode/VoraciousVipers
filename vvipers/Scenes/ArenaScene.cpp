@@ -148,7 +148,7 @@ void ArenaScene::delete_player(Player* player) {
     _player_panels.erase(
         std::find_if(_player_panels.begin(), _player_panels.end(),
                      [player](std::unique_ptr<PlayerPanel>& panel) {
-                         return panel->getPlayer() == player;
+                         return panel->player() == player;
                      }));
     _players.erase(
         std::find_if(_players.begin(), _players.end(),
@@ -212,7 +212,7 @@ PlayerPanel* ArenaScene::find_player_panel(const Player* player) const {
     auto iter =
         std::find_if(_player_panels.begin(), _player_panels.end(),
                      [player](const std::unique_ptr<PlayerPanel>& panel) {
-                         return panel->getPlayer() == player;
+                         return panel->player() == player;
                      });
     if (iter == _player_panels.end())
         return nullptr;
@@ -284,7 +284,7 @@ void ArenaScene::dispense_food() {
 void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.clear(sf::Color::Black);
     for (const auto& panel : _player_panels) {
-        target.setView(panel->getView());
+        target.setView(panel->view());
         target.draw(*panel, states);
     }
     target.setView(_game_view);
@@ -355,11 +355,11 @@ void ArenaScene::handle_viper_food_collision(Viper* viper,
             Vec2(game().window().mapCoordsToPixel(food->getPosition(),
                                                   _game_view)),
             4 * viper->velocity(),
-            Vec2(game().window().mapCoordsToPixel(panel->getScoreTarget(),
-                                                  panel->getView())),
+            Vec2(game().window().mapCoordsToPixel(panel->score_target(),
+                                                  panel->view())),
             1s, score, game().font_service()));
-    flyingScore->setColor(sf::Color::Magenta, sf::Color::Red);
-    flyingScore->setFontSize(0.03 * game().window().getSize().y, 1.0);
+    flyingScore->set_color(sf::Color::Magenta, sf::Color::Red);
+    flyingScore->set_font_size(0.03 * game().window().getSize().y, 1.0);
     flyingScore->add_observer(this, {GameEvent::EventType::Destroy});
     flyingScore->add_observer(panel, {GameEvent::EventType::Scoring});
 }

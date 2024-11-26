@@ -15,17 +15,17 @@ void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void MenuButton::on_selection() {
-    if (isSelected())
-        _box.setOutlineThickness(
-            -std::max(1., 0.05 * getSize().y));
+    if (is_selected())
+        _box.setOutlineThickness(-std::max(1., 0.05 * size().y));
     else
         _box.setOutlineThickness(0);
 }
 
 void MenuButton::on_geometry_change() {
-    auto size = getSize();
-    auto position = getPosition();
-    if( size == Vec2(0,0) ) return;
+    Vec2 size = this->size();
+    Vec2 position = this->position();
+    if (size == Vec2(0, 0))
+        return;
 
     _box.setPosition(position);
     _box.setSize(size);
@@ -43,7 +43,7 @@ void MenuButton::on_geometry_change() {
     _text.setCharacterSize(60);
     auto bounds = _text.getLocalBounds();
     _text.setOrigin(bounds.left + 0.5 * bounds.width,
-                     bounds.top + 0.5 * bounds.height);
+                    bounds.top + 0.5 * bounds.height);
     _text.setPosition(position + size / 2);
 
     on_selection();

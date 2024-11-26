@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_PLAYERPANEL_HPP
-#define VVIPERS_UIELEMENTS_PLAYERPANEL_HPP
+#pragma once
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -17,29 +16,27 @@ class FontProvider;
 class PlayerPanel : public sf::Drawable, public Observer {
   public:
     PlayerPanel(sf::View view, const Player* player,
-                const FontProvider& fontProvider);
+                const FontProvider& font_provider);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_notify(const GameEvent& event) override;
-    const Player* getPlayer() const { return m_player; }
-    Vec2 getScoreTarget() const;
-    sf::View getView() const { return m_view; }
-    void setView(sf::View view) { m_view = view; }
+    const Player* player() const { return _player; }
+    Vec2 score_target() const;
+    sf::View view() const { return _view; }
+    void set_view(sf::View view) { _view = view; }
 
   private:
-    void updateNameString();
-    void updateScoreString();
-    void updateScoreLimits();
-    void addScore(score_t score);
+    void update_name_string();
+    void update_score_string();
+    void update_score_limits();
+    void add_score(score_t score);
 
-    sf::View m_view;
-    const Player* m_player;
-    score_t m_score;
-    sf::Text m_nameText;
-    const sf::Font* m_font;
-    ProgressBar m_boostBar;
-    ProgressBar m_scoreBar;
+    sf::View _view;
+    const Player* _player;
+    score_t _score;
+    sf::Text _name_text;
+    const sf::Font* _font;
+    ProgressBar _boost_bar;
+    ProgressBar _score_bar;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_UIELEMENTS_PLAYERPANEL_HPP

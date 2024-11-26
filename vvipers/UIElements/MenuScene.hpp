@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_MENUSCENE_HPP
-#define VVIPERS_UIELEMENTS_MENUSCENE_HPP
+#pragma once
 
 #include <SFML/Graphics/View.hpp>
 #include <vector>
@@ -19,47 +18,45 @@ class MenuScene : public Scene, public Observer {
 
     MenuScene(Game& game);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void distributeMenuItems();
-    void setColors( sf::Color fill, sf::Color border, sf::Color text);
+    void distribute_menu_items();
+    void set_colors( sf::Color fill, sf::Color border, sf::Color text);
     void process_event(const sf::Event& event) override;
     void update(Time elapsedTime) override;
-    void updateMenuItems(Time elapsedTime);
-    sf::View getMenuView() const { return m_menuView; }
-    void setMenuView(sf::View view) { m_menuView = view; }
-    void addItem(MenuItem* menuItem);
-    void delItem(size_t index);
-    const MenuItem* getItem(int index) const { return m_menuItems[index]; }
-    const MenuItem* getSelected() const;
-    void setSelectedIndex(size_t index);
-    size_t getNumberOfMenuItems() const { return m_menuItems.size(); }
-    LayoutOrientation getLayoutOrientation() const { return m_layout; }
-    void setLayoutOrientation(LayoutOrientation lo) { m_layout = lo; }
+    void update_menu_items(Time elapsedTime);
+    sf::View menu_view() const { return _menu_view; }
+    void set_menu_view(sf::View view) { _menu_view = view; }
+    void add_item(MenuItem* menuItem);
+    void delete_item(size_t index);
+    const MenuItem* item(int index) const { return _menu_items[index]; }
+    const MenuItem* selected() const;
+    void set_selected_index(size_t index);
+    size_t number_of_menu_items() const { return _menu_items.size(); }
+    LayoutOrientation layout_orientation() const { return _layout; }
+    void set_layout_orientation(LayoutOrientation lo) { _layout = lo; }
     virtual void on_menu_item_activation(MenuItem* menuItem){};
-    virtual void onReturn() { set_transition_state(TransitionState::Return); }
+    virtual void on_return() { set_transition_state(TransitionState::Return); }
     virtual void on_activation() override;
-    void menuUp();
-    void menuDown();
-    void activateSelected();
-    virtual void handleKeyPressed(const sf::Event& event);
-    virtual void handleMouseMoved(const sf::Event& event);
-    virtual void handleMouseButtonPressed(const sf::Event& event);
-    virtual void handleMouseScroll(const sf::Event& event);
-    virtual void handleTextEntered(const sf::Event& event);
+    void menu_up();
+    void menu_down();
+    void activate_selected();
+    virtual void handle_key_pressed(const sf::Event& event);
+    virtual void handle_mouse_moved(const sf::Event& event);
+    virtual void handle_mouse_button_pressed(const sf::Event& event);
+    virtual void handle_mouse_scroll(const sf::Event& event);
+    virtual void handle_text_entered(const sf::Event& event);
 
   protected:
     virtual void draw_background(sf::RenderTarget& target,
                         sf::RenderStates states) const {};
 
   private:
-    MenuItem* menuItemAtCoords(Vec2 coords) const;
-    void swapSelected(size_t oldSelected, size_t newSelected);
+    MenuItem* menu_item_at_coordinates(Vec2 coords) const;
+    void swap_selected(size_t oldSelected, size_t newSelected);
 
-    sf::View m_menuView;
-    std::vector<MenuItem*> m_menuItems;
-    size_t m_selectedIndex;
-    LayoutOrientation m_layout;
+    sf::View _menu_view;
+    std::vector<MenuItem*> _menu_items;
+    size_t _selected_index;
+    LayoutOrientation _layout;
 };
 
 }  // namespace VVipers
-
-#endif // VVIPERS_UIELEMENTS_MENUSCENE_HPP
