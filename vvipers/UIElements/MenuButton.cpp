@@ -30,17 +30,16 @@ void MenuButton::on_geometry_change() {
     _box.setPosition(position);
     _box.setSize(size);
 
-    /*unsigned int font_size = 50;
-    auto margin = 0.2 * size.y;
-    while(font_size > 10){
+    unsigned int font_size = 50;
+    double margin = 0.06 * size.y;
+    while (font_size > 10) {
         _text.setCharacterSize(font_size);
         auto bounds = _text.getLocalBounds();
-        if( bounds.height + margin < size.y && bounds.width + margin < size.x){
+        if (bounds.height + margin < size.y && bounds.width + margin < size.x) {
             break;
         }
         --font_size;
-        }*/
-    _text.setCharacterSize(60);
+    }
     auto bounds = _text.getLocalBounds();
     _text.setOrigin(bounds.left + 0.5 * bounds.width,
                     bounds.top + 0.5 * bounds.height);
