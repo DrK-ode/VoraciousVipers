@@ -44,10 +44,12 @@ ArenaScene::PlayerData ArenaScene::read_player_conf(size_t player) {
     auto color2 = color_from_rgb_string(
         game().options_service().option_string(base_name + "secondaryColor"));
     auto keys = game().options_service().option_int_array(base_name + "keys");
+    auto mouse_enabled =
+        game().options_service().option_boolean(base_name + "mouseEnabled");
     if (keys.size() != 3)
         throw std::runtime_error(
             "Wrong number of keys in player configuration.");
-    return {name, color1, color2, keys};
+    return {name, color1, color2, keys, mouse_enabled};
 }
 
 ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
@@ -102,28 +104,19 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
     auto numberOfPlayers = player_data.size();
     std::vector<Polygon> excluded_starting_areas;
     for (int i = 0; i < numberOfPlayers; ++i) {
-        KeyboardController::KeyboardControls keys;
-        keys.left = sf::Keyboard::Scancode(player_data[i].keys[0]);
-        keys.right = sf::Keyboard::Scancode(player_data[i].keys[1]);
-        keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
-        auto controller = create_controller(keys);
+        std::unique_ptr<Controller> controller;
+        if (player_data[i].mouse_enabled) {
+            controller = std::make_unique<MouseController>(game());
+        } else {
+            KeyboardController::KeyboardControls keys;
+            keys.left = sf::Keyboard::Scancode(player_data[i].keys[0]);
+            keys.right = sf::Keyboard::Scancode(player_data[i].keys[1]);
+            keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
+            controller = std::make_unique<KeyboardController>(keys);
+        }
         add_player(player_data[i], std::move(controller),
                    add_viper(excluded_starting_areas), playerViews[i]);
     }
-}
-
-std::unique_ptr<Controller> ArenaScene::create_controller(
-    const KeyboardController::KeyboardControls& keys) {
-    if ((keys.left == sf::Keyboard::Scan::Unknown) and
-        (keys.right == sf::Keyboard::Scan::Unknown) and
-        (keys.boost == sf::Keyboard::Scan::Unknown)) {
-        return std::make_unique<MouseController>(game());
-    } else if ((keys.left != sf::Keyboard::Scan::Unknown) and
-               (keys.right != sf::Keyboard::Scan::Unknown) and
-               (keys.boost != sf::Keyboard::Scan::Unknown)) {
-        return std::make_unique<KeyboardController>(keys);
-    } else
-        throw std::runtime_error("Inconsistently set controller keys.");
 }
 
 Player* ArenaScene::add_player(const PlayerData& data,

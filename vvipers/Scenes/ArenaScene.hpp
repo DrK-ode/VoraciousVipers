@@ -39,6 +39,7 @@ class ArenaScene : public Scene, public Observer {
         sf::Color primary_color;
         sf::Color secondary_color;
         std::vector<int> keys;
+        bool mouse_enabled;
     };
     void add_food(Vec2 position, double diameter);
     Player* add_player(const PlayerData&, std::unique_ptr<Controller>,
@@ -47,8 +48,6 @@ class ArenaScene : public Scene, public Observer {
     std::shared_ptr<Viper> add_viper(
         std::vector<Polygon>& excluded_starting_areas);
     void check_for_game_over();
-    std::unique_ptr<Controller> create_controller(
-        const KeyboardController::KeyboardControls& keys);
     void delete_player(Player* player);
     void delete_viper(Viper* viper);
     void delete_food(Food* food);
