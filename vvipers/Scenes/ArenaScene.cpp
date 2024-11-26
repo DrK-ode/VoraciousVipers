@@ -58,16 +58,16 @@ ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
         player_data.push_back(read_player_conf(player));
     }
 
-    auto numberOfDivisions = number_of_players;
+    auto number_of_divisions = std::max(size_t(3), number_of_players);
     Vec2 window_size = game.window().getSize();
-    const sf::Vector2f status_bar_relative_size(1. / numberOfDivisions, 0.1);
+    const sf::Vector2f status_bar_relative_size(1. / number_of_divisions, 0.1);
     const sf::Vector2f status_bar_size(
         window_size.x * status_bar_relative_size.x,
         window_size.y * status_bar_relative_size.y);
 
     std::vector<sf::View> status_bar_views;
-    status_bar_views.resize(numberOfDivisions);
-    for (size_t i = 0; i < numberOfDivisions; ++i) {
+    status_bar_views.resize(number_of_divisions);
+    for (size_t i = 0; i < number_of_divisions; ++i) {
         status_bar_views[i].setSize(status_bar_size);
         status_bar_views[i].setCenter(0.5 * status_bar_size.x,
                                       0.5 * status_bar_size.y);
@@ -107,8 +107,8 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
         keys.right = sf::Keyboard::Scancode(player_data[i].keys[1]);
         keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
         auto controller = create_controller(keys);
-        add_player(player_data[i], std::move(controller), add_viper(excluded_starting_areas),
-                   playerViews[i]);
+        add_player(player_data[i], std::move(controller),
+                   add_viper(excluded_starting_areas), playerViews[i]);
     }
 }
 
