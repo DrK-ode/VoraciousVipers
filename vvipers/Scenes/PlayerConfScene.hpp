@@ -5,6 +5,7 @@
 #include <vvipers/UIElements/MenuButton.hpp>
 #include <vvipers/UIElements/MenuScene.hpp>
 #include "vvipers/UIElements/SelectionButton.hpp"
+#include "vvipers/UIElements/ToggleButton.hpp"
 
 namespace VVipers {
 
@@ -25,7 +26,7 @@ class PlayerConfScene : public MenuScene {
     std::unique_ptr<MenuButton> _set_left_button;
     std::unique_ptr<MenuButton> _set_right_button;
     std::unique_ptr<MenuButton> _set_boost_button;
-    std::unique_ptr<MenuButton> _enable_mouse_button;
+    std::unique_ptr<ToggleButton> _enable_mouse_button;
     std::unique_ptr<MenuButton> _back_button;
     std::shared_ptr<Scene> _transition_to;
 };

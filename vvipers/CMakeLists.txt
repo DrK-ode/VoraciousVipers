@@ -35,6 +35,7 @@ set(INC_FILES
     UIElements/PlayerPanel.hpp
     UIElements/ProgressBar.hpp
     UIElements/SelectionButton.hpp
+    UIElements/ToggleButton.hpp
     Utilities/debug.hpp
     Utilities/Shape.hpp
     Utilities/Time.hpp
@@ -76,6 +77,7 @@ set(SRC_FILES
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
     UIElements/SelectionButton.cpp
+    UIElements/ToggleButton.cpp
     Utilities/Shape.cpp
     Utilities/TriangleStripArray.cpp
     Utilities/Vec2.cpp

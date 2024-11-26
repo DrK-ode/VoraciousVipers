@@ -6,6 +6,7 @@
 
 #include "vvipers/Engine/Game.hpp"
 #include "vvipers/Engine/Scene.hpp"
+#include "vvipers/UIElements/ToggleButton.hpp"
 
 namespace VVipers {
 
@@ -37,6 +38,11 @@ PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
     _set_boost_button->set_font(*game.font_service().default_font());
     add_item(_set_boost_button.get());
 
+    _enable_mouse_button = std::make_unique<ToggleButton>("Mouse: enabled", "Mouse: disabled", false);
+    _enable_mouse_button->set_font(*game.font_service().default_font());
+    add_item(_enable_mouse_button.get());
+    _enable_mouse_button->add_observer(this, {GameEvent::EventType::Menu});
+
     _back_button = std::make_unique<MenuButton>();
     _back_button->set_label("Back");
     _back_button->set_font(*game.font_service().default_font());
@@ -56,6 +62,8 @@ void PlayerConfScene::on_menu_item_activation(MenuItem* menuItem) {
         /*set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Spawn );
         _transition_to = std::make_shared<SetKeysScene>();*/
+    } else if (menuItem == _enable_mouse_button.get()) {
+        _enable_mouse_button->toggle();
     } else if (menuItem == _back_button.get()) {
         set_run_state(RunState::Paused);
         set_transition_state(TransitionState::Return);
