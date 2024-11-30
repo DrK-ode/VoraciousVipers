@@ -121,25 +121,27 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
         }
         controller->add_observer(this, {GameEvent::EventType::ObjectModified});
         add_observer(controller.get(), {GameEvent::EventType::Update});
+        auto viper = add_viper(excluded_starting_areas);
         add_player(player_data[i], std::move(controller),
-                   add_viper(excluded_starting_areas), playerViews[i]);
+                   std::move(viper), playerViews[i]);
     }
 }
 
 Player* ArenaScene::add_player(const PlayerData& data,
                                std::unique_ptr<Controller> controller,
-                               std::shared_ptr<Viper> viper, sf::View view) {
-    auto& player = _players.emplace_back(
-        make_unique<Player>(data.name, std::move(controller), viper));
+                               std::unique_ptr<Viper> viper, sf::View view) {
+    auto& player = _players.emplace_back(make_unique<Player>(
+        data.name, std::move(controller), std::move(viper)));
     player->set_colors(data.primary_color, data.secondary_color);
     auto& panel = _player_panels.emplace_back(std::make_unique<PlayerPanel>(
         view, player.get(), game_resources().font_service()));
-    viper->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
+    player->viper()->add_observer(panel.get(),
+                                  {GameEvent::EventType::ObjectModified});
     player->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
 
     std::stringstream ss;
     ss << data.name << "'s viper";
-    viper->set_name(ss.str());
+    player->viper()->set_name(ss.str());
 
     return player.get();
 }
@@ -157,9 +159,9 @@ void ArenaScene::delete_player(Player* player) {
                      }));
 }
 
-std::shared_ptr<Viper> ArenaScene::add_viper(
+std::unique_ptr<Viper> ArenaScene::add_viper(
     std::vector<Polygon>& excluded_starting_areas) {
-    auto viper = std::make_shared<Viper>(game_resources().options_service(),
+    auto viper = std::make_unique<Viper>(game_resources().options_service(),
                                          game_resources().texture_service());
     double length = viper->speed() * 5;  // 5 seconds free space
     double width = viper->nominal_width();
@@ -174,7 +176,6 @@ std::shared_ptr<Viper> ArenaScene::add_viper(
     viper->add_observer(this, {GameEvent::EventType::Destroy});
     add_observer(viper.get(), {GameEvent::EventType::Update});
     _collision_manager.register_colliding_body(viper.get());
-    _vipers.push_back(viper);
     return viper;
 }
 
@@ -184,12 +185,9 @@ void ArenaScene::kill_viper(Viper* viper) {
         viper->state(GameObject::Dying);
 }
 
-void ArenaScene::delete_viper(Viper* viper) {
+void ArenaScene::deactivate_viper(Viper* viper) {
     _collision_manager.deregister_colliding_body(viper);
-    _vipers.erase(std::find_if(_vipers.begin(), _vipers.end(),
-                               [viper](std::shared_ptr<Viper>& unique_viper) {
-                                   return unique_viper.get() == viper;
-                               }));
+    remove_observer(viper);
 }
 
 void ArenaScene::add_food(Vec2 position, double diameter) {
@@ -293,8 +291,8 @@ void ArenaScene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(*_walls, states);
     for (const auto& f : _food)
         target.draw(*f, states);
-    for (const auto& v : _vipers)
-        target.draw(*v, states);
+    for (const auto& p : _players)
+        target.draw(*p->viper(), states);
     target.setView(target.getDefaultView());
     for (const auto& s : _flying_scores)
         target.draw(*s, states);
@@ -429,7 +427,7 @@ void ArenaScene::handle_destruction(const GameObject* object) {
     if (typeid(*object) == typeid(Viper))
         // we could retrieve the non-const ptr from the player but this is
         // easier
-        delete_viper((Viper*)object);
+        deactivate_viper((Viper*)object);
     else if (typeid(*object) == typeid(Food))
         delete_food((Food*)object);
     else if (typeid(*object) == typeid(FlyingScore)) {

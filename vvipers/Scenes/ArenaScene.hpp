@@ -38,13 +38,13 @@ class ArenaScene : public Scene {
     };
     void add_food(Vec2 position, double diameter);
     Player* add_player(const PlayerData&, std::unique_ptr<Controller>,
-                       std::shared_ptr<Viper>, sf::View view);
+                       std::unique_ptr<Viper>, sf::View view);
     void add_players(std::vector<PlayerData>&, std::vector<sf::View>&);
-    std::shared_ptr<Viper> add_viper(
+    std::unique_ptr<Viper> add_viper(
         std::vector<Polygon>& excluded_starting_areas);
     void check_for_game_over();
     void delete_player(Player* player);
-    void delete_viper(Viper* viper);
+    void deactivate_viper(Viper* viper);
     void delete_food(Food* food);
     void dispense_food();
     PlayerPanel* find_player_panel(const Player* player) const;
@@ -70,8 +70,6 @@ class ArenaScene : public Scene {
     // to reuse it
     std::shared_ptr<Scene> _transition_scene;
     std::shared_ptr<Scene> _pause_scene;
-    // Arena and Player has joint ownership of controllers and vipers
-    std::vector<std::shared_ptr<Viper>> _vipers;
     std::vector<std::unique_ptr<Player>> _players;
     std::vector<std::unique_ptr<PlayerPanel>> _player_panels;
     std::vector<std::unique_ptr<Food>> _food;

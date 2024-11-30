@@ -5,7 +5,7 @@
 namespace VVipers {
 
 Player::Player(const std::string& name, std::unique_ptr<Controller> controller,
-               std::shared_ptr<Viper> viper)
+               std::unique_ptr<Viper> viper)
     : _name(name),
       _primary_color(sf::Color::Green),
       _secondary_color(sf::Color::Red),

@@ -17,7 +17,7 @@ typedef uint64_t level_t;
 class Player : public GameObject, public Observable {
   public:
     Player(const std::string& name, std::unique_ptr<Controller>,
-           std::shared_ptr<Viper>);
+           std::unique_ptr<Viper>);
 
     static level_t calculate_level(score_t score) { return score / 1000 + 1; }
     static score_t calculate_level_limit(level_t level) {
@@ -40,7 +40,7 @@ class Player : public GameObject, public Observable {
     sf::Color _secondary_color;
     std::unique_ptr<Controller> _controller;
     score_t _score;
-    std::shared_ptr<Viper> _viper;
+    std::unique_ptr<Viper> _viper;
 };
 
 }  // namespace VVipers
