@@ -106,7 +106,7 @@ inline void _impl_log_debug(bool doTag, const std::source_location loc,
     _impl_log_error(false, std::source_location::current(), __VA_ARGS__)
 #define log_debug(...) \
     _impl_log_debug(false, std::source_location::current(), __VA_ARGS__)
-#define tagInfo(...) \
+#define tag_info(...) \
     _impl_log_info(true, std::source_location::current(), __VA_ARGS__)
 #define tag_warning(...) \
     _impl_log_warning(true, std::source_location::current(), __VA_ARGS__)
@@ -115,7 +115,7 @@ inline void _impl_log_debug(bool doTag, const std::source_location loc,
 #define tag_debug(...) \
     _impl_log_debug(true, std::source_location::current(), __VA_ARGS__)
 #else
-#define log_info(...) _impl_log_Info(false, std::source_location(), __VA_ARGS__)
+#define log_info(...) _impl_log_info(false, std::source_location(), __VA_ARGS__)
 #define log_warning(...) \
     _impl_log_warning(false, std::source_location(), __VA_ARGS__)
 #define log_error(...) \
