@@ -1,8 +1,8 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <sstream>
 #include <vvipers/Engine/Providers.hpp>
+#include <vvipers/GameElements/FlyingScore.hpp>
 #include <vvipers/GameElements/GameEvent.hpp>
-#include <vvipers/UIElements/FlyingScore.hpp>
 
 namespace VVipers {
 
@@ -30,6 +30,14 @@ FlyingScore::FlyingScore(Vec2 initial_position, Vec2 initial_velocity,
 void FlyingScore::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
     target.draw(_text, states);
+}
+
+void FlyingScore::on_notify(const GameEvent& event) {
+    if (event.type() == GameEvent::EventType::Update) {
+        const UpdateEvent& update_event =
+            dynamic_cast<const UpdateEvent&>(event);
+        update(update_event.elapsed_time);
+    }
 }
 
 void FlyingScore::update_text() {

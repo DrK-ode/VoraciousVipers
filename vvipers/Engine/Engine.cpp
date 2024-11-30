@@ -1,6 +1,7 @@
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
+#include <cmath>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 #include <vector>
 #include <vvipers/Engine/Engine.hpp>
@@ -8,27 +9,22 @@
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
-#include "vvipers/Engine/Providers.hpp"
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
-Engine::Engine(std::unique_ptr<OptionsProvider> options) {
-    _game = std::make_unique<Game>(std::move(options), this);
-    Vec2 windowSize =
-        _game->options_service().option_2d_vector("General/windowSize");
-    _window.create(sf::VideoMode(windowSize.x, windowSize.y),
-                   "VoraciousVipers");
-}
+Engine::Engine(std::unique_ptr<GameResources> game_resources)
+    : _game_resources(std::move(game_resources)) {}
 
 void Engine::start_game() {
-    double FPS = _game->options_service().option_double("General/FPS");
+    double FPS =
+        _game_resources->options_service().option_double("General/FPS");
     if (FPS == 0.)
         FPS = 60.0;  // Default
 
     if (_scenes.empty()) {
         if (_defaultScene) {
-            _defaultScene->on_activation();
-            _scenes.push_back(_defaultScene);
+            add_scene(_defaultScene);
         } else {
             tag_error("No scene loaded to start the game.");
         }
@@ -38,9 +34,9 @@ void Engine::start_game() {
 }
 
 void Engine::game_loop(double FPS) {
-    Time tickDuration(0), updateDuration(0), eventDuration(0), drawDuration(0),
-        sceneSelectionDuration(0), sleepDuration(0), debtDuration(0),
-        debugDuration(0);
+    Time tick_duration(0), update_duration(0), event_duration(0),
+        draw_duration(0), sleep_duration(0), debt_duration(0),
+        debug_duration(0);
     const Time nominalFrameDuration = time_from_seconds(1. / FPS);
     Time frameDuration = nominalFrameDuration;
     double fpsAverage = 0.;
@@ -53,13 +49,13 @@ void Engine::game_loop(double FPS) {
     bool firstFrame = true;
     // Main game loop
     while (!_scenes.empty()) {
-        tickDuration = clock.restart();
+        tick_duration = clock.restart();
         // If not first tick
         if (!firstFrame) {
             // Analyze last event
-            debtDuration = frameDuration - tickDuration;
-            frameDuration = nominalFrameDuration + debtDuration;
-            double fps = 1 / time_as_seconds(tickDuration);
+            debt_duration = frameDuration - tick_duration;
+            frameDuration = nominalFrameDuration + debt_duration;
+            double fps = 1 / time_as_seconds(tick_duration);
             // Calculate average FPS
             durationSamples[sampleIndex++] = fps;
             fpsAverage = 0.;
@@ -69,110 +65,176 @@ void Engine::game_loop(double FPS) {
             if (sampleIndex == sampleSize)
                 sampleIndex = 0;
             // Print some info
-            log_info("Last frame took ", tickDuration, " (on average ",
+            log_info("Last frame took ", tick_duration, " (on average ",
                      fpsAverage, " FPS)");
-            log_info("  Debug:           ", debugDuration);
-            log_info("  Update:          ", updateDuration);
-            log_info("  Events:          ", eventDuration);
-            log_info("  Drawing:         ", drawDuration);
-            log_info("  Scene selection: ", sceneSelectionDuration);
-            log_info("  Sleep:           ", sleepDuration);
-            log_info("  We owe the next frame: ", debtDuration);
+            log_info("  Debug:           ", debug_duration);
+            log_info("  Update:          ", update_duration);
+            log_info("  Events:          ", event_duration);
+            log_info("  Drawing:         ", draw_duration);
+            log_info("  Sleep:           ", sleep_duration);
+            log_info("  We owe the next frame: ", debt_duration);
         }
-        debugDuration = clock.split();
+        debug_duration = clock.split();
         if (!firstFrame) {
-            update(tickDuration);
+            notify(UpdateEvent(tick_duration));
         }
-        updateDuration = clock.split();
-        process_events(_scenes.back().get());
-        eventDuration = clock.split();
+        update_duration = clock.split();
+        process_window_events();
+        event_duration = clock.split();
         draw();
-        drawDuration = clock.split();
+        draw_duration = clock.split();
+        process_scene_events();
 
-        // Check Scene status
-        scene_selection();
-        sceneSelectionDuration = clock.split();
-
-        sleepDuration =
+        sleep_duration =
             std::max(time_from_seconds(0),
-                     frameDuration - (debugDuration + updateDuration +
-                                      eventDuration + drawDuration));
-        std::this_thread::sleep_for(sleepDuration);
+                     frameDuration - (debug_duration + update_duration +
+                                      event_duration + draw_duration));
+        std::this_thread::sleep_for(sleep_duration);
         firstFrame = false;
     }
 }
 
-void Engine::process_events(Scene* scene) {
+void Engine::process_window_events() {
     sf::Event event;
-    while (_window.pollEvent(event)) {
-        scene->process_event(event);
+    while (_game_resources->window_manager()->poll_event(event)) {
+        switch (event.type) {
+            case sf::Event::Closed: {
+                _scenes.clear();
+                break;
+            }
+            case sf::Event::Resized: {
+                notify(
+                    WindowEvent(WindowEvent::WindowEventType::WindowResized));
+                break;
+            }
+            case sf::Event::KeyPressed: {
+                notify(
+                    KeyboardEvent(KeyboardEvent::KeyboardEventType::KeyPressed,
+                                  event.key.scancode));
+                break;
+            }
+            case sf::Event::KeyReleased: {
+                notify(
+                    KeyboardEvent(KeyboardEvent::KeyboardEventType::KeyReleased,
+                                  event.key.scancode));
+                break;
+            }
+            case sf::Event::MouseWheelScrolled: {
+                MouseEvent mouse_event(
+                    MouseEvent::MouseEventType::Scroll,
+                    {event.mouseWheelScroll.x, event.mouseWheelScroll.y});
+                mouse_event.scroll = event.mouseWheelScroll.delta;
+                notify(mouse_event);
+                break;
+            }
+            case sf::Event::MouseButtonPressed: {
+                MouseEvent mouse_event(
+                    MouseEvent::MouseEventType::ButtonPressed,
+                    {event.mouseButton.x, event.mouseButton.y});
+                mouse_event.mouse_button = event.mouseButton.button;
+                notify(mouse_event);
+                break;
+            }
+            case sf::Event::MouseButtonReleased: {
+                MouseEvent mouse_event(
+                    MouseEvent::MouseEventType::ButtonReleased,
+                    {event.mouseButton.x, event.mouseButton.y});
+                mouse_event.mouse_button = event.mouseButton.button;
+                notify(mouse_event);
+                break;
+            }
+            case sf::Event::MouseMoved: {
+                MouseEvent mouse_event(MouseEvent::MouseEventType::Move,
+                                       {event.mouseMove.x, event.mouseMove.y});
+                notify(mouse_event);
+                break;
+            }
+            default:
+                break;
+        }
     }
 }
 
-void Engine::scene_selection() {
-    switch (_scenes.back()->transition_state()) {
-        case Scene::TransitionState::Clear: {
-            auto nextScene = _scenes.back()->make_transition();
+void Engine::add_scene(const std::shared_ptr<Scene>& scene) {
+    scene->add_observer(this, {GameEvent::EventType::Scene});
+    add_observer(scene.get(),
+                 {GameEvent::EventType::Keyboard, GameEvent::EventType::Mouse,
+                  GameEvent::EventType::Update, GameEvent::EventType::Window});
+    _scenes.push_back(scene);
+    scene->on_activation();
+}
+
+void Engine::pop_scene() {
+    _scenes.back()->remove_observer(this);
+    remove_observer(_scenes.back().get());
+    _scenes.pop_back();
+}
+
+void Engine::process_scene_events() {
+    if (_scene_events.size() == 0) {
+        return;
+    } else if (_scene_events.size() > 1) {
+        throw std::runtime_error("More than one SceneEvent has happened.");
+    }
+    auto& next_scene = _scene_events[0].target_scene;
+    switch (_scene_events[0].scene_event_type) {
+        case SceneEvent::SceneEventType::Clear: {
             _scenes.clear();
-            nextScene->on_activation();
-            _scenes.push_back(std::move(nextScene));
+            add_scene(next_scene);
             break;
         }
-        case Scene::TransitionState::Continue: {
-            break;
-        }
-        case Scene::TransitionState::Default: {
+        case SceneEvent::SceneEventType::Default: {
             _scenes.clear();
             if (_defaultScene) {
-                _scenes.push_back(_defaultScene);
-                _defaultScene->on_activation();
+                add_scene(_defaultScene);
                 break;
-            }
-            case Scene::TransitionState::JumpTo: {
-                auto nextScene = _scenes.back()->make_transition();
-                while (_scenes.back() != nextScene)
-                    _scenes.pop_back();
-                if (!_scenes.empty())
-                    _scenes.back()->on_activation();
-                break;
-            }
-            case Scene::TransitionState::Replace: {
-                auto nextScene = _scenes.back()->make_transition();
-                _scenes.pop_back();
-                nextScene->on_activation();
-                _scenes.push_back(std::move(nextScene));
-                break;
-            }
-            case Scene::TransitionState::Return: {
-                _scenes.back()->make_transition();  // Ignore return value
-                _scenes.pop_back();
-                if (!_scenes.empty())
-                    _scenes.back()->on_activation();
-                break;
-            }
-            case Scene::TransitionState::Spawn: {
-                auto nextScene = _scenes.back()->make_transition();
-                nextScene->on_activation();
-                _scenes.push_back(std::move(nextScene));
-                break;
-            }
-            case Scene::TransitionState::Quit: {
-                _scenes.back()->make_transition();  // Ignore return value
-                _scenes.clear();
             }
         }
+        case SceneEvent::SceneEventType::JumpTo: {
+            while (_scenes.back() != next_scene) {
+                pop_scene();
+            }
+            if (!_scenes.empty())
+                _scenes.back()->on_activation();
+            break;
+        }
+        case SceneEvent::SceneEventType::Replace: {
+            pop_scene();
+            add_scene(next_scene);
+            break;
+        }
+        case SceneEvent::SceneEventType::Return: {
+            pop_scene();
+            if (!_scenes.empty())
+                _scenes.back()->on_activation();
+            break;
+        }
+        case SceneEvent::SceneEventType::Spawn: {
+            add_scene(next_scene);
+            break;
+        }
+        case SceneEvent::SceneEventType::Quit: {
+            _scenes.clear();
+        }
     }
+    _scene_events.clear();
 }
 
-void Engine::update(Time elapsedTime) {
-    for (auto& scene : _scenes)
-        if (scene->run_state() == Scene::RunState::Running)
-            scene->update(elapsedTime);
+void Engine::on_notify(const GameEvent& event) {
+    switch (event.type()) {
+        case GameEvent::EventType::Scene: {
+            const SceneEvent& scene_event =
+                dynamic_cast<const SceneEvent&>(event);
+            _scene_events.push_back(scene_event);
+        }
+        default:
+            break;
+    }
 }
 
 void Engine::draw() {
-    auto& window = _window;
-    window.clear(sf::Color::Black);
+    auto window_manager = _game_resources->window_manager();
+    window_manager->clear(sf::Color::Black);
     auto sceneIter = _scenes.rbegin();
     // Find top-most scene that is solid
     while (std::next(sceneIter) != _scenes.rend() &&
@@ -181,18 +243,11 @@ void Engine::draw() {
     }
     while (sceneIter != _scenes.rbegin()) {
         if ((*sceneIter)->draw_state() != Scene::DrawState::Skip) {
-            window.draw(*(sceneIter)->get());
+            window_manager->draw(*(sceneIter)->get());
         }
         sceneIter--;
     }
-    window.draw(*_scenes.back());
-    window.display();
+    window_manager->draw(*_scenes.back());
+    window_manager->display();
 }
-
-void Engine::set_grab_mouse(bool grabbed) {
-    _is_mouse_grabbed = grabbed;
-    _window.setMouseCursorGrabbed(grabbed);
-    _window.setMouseCursorVisible(!grabbed);
-}
-
 }  // namespace VVipers

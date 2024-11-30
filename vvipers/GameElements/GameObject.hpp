@@ -2,23 +2,29 @@
 
 namespace VVipers {
 
-/** The main purpose of this calss is to make sure all objects inherit from one
+/** The main purpose of this class is to make sure all objects inherit from one
  * common virtual class to make typeinfo work properly **/
-class GameObject {
+class Object {
+  public:
+    // Must have at least one virtual memeber to function
+    virtual ~Object() {}
+};
+
+class GameObject : public Object {
   public:
     enum ObjectState { Alive, Dying, Dead };
 
-    GameObject() : m_state(Alive) {}
+    GameObject() : _state(Alive) {}
     virtual ~GameObject() {}
 
-    ObjectState state() const { return m_state; }
+    ObjectState state() const { return _state; }
     void state(ObjectState state);
 
   protected:
     virtual void state_changed(ObjectState from, ObjectState into) {}
 
   private:
-    ObjectState m_state;
+    ObjectState _state;
 };
 
 }  // namespace VVipers

@@ -7,11 +7,13 @@ set(INC_FILES
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
     Engine/FontFileLoader.hpp
-    Engine/Game.hpp
+    Engine/GameResources.hpp
     Engine/OptionsJSON.hpp
     Engine/Providers.hpp
     Engine/Scene.hpp
     Engine/TextureFileLoader.hpp
+    Engine/WindowManager.hpp
+    GameElements/FlyingScore.hpp
     GameElements/Food.hpp
     GameElements/GameEvent.hpp
     GameElements/GameObject.hpp
@@ -28,7 +30,6 @@ set(INC_FILES
     Scenes/PauseScene.hpp
     Scenes/PlayerConfScene.hpp
     UIElements/Controller.hpp
-    UIElements/FlyingScore.hpp
     UIElements/MenuButton.hpp
     UIElements/MenuItem.hpp
     UIElements/MenuScene.hpp
@@ -50,10 +51,12 @@ set(SRC_FILES
     Engine/ColorPalette.cpp
     Engine/Engine.cpp
     Engine/FontFileLoader.cpp
-    Engine/Game.cpp
+    Engine/GameResources.cpp
     Engine/OptionsJSON.cpp
     Engine/Scene.cpp
     Engine/TextureFileLoader.cpp
+    Engine/WindowManager.cpp
+    GameElements/FlyingScore.cpp
     GameElements/Food.cpp
     GameElements/GameEvent.cpp
     GameElements/GameObject.cpp
@@ -70,7 +73,6 @@ set(SRC_FILES
     Scenes/PauseScene.cpp
     Scenes/PlayerConfScene.cpp
     UIElements/Controller.cpp
-    UIElements/FlyingScore.cpp
     UIElements/MenuButton.cpp
     UIElements/MenuItem.cpp
     UIElements/MenuScene.cpp

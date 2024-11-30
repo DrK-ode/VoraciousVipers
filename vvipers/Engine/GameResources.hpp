@@ -1,36 +1,31 @@
 #pragma once
 
+#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Engine/Scene.hpp>
+#include "vvipers/Engine/WindowManager.hpp"
 
 namespace VVipers {
 
-class Engine;
-
-class Game {
+class GameResources {
   public:
-    Game(std::unique_ptr<OptionsProvider> options, Engine* engine);
-
+    GameResources(std::unique_ptr<OptionsProvider> options);
     const ColorProvider& color_service() const { return *_color_provider; }
     const FontProvider& font_service() const { return *_font_provider; }
-    OptionsProvider& options_service() const {
-        return *_options_provider;
-    }
-    void set_grab_mouse(bool grabbed);
-    bool is_mouse_grabbed() const;
+    OptionsProvider& options_service() const { return *_options_provider; }
     const TextureProvider& texture_service() const {
         return *_texture_provider;
     }
-    const sf::RenderWindow& window() const;
+    WindowManager* window_manager() {return &_window_manager;}
 
   private:
-    Engine* const _engine;
     const std::unique_ptr<OptionsProvider> _options_provider;
     const std::unique_ptr<const FontProvider> _font_provider;
     const std::unique_ptr<const TextureProvider> _texture_provider;
     const std::unique_ptr<const ColorProvider> _color_provider;
+    WindowManager _window_manager;
 };
 
 }  // namespace VVipers

@@ -5,10 +5,11 @@
 #include <vvipers/Utilities/VVColor.hpp>
 
 #include "vvipers/Collisions/CollidingBody.hpp"
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
-const double Food::nominalFoodRadius(15);
+const double Food::nominal_food_radius(15);
 
 Food::Food(Vec2 position, double radius, Time bonusExpired, sf::Color color)
     : sf::CircleShape(radius, 7),
@@ -52,24 +53,31 @@ void Food::decay(Time elapsedTime) {
 
 bool Food::is_bonus_eligible() const { return _age < _bonus_expire; }
 
+void Food::on_notify(const GameEvent& event){
+    if( event.type() == GameEvent::EventType::Update){
+        const UpdateEvent& update_event = dynamic_cast<const UpdateEvent&>(event);
+        update(update_event.elapsed_time);
+    }
+}
+
 double Food::score_value() const {
     double score =
         10. * (sf::CircleShape::getRadius() * sf::CircleShape::getRadius()) /
-        (nominalFoodRadius * nominalFoodRadius);
+        (nominal_food_radius * nominal_food_radius);
     if (is_bonus_eligible())
         score *= 2;
     return score;
 }
 
-void Food::update(Time elapsedTime) {
-    _age += elapsedTime;
-    rotate(2 * nominalFoodRadius / sf::CircleShape::getRadius());
+void Food::update(Time elapsed_time) {
+    _age += elapsed_time;
+    rotate(2 * nominal_food_radius / sf::CircleShape::getRadius());
     if (state() == Dead) {
         notify(DestroyEvent(this));
         return;
     }
     if (state() == Dying)
-        decay(elapsedTime);
+        decay(elapsed_time);
     else {
         double L = is_bonus_eligible() ? _color_lightness + 0.1
                                        : _color_lightness - 0.1;

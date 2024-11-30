@@ -4,13 +4,14 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Event.hpp>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Utilities/Time.hpp>
+#include "vvipers/GameElements/GameObject.hpp"
 #include "vvipers/GameElements/Observer.hpp"
 
 namespace VVipers {
 
-class MenuItem : public sf::Drawable, public Observable {
+class MenuItem : public sf::Drawable, public Object, public Observable {
   public:
     MenuItem() : _selected(false){};
     bool contains(double x, double y) const {
@@ -30,7 +31,7 @@ class MenuItem : public sf::Drawable, public Observable {
     void set_position(Vec2 position);
     virtual void on_geometry_change(){};
     virtual void on_selection(){};
-    virtual void on_event(const sf::Event& event){};
+    virtual void on_activation(){};
 
   private:
     Vec2 _size;

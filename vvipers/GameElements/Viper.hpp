@@ -26,7 +26,8 @@ namespace VVipers {
 class Viper : public GameObject,
               public sf::Drawable,
               public CollidingBody,
-              public Observable {
+              public Observable,
+              public Observer {
   public:
     // Viper is not fully initialised until a call to setup has been made!
     Viper(const OptionsProvider& options, const TextureProvider& textures);
@@ -97,6 +98,7 @@ class Viper : public GameObject,
      * member function. **/
     void update(Time elapsedTime);
     Vec2 velocity() const { return Vec2(_speed, 0).rotate(_angle); }
+    void on_notify(const GameEvent&) override;
 
   private:
     class ViperConfiguration;

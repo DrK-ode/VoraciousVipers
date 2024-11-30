@@ -4,6 +4,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 
+#include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/UIElements/MenuButton.hpp"
 
 namespace VVipers {
@@ -16,6 +17,12 @@ ToggleButton::ToggleButton(const std::string& enabled_label,
       _disabled_label(disabled_label),
       _toggle_state(initial_state) {
     update_label();
+}
+
+void ToggleButton::toggle() {
+    _toggle_state = !_toggle_state;
+    update_label();
+    notify(ObjectModifiedEvent(this));
 }
 
 void ToggleButton::update_label() {

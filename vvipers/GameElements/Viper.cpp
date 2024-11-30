@@ -117,7 +117,7 @@ Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
 void Viper::eat(const Food& food) {
     add_growth(_viper_cfg.body_duration *
                    (food.getRadius() * food.getRadius()) /
-                   (Food::nominalFoodRadius * Food::nominalFoodRadius),
+                   (Food::nominal_food_radius * Food::nominal_food_radius),
                _track->head_time(), food.color());
     add_boost_charge(0.5s);
 }
@@ -198,6 +198,13 @@ void Viper::grow(const Time& elapsedTime) {
 // This allows the viper narrower turns when not boosting
 double Viper::max_angular_speed() const {
     return _nominalSpeed / _viper_cfg.nominal_segment_width;
+}
+
+void Viper::on_notify(const GameEvent& event){
+    if( event.type() == GameEvent::EventType::Update){
+        const UpdateEvent& update_event = dynamic_cast<const UpdateEvent&>(event);
+        update(update_event.elapsed_time);
+    }
 }
 
 void Viper::update(Time elapsedTime) {

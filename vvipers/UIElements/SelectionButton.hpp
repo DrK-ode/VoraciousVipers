@@ -7,9 +7,10 @@ namespace VVipers {
 template<typename T> class SelectionButton : public MenuButton {
   public:
     SelectionButton(const std::string& pre_label, const std::vector<T>& options);
-    void on_event(const sf::Event& event) override;
     T selected_option() const {return _options[_selected_option];}
     void set_selected_option(size_t);
+    void option_left();
+    void option_right();
 
   private:
     void update_label();

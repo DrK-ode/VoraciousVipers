@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/UIElements/MenuButton.hpp"
 
 namespace VVipers {
@@ -15,11 +14,7 @@ class ToggleButton : public MenuButton {
             toggle();
         }
     }
-    void toggle() {
-        _toggle_state = !_toggle_state;
-        update_label();
-        notify(MenuEvent(this));
-    }
+    void toggle();
 
   private:
     void update_label();

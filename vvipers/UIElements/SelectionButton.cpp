@@ -25,20 +25,13 @@ SelectionButton<T>::SelectionButton(const std::string& pre_label,
 }
 
 template <typename T>
-void SelectionButton<T>::on_event(const sf::Event& event) {
-    if (event.type == sf::Event::EventType::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Left) {
-            set_selected_option(_selected_option - 1);
-        } else if (event.key.code == sf::Keyboard::Right) {
-            set_selected_option(_selected_option + 1);
-        }
-    } else if (event.type == sf::Event::EventType::MouseButtonPressed) {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            set_selected_option(_selected_option - 1);
-        } else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-            set_selected_option(_selected_option + 1);
-        }
-    }
+void SelectionButton<T>::option_left() {
+    set_selected_option(_selected_option - 1);
+}
+
+template <typename T>
+void SelectionButton<T>::option_right() {
+    set_selected_option(_selected_option + 1);
 }
 
 template <typename T>
@@ -48,7 +41,7 @@ void SelectionButton<T>::set_selected_option(size_t new_option) {
     }
     _selected_option = new_option;
     update_label();
-    notify(MenuEvent(this));
+    notify(ObjectModifiedEvent(this));
 }
 
 template <>

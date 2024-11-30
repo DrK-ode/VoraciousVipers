@@ -23,6 +23,7 @@
 #include <vvipers/Utilities/VVColor.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/GameElements/GameObject.hpp"
 #include "vvipers/UIElements/PlayerPanel.hpp"
 #include "vvipers/Utilities/Time.hpp"
@@ -37,31 +38,35 @@ ArenaScene::PlayerData ArenaScene::read_player_conf(size_t player) {
     ss << "Players/Player" << player + 1 << "/";
     std::string base_name = ss.str();
 
-    auto name =
-        game().options_service().option_string(base_name + std::string("name"));
-    auto color1 = color_from_rgb_string(
-        game().options_service().option_string(base_name + "primaryColor"));
-    auto color2 = color_from_rgb_string(
-        game().options_service().option_string(base_name + "secondaryColor"));
-    auto keys = game().options_service().option_int_array(base_name + "keys");
-    auto mouse_enabled =
-        game().options_service().option_boolean(base_name + "mouseEnabled");
+    auto name = game_resources().options_service().option_string(
+        base_name + std::string("name"));
+    auto color1 =
+        color_from_rgb_string(game_resources().options_service().option_string(
+            base_name + "primaryColor"));
+    auto color2 =
+        color_from_rgb_string(game_resources().options_service().option_string(
+            base_name + "secondaryColor"));
+    auto keys =
+        game_resources().options_service().option_int_array(base_name + "keys");
+    auto mouse_enabled = game_resources().options_service().option_boolean(
+        base_name + "mouseEnabled");
     if (keys.size() != 3)
         throw std::runtime_error(
             "Wrong number of keys in player configuration.");
     return {name, color1, color2, keys, mouse_enabled};
 }
 
-ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
+ArenaScene::ArenaScene(GameResources& game_resources)
+    : Scene(game_resources), _collision_manager(5, 100.) {
     size_t number_of_players =
-        game.options_service().option_int("Players/numberOfPlayers");
+        game_resources.options_service().option_int("Players/numberOfPlayers");
     std::vector<PlayerData> player_data;
     for (size_t player = 0; player < number_of_players; ++player) {
         player_data.push_back(read_player_conf(player));
     }
 
     auto number_of_divisions = std::max(size_t(3), number_of_players);
-    Vec2 window_size = game.window().getSize();
+    Vec2 window_size = game_resources.window_manager()->window_size();
     const sf::Vector2f status_bar_relative_size(1. / number_of_divisions, 0.1);
     const sf::Vector2f status_bar_size(
         window_size.x * status_bar_relative_size.x,
@@ -94,7 +99,7 @@ ArenaScene::ArenaScene(Game& game) : Scene(game), _collision_manager(5, 100.) {
     add_players(player_data, status_bar_views);
 
     // Only create one pause screen so that it can be reused
-    _pause_scene = std::make_shared<PauseScene>(game);
+    _pause_scene = std::make_shared<PauseScene>(game_resources);
 }
 
 ArenaScene::~ArenaScene() {}
@@ -106,7 +111,7 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
     for (int i = 0; i < numberOfPlayers; ++i) {
         std::unique_ptr<Controller> controller;
         if (player_data[i].mouse_enabled) {
-            controller = std::make_unique<MouseController>(game());
+            controller = std::make_unique<MouseController>(game_resources());
         } else {
             KeyboardController::KeyboardControls keys;
             keys.left = sf::Keyboard::Scancode(player_data[i].keys[0]);
@@ -114,6 +119,8 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
             keys.boost = sf::Keyboard::Scancode(player_data[i].keys[2]);
             controller = std::make_unique<KeyboardController>(keys);
         }
+        controller->add_observer(this, {GameEvent::EventType::ObjectModified});
+        add_observer(controller.get(), {GameEvent::EventType::Update});
         add_player(player_data[i], std::move(controller),
                    add_viper(excluded_starting_areas), playerViews[i]);
     }
@@ -126,7 +133,7 @@ Player* ArenaScene::add_player(const PlayerData& data,
         make_unique<Player>(data.name, std::move(controller), viper));
     player->set_colors(data.primary_color, data.secondary_color);
     auto& panel = _player_panels.emplace_back(std::make_unique<PlayerPanel>(
-        view, player.get(), game().font_service()));
+        view, player.get(), game_resources().font_service()));
     viper->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
     player->add_observer(panel.get(), {GameEvent::EventType::ObjectModified});
 
@@ -152,8 +159,8 @@ void ArenaScene::delete_player(Player* player) {
 
 std::shared_ptr<Viper> ArenaScene::add_viper(
     std::vector<Polygon>& excluded_starting_areas) {
-    auto viper = std::make_shared<Viper>(game().options_service(),
-                                         game().texture_service());
+    auto viper = std::make_shared<Viper>(game_resources().options_service(),
+                                         game_resources().texture_service());
     double length = viper->speed() * 5;  // 5 seconds free space
     double width = viper->nominal_width();
     // Give some margin to the width
@@ -165,6 +172,7 @@ std::shared_ptr<Viper> ArenaScene::add_viper(
     viper->setup(starting_area.anchor(), starting_area.angle(), 0.5);
 
     viper->add_observer(this, {GameEvent::EventType::Destroy});
+    add_observer(viper.get(), {GameEvent::EventType::Update});
     _collision_manager.register_colliding_body(viper.get());
     _vipers.push_back(viper);
     return viper;
@@ -187,10 +195,11 @@ void ArenaScene::delete_viper(Viper* viper) {
 void ArenaScene::add_food(Vec2 position, double diameter) {
     auto& food = _food.emplace_back(std::make_unique<Food>(
         position, diameter, time_from_seconds(Random::random_double(5, 10)),
-        game().color_service().get_color(Random::random_int())));
+        game_resources().color_service().get_color(Random::random_int())));
     // Check for collisions
     _collision_manager.register_colliding_body(food.get());
     food->add_observer(this, {GameEvent::EventType::Destroy});
+    add_observer(food.get(), {GameEvent::EventType::Update});
 }
 
 void ArenaScene::delete_food(Food* food) {
@@ -263,8 +272,8 @@ void ArenaScene::find_free_space_for(
 
 void ArenaScene::dispense_food() {
     while (_food.size() < 2) {
-        double smallest = Food::nominalFoodRadius * 0.75;
-        double largest = Food::nominalFoodRadius * 1.25;
+        double smallest = Food::nominal_food_radius * 0.75;
+        double largest = Food::nominal_food_radius * 1.25;
         double food_radius = std::sqrt(
             Random::random_double(smallest * smallest, largest * largest));
         // Find a spot, with some room to spare
@@ -299,9 +308,6 @@ void ArenaScene::handle_collisions() {
 }
 
 void ArenaScene::handle_collision(const CollisionPair& collision) {
-    /*tagDebug(collision.first.body->name(), "[", collision.first.index,
-             "] collided with ", collision.second.body->name(), "[",
-             collision.second.index, "].");*/
     for (const auto& collider : {collision.first, collision.second}) {
         // A collidee is what the collider collides into :)
         const auto& collidee = collider.body == collision.first.body
@@ -343,18 +349,20 @@ void ArenaScene::handle_viper_food_collision(Viper* viper,
     player->score(score);
 
     PlayerPanel* panel = find_player_panel(player);
-    auto& flyingScore =
-        _flying_scores.emplace_back(std::make_unique<FlyingScore>(
-            Vec2(game().window().mapCoordsToPixel(food->getPosition(),
-                                                  _game_view)),
-            4 * viper->velocity(),
-            Vec2(game().window().mapCoordsToPixel(panel->score_target(),
-                                                  panel->view())),
-            1s, score, game().font_service()));
+    auto& flyingScore = _flying_scores.emplace_back(std::make_unique<
+                                                    FlyingScore>(
+        Vec2(game_resources().window_manager()->map_coordinates_to_pixel_values(
+            food->getPosition(), _game_view)),
+        4 * viper->velocity(),
+        Vec2(game_resources().window_manager()->map_coordinates_to_pixel_values(
+            panel->score_target(), panel->view())),
+        1s, score, game_resources().font_service()));
     flyingScore->set_color(sf::Color::Magenta, sf::Color::Red);
-    flyingScore->set_font_size(0.03 * game().window().getSize().y, 1.0);
+    flyingScore->set_font_size(
+        0.03 * game_resources().window_manager()->window_size().y, 1.0);
     flyingScore->add_observer(this, {GameEvent::EventType::Destroy});
     flyingScore->add_observer(panel, {GameEvent::EventType::Scoring});
+    add_observer(flyingScore.get(), {GameEvent::EventType::Update});
 }
 
 void ArenaScene::handle_viper_viper_collision(Viper* collider_viper,
@@ -394,44 +402,40 @@ void ArenaScene::handle_viper_walls_collision(Viper* viper,
     kill_viper(viper);
 }
 
-void ArenaScene::handle_steering() {
-    for (auto& player : _players) {
-        if (auto controller = player->controller()) {
-            SteeringCommand cmd = controller->control();
+void ArenaScene::handle_steering(const Controller* controller) {
+    Player* player = find_player_with(controller);
+    SteeringCommand cmd = controller->steering_command();
 
-            if (Viper* viper = player->viper()) {
-                // Protect against erroneous input from controller
-                if (std::abs(cmd.turn) > 1)
-                    cmd.turn /= std::abs(cmd.turn);
-                double angularSpeed = cmd.turn * viper->max_angular_speed();
-                /* Boost if the steering event says so and either:
-                 *    1) Boost in inactive and the boost power is full
-                 *    2) Boost is active and the boost power is not depleted
-                 */
-                double boost = 0.;
-                if (cmd.boost &&
-                    ((viper->boost_amount() > 0 and
-                      viper->boost_charge() > time_from_seconds(0)) or
-                     (viper->boost_amount() == 0.0 and
-                      viper->boost_charge() == viper->boost_max())))
-                    boost = 1.;
-                viper->steer(angularSpeed, boost);
-            }
-        }
+    if (Viper* viper = player->viper()) {
+        // Protect against erroneous input from controller
+        if (std::abs(cmd.turn) > 1)
+            cmd.turn /= std::abs(cmd.turn);
+        double angularSpeed = cmd.turn * viper->max_angular_speed();
+        /* Boost if the steering event says so and either:
+         *    1) Boost in inactive and the boost power is full
+         *    2) Boost is active and the boost power is not depleted
+         */
+        double boost = 0.;
+        if (cmd.boost && ((viper->boost_amount() > 0 and
+                           viper->boost_charge() > time_from_seconds(0)) or
+                          (viper->boost_amount() == 0.0 and
+                           viper->boost_charge() == viper->boost_max())))
+            boost = 1.;
+        viper->steer(angularSpeed, boost);
     }
 }
 
-void ArenaScene::handle_destruction(const DestroyEvent& event) {
-    if (typeid(*event.objectPtr) == typeid(Viper))
+void ArenaScene::handle_destruction(const GameObject* object) {
+    if (typeid(*object) == typeid(Viper))
         // we could retrieve the non-const ptr from the player but this is
         // easier
-        delete_viper((Viper*)event.objectPtr);
-    else if (typeid(*event.objectPtr) == typeid(Food))
-        delete_food((Food*)event.objectPtr);
-    else if (typeid(*event.objectPtr) == typeid(FlyingScore)) {
+        delete_viper((Viper*)object);
+    else if (typeid(*object) == typeid(Food))
+        delete_food((Food*)object);
+    else if (typeid(*object) == typeid(FlyingScore)) {
         for (auto flying_score_iter = _flying_scores.begin();
              flying_score_iter != _flying_scores.end(); ++flying_score_iter) {
-            if ((*flying_score_iter).get() == event.objectPtr) {
+            if ((*flying_score_iter).get() == object) {
                 _flying_scores.erase(flying_score_iter);
                 break;
             }
@@ -440,90 +444,86 @@ void ArenaScene::handle_destruction(const DestroyEvent& event) {
         throw std::runtime_error("Unknown object sending DestroyEvent.");
 }
 
-void ArenaScene::handle_object_updates(Time elapsedTime) {
-    for (auto& v : _vipers)
-        v->update(elapsedTime);
-    for (auto& f : _food)
-        f->update(elapsedTime);
-    for (auto& s : _flying_scores)
-        s->update(elapsedTime);
-}
-
 void ArenaScene::check_for_game_over() {
     for (auto& player : _players)
         if (player->viper() && player->viper()->state() == GameObject::Alive)
             return;  // Keep on playing as long as someone is alive
 
-    set_transition_state(TransitionState::Spawn);
-    // This scene must be kept alive since GameOverScreen reads
+    set_run_state(RunState::Paused);
+    // This scene must be kept alive since GameOverScreen reads from object that
+    // this scene owns
     std::vector<const Player*> players;
     for (auto& p : _players)
         players.push_back(p.get());
-    _transition_scene = make_shared<GameOverScene>(game(), players);
+    SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+    scene_event.target_scene =
+        make_shared<GameOverScene>(game_resources(), players);
+    notify(scene_event);
 }
 
 void ArenaScene::on_notify(const GameEvent& event) {
-    // If directly processable, do it!
-    switch (event.type()) {
-        default: {
-            // Otherwise save it for later
-            _events_to_be_processed.insert(
-                std::pair<GameEvent::EventType, GameEvent*>(event.type(),
-                                                            event.clone()));
-            break;
-        }
+    if (run_state() != RunState::Running) {
+        return;
     }
-}
-
-void ArenaScene::process_event(const sf::Event& event) {
-    switch (event.type) {
-        case sf::Event::Closed: {
-            set_run_state(RunState::Paused);
-            set_transition_state(TransitionState::Quit);
-            break;
-        }
-        case sf::Event::Resized: {
-            break;
-        }
-        case sf::Event::KeyPressed: {
-            switch (event.key.scancode) {
-                case sf::Keyboard::Scan::Escape: {
+    switch (event.type()) {
+        case GameEvent::EventType::Keyboard: {
+            const KeyboardEvent& keyboard_event =
+                dynamic_cast<const KeyboardEvent&>(event);
+            if (keyboard_event.keyboard_event_type ==
+                KeyboardEvent::KeyboardEventType::KeyPressed) {
+                if (keyboard_event.scancode == sf::Keyboard::Scan::Escape) {
                     set_run_state(RunState::Paused);
-                    set_transition_state(TransitionState::Spawn);
-                    _transition_scene = _pause_scene;
-                    break;
-                }
-                default: {
-                    break;
+                    SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+                    scene_event.target_scene = _pause_scene;
+                    notify(scene_event);
                 }
             }
             break;
         }
+        case GameEvent::EventType::Destroy: {
+            const DestroyEvent& destroy_event =
+                dynamic_cast<const DestroyEvent&>(event);
+            _objects_to_delete.insert(destroy_event.object_pointer);
+            break;
+        }
+        case GameEvent::EventType::ObjectModified: {
+            const ObjectModifiedEvent& object_modified_event =
+                dynamic_cast<const ObjectModifiedEvent&>(event);
+            if (typeid(*object_modified_event.object_pointer) ==
+                typeid(KeyboardController)) {
+                const Controller* controller =
+                    (const Controller*)object_modified_event.object_pointer;
+                handle_steering(controller);
+            }
+            break;
+        }
+        case GameEvent::EventType::Update: {
+            const UpdateEvent& update_event =
+                dynamic_cast<const UpdateEvent&>(event);
+            update(update_event.elapsed_time);
+            notify(event);
+            break;
+        }
         default: {
             break;
         }
     }
 }
 
-void ArenaScene::process_game_events() {
-    auto [beginDestroyEvents, endDestroyEvents] =
-        _events_to_be_processed.equal_range(GameEvent::EventType::Destroy);
-    for (auto iter = beginDestroyEvents; iter != endDestroyEvents; ++iter) {
-        handle_destruction(*dynamic_cast<const DestroyEvent*>(iter->second));
+void ArenaScene::process_deletions() {
+    for (auto object : _objects_to_delete) {
+        handle_destruction(object);
     }
-    _events_to_be_processed.clear();
+    _objects_to_delete.clear();
 }
 
 void ArenaScene::update(Time elapsedTime) {
-    handle_steering();
     Stopwatch clock;
     clock.start();
-    handle_object_updates(elapsedTime);
-    log_info("  Game object updates took: ", clock.split());
     handle_collisions();
     log_info("  Collision handling took: ", clock.split());
     dispense_food();
-    process_game_events();
+    process_deletions();
     check_for_game_over();
 }
 

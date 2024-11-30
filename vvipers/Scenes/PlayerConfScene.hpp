@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
 #include <vvipers/UIElements/MenuScene.hpp>
 #include "vvipers/UIElements/SelectionButton.hpp"
@@ -11,9 +11,8 @@ namespace VVipers {
 
 class PlayerConfScene : public MenuScene {
   public:
-    PlayerConfScene(Game& game);
+    PlayerConfScene(GameResources& game);
     void on_menu_item_activation(MenuItem* menuItem) override;
-    std::shared_ptr<Scene> make_transition() override;
     void on_notify(const GameEvent& event) override;
     void on_return() override;
 

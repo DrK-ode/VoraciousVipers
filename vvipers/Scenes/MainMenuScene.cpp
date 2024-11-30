@@ -3,12 +3,13 @@
 #include <vvipers/Scenes/MainMenuScene.hpp>
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
+#include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/UIElements/MenuScene.hpp"
 
 namespace VVipers {
 
-MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
-    auto size = game.window().getSize();
+MainMenuScene::MainMenuScene(GameResources& game) : MenuScene(game) {
+    auto size = game.window_manager()->window_size();
     // Center and size in original coordinates
     sf::View menuView(Vec2(0.25 * size), 0.5 * Vec2(size.x, size.y));
     // Relative position and size in screen coordinates
@@ -40,16 +41,19 @@ void MainMenuScene::on_menu_item_activation(MenuItem* menuItem) {
     if (menuItem == _play_button.get()) {
         set_run_state(RunState::Paused);
         set_draw_state(DrawState::Skip);
-        set_transition_state(TransitionState::Spawn);
-        _transition_to = std::make_shared<ArenaScene>(game());
+        SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+        scene_event.target_scene = std::make_shared<ArenaScene>(game_resources());
+        notify(scene_event);
     } else if (menuItem == _options_button.get()) {
         set_run_state(RunState::Paused);
         set_draw_state(DrawState::Skip);
-        set_transition_state(TransitionState::Spawn);
-        _transition_to = std::make_shared<OptionsMenuScene>(game());
+        SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+        scene_event.target_scene = std::make_shared<OptionsMenuScene>(game_resources());
+        notify(scene_event);
     } else if (menuItem == _quit_button.get()) {
         set_run_state(RunState::Paused);
-        set_transition_state(TransitionState::Quit);
+        SceneEvent scene_event(SceneEvent::SceneEventType::Quit);
+        notify(scene_event);
     }
 }
 
@@ -58,6 +62,5 @@ void MainMenuScene::on_activation(){
     set_draw_state(DrawState::Solid);
 }
 
-std::shared_ptr<Scene> MainMenuScene::make_transition() { return _transition_to; }
 
 }  // namespace VVipers

@@ -5,8 +5,9 @@
 #include <memory>
 #include <vector>
 #include <vvipers/Collisions/CollisionManager.hpp>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Engine/Scene.hpp>
+#include <vvipers/GameElements/FlyingScore.hpp>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/GameElements/GameEvent.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
@@ -15,23 +16,17 @@
 #include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/GameElements/Walls.hpp>
 #include <vvipers/UIElements/Controller.hpp>
-#include <vvipers/UIElements/FlyingScore.hpp>
 #include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
 namespace VVipers {
 
-class ArenaScene : public Scene, public Observer {
+class ArenaScene : public Scene {
   public:
-    ArenaScene(Game& game);
+    ArenaScene(GameResources& game);
     ~ArenaScene();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_notify(const GameEvent& event) override;
-    void process_event(const sf::Event& event) override;
-    void update(Time elapsedTime) override;
-    std::shared_ptr<Scene> make_transition() override {
-        return _transition_scene;
-    }
 
   private:
     struct PlayerData {
@@ -60,16 +55,15 @@ class ArenaScene : public Scene, public Observer {
                                  std::vector<Polygon>()) const;
     void handle_collision(const CollisionPair&);
     void handle_collisions();
-    void handle_destruction(const DestroyEvent& event);
-    void handle_object_updates(Time elapsedTime);
-    void handle_steering();
+    void handle_destruction(const GameObject* event);
+    void handle_steering(const Controller*);
     void handle_viper_food_collision(Viper*, size_t, Food*, size_t);
     void handle_viper_viper_collision(Viper*, size_t, Viper*, size_t);
     void handle_viper_walls_collision(Viper*, size_t, Walls*, size_t);
     void kill_viper(Viper* viper);
-    void process_game_events();
-    void process_window_events();
+    void process_deletions();
     PlayerData read_player_conf(size_t player);
+    void update(Time elapsedTime);
 
     sf::View _game_view;
     // The arena keeps partial ownership of the pause screen in order to be able
@@ -84,8 +78,7 @@ class ArenaScene : public Scene, public Observer {
     std::vector<std::unique_ptr<FlyingScore>> _flying_scores;
     std::unique_ptr<Walls> _walls;
 
-    std::multimap<GameEvent::EventType, const GameEvent*>
-        _events_to_be_processed;
+    std::set<const GameObject*> _objects_to_delete;
     CollisionManager _collision_manager;
 };
 

@@ -5,14 +5,15 @@
 #include <vvipers/Scenes/PlayerConfScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
 
-#include "vvipers/Engine/Game.hpp"
+#include "vvipers/Engine/GameResources.hpp"
 #include "vvipers/Engine/Scene.hpp"
+#include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/UIElements/ToggleButton.hpp"
 
 namespace VVipers {
 
-PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
-    auto size = game.window().getSize();
+PlayerConfScene::PlayerConfScene(GameResources& game) : MenuScene(game) {
+    auto size = game.window_manager()->window_size();
     // Center and size in original coordinates
     sf::View menuView(Vec2(0.5 * 0.75 * size.x, 0.5 * 0.5 * size.y),
                       Vec2(.75 * size.x, .5 * size.y));
@@ -29,7 +30,6 @@ PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
         std::make_unique<SelectionButton<size_t>>("Player: ", player_numbers);
     _player_button->set_font(*game.font_service().default_font());
     add_item(_player_button.get());
-    _player_button->add_observer(this, {GameEvent::EventType::Menu});
 
     _set_left_button = std::make_unique<MenuButton>();
     _set_left_button->set_font(*game.font_service().default_font());
@@ -47,7 +47,6 @@ PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
         "Mouse: enabled", "Mouse: disabled", false);
     _enable_mouse_button->set_font(*game.font_service().default_font());
     add_item(_enable_mouse_button.get());
-    _enable_mouse_button->add_observer(this, {GameEvent::EventType::Menu});
 
     _back_button = std::make_unique<MenuButton>();
     _back_button->set_label("Back");
@@ -65,28 +64,21 @@ PlayerConfScene::PlayerConfScene(Game& game) : MenuScene(game) {
 
 void PlayerConfScene::on_menu_item_activation(MenuItem* menuItem) {
     if (menuItem == _set_left_button.get()) {
-        /*set_run_state(RunState::Paused);
-        set_transition_state(TransitionState::Spawn );
-        _transition_to = std::make_shared<SetKeysScene>();*/
     } else if (menuItem == _enable_mouse_button.get()) {
         _enable_mouse_button->toggle();
-        game().options_service().set_option_boolean(
+        game_resources().options_service().set_option_boolean(
             "Players/Player" +
                 std::to_string(_player_button->selected_option()) +
                 "/mouseEnabled",
             _enable_mouse_button->is_toggled());
     } else if (menuItem == _back_button.get()) {
-        set_run_state(RunState::Paused);
-        set_transition_state(TransitionState::Return);
+        on_return();
+        notify(SceneEvent(SceneEvent::SceneEventType::Return));
     }
 }
 
-std::shared_ptr<Scene> PlayerConfScene::make_transition() {
-    return _transition_to;
-}
-
 std::vector<int> PlayerConfScene::selected_player_keys() {
-    return game().options_service().option_int_array(
+    return game_resources().options_service().option_int_array(
         "Players/Player" + std::to_string(_player_button->selected_option()) +
         "/keys");
 }
@@ -102,11 +94,41 @@ std::vector<std::string> PlayerConfScene::keys_to_strings(
 }
 
 void PlayerConfScene::on_notify(const GameEvent& event) {
-    if (event.type() == GameEvent::EventType::Menu) {
-        const MenuEvent& menu_event = dynamic_cast<const MenuEvent&>(event);
-        if (menu_event.sender == _player_button.get()) {
-            update_labels();
+    if (run_state() != Scene::RunState::Running) {
+        return;
+    }
+    MenuScene::on_notify(event);
+    switch (event.type()) {
+        case GameEvent::EventType::ObjectModified: {
+            const ObjectModifiedEvent& menu_event = dynamic_cast<const ObjectModifiedEvent&>(event);
+            if (menu_event.object_pointer == _player_button.get()) {
+                update_labels();
+            }
+            break;
         }
+        case GameEvent::EventType::Keyboard: {
+            const KeyboardEvent& keyboard_event =
+                dynamic_cast<const KeyboardEvent&>(event);
+            if (keyboard_event.keyboard_event_type ==
+                    KeyboardEvent::KeyboardEventType::KeyPressed &&
+                selected() == _player_button.get()) {
+                switch (keyboard_event.scancode) {
+                    case sf::Keyboard::Scan::Left: {
+                        _player_button->option_left();
+                        break;
+                    }
+                    case sf::Keyboard::Scan::Right: {
+                        _player_button->option_right();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -119,7 +141,7 @@ void PlayerConfScene::update_labels() {
     _set_boost_button->set_label("Boost: " + key_strings[2]);
 
     _enable_mouse_button->set_toggle_state(
-        game().options_service().option_boolean(
+        game_resources().options_service().option_boolean(
             "Players/Player" +
             std::to_string(_player_button->selected_option()) +
             "/mouseEnabled"));
@@ -128,9 +150,7 @@ void PlayerConfScene::update_labels() {
 }
 
 void PlayerConfScene::on_return() {
-    set_run_state(RunState::Paused);
-    set_transition_state(TransitionState::Return);
-    game().options_service().write();
+    game_resources().options_service().write();
 }
 
 }  // namespace VVipers

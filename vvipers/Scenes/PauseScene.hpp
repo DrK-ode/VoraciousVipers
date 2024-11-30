@@ -7,11 +7,11 @@
 
 namespace VVipers {
 
-class Game;
+class GameResources;
 
 class PauseScene : public MenuScene {
   public:
-    PauseScene(Game& game);
+    PauseScene(GameResources& game);
     void draw_background(sf::RenderTarget& target,
                          sf::RenderStates states) const override;
     void on_menu_item_activation(MenuItem* menuItem) override;

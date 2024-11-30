@@ -1,18 +1,21 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <algorithm>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Scenes/FlashScreenScene.hpp>
 #include <vvipers/Scenes/GameOverScene.hpp>
 #include <vvipers/Utilities/Vec2.hpp>
 #include <vvipers/Utilities/debug.hpp>
+
 #include "vvipers/Engine/Scene.hpp"
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
-GameOverScene::GameOverScene(Game& game, std::vector<const Player*> players)
+GameOverScene::GameOverScene(GameResources& game,
+                             std::vector<const Player*> players)
     : Scene(game), _players(players) {
-    Vec2 size = game.window().getSize();
+    Vec2 size = game.window_manager()->window_size();
     _game_over_text.setFont(*game.font_service().default_font());
     _game_over_text.setString("Game Over");
     _game_over_text.setCharacterSize(0.1 * size.y);
@@ -65,22 +68,23 @@ void GameOverScene::draw(sf::RenderTarget& target,
     target.draw(_score_text, states);
 }
 
-void GameOverScene::update(Time elapsedTime) {}
-
-void GameOverScene::process_event(const sf::Event& event) {
-    switch (event.type) {
-        case sf::Event::Closed: {
-            set_transition_state(TransitionState::Quit);
+void GameOverScene::on_notify(const GameEvent& event) {
+    switch (event.type()) {
+        case GameEvent::EventType::Keyboard: {
+            const KeyboardEvent& keyboard_event =
+                dynamic_cast<const KeyboardEvent&>(event);
+            if ((keyboard_event.scancode == sf::Keyboard::Scan::Enter) ||
+                (keyboard_event.scancode == sf::Keyboard::Scan::Escape))
+                notify(SceneEvent(SceneEvent::SceneEventType::Default));
             break;
         }
-        case sf::Event::KeyPressed: {
-            if ((event.key.code == sf::Keyboard::Return) or
-                (event.key.code == sf::Keyboard::Escape))
-                set_transition_state(TransitionState::Default);
-            break;
-        }
-        case sf::Event::MouseButtonPressed: {
-            set_transition_state(TransitionState::Default);
+        case GameEvent::EventType::Mouse: {
+            const MouseEvent& mouse_event =
+                dynamic_cast<const MouseEvent&>(event);
+            if (mouse_event.mouse_event_type ==
+                MouseEvent::MouseEventType::ButtonPressed) {
+                notify(SceneEvent(SceneEvent::SceneEventType::Default));
+            }
             break;
         }
         default:

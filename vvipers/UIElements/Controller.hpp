@@ -3,8 +3,11 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Utilities/Time.hpp>
+
+#include "vvipers/GameElements/GameObject.hpp"
+#include "vvipers/GameElements/Observer.hpp"
 
 namespace VVipers {
 
@@ -14,10 +17,18 @@ struct SteeringCommand {
     bool boost = false;
 };
 
-class Controller {
+class Controller : public Object, public Observable, public Observer {
   public:
-    virtual ~Controller(){};
-    virtual SteeringCommand control() const { return SteeringCommand(); }
+    virtual ~Controller() {};
+    void on_notify(const GameEvent&) override;
+    SteeringCommand steering_command() const { return _command; }
+    void set_steering_command(const SteeringCommand& command) {
+        _command = command;
+    }
+    virtual void update(const Time&) {};
+
+  private:
+    SteeringCommand _command;
 };
 
 class KeyboardController : public Controller {
@@ -30,18 +41,18 @@ class KeyboardController : public Controller {
     KeyboardController(const KeyboardControls& keys) : _keys(keys) {}
 
   private:
-    virtual SteeringCommand control() const override;
+    void update(const Time&) override;
     KeyboardControls _keys;
 };
 
 class MouseController : public Controller {
   public:
-    MouseController(Game& game);
-    ~MouseController() { _game.set_grab_mouse(false); }
+    MouseController(GameResources&);
+    ~MouseController() { _game_resources.window_manager()->set_grab_mouse(false); }
 
   private:
-    virtual SteeringCommand control() const override;
-    Game& _game;
+    void update(const Time&) override;
+    GameResources& _game_resources;
 };
 
 }  // namespace VVipers

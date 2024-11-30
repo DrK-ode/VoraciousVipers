@@ -1,7 +1,7 @@
 #include <memory>
 #include <vvipers/Engine/Engine.hpp>
 #include <vvipers/Engine/FontFileLoader.hpp>
-#include <vvipers/Engine/Game.hpp>
+#include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Engine/Providers.hpp>
 #include <vvipers/Engine/TextureFileLoader.hpp>
@@ -18,12 +18,11 @@ void startGame() {
     const std::string resPathOptStr("General/resourceDirectoryPath");
     if (!options->is_option_set(resPathOptStr))
         options->set_option_string(resPathOptStr, RESOURCE_PATH);
+    auto game_resources = std::make_unique<GameResources>(std::move(options));
 
-    Engine engine(std::move(options));
-    auto firstScene = std::make_shared<FlashScreenScene>(*engine.game());
-    auto mainMenu = std::make_shared<MainMenuScene>(*engine.game());
-    engine.load_scene(firstScene);
-    engine.set_default_scene(mainMenu);
+    Engine engine(std::move(game_resources));
+    engine.add_scene(std::make_shared<FlashScreenScene>(engine.game_resources()));
+    engine.set_default_scene(std::make_shared<MainMenuScene>(engine.game_resources()));
 
     engine.start_game();
 }
