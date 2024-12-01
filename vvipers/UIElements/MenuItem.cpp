@@ -2,23 +2,28 @@
 
 namespace VVipers {
 
-sf::FloatRect MenuItem::getLocalBounds() const {
-    return sf::FloatRect(m_position.x, m_position.y, m_size.x, m_size.y);
+sf::FloatRect MenuItem::local_bounds() const {
+    return sf::FloatRect(_position.x, _position.y, _size.x, _size.y);
 }
 
-void MenuItem::setSize(Vec2 size) {
-    m_size = size;
-    onGeometryChange();
+void MenuItem::set_size(Vec2 size) {
+    _size = size;
+    on_geometry_change();
 }
 
-void MenuItem::setPosition(Vec2 position) {
-    m_position = position;
-    onGeometryChange();
+void MenuItem::set_position(Vec2 position) {
+    _position = position;
+    on_geometry_change();
 }
 
-void MenuItem::setSelected(bool selected) {
-    m_selected = selected;
-    onSelection();
+void MenuItem::set_selected(bool selected) {
+    _selected = selected;
+    on_selection();
+}
+
+void MenuItem::enable(bool enable) {
+    _enabled = enable;
+    on_enable();
 }
 
 }  // namespace VVipers

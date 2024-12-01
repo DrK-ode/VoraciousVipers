@@ -4,10 +4,10 @@ namespace VVipers
 {
 
 void GameObject::state( ObjectState state ){
-    if( state != m_state ){
-        ObjectState old = m_state;
-        m_state = state;
-        state_changed( old, m_state );
+    if( state != _state ){
+        ObjectState old = _state;
+        _state = state;
+        state_changed( old, _state );
     }
 }
 

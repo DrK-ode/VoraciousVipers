@@ -1,9 +1,11 @@
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Utilities/debug.hpp>
+#include <fstream>
 
 namespace VVipers {
 
-OptionsJSON::OptionsJSON(std::istream& input) {
+OptionsJSON::OptionsJSON(const std::string& file_path) : _file_path(file_path) {
+    std::ifstream input(file_path.c_str());
     Json::Reader reader;
     reader.parse(input, _json_root);
 }
@@ -52,6 +54,13 @@ double OptionsJSON::option_double(const std::string& optionName) const {
     return value.asDouble();
 }
 
+int OptionsJSON::option_int(const std::string& optionName) const {
+    auto value = option_value(optionName);
+    if (!value.isInt())
+        tag_error(" Value ", optionName, " is not an integer.");
+    return value.asInt();
+}
+
 std::string OptionsJSON::option_string(const std::string& optionName) const {
     auto value = option_value(optionName);
     if (!value.isString())
@@ -77,7 +86,7 @@ std::vector<bool> OptionsJSON::option_boolean_array(
             tag_error("Expected boolean value in array.");
             continue;
         }
-        boolArray.push_back(boolValue.asDouble());
+        boolArray.push_back(boolValue.asBool());
     }
     return boolArray;
 }
@@ -95,6 +104,21 @@ std::vector<double> OptionsJSON::option_double_array(
         doubleArray.push_back(doubleValue.asDouble());
     }
     return doubleArray;
+}
+
+std::vector<int> OptionsJSON::option_int_array(
+    const std::string& optionName) const {
+    auto value = option_array(optionName);
+    std::vector<int> intArray;
+    intArray.reserve(value.size());
+    for (auto intValue : value) {
+        if (!intValue.isInt()) {
+            tag_error("Expected int value in array.");
+            continue;
+        }
+        intArray.push_back(intValue.asInt());
+    }
+    return intArray;
 }
 
 std::vector<std::string> OptionsJSON::option_string_array(
@@ -130,7 +154,7 @@ std::vector<Vec2> OptionsJSON::option_2d_vector_array(
 }
 
 void OptionsJSON::set_option_value(const std::string& optionName,
-                                 const Json::Value optionValue) {
+                                   const Json::Value optionValue) {
     auto subdirs = tokenize(optionName, '/');
     auto actualName = subdirs.back();
     subdirs.pop_back();
@@ -143,20 +167,25 @@ void OptionsJSON::set_option_value(const std::string& optionName,
 
 template <typename T>
 void OptionsJSON::set_option_array(const std::string& optionName,
-                                 const std::vector<T>& optionValue) {
+                                   const std::vector<T>& optionValue) {
     auto array = Json::Value(Json::arrayValue);
     for (T element : optionValue)
         array.append(element);
     set_option_value(optionName, array);
 }
 
-void OptionsJSON::set_option_boolean_array(const std::string& optionName,
-                                        const std::vector<bool>& optionArray) {
+void OptionsJSON::set_option_boolean_array(
+    const std::string& optionName, const std::vector<bool>& optionArray) {
     set_option_array(optionName, optionArray);
 }
 
-void OptionsJSON::set_option_double_array(const std::string& optionName,
-                                       const std::vector<double>& optionArray) {
+void OptionsJSON::set_option_double_array(
+    const std::string& optionName, const std::vector<double>& optionArray) {
+    set_option_array(optionName, optionArray);
+}
+
+void OptionsJSON::set_option_int_array(const std::string& optionName,
+                                       const std::vector<int>& optionArray) {
     set_option_array(optionName, optionArray);
 }
 
@@ -166,8 +195,8 @@ void OptionsJSON::set_option_string_array(
     set_option_array(optionName, optionArray);
 }
 
-void OptionsJSON::set_option_2d_vector_array(const std::string& optionName,
-                                         const std::vector<Vec2>& vectorArray) {
+void OptionsJSON::set_option_2d_vector_array(
+    const std::string& optionName, const std::vector<Vec2>& vectorArray) {
     auto array = Json::Value(Json::arrayValue);
     for (auto& vec : vectorArray) {
         auto vec2array = Json::Value(Json::arrayValue);
@@ -178,7 +207,8 @@ void OptionsJSON::set_option_2d_vector_array(const std::string& optionName,
     set_option_value(optionName, array);
 }
 
-void OptionsJSON::write(std::ostream& output) const {
+void OptionsJSON::write() const {
+    std::ofstream output(_file_path.c_str());
     output << _json_root << std::endl;
 }
 

@@ -12,7 +12,7 @@
 
 namespace VVipers {
 
-class Food : public GameObject, public sf::CircleShape, public CollidingBody, public Observable {
+class Food : public GameObject, public sf::CircleShape, public CollidingBody, public Observable{
   public:
     Food(Vec2 position, double radius, Time bonusExpire, sf::Color color);
     std::shared_ptr<const VVipers::Shape> segment_shape(size_t index) const override;
@@ -22,7 +22,7 @@ class Food : public GameObject, public sf::CircleShape, public CollidingBody, pu
     double score_value() const;
     void update(Time elapsedTime);
 
-    static const double nominalFoodRadius;
+    static const double nominal_food_radius;
 
   private:
     void decay(Time elapsedTime);

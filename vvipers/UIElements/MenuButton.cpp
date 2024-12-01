@@ -3,50 +3,85 @@
 
 namespace VVipers {
 
-MenuButton::MenuButton() : m_fontRatio(0.8) {
-    m_text.setFillColor(sf::Color::Magenta);
-    m_box.setFillColor(sf::Color::Transparent);
-    m_box.setOutlineColor(sf::Color::Transparent);
+MenuButton::MenuButton()
+    : _fill_color(sf::Color::Red),
+      _border_color(sf::Color::Green),
+      _text_color(sf::Color::Blue) {
+    update_colors();
 }
 
 void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(m_box, states);
-    target.draw(m_text, states);
+    target.draw(_box, states);
+    target.draw(_text, states);
 }
 
-void MenuButton::onSelection() {
-    if (isSelected())
-        m_box.setOutlineThickness(
-            -std::max(1., 0.05 * m_text.getCharacterSize()));
+void MenuButton::on_selection() {
+    if (is_selected())
+        _box.setOutlineThickness(-std::max(1., 0.05 * size().y));
     else
-        m_box.setOutlineThickness(0);
+        _box.setOutlineThickness(0);
 }
 
-void MenuButton::onGeometryChange() {
-    auto size = getSize();
-    auto position = getPosition();
+void MenuButton::on_geometry_change() {
+    Vec2 size = this->size();
+    Vec2 position = this->position();
+    if (size == Vec2(0, 0))
+        return;
 
-    m_text.setCharacterSize(m_fontRatio * size.y);
-    auto textlb = m_text.getLocalBounds();
-    m_text.setOrigin(textlb.left + 0.5 * textlb.width,
-                     textlb.top + 0.5 * textlb.height);
-    m_text.setPosition(position + size / 2);
+    _box.setPosition(position);
+    _box.setSize(size);
 
-    m_box.setPosition(position);
-    m_box.setSize(size);
+    unsigned int font_size = 50;
+    double margin = 0.06 * size.y;
+    while (font_size > 10) {
+        _text.setCharacterSize(font_size);
+        auto bounds = _text.getLocalBounds();
+        if (bounds.height + margin < size.y && bounds.width + margin < size.x) {
+            break;
+        }
+        --font_size;
+    }
+    auto bounds = _text.getLocalBounds();
+    _text.setOrigin(bounds.left + 0.5 * bounds.width,
+                    bounds.top + 0.5 * bounds.height);
+    _text.setPosition(position + size / 2);
 
-    onSelection();
+    on_selection();
 }
 
-void MenuButton::setColors(sf::Color fill, sf::Color border, sf::Color text) {
-    m_box.setFillColor(fill);
-    m_box.setOutlineColor(border);
-    m_text.setFillColor(text);
-    m_text.setOutlineColor(border);
+void MenuButton::on_enable() { 
+    update_colors(); }
+
+void MenuButton::set_colors(sf::Color fill, sf::Color border) {
+    _fill_color = fill;
+    _border_color = border;
+    update_colors();
 }
 
-void MenuButton::setFont(const sf::Font& font) { m_text.setFont(font); }
+void MenuButton::set_text(const sf::Font& font, sf::Color text_color) {
+    _text.setFont(font);
+    _text_color = text_color;
+    update_colors();
+    on_geometry_change();
+}
 
-void MenuButton::setLabel(const std::string& label) { m_text.setString(label); }
+void MenuButton::set_label(const std::string& label) { _text.setString(label); }
+
+void MenuButton::update_colors() {
+    if (is_enabled()) {
+        _text.setFillColor(_text_color);
+        _box.setFillColor(_fill_color);
+        _box.setOutlineColor(_border_color);
+    } else {
+        sf::Color color;
+        color = _fill_color;
+        color.a = 0.5 * color.a;
+        _box.setFillColor(color);
+        color = _text_color;
+        color.a = 0.5 * color.a;
+        _text.setFillColor(color);
+        _box.setOutlineColor(_border_color);
+    }
+}
 
 }  // namespace VVipers

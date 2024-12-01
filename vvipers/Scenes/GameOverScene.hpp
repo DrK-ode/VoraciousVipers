@@ -6,17 +6,18 @@
 #include <vvipers/Engine/Scene.hpp>
 #include <vvipers/GameElements/Player.hpp>
 #include <vvipers/Utilities/Time.hpp>
+#include "vvipers/GameElements/GameEvent.hpp"
 
 namespace VVipers {
 
-class Game;
+class GameResources;
 
 class GameOverScene : public Scene {
   public:
-    GameOverScene(Game& game, std::vector<const Player*> players);
+    GameOverScene(GameResources& game, std::vector<const Player*> players);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void process_event(const sf::Event& event) override;
-    void update(Time elapsedTime) override;
+    void on_notify(const GameEvent&) override;
+    void update(const Time&) override {}
 
   private:
     std::string score_string(std::vector<const Player*>& players);

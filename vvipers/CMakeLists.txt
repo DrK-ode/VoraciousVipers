@@ -7,11 +7,14 @@ set(INC_FILES
     Engine/ColorPalette.hpp
     Engine/Engine.hpp
     Engine/FontFileLoader.hpp
-    Engine/Game.hpp
+    Engine/GameResources.hpp
     Engine/OptionsJSON.hpp
     Engine/Providers.hpp
     Engine/Scene.hpp
     Engine/TextureFileLoader.hpp
+    Engine/WindowManager.hpp
+    GameElements/Controller.hpp
+    GameElements/FlyingScore.hpp
     GameElements/Food.hpp
     GameElements/GameEvent.hpp
     GameElements/GameObject.hpp
@@ -26,13 +29,14 @@ set(INC_FILES
     Scenes/MainMenuScene.hpp
     Scenes/OptionsMenuScene.hpp
     Scenes/PauseScene.hpp
-    UIElements/Controller.hpp
-    UIElements/FlyingScore.hpp
+    Scenes/PlayerConfScene.hpp
     UIElements/MenuButton.hpp
     UIElements/MenuItem.hpp
     UIElements/MenuScene.hpp
     UIElements/PlayerPanel.hpp
     UIElements/ProgressBar.hpp
+    UIElements/SelectionButton.hpp
+    UIElements/ToggleButton.hpp
     Utilities/debug.hpp
     Utilities/Shape.hpp
     Utilities/Time.hpp
@@ -47,10 +51,13 @@ set(SRC_FILES
     Engine/ColorPalette.cpp
     Engine/Engine.cpp
     Engine/FontFileLoader.cpp
-    Engine/Game.cpp
+    Engine/GameResources.cpp
     Engine/OptionsJSON.cpp
     Engine/Scene.cpp
     Engine/TextureFileLoader.cpp
+    Engine/WindowManager.cpp
+    GameElements/Controller.cpp
+    GameElements/FlyingScore.cpp
     GameElements/Food.cpp
     GameElements/GameEvent.cpp
     GameElements/GameObject.cpp
@@ -65,13 +72,14 @@ set(SRC_FILES
     Scenes/MainMenuScene.cpp
     Scenes/OptionsMenuScene.cpp
     Scenes/PauseScene.cpp
-    UIElements/Controller.cpp
-    UIElements/FlyingScore.cpp
+    Scenes/PlayerConfScene.cpp
     UIElements/MenuButton.cpp
     UIElements/MenuItem.cpp
     UIElements/MenuScene.cpp
     UIElements/PlayerPanel.cpp
     UIElements/ProgressBar.cpp
+    UIElements/SelectionButton.cpp
+    UIElements/ToggleButton.cpp
     Utilities/Shape.cpp
     Utilities/TriangleStripArray.cpp
     Utilities/Vec2.cpp

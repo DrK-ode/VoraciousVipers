@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <fstream>
 #include <memory>
 #include <vvipers/Engine/OptionsJSON.hpp>
 #include <vvipers/Engine/TextureFileLoader.hpp>
@@ -17,14 +16,13 @@ class ViperTest : public ::testing::Test {
   public:
     ViperTest() {
         debug::verbosity = Verbosity::OnlyErrors;
-        std::ifstream input("preferences.json");
-        options = std::make_unique<OptionsJSON>(input);
+        options = std::make_unique<OptionsJSON>("preferences.json");
         const std::string resPathOptStr("General/resourceDirectoryPath");
         if (!options->is_option_set(resPathOptStr))
             options->set_option_string(resPathOptStr, RESOURCE_PATH);
         auto textures = std::make_unique<TextureFileLoader>(*options.get());
-        viper = std::make_unique<Viper>(*options, *textures);
-        viper->setup(Vec2(0, 0), 0.f, 1.5);
+        auto viper_cfg = std::make_shared<ViperConfiguration>(*options, *textures);
+        viper = std::make_unique<Viper>(viper_cfg,Vec2(0, 0), 0.f, 1.5);
     }
 
     std::unique_ptr<Viper> viper;

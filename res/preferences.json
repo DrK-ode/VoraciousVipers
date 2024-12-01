@@ -1,75 +1,217 @@
 {
-  "General": {
-    "windowSize": [1024, 768],
-    "FPS": 60,
-    "fonts": ["DroidSansMono"],
-    "defaultFont": "DroidSansMono",
-    "colorPalette": [
-      "#a41531",
-      "#e85324",
-      "#ffcd23",
-      "#0aac0f",
-      "#2772c6",
-      "#75009c"
-    ]
-  },
-  "Players": {
-    "numberOfPlayers": 2,
-    "names": ["DrK", "MrTest"],
-    "keys": [71, 72, 73, 0, 3, 22],
-    "primaryColors": ["#37E2D5", "#FBCB0A"],
-    "secondaryColors": ["#C70A80", "#590696"]
-  },
-  "Viper": {
-    "nominalSpeed": 100,
-    "nominalSegmentWidth": 30,
-    "boostMaxCharge": 3,
-    "boostRechargeRate": 0.2,
-    "boostRechargeCooldown": 0.5
-  },
-  "ViperModel": {
-    "ViperHead": {
-      "nominalLength": 35,
-      "nodes": [
-        [0.03, 0],
-        [0.125, 0.02],
-        [0.25, 0.17],
-        [0.375, 0.33],
-        [0.44, 0.5],
-        [0.5, 0.67],
-        [0.44, 0.83],
-        [0.25, 1]
-      ],
-      "textureFile": "viper_texture.png",
-      "textureCrop": [0, 0, 80, 120],
-      "repeated": false
-    },
-    "ViperBody": {
-      "nominalLength": 30,
-      "nodes": [
-        [0.25, 0],
-        [0.3, 0.1],
-        [0.4, 0.25],
-        [0.45, 0.5],
-        [0.4, 0.75],
-        [0.3, 0.9],
-        [0.25, 1]
-      ],
-      "textureFile": "viper_texture.png",
-      "textureCrop": [0, 120, 80, 120],
-      "repeated": true
-    },
-    "ViperTail": {
-      "nominalLength": 20,
-      "nodes": [
-        [0.25, 0],
-        [0.2, 0.25],
-        [0.1, 0.5],
-        [0.01, 1]
-      ],
-      "textureFile": "viper_texture.png",
-      "textureCrop": [0, 240, 80, 120],
-      "repeated": false
-    }
-  }
+	"General" : 
+	{
+		"FPS" : 60,
+		"colorPalette" : 
+		[
+			"#a41531",
+			"#e85324",
+			"#ffcd23",
+			"#0aac0f",
+			"#2772c6",
+			"#75009c"
+		],
+		"defaultFont" : "DroidSansMono",
+		"fonts" : 
+		[
+			"DroidSansMono"
+		],
+		"resourceDirectoryPath" : "/home/drk/code/VoraciousVipers/res/",
+		"windowSize" : 
+		[
+			1024,
+			768
+		]
+	},
+	"Players" : 
+	{
+		"Player1" : 
+		{
+			"keys" : 
+			[
+				87,
+				86,
+				89
+			],
+			"name" : "Serral",
+			"primaryColor" : "#37E2D5",
+			"secondaryColor" : "#C70A80",
+			"useMouse" : false
+		},
+		"Player2" : 
+		{
+			"keys" : 
+			[
+				0,
+				3,
+				22
+			],
+			"name" : "herO",
+			"primaryColor" : "#FBCB0A",
+			"secondaryColor" : "#590696",
+			"useMouse" : true
+		},
+		"Player3" : 
+		{
+			"keys" : 
+			[
+				9,
+				11,
+				8
+			],
+			"name" : "Maru",
+			"primaryColor" : "#DD99BB",
+			"secondaryColor" : "#93B7BE",
+			"useMouse" : false
+		},
+		"Player4" : 
+		{
+			"keys" : 
+			[
+				2,
+				5,
+				24
+			],
+			"name" : "Clem",
+			"primaryColor" : "#EB5160",
+			"secondaryColor" : "#C9B79C",
+			"useMouse" : true
+		},
+		"numberOfPlayers" : 2
+	},
+	"Viper" : 
+	{
+		"boostMaxCharge" : 3,
+		"boostRechargeCooldown" : 0.5,
+		"boostRechargeRate" : 0.20000000000000001,
+		"nominalSegmentWidth" : 30,
+		"nominalSpeed" : 100
+	},
+	"ViperModel" : 
+	{
+		"ViperBody" : 
+		{
+			"nodes" : 
+			[
+				[
+					0.25,
+					0
+				],
+				[
+					0.29999999999999999,
+					0.10000000000000001
+				],
+				[
+					0.40000000000000002,
+					0.25
+				],
+				[
+					0.45000000000000001,
+					0.5
+				],
+				[
+					0.40000000000000002,
+					0.75
+				],
+				[
+					0.29999999999999999,
+					0.90000000000000002
+				],
+				[
+					0.25,
+					1
+				]
+			],
+			"nominalLength" : 30,
+			"repeated" : true,
+			"textureCrop" : 
+			[
+				0,
+				120,
+				80,
+				120
+			],
+			"textureFile" : "viper_texture.png"
+		},
+		"ViperHead" : 
+		{
+			"nodes" : 
+			[
+				[
+					0.029999999999999999,
+					0
+				],
+				[
+					0.125,
+					0.02
+				],
+				[
+					0.25,
+					0.17000000000000001
+				],
+				[
+					0.375,
+					0.33000000000000002
+				],
+				[
+					0.44,
+					0.5
+				],
+				[
+					0.5,
+					0.67000000000000004
+				],
+				[
+					0.44,
+					0.82999999999999996
+				],
+				[
+					0.25,
+					1
+				]
+			],
+			"nominalLength" : 35,
+			"repeated" : false,
+			"textureCrop" : 
+			[
+				0,
+				0,
+				80,
+				120
+			],
+			"textureFile" : "viper_texture.png"
+		},
+		"ViperTail" : 
+		{
+			"nodes" : 
+			[
+				[
+					0.25,
+					0
+				],
+				[
+					0.20000000000000001,
+					0.25
+				],
+				[
+					0.10000000000000001,
+					0.5
+				],
+				[
+					0.01,
+					1
+				]
+			],
+			"nominalLength" : 20,
+			"repeated" : false,
+			"textureCrop" : 
+			[
+				0,
+				240,
+				80,
+				120
+			],
+			"textureFile" : "viper_texture.png"
+		}
+	}
 }

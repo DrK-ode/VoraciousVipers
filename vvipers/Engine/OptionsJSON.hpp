@@ -2,7 +2,6 @@
 
 #include <json/json.h>
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <vvipers/Engine/Providers.hpp>
@@ -12,16 +11,19 @@ namespace VVipers {
 
 class OptionsJSON : public OptionsProvider {
   public:
-    OptionsJSON(std::istream& input);
+    OptionsJSON(const std::string&);
     virtual ~OptionsJSON() {}
 
     bool option_boolean(const std::string& optionName) const override;
     std::string option_string(const std::string& optionName) const override;
     double option_double(const std::string& optionName) const override;
+    int option_int(const std::string& optionName) const override;
     Vec2 option_2d_vector(const std::string& optionName) const override;
     std::vector<bool> option_boolean_array(
         const std::string& optionName) const override;
     std::vector<double> option_double_array(
+        const std::string& optionName) const override;
+    std::vector<int> option_int_array(
         const std::string& optionName) const override;
     std::vector<std::string> option_string_array(
         const std::string& optionName) const override;
@@ -30,7 +32,7 @@ class OptionsJSON : public OptionsProvider {
     bool is_option_set(const std::string& optionName) const override {
         return !option_value(optionName).isNull();
     }
-    void write(std::ostream& output) const override;
+    void write() const override;
 
     void set_option_boolean(const std::string& optionName,
                             bool optionValue) override {
@@ -38,6 +40,10 @@ class OptionsJSON : public OptionsProvider {
     }
     void set_option_double(const std::string& optionName,
                            double optionValue) override {
+        set_option_value(optionName, Json::Value(optionValue));
+    }
+    void set_option_int(const std::string& optionName,
+                           int optionValue) override {
         set_option_value(optionName, Json::Value(optionValue));
     }
     void set_option_string(const std::string& optionName,
@@ -55,6 +61,9 @@ class OptionsJSON : public OptionsProvider {
     void set_option_double_array(
         const std::string& optionName,
         const std::vector<double>& doubleArray) override;
+    void set_option_int_array(
+        const std::string& optionName,
+        const std::vector<int>& intArray) override;
     void set_option_string_array(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) override;
@@ -72,6 +81,7 @@ class OptionsJSON : public OptionsProvider {
     void set_option_array(const std::string& optionName,
                           const std::vector<T>& value);
 
+    const std::string _file_path;
     Json::Value _json_root;
 };
 

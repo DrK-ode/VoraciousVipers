@@ -3,15 +3,13 @@
 
 namespace VVipers {
 
-Scene::Scene(Game& game)
+Scene::Scene(GameResources& game)
     : _game(game),
-      _scene_state(SceneState::Running),
-      _transition_state(TransitionState::Continue),
-      _is_transparent(false) {}
+      _run_state(RunState::Running),
+      _draw_state(DrawState::Solid) {}
 
 void Scene::on_activation() {
-    set_scene_state(Scene::SceneState::Running);
-    set_transition_state(TransitionState::Continue);
+    set_run_state(Scene::RunState::Running);
 }
 
 }  // namespace VVipers

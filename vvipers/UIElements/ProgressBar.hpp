@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_PROGRESSBAR_HPP
-#define VVIPERS_UIELEMENTS_PROGRESSBAR_HPP
+#pragma once
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -18,44 +17,48 @@ class ProgressBar : public sf::Drawable {
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    Vec2 getPosition() const { return m_position; }
-    sf::FloatRect getLocalBounds() const { return m_mainRect.getLocalBounds(); }
-    double getProgress() const {return m_progress;}
-    std::pair<double, double> getProgressLimits() const {
-        return {m_progressLow, m_progressHigh};
+    Vec2 position() const { return _position; }
+    sf::FloatRect local_bounds() const {
+        return _main_rectangle.getLocalBounds();
+    }
+    double progress() const { return _progress; }
+    std::pair<double, double> progress_limits() const {
+        return {_progress_low, _progress_high};
     }
 
-    void setBorderColor(sf::Color color) { m_mainRect.setOutlineColor(color); }
-    void setBackgroundColor(sf::Color color) { m_mainRect.setFillColor(color); }
-    void setBarColor(sf::Color color) { m_barRect.setFillColor(color); }
-    void setBorderWidth(double width);
-    void setProgressLimits(double low, double high);
-    void setShowText(bool show) { m_showText = show; }
-    void setSize(Vec2 size);
-    void setTextProperties(const sf::Font* font, double sizeRatio,
-                           sf::Color color, ProgressTextStyle style);
-    void setPosition(Vec2 pos);
-    void setProgress(double progress);
-    void setVertical(bool vertical);
-    void setInvertedBar(bool invert);
+    void set_border_color(sf::Color color) {
+        _main_rectangle.setOutlineColor(color);
+    }
+    void set_background_color(sf::Color color) {
+        _main_rectangle.setFillColor(color);
+    }
+    void set_bar_color(sf::Color color) { _bar_rectangle.setFillColor(color); }
+    void set_border_width(double width);
+    void set_progress_limits(double low, double high);
+    void set_show_text(bool show) { _show_text = show; }
+    void set_size(Vec2 size);
+    void set_text_properties(const sf::Font* font, double sizeRatio,
+                             sf::Color color, ProgressTextStyle style);
+    void set_position(Vec2 pos);
+    void set_progress(double progress);
+    void set_vertical(bool vertical);
+    void set_inverted_bar(bool invert);
 
   private:
-    void updateBar();
+    void update_bar();
 
-    bool m_vertical;
-    bool m_invert;
-    Vec2 m_size;
-    Vec2 m_position;
-    double m_progress;
-    double m_progressLow;
-    double m_progressHigh;
-    bool m_showText;
-    sf::Text m_text;
-    ProgressTextStyle m_textStyle;
-    sf::RectangleShape m_mainRect;
-    sf::RectangleShape m_barRect;
+    bool _vertical;
+    bool _invert;
+    Vec2 _size;
+    Vec2 _position;
+    double _progress;
+    double _progress_low;
+    double _progress_high;
+    bool _show_text;
+    sf::Text _text;
+    ProgressTextStyle _text_style;
+    sf::RectangleShape _main_rectangle;
+    sf::RectangleShape _bar_rectangle;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_UIELEMENTS_PROGRESSBAR_HPP

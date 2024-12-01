@@ -35,7 +35,11 @@ TextureFileLoader::TextureFileLoader(const OptionsProvider& options) {
     }
 }
 
-TextureFileLoader::~TextureFileLoader() {}
+TextureFileLoader::~TextureFileLoader() {
+    for( auto texture : _textures){
+        delete texture.second;
+    }
+}
 
 const sf::Texture* TextureFileLoader::texture(
     const std::string& texturename) const {

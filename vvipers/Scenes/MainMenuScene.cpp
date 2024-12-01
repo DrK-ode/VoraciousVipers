@@ -4,52 +4,63 @@
 #include <vvipers/Scenes/OptionsMenuScene.hpp>
 #include <vvipers/UIElements/MenuButton.hpp>
 
+#include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/UIElements/MenuScene.hpp"
+
 namespace VVipers {
 
-MainMenuScene::MainMenuScene(Game& game) : MenuScene(game) {
-    auto size = game.window().getSize();
+MainMenuScene::MainMenuScene(GameResources& game) : MenuScene(game) {
+    auto size = game.window_manager().window_size();
     // Center and size in original coordinates
     sf::View menuView(Vec2(0.25 * size), 0.5 * Vec2(size.x, size.y));
     // Relative position and size in screen coordinates
     menuView.setViewport(sf::FloatRect(0.25, 0.25, 0.5, 0.5));
-    setMenuView(menuView);
+    set_menu_view(menuView);
 
     _play_button = std::make_unique<MenuButton>();
-    _play_button->setLabel("Play");
-    _play_button->setFont(*game.font_service().default_font());
-    addItem(_play_button.get());
+    _play_button->set_label("Play");
+    add_item(_play_button.get());
 
     _options_button = std::make_unique<MenuButton>();
-    _options_button->setLabel("Options");
-    _options_button->setFont(*game.font_service().default_font());
-    addItem(_options_button.get());
+    _options_button->set_label("Options");
+    add_item(_options_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
-    _quit_button->setLabel("Quit");
-    _quit_button->setFont(*game.font_service().default_font());
-    addItem(_quit_button.get());
+    _quit_button->set_label("Quit");
+    add_item(_quit_button.get());
 
-    distributeMenuItems();
-    setSelectedIndex(0);
-    setColors(sf::Color::Transparent, game.color_service().get_color(0),
+    distribute_menu_items();
+    set_selected_index(0);
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0));
+    set_texts(*game.font_service().default_font(),
               game.color_service().get_color(1));
 }
 
 void MainMenuScene::on_menu_item_activation(MenuItem* menuItem) {
     if (menuItem == _play_button.get()) {
-        set_scene_state(SceneState::Paused);
-        set_transition_state(TransitionState::Spawn);
-        _transition_to = std::make_shared<ArenaScene>(game());
+        set_run_state(RunState::Paused);
+        set_draw_state(DrawState::Skip);
+        SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+        scene_event.target_scene =
+            std::make_shared<ArenaScene>(game_resources());
+        notify(scene_event);
     } else if (menuItem == _options_button.get()) {
-        set_scene_state(SceneState::Paused);
-        set_transition_state(TransitionState::Spawn);
-        _transition_to = std::make_shared<OptionsMenuScene>(game());
+        set_run_state(RunState::Paused);
+        set_draw_state(DrawState::Skip);
+        SceneEvent scene_event(SceneEvent::SceneEventType::Spawn);
+        scene_event.target_scene =
+            std::make_shared<OptionsMenuScene>(game_resources());
+        notify(scene_event);
     } else if (menuItem == _quit_button.get()) {
-        set_scene_state(SceneState::Paused);
-        set_transition_state(TransitionState::Quit);
+        set_run_state(RunState::Paused);
+        SceneEvent scene_event(SceneEvent::SceneEventType::Quit);
+        notify(scene_event);
     }
 }
 
-std::shared_ptr<Scene> MainMenuScene::make_transition() { return _transition_to; }
+void MainMenuScene::on_activation() {
+    MenuScene::on_activation();
+    set_draw_state(DrawState::Solid);
+}
 
 }  // namespace VVipers

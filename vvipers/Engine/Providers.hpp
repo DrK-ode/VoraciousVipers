@@ -32,22 +32,27 @@ class OptionsProvider {
     virtual bool option_boolean(const std::string& optionName) const = 0;
     virtual std::string option_string(const std::string& optionName) const = 0;
     virtual double option_double(const std::string& optionName) const = 0;
+    virtual int option_int(const std::string& optionName) const = 0;
     virtual Vec2 option_2d_vector(const std::string& optionName) const = 0;
     virtual std::vector<bool> option_boolean_array(
         const std::string& optionName) const = 0;
     virtual std::vector<double> option_double_array(
+        const std::string& optionName) const = 0;
+    virtual std::vector<int> option_int_array(
         const std::string& optionName) const = 0;
     virtual std::vector<std::string> option_string_array(
         const std::string& optionName) const = 0;
     virtual std::vector<Vec2> option_2d_vector_array(
         const std::string& optionName) const = 0;
     virtual bool is_option_set(const std::string& optionName) const = 0;
-    virtual void write(std::ostream& output) const = 0;
+    virtual void write() const = 0;
 
     virtual void set_option_boolean(const std::string& optionName,
                                     bool optionValue) = 0;
     virtual void set_option_double(const std::string& optionName,
                                    double optionValue) = 0;
+    virtual void set_option_int(const std::string& optionName,
+                                   int optionValue) = 0;
     virtual void set_option_string(const std::string& optionName,
                                    const std::string& optionValue) = 0;
     virtual void set_option_2d_vector(const std::string& optionName,
@@ -58,6 +63,9 @@ class OptionsProvider {
     virtual void set_option_double_array(
         const std::string& optionName,
         const std::vector<double>& doubleArray) = 0;
+    virtual void set_option_int_array(
+        const std::string& optionName,
+        const std::vector<int>& intArray) = 0;
     virtual void set_option_string_array(
         const std::string& optionName,
         const std::vector<std::string>& stringArray) = 0;

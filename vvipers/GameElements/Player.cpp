@@ -1,11 +1,10 @@
 #include <vvipers/GameElements/Player.hpp>
 #include <vvipers/GameElements/Viper.hpp>
-#include <vvipers/UIElements/Controller.hpp>
 
 namespace VVipers {
 
 Player::Player(const std::string& name, std::unique_ptr<Controller> controller,
-               std::shared_ptr<Viper> viper)
+               std::unique_ptr<Viper> viper)
     : _name(name),
       _primary_color(sf::Color::Green),
       _secondary_color(sf::Color::Red),
@@ -18,8 +17,7 @@ void Player::set_colors(sf::Color c1, sf::Color c2) {
     _secondary_color = c2;
     if (_viper)
         _viper->set_colors(c1, c2);
-    ObjectModifiedEvent event(this);
-    notify(&event);
+    notify(ObjectModifiedEvent(this));
 }
 
 }  // namespace VVipers

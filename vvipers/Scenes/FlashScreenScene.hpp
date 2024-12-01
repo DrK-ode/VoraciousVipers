@@ -6,14 +6,14 @@
 
 namespace VVipers {
 
-class Game;
+class GameResources;
 
 class FlashScreenScene : public Scene {
   public:
-    FlashScreenScene(Game& game, Time duration = time_from_seconds(2));
+    FlashScreenScene(GameResources&, Time duration = time_from_seconds(2));
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void process_event(const sf::Event& event) override;
-    void update(Time elapsedTime) override;
+    void on_notify(const GameEvent& event) override;
+    void update(const Time&) override;
 
   private:
     Time _time_left;

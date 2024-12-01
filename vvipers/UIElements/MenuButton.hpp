@@ -1,5 +1,4 @@
-#ifndef VVIPERS_UIELEMENTS_MENUBUTTON_HPP
-#define VVIPERS_UIELEMENTS_MENUBUTTON_HPP
+#pragma once
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -11,21 +10,22 @@ namespace VVipers {
 class MenuButton : public MenuItem {
   public:
     MenuButton();
-    void onGeometryChange() override;
-    void draw(sf::RenderTarget& target,
-                      sf::RenderStates states) const override;
-    void onSelection() override;
-    void setFont(const sf::Font& font);
-    void setLabel(const std::string& label);
-    void setColors( sf::Color fill, sf::Color border, sf::Color text) override;
-    void setFontRatio(double ratio){m_fontRatio = ratio;}
+    void on_geometry_change() override;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void on_selection() override;
+    void set_text(const sf::Font& font, sf::Color text_color) override;
+    void set_label(const std::string& label);
+    void set_colors(sf::Color fill, sf::Color border) override;
+    void on_enable() override;
 
   private:
-    double m_fontRatio;
-    sf::RectangleShape m_box;
-    sf::Text m_text;
+    void update_colors();
+
+    sf::RectangleShape _box;
+    sf::Text _text;
+    sf::Color _fill_color;
+    sf::Color _border_color;
+    sf::Color _text_color;
 };
 
 }  // namespace VVipers
-
-#endif  // VVIPERS_UIELEMENTS_MENUBUTTON_HPP

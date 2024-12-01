@@ -3,10 +3,10 @@
 #include <SFML/Graphics/Color.hpp>
 #include <memory>
 #include <string>
+#include <vvipers/GameElements/Controller.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
 #include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/GameElements/Viper.hpp>
-#include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {
@@ -17,7 +17,7 @@ typedef uint64_t level_t;
 class Player : public GameObject, public Observable {
   public:
     Player(const std::string& name, std::unique_ptr<Controller>,
-           std::shared_ptr<Viper>);
+           std::unique_ptr<Viper>);
 
     static level_t calculate_level(score_t score) { return score / 1000 + 1; }
     static score_t calculate_level_limit(level_t level) {
@@ -27,8 +27,7 @@ class Player : public GameObject, public Observable {
     sf::Color primary_color() const { return _primary_color; }
     sf::Color secondary_color() const { return _secondary_color; }
     void set_colors(sf::Color c1, sf::Color c2);
-    const Controller* controller() const { return _controller.get(); }
-    // void controller(std::shared_ptr<Controller> c) { m_controller = c; }
+    Controller* controller() const { return _controller.get(); }
     std::string name() const { return _name; }
     score_t score() const { return _score; };
     void score(score_t score) { _score += score; };
@@ -41,7 +40,7 @@ class Player : public GameObject, public Observable {
     sf::Color _secondary_color;
     std::unique_ptr<Controller> _controller;
     score_t _score;
-    std::shared_ptr<Viper> _viper;
+    std::unique_ptr<Viper> _viper;
 };
 
 }  // namespace VVipers
