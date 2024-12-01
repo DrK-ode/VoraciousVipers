@@ -93,6 +93,27 @@ void OptionsMenuScene::on_notify(const GameEvent& event) {
             }
             break;
         }
+        case GameEvent::EventType::Mouse: {
+            const MouseEvent& mouse_event =
+                dynamic_cast<const MouseEvent&>(event);
+            if (mouse_event.mouse_event_type ==
+                    MouseEvent::MouseEventType::ButtonPressed &&
+                selected() == _players_button.get()) {
+                switch (mouse_event.mouse_button) {
+                    case sf::Mouse::Button::Left: {
+                        _players_button->option_left();
+                        break;
+                    }
+                    case sf::Mouse::Button::Right: {
+                        _players_button->option_right();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
         default:
             break;
     }
