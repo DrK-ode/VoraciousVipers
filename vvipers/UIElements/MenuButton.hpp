@@ -13,13 +13,19 @@ class MenuButton : public MenuItem {
     void on_geometry_change() override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_selection() override;
-    void set_font(const sf::Font& font);
+    void set_text(const sf::Font& font, sf::Color text_color) override;
     void set_label(const std::string& label);
-    void set_colors(sf::Color fill, sf::Color border, sf::Color text) override;
+    void set_colors(sf::Color fill, sf::Color border) override;
+    void on_enable() override;
 
   private:
+    void update_colors();
+
     sf::RectangleShape _box;
     sf::Text _text;
+    sf::Color _fill_color;
+    sf::Color _border_color;
+    sf::Color _text_color;
 };
 
 }  // namespace VVipers

@@ -1,14 +1,15 @@
+#include "vvipers/Scenes/GameOverScene.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <algorithm>
-#include <vvipers/Engine/GameResources.hpp>
-#include <vvipers/Scenes/FlashScreenScene.hpp>
-#include <vvipers/Scenes/GameOverScene.hpp>
-#include <vvipers/Utilities/Vec2.hpp>
-#include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Engine/GameResources.hpp"
 #include "vvipers/Engine/Scene.hpp"
 #include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/Scenes/FlashScreenScene.hpp"
+#include "vvipers/Utilities/Vec2.hpp"
+#include "vvipers/Utilities/debug.hpp"
 
 namespace VVipers {
 

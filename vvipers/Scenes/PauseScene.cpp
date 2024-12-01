@@ -1,12 +1,13 @@
+#include "vvipers/Scenes/PauseScene.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
-#include <vvipers/Engine/GameResources.hpp>
-#include <vvipers/Scenes/PauseScene.hpp>
-#include <vvipers/Utilities/Vec2.hpp>
-#include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Engine/GameResources.hpp"
 #include "vvipers/Engine/Scene.hpp"
 #include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/Utilities/Vec2.hpp"
+#include "vvipers/Utilities/debug.hpp"
 
 namespace VVipers {
 
@@ -27,18 +28,18 @@ PauseScene::PauseScene(GameResources& game) : MenuScene(game) {
 
     _continue_button = std::make_unique<MenuButton>();
     _continue_button->set_label("Continue");
-    _continue_button->set_font(*game.font_service().default_font());
     add_item(_continue_button.get());
 
     _quit_button = std::make_unique<MenuButton>();
     _quit_button->set_label("Quit to main menu");
-    _quit_button->set_font(*game.font_service().default_font());
     add_item(_quit_button.get());
 
     set_selected_index(0);
     distribute_menu_items();
-    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
-               game.color_service().get_color(1));
+
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0));
+    set_texts(*game.font_service().default_font(),
+              game.color_service().get_color(1));
 
     set_draw_state(DrawState::Transparent);
 }

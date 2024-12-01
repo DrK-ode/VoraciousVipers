@@ -21,4 +21,9 @@ void MenuItem::set_selected(bool selected) {
     on_selection();
 }
 
+void MenuItem::enable(bool enable) {
+    _enabled = enable;
+    on_enable();
+}
+
 }  // namespace VVipers

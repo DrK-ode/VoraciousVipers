@@ -19,7 +19,8 @@ class MenuScene : public Scene {
     MenuScene(GameResources& game);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void distribute_menu_items();
-    void set_colors( sf::Color fill, sf::Color border, sf::Color text);
+    void set_colors( sf::Color fill, sf::Color border);
+    void set_texts( const sf::Font& font, sf::Color color);
     void update_menu_items(Time elapsedTime);
     sf::View menu_view() const { return _menu_view; }
     void set_menu_view(sf::View view) { _menu_view = view; }

@@ -1,11 +1,12 @@
+#include "vvipers/Scenes/OptionsMenuScene.hpp"
+
 #include <SFML/Window/Keyboard.hpp>
 #include <memory>
-#include <vvipers/Scenes/OptionsMenuScene.hpp>
-#include <vvipers/Scenes/PlayerConfScene.hpp>
-#include <vvipers/UIElements/MenuButton.hpp>
 
 #include "vvipers/Engine/Scene.hpp"
 #include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/Scenes/PlayerConfScene.hpp"
+#include "vvipers/UIElements/MenuButton.hpp"
 #include "vvipers/UIElements/MenuScene.hpp"
 
 namespace VVipers {
@@ -22,26 +23,24 @@ OptionsMenuScene::OptionsMenuScene(GameResources& game) : MenuScene(game) {
     std::vector<size_t> players = {1, 2, 3, 4};
     _players_button =
         std::make_unique<SelectionButton<size_t>>("Player count: ", players);
-    _players_button->set_font(*game.font_service().default_font());
     add_item(_players_button.get());
     _players_button->set_selected_option(
         game.options_service().option_int("Players/numberOfPlayers") - 1);
 
     _player_conf_button = std::make_unique<MenuButton>();
     _player_conf_button->set_label("Player config");
-    _player_conf_button->set_font(*game.font_service().default_font());
     add_item(_player_conf_button.get());
 
     _back_button = std::make_unique<MenuButton>();
     _back_button->set_label("Back");
-    _back_button->set_font(*game.font_service().default_font());
     add_item(_back_button.get());
 
     set_selected_index(0);
     distribute_menu_items();
     set_draw_state(DrawState::Transparent);
-    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
-               game.color_service().get_color(1));
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0));
+    set_texts(*game.font_service().default_font(),
+              game.color_service().get_color(1));
 }
 
 void OptionsMenuScene::on_menu_item_activation(MenuItem* menuItem) {
@@ -69,7 +68,8 @@ void OptionsMenuScene::on_notify(const GameEvent& event) {
     MenuScene::on_notify(event);
     switch (event.type()) {
         case GameEvent::EventType::ObjectModified: {
-            const ObjectModifiedEvent& object_modified_event = dynamic_cast<const ObjectModifiedEvent&>(event);
+            const ObjectModifiedEvent& object_modified_event =
+                dynamic_cast<const ObjectModifiedEvent&>(event);
             if (object_modified_event.object_pointer == _players_button.get()) {
                 game_resources().options_service().set_option_int(
                     "Players/numberOfPlayers",

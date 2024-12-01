@@ -3,10 +3,11 @@
 
 namespace VVipers {
 
-MenuButton::MenuButton() {
-    _text.setFillColor(sf::Color::Magenta);
-    _box.setFillColor(sf::Color::Transparent);
-    _box.setOutlineColor(sf::Color::Transparent);
+MenuButton::MenuButton()
+    : _fill_color(sf::Color::Red),
+      _border_color(sf::Color::Green),
+      _text_color(sf::Color::Blue) {
+    update_colors();
 }
 
 void MenuButton::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -48,15 +49,39 @@ void MenuButton::on_geometry_change() {
     on_selection();
 }
 
-void MenuButton::set_colors(sf::Color fill, sf::Color border, sf::Color text) {
-    _box.setFillColor(fill);
-    _box.setOutlineColor(border);
-    _text.setFillColor(text);
-    _text.setOutlineColor(border);
+void MenuButton::on_enable() { 
+    update_colors(); }
+
+void MenuButton::set_colors(sf::Color fill, sf::Color border) {
+    _fill_color = fill;
+    _border_color = border;
+    update_colors();
 }
 
-void MenuButton::set_font(const sf::Font& font) { _text.setFont(font); }
+void MenuButton::set_text(const sf::Font& font, sf::Color text_color) {
+    _text.setFont(font);
+    _text_color = text_color;
+    update_colors();
+    on_geometry_change();
+}
 
 void MenuButton::set_label(const std::string& label) { _text.setString(label); }
+
+void MenuButton::update_colors() {
+    if (is_enabled()) {
+        _text.setFillColor(_text_color);
+        _box.setFillColor(_fill_color);
+        _box.setOutlineColor(_border_color);
+    } else {
+        sf::Color color;
+        color = _fill_color;
+        color.a = 0.5 * color.a;
+        _box.setFillColor(color);
+        color = _text_color;
+        color.a = 0.5 * color.a;
+        _text.setFillColor(color);
+        _box.setOutlineColor(_border_color);
+    }
+}
 
 }  // namespace VVipers

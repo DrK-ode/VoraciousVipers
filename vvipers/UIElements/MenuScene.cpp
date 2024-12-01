@@ -1,10 +1,11 @@
+#include "vvipers/UIElements/MenuScene.hpp"
+
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <vvipers/UIElements/MenuScene.hpp>
-#include <vvipers/Utilities/Vec2.hpp>
-#include <vvipers/Utilities/debug.hpp>
 
 #include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/Utilities/Vec2.hpp"
+#include "vvipers/Utilities/debug.hpp"
 
 namespace VVipers {
 
@@ -53,9 +54,15 @@ void MenuScene::distribute_menu_items() {
     }
 }
 
-void MenuScene::set_colors(sf::Color fill, sf::Color border, sf::Color text) {
+void MenuScene::set_colors(sf::Color fill, sf::Color border) {
     for (auto menu_item : _menu_items) {
-        menu_item->set_colors(fill, border, text);
+        menu_item->set_colors(fill, border);
+    }
+}
+
+void MenuScene::set_texts(const sf::Font& font, sf::Color text_color) {
+    for (auto menu_item : _menu_items) {
+        menu_item->set_text(font, text_color);
     }
 }
 
@@ -118,22 +125,19 @@ void MenuScene::handle_mouse_scroll(const MouseEvent& event) {
 }
 
 void MenuScene::menu_up() {
-    auto oldSelectedIndex = _selected_index;
+    auto old_selected_index = _selected_index;
     if (_selected_index == 0)
         _selected_index = _menu_items.size();
     --_selected_index;
-    swap_selected(oldSelectedIndex, _selected_index);
+    swap_selected(old_selected_index, _selected_index);
 }
 
 void MenuScene::menu_down() {
-    auto oldSelectedIndex = _selected_index;
-    if (oldSelectedIndex >= _menu_items.size())
+    auto old_selected_index = _selected_index;
+    ++_selected_index;
+    if (_selected_index >= _menu_items.size())
         _selected_index = 0;
-    else
-        ++_selected_index;
-    if (_selected_index == _menu_items.size())
-        _selected_index = 0;
-    swap_selected(oldSelectedIndex, _selected_index);
+    swap_selected(old_selected_index, _selected_index);
 }
 
 void MenuScene::on_notify(const GameEvent& event) {

@@ -49,7 +49,7 @@ ArenaScene::PlayerData ArenaScene::read_player_conf(size_t player) {
     auto keys =
         game_resources().options_service().option_int_array(base_name + "keys");
     auto mouse_enabled = game_resources().options_service().option_boolean(
-        base_name + "mouseEnabled");
+        base_name + "useMouse");
     if (keys.size() != 3)
         throw std::runtime_error(
             "Wrong number of keys in player configuration.");

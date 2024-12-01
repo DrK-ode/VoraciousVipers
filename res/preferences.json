@@ -33,10 +33,10 @@
 				86,
 				89
 			],
-			"mouseEnabled" : false,
 			"name" : "Serral",
 			"primaryColor" : "#37E2D5",
-			"secondaryColor" : "#C70A80"
+			"secondaryColor" : "#C70A80",
+			"useMouse" : false
 		},
 		"Player2" : 
 		{
@@ -46,10 +46,10 @@
 				3,
 				22
 			],
-			"mouseEnabled" : false,
 			"name" : "herO",
 			"primaryColor" : "#FBCB0A",
-			"secondaryColor" : "#590696"
+			"secondaryColor" : "#590696",
+			"useMouse" : false
 		},
 		"Player3" : 
 		{
@@ -59,10 +59,10 @@
 				11,
 				8
 			],
-			"mouseEnabled" : false,
 			"name" : "Maru",
 			"primaryColor" : "#DD99BB",
-			"secondaryColor" : "#93B7BE"
+			"secondaryColor" : "#93B7BE",
+			"useMouse" : false
 		},
 		"Player4" : 
 		{
@@ -72,12 +72,12 @@
 				5,
 				24
 			],
-			"mouseEnabled" : true,
 			"name" : "Clem",
 			"primaryColor" : "#EB5160",
-			"secondaryColor" : "#C9B79C"
+			"secondaryColor" : "#C9B79C",
+			"useMouse" : true
 		},
-		"numberOfPlayers" : 1
+		"numberOfPlayers" : 2
 	},
 	"Viper" : 
 	{

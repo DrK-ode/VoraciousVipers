@@ -1,13 +1,14 @@
+#include "vvipers/Scenes/PlayerConfScene.hpp"
+
 #include <SFML/Window/Keyboard.hpp>
 #include <memory>
 #include <string>
 #include <vector>
-#include <vvipers/Scenes/PlayerConfScene.hpp>
-#include <vvipers/UIElements/MenuButton.hpp>
 
 #include "vvipers/Engine/GameResources.hpp"
 #include "vvipers/Engine/Scene.hpp"
 #include "vvipers/GameElements/GameEvent.hpp"
+#include "vvipers/UIElements/MenuButton.hpp"
 #include "vvipers/UIElements/ToggleButton.hpp"
 
 namespace VVipers {
@@ -28,29 +29,23 @@ PlayerConfScene::PlayerConfScene(GameResources& game) : MenuScene(game) {
         player_numbers.push_back(i);
     _player_button =
         std::make_unique<SelectionButton<size_t>>("Player: ", player_numbers);
-    _player_button->set_font(*game.font_service().default_font());
     add_item(_player_button.get());
 
     _set_left_button = std::make_unique<MenuButton>();
-    _set_left_button->set_font(*game.font_service().default_font());
     add_item(_set_left_button.get());
 
     _set_right_button = std::make_unique<MenuButton>();
-    _set_right_button->set_font(*game.font_service().default_font());
     add_item(_set_right_button.get());
 
     _set_boost_button = std::make_unique<MenuButton>();
-    _set_boost_button->set_font(*game.font_service().default_font());
     add_item(_set_boost_button.get());
 
-    _enable_mouse_button = std::make_unique<ToggleButton>(
-        "Mouse: enabled", "Mouse: disabled", false);
-    _enable_mouse_button->set_font(*game.font_service().default_font());
-    add_item(_enable_mouse_button.get());
+    _use_mouse_button = std::make_unique<ToggleButton>(
+        "Mouse: on", "Mouse: off", false);
+    add_item(_use_mouse_button.get());
 
     _back_button = std::make_unique<MenuButton>();
     _back_button->set_label("Back");
-    _back_button->set_font(*game.font_service().default_font());
     add_item(_back_button.get());
 
     update_labels();
@@ -58,20 +53,28 @@ PlayerConfScene::PlayerConfScene(GameResources& game) : MenuScene(game) {
     set_selected_index(0);
     distribute_menu_items();
     set_draw_state(DrawState::Transparent);
-    set_colors(sf::Color::Transparent, game.color_service().get_color(0),
-               game.color_service().get_color(1));
+    set_colors(sf::Color::Transparent, game.color_service().get_color(0));
+    set_texts(*game.font_service().default_font(),
+              game.color_service().get_color(1));
 }
 
-void PlayerConfScene::on_menu_item_activation(MenuItem* menuItem) {
-    if (menuItem == _set_left_button.get()) {
-    } else if (menuItem == _enable_mouse_button.get()) {
-        _enable_mouse_button->toggle();
+void PlayerConfScene::on_menu_item_activation(MenuItem* menu_item) {
+    if (!menu_item->is_enabled()) {
+        return;
+    }
+    if (menu_item == _set_left_button.get()) {
+    } else if (menu_item == _set_right_button.get()) {
+    } else if (menu_item == _set_boost_button.get()) {
+    } else if (menu_item == _use_mouse_button.get()) {
+        _use_mouse_button->toggle();
         game_resources().options_service().set_option_boolean(
             "Players/Player" +
-                std::to_string(_player_button->selected_option()) +
-                "/mouseEnabled",
-            _enable_mouse_button->is_toggled());
-    } else if (menuItem == _back_button.get()) {
+                std::to_string(_player_button->selected_option()) + "/useMouse",
+            _use_mouse_button->is_toggled());
+            _set_left_button->enable( !_use_mouse_button->is_toggled() );
+            _set_right_button->enable( !_use_mouse_button->is_toggled() );
+            _set_boost_button->enable( !_use_mouse_button->is_toggled() );
+    } else if (menu_item == _back_button.get()) {
         on_return();
         notify(SceneEvent(SceneEvent::SceneEventType::Return));
     }
@@ -100,7 +103,8 @@ void PlayerConfScene::on_notify(const GameEvent& event) {
     MenuScene::on_notify(event);
     switch (event.type()) {
         case GameEvent::EventType::ObjectModified: {
-            const ObjectModifiedEvent& menu_event = dynamic_cast<const ObjectModifiedEvent&>(event);
+            const ObjectModifiedEvent& menu_event =
+                dynamic_cast<const ObjectModifiedEvent&>(event);
             if (menu_event.object_pointer == _player_button.get()) {
                 update_labels();
             }
@@ -140,11 +144,11 @@ void PlayerConfScene::update_labels() {
     _set_right_button->set_label("Right: " + key_strings[1]);
     _set_boost_button->set_label("Boost: " + key_strings[2]);
 
-    _enable_mouse_button->set_toggle_state(
+    _use_mouse_button->set_toggle_state(
         game_resources().options_service().option_boolean(
             "Players/Player" +
             std::to_string(_player_button->selected_option()) +
-            "/mouseEnabled"));
+            "/useMouse"));
 
     distribute_menu_items();
 }

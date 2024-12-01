@@ -13,8 +13,8 @@ ToggleButton::ToggleButton(const std::string& enabled_label,
                            const std::string& disabled_label,
                            bool initial_state)
     : MenuButton(),
-      _enabled_label(enabled_label),
-      _disabled_label(disabled_label),
+      _on_label(enabled_label),
+      _off_label(disabled_label),
       _toggle_state(initial_state) {
     update_label();
 }
@@ -27,9 +27,9 @@ void ToggleButton::toggle() {
 
 void ToggleButton::update_label() {
     if (_toggle_state) {
-        set_label(_enabled_label);
+        set_label(_on_label);
     } else {
-        set_label(_disabled_label);
+        set_label(_off_label);
     }
 }
 
