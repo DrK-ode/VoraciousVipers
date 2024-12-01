@@ -51,8 +51,7 @@ void PauseScene::draw_background(sf::RenderTarget& target,
 
 void PauseScene::on_menu_item_activation(MenuItem* menu_item) {
     if (menu_item == _continue_button.get()) {
-        set_run_state(RunState::Paused);
-        notify(SceneEvent(SceneEvent::SceneEventType::Return));
+        go_back();
     } else if (menu_item == _quit_button.get()) {
         notify(SceneEvent(SceneEvent::SceneEventType::Default));
     }

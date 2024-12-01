@@ -52,13 +52,8 @@ void OptionsMenuScene::on_menu_item_activation(MenuItem* menuItem) {
             std::make_shared<PlayerConfScene>(game_resources());
         notify(scene_event);
     } else if (menuItem == _back_button.get()) {
-        notify(SceneEvent(SceneEvent::SceneEventType::Return));
+        go_back();
     }
-}
-
-void OptionsMenuScene::on_activation() {
-    MenuScene::on_activation();
-    set_draw_state(DrawState::Transparent);
 }
 
 void OptionsMenuScene::on_notify(const GameEvent& event) {
@@ -104,6 +99,7 @@ void OptionsMenuScene::on_notify(const GameEvent& event) {
 }
 
 void OptionsMenuScene::on_return() {
+    MenuScene::on_return();
     game_resources().options_service().write();
 }
 

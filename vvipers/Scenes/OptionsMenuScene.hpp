@@ -13,7 +13,6 @@ class OptionsMenuScene : public MenuScene {
   public:
     OptionsMenuScene(GameResources& game);
     void on_menu_item_activation(MenuItem* menuItem) override;
-    void on_activation() override;
     void on_notify(const GameEvent&) override;
     void on_return() override;
 

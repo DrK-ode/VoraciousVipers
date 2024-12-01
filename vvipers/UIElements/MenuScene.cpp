@@ -78,8 +78,7 @@ void MenuScene::handle_key_pressed(const KeyboardEvent& event) {
     } else if (event.scancode == sf::Keyboard::Scan::Enter) {
         activate_selected();
     } else if (event.scancode == sf::Keyboard::Scan::Escape) {
-        on_return();
-        notify(SceneEvent(SceneEvent::SceneEventType::Return));
+        go_back();
     }
 }
 
@@ -230,6 +229,22 @@ void MenuScene::update_menu_items(Time elapsed_time) {
         menu_item->update(elapsed_time);
 }
 
-void MenuScene::on_activation() { set_run_state(RunState::Running); }
+void MenuScene::on_activation() {
+    set_run_state(RunState::Running);
+    _mouse_grabbed_when_scene_activated =
+        game_resources().window_manager().is_mouse_grabbed();
+    game_resources().window_manager().set_grab_mouse(false);
+}
+
+void MenuScene::on_return() {
+    set_run_state(RunState::Paused);
+    game_resources().window_manager().set_grab_mouse(
+        _mouse_grabbed_when_scene_activated);
+};
+
+void MenuScene::go_back() {
+    notify(SceneEvent(SceneEvent::SceneEventType::Return));
+    on_return();
+}
 
 }  // namespace VVipers

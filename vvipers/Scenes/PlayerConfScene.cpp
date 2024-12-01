@@ -79,8 +79,7 @@ void PlayerConfScene::on_menu_item_activation(MenuItem* menu_item) {
         _set_right_button->enable(!_use_mouse_button->is_toggled());
         _set_boost_button->enable(!_use_mouse_button->is_toggled());
     } else if (menu_item == _back_button.get()) {
-        on_return();
-        notify(SceneEvent(SceneEvent::SceneEventType::Return));
+        go_back();
     }
 }
 
@@ -205,6 +204,7 @@ void PlayerConfScene::update_labels() {
 }
 
 void PlayerConfScene::on_return() {
+    MenuScene::on_return();
     game_resources().options_service().write();
 }
 
