@@ -6,6 +6,7 @@ namespace VVipers {
 WindowManager::WindowManager(const sf::Vector2u& window_size) {
     _window.create(sf::VideoMode(window_size.x, window_size.y),
                    "VoraciousVipers");
+    set_grab_mouse(false);
 }
 
 void WindowManager::center_mouse() {

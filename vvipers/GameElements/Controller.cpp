@@ -56,16 +56,16 @@ MouseController::MouseController(GameResources& game_resources)
 }
 
 void MouseController::update(const Time&) {
-    const unsigned int window_half_width =
+    const int window_half_width =
         _game_resources.window_manager().window_size().x / 2;
-    const double degree_per_pixel = 1;  // Essentially the mouse sensitivity
+    const double full_turn_in_pixels = 1;  // Essentially the mouse sensitivity
     SteeringCommand command;
-    command.turn = degree_per_pixel *
-                   (_game_resources.window_manager().mouse_position().x -
-                    window_half_width);
+    command.turn = (_game_resources.window_manager().mouse_position().x -
+                    window_half_width) / full_turn_in_pixels;
     command.boost = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     // This might cause problems if anything else uses the mouse
     _game_resources.window_manager().center_mouse();
+    command.enable = true;
     set_steering_command(command);
     notify(ObjectModifiedEvent(this));
 }

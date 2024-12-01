@@ -487,7 +487,9 @@ void ArenaScene::on_notify(const GameEvent& event) {
             const ObjectModifiedEvent& object_modified_event =
                 dynamic_cast<const ObjectModifiedEvent&>(event);
             if (typeid(*object_modified_event.object_pointer) ==
-                typeid(KeyboardController)) {
+                    typeid(KeyboardController) ||
+                typeid(*object_modified_event.object_pointer) ==
+                    typeid(MouseController)) {
                 const Controller* controller =
                     (const Controller*)object_modified_event.object_pointer;
                 handle_steering(controller);
