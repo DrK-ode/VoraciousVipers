@@ -13,9 +13,9 @@ class FlashScreenScene : public Scene {
     FlashScreenScene(GameResources&, Time duration = time_from_seconds(2));
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_notify(const GameEvent& event) override;
+    void update(const Time&) override;
 
   private:
-    void update(Time elapsedTime);
     Time _time_left;
     sf::Text _text;
 };

@@ -20,7 +20,6 @@ class GameEvent {
         Mouse,
         Scoring,
         Scene,
-        Update,
         ObjectModified,
         Window
     };
@@ -100,14 +99,6 @@ class ScoringEvent : public GameEvent {
     ScoringEvent(uint64_t s) : GameEvent(EventType::Scoring), score(s) {}
     GameEvent* clone() const override { return new ScoringEvent(*this); }
     const uint64_t score;
-};
-
-class UpdateEvent : public GameEvent {
-  public:
-    UpdateEvent(const Time& time)
-        : GameEvent(EventType::Update), elapsed_time(time) {}
-    GameEvent* clone() const override { return new UpdateEvent(*this); }
-    const Time elapsed_time;
 };
 
 class WindowEvent : public GameEvent {

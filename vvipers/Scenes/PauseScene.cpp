@@ -11,7 +11,7 @@
 namespace VVipers {
 
 PauseScene::PauseScene(GameResources& game) : MenuScene(game) {
-    Vec2 size = game.window_manager()->window_size();
+    Vec2 size = game.window_manager().window_size();
 
     _background.setSize(size);
     _background.setFillColor(sf::Color(0, 0, 0, 0x80));

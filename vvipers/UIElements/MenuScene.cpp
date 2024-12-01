@@ -10,7 +10,7 @@ namespace VVipers {
 
 MenuScene::MenuScene(GameResources& game)
     : Scene(game),
-      _menu_view(game.window_manager()->default_view()),
+      _menu_view(game.window_manager().default_view()),
       _selected_index(-1),
       _layout(Vertical) {}
 
@@ -77,11 +77,11 @@ void MenuScene::handle_key_pressed(const KeyboardEvent& event) {
 }
 
 void MenuScene::handle_mouse_moved(const MouseEvent& event) {
-    if (game_resources().window_manager()->is_mouse_grabbed())
+    if (game_resources().window_manager().is_mouse_grabbed())
         return;
     auto old_selected_index = _selected_index;
     Vec2 local_coordinates =
-        game_resources().window_manager()->map_pixel_values_to_coordinates(
+        game_resources().window_manager().map_pixel_values_to_coordinates(
             event.position, _menu_view);
     auto pointed_at = menu_item_at_coordinates(local_coordinates);
     for (size_t i = 0; i < _menu_items.size(); ++i) {
@@ -94,10 +94,10 @@ void MenuScene::handle_mouse_moved(const MouseEvent& event) {
 }
 
 void MenuScene::handle_mouse_button_pressed(const MouseEvent& event) {
-    if (game_resources().window_manager()->is_mouse_grabbed())
+    if (game_resources().window_manager().is_mouse_grabbed())
         activate_selected();
     auto local_coordinates =
-        game_resources().window_manager()->map_pixel_values_to_coordinates(
+        game_resources().window_manager().map_pixel_values_to_coordinates(
             event.position, _menu_view);
     auto clickedMenuItem = menu_item_at_coordinates(local_coordinates);
     if (!clickedMenuItem)
@@ -217,7 +217,9 @@ void MenuScene::swap_selected(size_t old_selected_index,
 }
 
 /** Default is to update all the menu items **/
-void MenuScene::update(Time elapsed_time) { update_menu_items(elapsed_time); }
+void MenuScene::update(const Time& elapsed_time) {
+    update_menu_items(elapsed_time);
+}
 
 void MenuScene::update_menu_items(Time elapsed_time) {
     for (auto& menu_item : _menu_items)

@@ -13,7 +13,7 @@
 namespace VVipers {
 
 PlayerConfScene::PlayerConfScene(GameResources& game) : MenuScene(game) {
-    auto size = game.window_manager()->window_size();
+    auto size = game.window_manager().window_size();
     // Center and size in original coordinates
     sf::View menuView(Vec2(0.5 * 0.75 * size.x, 0.5 * 0.5 * size.y),
                       Vec2(.75 * size.x, .5 * size.y));

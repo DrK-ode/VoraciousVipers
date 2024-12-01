@@ -11,7 +11,7 @@ namespace VVipers {
 
 FlashScreenScene::FlashScreenScene(GameResources& game_resources, Time duration)
     : Scene(game_resources), _time_left(duration) {
-    Vec2 size = game_resources.window_manager()->window_size();
+    Vec2 size = game_resources.window_manager().window_size();
     _text.setFont(*game_resources.font_service().default_font());
     _text.setString("Voracious Vipers");
     _text.setCharacterSize(0.1 * size.y);
@@ -28,8 +28,8 @@ void FlashScreenScene::draw(sf::RenderTarget& target,
     target.draw(_text, states);
 }
 
-void FlashScreenScene::update(Time elapsedTime) {
-    _time_left -= elapsedTime;
+void FlashScreenScene::update(const Time& elapsed_time) {
+    _time_left -= elapsed_time;
     if (_time_left <= time_from_seconds(0)) {
         notify(SceneEvent(SceneEvent::SceneEventType::Default));
     }
@@ -53,12 +53,6 @@ void FlashScreenScene::on_notify(const GameEvent& event) {
                 MouseEvent::MouseEventType::ButtonPressed) {
                 notify(SceneEvent(SceneEvent::SceneEventType::Default));
             }
-            break;
-        }
-        case GameEvent::EventType::Update: {
-            const UpdateEvent& update_event =
-                dynamic_cast<const UpdateEvent&>(event);
-            update(update_event.elapsed_time);
             break;
         }
         default:

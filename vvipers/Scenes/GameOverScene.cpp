@@ -15,7 +15,7 @@ namespace VVipers {
 GameOverScene::GameOverScene(GameResources& game,
                              std::vector<const Player*> players)
     : Scene(game), _players(players) {
-    Vec2 size = game.window_manager()->window_size();
+    Vec2 size = game.window_manager().window_size();
     _game_over_text.setFont(*game.font_service().default_font());
     _game_over_text.setString("Game Over");
     _game_over_text.setCharacterSize(0.1 * size.y);

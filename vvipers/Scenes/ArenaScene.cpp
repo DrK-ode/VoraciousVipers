@@ -66,7 +66,7 @@ ArenaScene::ArenaScene(GameResources& game_resources)
     }
 
     auto number_of_divisions = std::max(size_t(3), number_of_players);
-    Vec2 window_size = game_resources.window_manager()->window_size();
+    Vec2 window_size = game_resources.window_manager().window_size();
     const sf::Vector2f status_bar_relative_size(1. / number_of_divisions, 0.1);
     const sf::Vector2f status_bar_size(
         window_size.x * status_bar_relative_size.x,
@@ -122,7 +122,6 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
             controller = std::make_unique<KeyboardController>(keys);
         }
         controller->add_observer(this, {GameEvent::EventType::ObjectModified});
-        add_observer(controller.get(), {GameEvent::EventType::Update});
         auto viper = add_viper(viper_configuration, excluded_starting_areas);
         add_player(player_data[i], std::move(controller), std::move(viper),
                    playerViews[i]);
@@ -178,7 +177,6 @@ std::unique_ptr<Viper> ArenaScene::add_viper(
                                          starting_area.angle(), 0.5);
 
     viper->add_observer(this, {GameEvent::EventType::Destroy});
-    add_observer(viper.get(), {GameEvent::EventType::Update});
     _collision_manager.register_colliding_body(viper.get());
     return viper;
 }
@@ -191,7 +189,6 @@ void ArenaScene::kill_viper(Viper* viper) {
 
 void ArenaScene::deactivate_viper(Viper* viper) {
     _collision_manager.deregister_colliding_body(viper);
-    remove_observer(viper);
 }
 
 void ArenaScene::add_food(Vec2 position, double diameter) {
@@ -201,7 +198,6 @@ void ArenaScene::add_food(Vec2 position, double diameter) {
     // Check for collisions
     _collision_manager.register_colliding_body(food.get());
     food->add_observer(this, {GameEvent::EventType::Destroy});
-    add_observer(food.get(), {GameEvent::EventType::Update});
 }
 
 void ArenaScene::delete_food(Food* food) {
@@ -353,18 +349,17 @@ void ArenaScene::handle_viper_food_collision(Viper* viper,
     PlayerPanel* panel = find_player_panel(player);
     auto& flyingScore = _flying_scores.emplace_back(std::make_unique<
                                                     FlyingScore>(
-        Vec2(game_resources().window_manager()->map_coordinates_to_pixel_values(
+        Vec2(game_resources().window_manager().map_coordinates_to_pixel_values(
             food->getPosition(), _game_view)),
         4 * viper->velocity(),
-        Vec2(game_resources().window_manager()->map_coordinates_to_pixel_values(
+        Vec2(game_resources().window_manager().map_coordinates_to_pixel_values(
             panel->score_target(), panel->view())),
         1s, score, game_resources().font_service()));
     flyingScore->set_color(sf::Color::Magenta, sf::Color::Red);
     flyingScore->set_font_size(
-        0.03 * game_resources().window_manager()->window_size().y, 1.0);
+        0.03 * game_resources().window_manager().window_size().y, 1.0);
     flyingScore->add_observer(this, {GameEvent::EventType::Destroy});
     flyingScore->add_observer(panel, {GameEvent::EventType::Scoring});
-    add_observer(flyingScore.get(), {GameEvent::EventType::Update});
 }
 
 void ArenaScene::handle_viper_viper_collision(Viper* collider_viper,
@@ -499,13 +494,6 @@ void ArenaScene::on_notify(const GameEvent& event) {
             }
             break;
         }
-        case GameEvent::EventType::Update: {
-            const UpdateEvent& update_event =
-                dynamic_cast<const UpdateEvent&>(event);
-            update(update_event.elapsed_time);
-            notify(event);
-            break;
-        }
         default: {
             break;
         }
@@ -519,14 +507,28 @@ void ArenaScene::process_deletions() {
     _objects_to_delete.clear();
 }
 
-void ArenaScene::update(Time elapsedTime) {
+void ArenaScene::update(const Time& elapsed_time) {
     Stopwatch clock;
     clock.start();
+    update_objects(elapsed_time);
     handle_collisions();
     log_info("  Collision handling took: ", clock.split());
     dispense_food();
     process_deletions();
     check_for_game_over();
+}
+
+void ArenaScene::update_objects(const Time& elapsed_time) {
+    for (auto& food : _food) {
+        food->update(elapsed_time);
+    }
+    for (auto& flying_score : _flying_scores) {
+        flying_score->update(elapsed_time);
+    }
+    for (auto& player : _players) {
+        player->controller()->update(elapsed_time);
+        player->viper()->update(elapsed_time);
+    }
 }
 
 }  // namespace VVipers

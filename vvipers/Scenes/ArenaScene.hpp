@@ -27,6 +27,7 @@ class ArenaScene : public Scene {
     ~ArenaScene();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_notify(const GameEvent& event) override;
+    void update(const Time& elapsedTime) override;
 
   private:
     struct PlayerData {
@@ -64,7 +65,7 @@ class ArenaScene : public Scene {
     void kill_viper(Viper* viper);
     void process_deletions();
     PlayerData read_player_conf(size_t player);
-    void update(Time elapsedTime);
+    void update_objects(const Time& elapsedTime);
 
     sf::View _game_view;
     // The arena keeps partial ownership of the pause screen in order to be able

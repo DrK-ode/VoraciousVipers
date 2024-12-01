@@ -32,14 +32,6 @@ void FlyingScore::draw(sf::RenderTarget& target,
     target.draw(_text, states);
 }
 
-void FlyingScore::on_notify(const GameEvent& event) {
-    if (event.type() == GameEvent::EventType::Update) {
-        const UpdateEvent& update_event =
-            dynamic_cast<const UpdateEvent&>(event);
-        update(update_event.elapsed_time);
-    }
-}
-
 void FlyingScore::update_text() {
     std::stringstream ss;
     ss << '+' << _score;

@@ -27,7 +27,7 @@ class Player : public GameObject, public Observable {
     sf::Color primary_color() const { return _primary_color; }
     sf::Color secondary_color() const { return _secondary_color; }
     void set_colors(sf::Color c1, sf::Color c2);
-    const Controller* controller() const { return _controller.get(); }
+    Controller* controller() const { return _controller.get(); }
     std::string name() const { return _name; }
     score_t score() const { return _score; };
     void score(score_t score) { _score += score; };

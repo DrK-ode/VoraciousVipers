@@ -12,20 +12,19 @@
 
 namespace VVipers {
 
-class Food : public GameObject, public sf::CircleShape, public CollidingBody, public Observable, public Observer {
+class Food : public GameObject, public sf::CircleShape, public CollidingBody, public Observable{
   public:
     Food(Vec2 position, double radius, Time bonusExpire, sf::Color color);
     std::shared_ptr<const VVipers::Shape> segment_shape(size_t index) const override;
     sf::Color color() const;
     bool is_bonus_eligible() const;
     size_t number_of_segments() const override {return 1;}
-    void on_notify(const GameEvent&) override;
     double score_value() const;
+    void update(Time elapsedTime);
 
     static const double nominal_food_radius;
 
   private:
-    void update(Time elapsedTime);
     void decay(Time elapsedTime);
 
     Time _age;

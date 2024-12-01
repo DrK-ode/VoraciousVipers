@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Window/Event.hpp>
 #include <vvipers/Utilities/Time.hpp>
+
 #include "vvipers/GameElements/Observer.hpp"
 
 namespace VVipers {
@@ -22,6 +23,7 @@ class Scene : public sf::Drawable, public Observable, public Observer {
     RunState run_state() const { return _run_state; }
     void set_draw_state(DrawState state) { _draw_state = state; }
     void set_run_state(RunState state) { _run_state = state; }
+    virtual void update(const Time& elapsed_time) = 0;
 
   private:
     GameResources& _game;

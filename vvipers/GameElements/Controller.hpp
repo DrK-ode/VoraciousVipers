@@ -17,11 +17,10 @@ struct SteeringCommand {
     bool boost = false;
 };
 
-class Controller : public Object, public Observable, public Observer {
+class Controller : public Object, public Observable {
   public:
     Controller() : _command() {}
     virtual ~Controller() {}
-    void on_notify(const GameEvent&) override;
     SteeringCommand steering_command() const { return _command; }
     void set_steering_command(const SteeringCommand& command) {
         _command = command;
@@ -40,19 +39,19 @@ class KeyboardController : public Controller {
         sf::Keyboard::Scancode boost;
     };
     KeyboardController(const KeyboardControls& keys) : _keys(keys) {}
+    void update(const Time&) override;
 
   private:
-    void update(const Time&) override;
     KeyboardControls _keys;
 };
 
 class MouseController : public Controller {
   public:
     MouseController(GameResources&);
-    ~MouseController() { _game_resources.window_manager()->set_grab_mouse(false); }
+    ~MouseController() { _game_resources.window_manager().set_grab_mouse(false); }
+    void update(const Time&) override;
 
   private:
-    void update(const Time&) override;
     GameResources& _game_resources;
 };
 

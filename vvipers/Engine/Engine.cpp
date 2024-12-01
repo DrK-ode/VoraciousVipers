@@ -76,7 +76,7 @@ void Engine::game_loop(double FPS) {
         }
         debug_duration = clock.split();
         if (!firstFrame) {
-            notify(UpdateEvent(tick_duration));
+            update(tick_duration);
         }
         update_duration = clock.split();
         process_window_events();
@@ -94,9 +94,17 @@ void Engine::game_loop(double FPS) {
     }
 }
 
+void Engine::update(const Time elapsed_time) {
+    for (auto& scene : _scenes) {
+        if (scene->run_state() == Scene::RunState::Running) {
+            scene->update(elapsed_time);
+        }
+    }
+}
+
 void Engine::process_window_events() {
     sf::Event event;
-    while (_game_resources->window_manager()->poll_event(event)) {
+    while (_game_resources->window_manager().poll_event(event)) {
         switch (event.type) {
             case sf::Event::Closed: {
                 _scenes.clear();
@@ -159,7 +167,7 @@ void Engine::add_scene(const std::shared_ptr<Scene>& scene) {
     scene->add_observer(this, {GameEvent::EventType::Scene});
     add_observer(scene.get(),
                  {GameEvent::EventType::Keyboard, GameEvent::EventType::Mouse,
-                  GameEvent::EventType::Update, GameEvent::EventType::Window});
+                  GameEvent::EventType::Window});
     _scenes.push_back(scene);
     scene->on_activation();
 }
@@ -233,8 +241,8 @@ void Engine::on_notify(const GameEvent& event) {
 }
 
 void Engine::draw() {
-    auto window_manager = _game_resources->window_manager();
-    window_manager->clear(sf::Color::Black);
+    auto& window_manager = _game_resources->window_manager();
+    window_manager.clear(sf::Color::Black);
     auto sceneIter = _scenes.rbegin();
     // Find top-most scene that is solid
     while (std::next(sceneIter) != _scenes.rend() &&
@@ -243,11 +251,11 @@ void Engine::draw() {
     }
     while (sceneIter != _scenes.rbegin()) {
         if ((*sceneIter)->draw_state() != Scene::DrawState::Skip) {
-            window_manager->draw(*(sceneIter)->get());
+            window_manager.draw(*(sceneIter)->get());
         }
         sceneIter--;
     }
-    window_manager->draw(*_scenes.back());
-    window_manager->display();
+    window_manager.draw(*_scenes.back());
+    window_manager.display();
 }
 }  // namespace VVipers

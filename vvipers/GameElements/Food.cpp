@@ -53,13 +53,6 @@ void Food::decay(Time elapsedTime) {
 
 bool Food::is_bonus_eligible() const { return _age < _bonus_expire; }
 
-void Food::on_notify(const GameEvent& event){
-    if( event.type() == GameEvent::EventType::Update){
-        const UpdateEvent& update_event = dynamic_cast<const UpdateEvent&>(event);
-        update(update_event.elapsed_time);
-    }
-}
-
 double Food::score_value() const {
     double score =
         10. * (sf::CircleShape::getRadius() * sf::CircleShape::getRadius()) /

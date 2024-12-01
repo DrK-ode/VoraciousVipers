@@ -19,7 +19,6 @@ class Engine : public Observable, public Observer {
         _defaultScene = std::move(defaultScene);
     }
     void on_notify(const GameEvent&) override;
-    const Scene* scene(size_t index) const { return _scenes[index].get(); }
     void start_game();
 
   private:

@@ -42,6 +42,7 @@ class MenuScene : public Scene {
     virtual void handle_mouse_moved(const MouseEvent& event);
     virtual void handle_mouse_button_pressed(const MouseEvent& event);
     virtual void handle_mouse_scroll(const MouseEvent& event);
+    virtual void update(const Time&) override;
 
   protected:
     virtual void draw_background(sf::RenderTarget& target,
@@ -50,7 +51,6 @@ class MenuScene : public Scene {
   private:
     MenuItem* menu_item_at_coordinates(Vec2 coords) const;
     void swap_selected(size_t oldSelected, size_t newSelected);
-    void update(Time elapsedTime);
 
     sf::View _menu_view;
     std::vector<MenuItem*> _menu_items;

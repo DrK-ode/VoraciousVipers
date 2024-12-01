@@ -15,15 +15,13 @@ class FontProvider;
 
 class FlyingScore : public sf::Drawable,
                     public GameObject,
-                    public Observable,
-                    public Observer {
+                    public Observable {
   public:
     FlyingScore(Vec2 initialPosition, Vec2 initialVelocity, Vec2 target,
                 Time timeOfFlight, const uint64_t score,
                 const FontProvider& fontProvider);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void on_notify(const GameEvent&) override;
     void update(Time elapsedTime);
     void set_color(sf::Color fillColor,
                    sf::Color outlineColor = sf::Color::Transparent);

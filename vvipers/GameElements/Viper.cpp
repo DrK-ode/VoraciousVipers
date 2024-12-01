@@ -114,14 +114,6 @@ double Viper::max_angular_speed() const {
     return _nominalSpeed / _viper_configuration->nominal_segment_width;
 }
 
-void Viper::on_notify(const GameEvent& event) {
-    if (event.type() == GameEvent::EventType::Update) {
-        const UpdateEvent& update_event =
-            dynamic_cast<const UpdateEvent&>(event);
-        update(update_event.elapsed_time);
-    }
-}
-
 void Viper::update(Time elapsed_time) {
     if (state() == Dead) {
         notify(DestroyEvent(this));

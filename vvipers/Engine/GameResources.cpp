@@ -12,10 +12,9 @@ namespace VVipers {
 
 GameResources::GameResources(std::unique_ptr<OptionsProvider> options)
     : _options_provider(std::move(options)),
-      _font_provider(std::make_unique<FontFileLoader>(*_options_provider)),
-      _texture_provider(
-          std::make_unique<TextureFileLoader>(*_options_provider)),
-      _color_provider(std::make_unique<ColorPalette>(*_options_provider)),
+      _font_provider(*_options_provider),
+      _texture_provider(*_options_provider),
+      _color_provider(*_options_provider),
       _window_manager(sf::Vector2u(
           _options_provider->option_2d_vector("General/windowSize"))) {}
 

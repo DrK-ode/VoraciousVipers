@@ -26,8 +26,7 @@ namespace VVipers {
 class Viper : public GameObject,
               public sf::Drawable,
               public CollidingBody,
-              public Observable,
-              public Observer {
+              public Observable {
   public:
     Viper(std::shared_ptr<const ViperConfiguration>, const Vec2& tail_position,
           double angle, double number_of_body_segments);
@@ -86,7 +85,6 @@ class Viper : public GameObject,
     const ViperConfiguration& viper_configuration() const {
         return *_viper_configuration.get();
     }
-    void on_notify(const GameEvent&) override;
 
   private:
     std::shared_ptr<const ViperConfiguration> _viper_configuration;

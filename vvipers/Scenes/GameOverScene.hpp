@@ -17,6 +17,7 @@ class GameOverScene : public Scene {
     GameOverScene(GameResources& game, std::vector<const Player*> players);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void on_notify(const GameEvent&) override;
+    void update(const Time&) override {}
 
   private:
     std::string score_string(std::vector<const Player*>& players);

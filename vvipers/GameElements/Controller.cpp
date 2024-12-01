@@ -5,14 +5,6 @@
 
 namespace VVipers {
 
-void Controller::on_notify(const GameEvent& event) {
-    if (event.type() == GameEvent::EventType::Update) {
-        const UpdateEvent& update_event =
-            dynamic_cast<const UpdateEvent&>(event);
-        update(update_event.elapsed_time);
-    }
-}
-
 void KeyboardController::update(const Time&) {
     SteeringCommand cmd;
     // Only send event if something has changed since last time
@@ -59,21 +51,21 @@ void KeyboardController::update(const Time&) {
 
 MouseController::MouseController(GameResources& game_resources)
     : _game_resources(game_resources) {
-    _game_resources.window_manager()->set_grab_mouse(true);
-    _game_resources.window_manager()->center_mouse();
+    _game_resources.window_manager().set_grab_mouse(true);
+    _game_resources.window_manager().center_mouse();
 }
 
 void MouseController::update(const Time&) {
     const unsigned int window_half_width =
-        _game_resources.window_manager()->window_size().x / 2;
+        _game_resources.window_manager().window_size().x / 2;
     const double degree_per_pixel = 1;  // Essentially the mouse sensitivity
     SteeringCommand command;
     command.turn = degree_per_pixel *
-                   (_game_resources.window_manager()->mouse_position().x -
+                   (_game_resources.window_manager().mouse_position().x -
                     window_half_width);
     command.boost = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     // This might cause problems if anything else uses the mouse
-    _game_resources.window_manager()->center_mouse();
+    _game_resources.window_manager().center_mouse();
     set_steering_command(command);
     notify(ObjectModifiedEvent(this));
 }
