@@ -49,7 +49,7 @@
 			"name" : "herO",
 			"primaryColor" : "#FBCB0A",
 			"secondaryColor" : "#590696",
-			"useMouse" : false
+			"useMouse" : true
 		},
 		"Player3" : 
 		{
