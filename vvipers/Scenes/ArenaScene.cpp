@@ -1,3 +1,5 @@
+#include "vvipers/Scenes/ArenaScene.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Window/Event.hpp>
@@ -12,22 +14,20 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
-#include <vvipers/Engine/Providers.hpp>
-#include <vvipers/GameElements/Player.hpp>
-#include <vvipers/GameElements/Viper.hpp>
-#include <vvipers/GameElements/Walls.hpp>
-#include <vvipers/Scenes/ArenaScene.hpp>
-#include <vvipers/Scenes/GameOverScene.hpp>
-#include <vvipers/Scenes/PauseScene.hpp>
-#include <vvipers/UIElements/Controller.hpp>
-#include <vvipers/Utilities/VVColor.hpp>
-#include <vvipers/Utilities/debug.hpp>
 
+#include "vvipers/Engine/Providers.hpp"
 #include "vvipers/GameElements/GameEvent.hpp"
 #include "vvipers/GameElements/GameObject.hpp"
+#include "vvipers/GameElements/Player.hpp"
+#include "vvipers/GameElements/Viper.hpp"
+#include "vvipers/GameElements/Walls.hpp"
+#include "vvipers/Scenes/GameOverScene.hpp"
+#include "vvipers/Scenes/PauseScene.hpp"
 #include "vvipers/UIElements/PlayerPanel.hpp"
 #include "vvipers/Utilities/Time.hpp"
+#include "vvipers/Utilities/VVColor.hpp"
 #include "vvipers/Utilities/VVMath.hpp"
+#include "vvipers/Utilities/debug.hpp"
 
 namespace VVipers {
 
@@ -107,6 +107,8 @@ ArenaScene::~ArenaScene() {}
 void ArenaScene::add_players(std::vector<PlayerData>& player_data,
                              std::vector<sf::View>& playerViews) {
     auto numberOfPlayers = player_data.size();
+    auto viper_configuration = std::make_shared<const ViperConfiguration>(
+        game_resources().options_service(), game_resources().texture_service());
     std::vector<Polygon> excluded_starting_areas;
     for (int i = 0; i < numberOfPlayers; ++i) {
         std::unique_ptr<Controller> controller;
@@ -121,9 +123,9 @@ void ArenaScene::add_players(std::vector<PlayerData>& player_data,
         }
         controller->add_observer(this, {GameEvent::EventType::ObjectModified});
         add_observer(controller.get(), {GameEvent::EventType::Update});
-        auto viper = add_viper(excluded_starting_areas);
-        add_player(player_data[i], std::move(controller),
-                   std::move(viper), playerViews[i]);
+        auto viper = add_viper(viper_configuration, excluded_starting_areas);
+        add_player(player_data[i], std::move(controller), std::move(viper),
+                   playerViews[i]);
     }
 }
 
@@ -160,18 +162,20 @@ void ArenaScene::delete_player(Player* player) {
 }
 
 std::unique_ptr<Viper> ArenaScene::add_viper(
+    std::shared_ptr<const ViperConfiguration> viper_configuration,
     std::vector<Polygon>& excluded_starting_areas) {
-    auto viper = std::make_unique<Viper>(game_resources().options_service(),
-                                         game_resources().texture_service());
-    double length = viper->speed() * 5;  // 5 seconds free space
-    double width = viper->nominal_width();
+    double length =
+        viper_configuration->nominal_speed * 5;  // 5 seconds free space
+    double width = viper_configuration->nominal_segment_width;
     // Give some margin to the width
     Polygon starting_area(Vec2(length, 1.5 * width));
     starting_area.set_anchor(Vec2(-0.5 * length, 0));
     find_free_space_for(starting_area, true, excluded_starting_areas);
     excluded_starting_areas.push_back(starting_area);
 
-    viper->setup(starting_area.anchor(), starting_area.angle(), 0.5);
+    auto viper = std::make_unique<Viper>(std::move(viper_configuration),
+                                         starting_area.anchor(),
+                                         starting_area.angle(), 0.5);
 
     viper->add_observer(this, {GameEvent::EventType::Destroy});
     add_observer(viper.get(), {GameEvent::EventType::Update});

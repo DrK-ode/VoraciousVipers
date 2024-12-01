@@ -3,10 +3,10 @@
 #include <SFML/Graphics/Color.hpp>
 #include <memory>
 #include <string>
+#include <vvipers/GameElements/Controller.hpp>
 #include <vvipers/GameElements/GameObject.hpp>
 #include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/GameElements/Viper.hpp>
-#include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 namespace VVipers {

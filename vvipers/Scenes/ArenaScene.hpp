@@ -7,6 +7,7 @@
 #include <vvipers/Collisions/CollisionManager.hpp>
 #include <vvipers/Engine/GameResources.hpp>
 #include <vvipers/Engine/Scene.hpp>
+#include <vvipers/GameElements/Controller.hpp>
 #include <vvipers/GameElements/FlyingScore.hpp>
 #include <vvipers/GameElements/Food.hpp>
 #include <vvipers/GameElements/GameEvent.hpp>
@@ -15,7 +16,6 @@
 #include <vvipers/GameElements/Player.hpp>
 #include <vvipers/GameElements/Viper.hpp>
 #include <vvipers/GameElements/Walls.hpp>
-#include <vvipers/UIElements/Controller.hpp>
 #include <vvipers/UIElements/PlayerPanel.hpp>
 #include <vvipers/Utilities/Time.hpp>
 
@@ -41,6 +41,7 @@ class ArenaScene : public Scene {
                        std::unique_ptr<Viper>, sf::View view);
     void add_players(std::vector<PlayerData>&, std::vector<sf::View>&);
     std::unique_ptr<Viper> add_viper(
+        std::shared_ptr<const ViperConfiguration>,
         std::vector<Polygon>& excluded_starting_areas);
     void check_for_game_over();
     void delete_player(Player* player);

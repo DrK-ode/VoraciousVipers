@@ -13,9 +13,9 @@
 #include <vvipers/GameElements/GameObject.hpp>
 #include <vvipers/GameElements/Observer.hpp>
 #include <vvipers/GameElements/Track.hpp>
+#include <vvipers/GameElements/ViperConfiguration.hpp>
 #include <vvipers/Utilities/Time.hpp>
-
-#include "vvipers/Utilities/TriangleStripArray.hpp"
+#include <vvipers/Utilities/TriangleStripArray.hpp>
 
 namespace VVipers {
 /**
@@ -29,8 +29,8 @@ class Viper : public GameObject,
               public Observable,
               public Observer {
   public:
-    // Viper is not fully initialised until a call to setup has been made!
-    Viper(const OptionsProvider& options, const TextureProvider& textures);
+    Viper(std::shared_ptr<const ViperConfiguration>, const Vec2& tail_position,
+          double angle, double number_of_body_segments);
     size_t number_of_segments() const override { return _polygons.size(); }
     std::shared_ptr<const Shape> segment_shape(size_t index) const override {
         return _polygons[index];
@@ -51,46 +51,31 @@ class Viper : public GameObject,
     void add_boost_charge(Time charge);
     /** @returns the maximum stored boost duration **/
     Time boost_max() const;
-    /** @returns the main color. **/
     sf::Color primary_color() const { return _primaryColor; }
-    /** @returns the secondary color used for effects. **/
     sf::Color secondary_color() const { return _secondaryColor; }
-    /** Sets both the main and secondary color. **/
-    void set_colors(sf::Color c1, sf::Color c2) {
-        _primaryColor = c1;
-        _secondaryColor = c2;
+    void set_colors(sf::Color primary_color, sf::Color secondary_color) {
+        _primaryColor = primary_color;
+        _secondaryColor = secondary_color;
     }
     /** Consumes food that will add both growth and some boost charge **/
     void eat(const Food& food);
-    /** Changes state to Dying and will eventually become dead **/
+    /** Changes state to Dying and will eventually become Dead **/
     void die(const Time& elapsedTime);
-    /** Drawable override. Draws all parts of the viper to the target **/
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     /** @returns The track the viper follows. **/
     const TemporalTrack& temporal_track() const { return *_track; }
-    /** @returns Normal (spatial) length of the Viper. **/
+    /** @returns the spatial length of the Viper. **/
     double length() const;
-    /** forawrds info from ViperCfg **/
-    double nominal_width() const;
-    /** Initiliazes the position and direction of the Viper given the specified
-     * length. **/
-    void setup(const Vec2& from, double angle, double numberOfBodySegments);
-    /** Sets the speed. **/
     void set_speed(double s) { _speed = s; }
-    /** @returns current speed. **/
     double speed() const { return _speed; }
-    /** Sets the speed. **/
     void set_nominal_speed(double s) { _nominalSpeed = s; }
-    /** @returns current speed. **/
     double nominal_speed() const { return _nominalSpeed; }
-    /** Sets how fast the angle chanes as well as the boost factor **/
+    /** Sets how fast the angle changes as well as the boost factor **/
     void steer(double angularSpeed, double boost) {
-        _angularSpeed = angularSpeed;
+        _angular_speed = angularSpeed;
         _boost_increase = boost;
     }
-    /** @returns The temporal length of the Viper.
-     * It is the time it takes for the tail to reach the current position of the
-     * head. **/
+    // The time it takes for the tail to reach the current position of the head.
     Time temporal_length() const { return _temporal_length; }
     /** @returns the minimum turning radius **/
     double max_angular_speed() const;
@@ -98,11 +83,13 @@ class Viper : public GameObject,
      * member function. **/
     void update(Time elapsedTime);
     Vec2 velocity() const { return Vec2(_speed, 0).rotate(_angle); }
+    const ViperConfiguration& viper_configuration() const {
+        return *_viper_configuration.get();
+    }
     void on_notify(const GameEvent&) override;
 
   private:
-    class ViperConfiguration;
-    static ViperConfiguration _viper_cfg;
+    std::shared_ptr<const ViperConfiguration> _viper_configuration;
 
     enum class ViperPart { Head, Body, Tail };
     void create_next_head_temporal_track_point(Time elapsedTime);
@@ -120,10 +107,10 @@ class Viper : public GameObject,
     void update_angle(const Time& elapsedTime);
     void update_boost_charge(Time charge);
 
-    double _angle;         // degrees, clockwise since y-axis is downwards
-    double _angularSpeed;  // degrees/s
-    double _nominalSpeed;  // px/s
-    double _speed;         // px/s
+    double _angle;          // degrees, clockwise since y-axis is downwards
+    double _angular_speed;  // degrees/s
+    double _nominalSpeed;   // px/s
+    double _speed;          // px/s
     // double m_targetSpeed;   // px/s
     double _boost_increase;  // Boost speed = (1 + m_boost) * nominal speed
     Time _boost_charge;      // fraction [0., 1.]

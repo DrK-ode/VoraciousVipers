@@ -1,4 +1,4 @@
-#include <vvipers/UIElements/Controller.hpp>
+#include <vvipers/GameElements/Controller.hpp>
 #include <vvipers/Utilities/debug.hpp>
 
 #include "vvipers/GameElements/GameEvent.hpp"
@@ -17,7 +17,6 @@ void KeyboardController::update(const Time&) {
     SteeringCommand cmd;
     // Only send event if something has changed since last time
     bool key_pressed;
-    cmd.enable = false;
 
     static bool last_left = false;
     key_pressed = sf::Keyboard::isKeyPressed(_keys.left);

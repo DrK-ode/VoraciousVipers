@@ -12,9 +12,9 @@ ProgressBar::ProgressBar()
       _progress_high(1.),
       _show_text(false),
       _text_style(ProgressTextStyle::Percent) {
+    set_progress(_progress_low);
     set_size(_size);
     set_border_width(-1);
-    set_progress(_progress_low);
     _main_rectangle.setFillColor(sf::Color::Transparent);
     _main_rectangle.setOutlineColor(sf::Color::Transparent);
     _bar_rectangle.setFillColor(sf::Color::Transparent);

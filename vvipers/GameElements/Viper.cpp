@@ -18,112 +18,46 @@ namespace VVipers {
 
 using namespace std::chrono_literals;
 
-/** Nested helper class. Viper class holds one static instance. **/
-class Viper::ViperConfiguration {
-    friend class Viper;
-
-  private:
-    void initialize(const OptionsProvider& options,
-                    const TextureProvider& textures) {
-        nominal_speed = options.option_double("Viper/nominalSpeed");
-        nominal_segment_width =
-            options.option_double("Viper/nominalSegmentWidth");  // px
-        boost_max_charge = time_from_seconds(
-            options.option_double("Viper/boostMaxCharge"));  // s
-        boost_recharge_rate =
-            options.option_double("Viper/boostRechargeRate");  // s per s
-        boost_recharge_cooldown = time_from_seconds(options.option_double(
-            "Viper/boostRechargeCooldown"));  // Countdown start
-
-        head_nominal_length =
-            options.option_double("ViperModel/ViperHead/nominalLength");  // px
-        head_duration =
-            time_from_seconds(head_nominal_length / nominal_speed);  // s
-        head_nodes =
-            options.option_2d_vector_array("ViperModel/ViperHead/nodes");
-
-        body_nominal_length =
-            options.option_double("ViperModel/ViperBody/nominalLength");  // px
-        body_duration =
-            time_from_seconds(body_nominal_length / nominal_speed);  // s
-        body_nodes =
-            options.option_2d_vector_array("ViperModel/ViperBody/nodes");
-
-        tail_nominal_length =
-            options.option_double("ViperModel/ViperTail/nominalLength");  // px
-        tail_duration =
-            time_from_seconds(tail_nominal_length / nominal_speed);  // s
-        tail_nodes =
-            options.option_2d_vector_array("ViperModel/ViperTail/nodes");
-
-        head_texture = textures.texture("ViperHead");
-        body_texture = textures.texture("ViperBody");
-        tail_texture = textures.texture("ViperTail");
-
-        // Find for which index the head is the widest
-        last_active_index = 0;
-        double wMax = 0;
-        for (size_t i = 0; i < head_nodes.size(); ++i) {
-            if (std::abs(head_nodes[i].x) >= wMax) {
-                last_active_index = i;
-                wMax = std::abs(head_nodes[i].x);
-            }
-        }
-
-        initialized = true;
-    }
-
-  public:
-    bool initialized = false;
-    double nominal_speed;          // px/s
-    double nominal_segment_width;  // px
-    Time boost_max_charge;         // s
-    double boost_recharge_rate;    // s per s
-    Time boost_recharge_cooldown;  // Countdown start
-
-    size_t last_active_index;
-
-    double head_nominal_length;  // px
-    Time head_duration;          // s
-    std::vector<Vec2> head_nodes;
-    const sf::Texture* head_texture;
-
-    double body_nominal_length;  // px
-    Time body_duration;          // s
-    std::vector<Vec2> body_nodes;
-    const sf::Texture* body_texture;
-
-    double tail_nominal_length;  // px
-    Time tail_duration;          // s
-    std::vector<Vec2> tail_nodes;
-    const sf::Texture* tail_texture;
-};
-
-Viper::ViperConfiguration Viper::_viper_cfg;
-
-Viper::Viper(const OptionsProvider& options, const TextureProvider& textures)
+Viper::Viper(std::shared_ptr<const ViperConfiguration> configuration,
+             const Vec2& tail_position, double angle,
+             double number_of_body_segments)
     : CollidingBody("Viper"),
+      _viper_configuration(configuration),
+      _angular_speed(0),
       _boost_increase(0.),
+      _boost_charge(0),
       _boost_recharge_cooldown(0.),
       _growth(0.) {
-    if (!_viper_cfg.initialized)
-        _viper_cfg.initialize(options, textures);
-    _boost_charge = _viper_cfg.boost_max_charge;
-
-    _nominalSpeed = _viper_cfg.nominal_speed;
+    _boost_charge = _viper_configuration->boost_max_charge;
+    _nominalSpeed = _viper_configuration->nominal_speed;
     _speed = _nominalSpeed;
+    _angle = angle;
+    _temporal_length = _viper_configuration->head_duration +
+                       _viper_configuration->tail_duration;
+    _growth = number_of_body_segments * _viper_configuration->body_duration;
+
+    Vec2 direction = Vec2(1, 0).rotate(angle);
+    double length = time_as_seconds(_temporal_length) * speed();
+    auto viper_vector = length * direction;
+    _track = std::unique_ptr<TemporalTrack>(
+        new TemporalTrack(tail_position + viper_vector, _temporal_length,
+                          tail_position, time_from_seconds(0)));
+    _triangle_strip_head.texture = _viper_configuration->head_texture;
+    _triangle_strip_body.texture = _viper_configuration->body_texture;
+    _triangle_strip_tail.texture = _viper_configuration->tail_texture;
+    update_vertices_and_polygons();
 }
 
 void Viper::eat(const Food& food) {
-    add_growth(_viper_cfg.body_duration *
+    add_growth(_viper_configuration->body_duration *
                    (food.getRadius() * food.getRadius()) /
                    (Food::nominal_food_radius * Food::nominal_food_radius),
                _track->head_time(), food.color());
     add_boost_charge(0.5s);
 }
 
-void Viper::die(const Time& elapsedTime) {
-    _temporal_length -= 4 * elapsedTime;
+void Viper::die(const Time& elapsed_time) {
+    _temporal_length -= 4 * elapsed_time;
     if (_temporal_length <= time_from_seconds(0))
         state(Dead);
 }
@@ -137,28 +71,8 @@ double Viper::length() const {
                           _track->head_time() - _temporal_length);
 }
 
-double Viper::nominal_width() const { return _viper_cfg.nominal_segment_width; }
-
-void Viper::setup(const Vec2& tail_position, double angle,
-                  double number_of_body_segments) {
-    _angle = angle;
-    _temporal_length = _viper_cfg.head_duration + _viper_cfg.tail_duration;
-    _growth = number_of_body_segments * _viper_cfg.body_duration;
-
-    Vec2 direction = Vec2(1, 0).rotate(angle);
-    double length = time_as_seconds(_temporal_length) * speed();
-    auto viper_vector = length * direction;
-    _track = std::unique_ptr<TemporalTrack>(
-        new TemporalTrack(tail_position + viper_vector, _temporal_length,
-                          tail_position, time_from_seconds(0)));
-    _triangle_strip_head.texture = _viper_cfg.head_texture;
-    _triangle_strip_body.texture = _viper_cfg.body_texture;
-    _triangle_strip_tail.texture = _viper_cfg.tail_texture;
-    update_vertices_and_polygons();
-}
-
-void Viper::create_next_head_temporal_track_point(Time elapsedTime) {
-    _track->create_front(Vec2(_speed, 0).rotate(_angle), elapsedTime);
+void Viper::create_next_head_temporal_track_point(Time elapsed_time) {
+    _track->create_front(Vec2(_speed, 0).rotate(_angle), elapsed_time);
 }
 
 void Viper::clean_up_trailing_temporal_track_points() {
@@ -179,46 +93,47 @@ void Viper::clean_up_dinner_times() {
     for (auto& dinnerTime : _dinner_times)
         // Times 10 give us some margin but it would be nicer to specify
         // exactly...
-        if (dinnerTime.first + 10 * _viper_cfg.body_duration <
+        if (dinnerTime.first + 10 * _viper_configuration->body_duration <
             _track->tail_time()) {
             _dinner_times.erase(dinnerTime.first);
             break;
         }
 }
 
-Time Viper::boost_max() const { return _viper_cfg.boost_max_charge; }
+Time Viper::boost_max() const { return _viper_configuration->boost_max_charge; }
 
-void Viper::grow(const Time& elapsedTime) {
+void Viper::grow(const Time& elapsed_time) {
     // Limit the growth to how much time that has passed
-    Time actualGrowth = std::min(_growth, elapsedTime);
+    Time actualGrowth = std::min(_growth, elapsed_time);
     _temporal_length += actualGrowth;
     _growth -= actualGrowth;
 }
 
 // This allows the viper narrower turns when not boosting
 double Viper::max_angular_speed() const {
-    return _nominalSpeed / _viper_cfg.nominal_segment_width;
+    return _nominalSpeed / _viper_configuration->nominal_segment_width;
 }
 
-void Viper::on_notify(const GameEvent& event){
-    if( event.type() == GameEvent::EventType::Update){
-        const UpdateEvent& update_event = dynamic_cast<const UpdateEvent&>(event);
+void Viper::on_notify(const GameEvent& event) {
+    if (event.type() == GameEvent::EventType::Update) {
+        const UpdateEvent& update_event =
+            dynamic_cast<const UpdateEvent&>(event);
         update(update_event.elapsed_time);
     }
 }
 
-void Viper::update(Time elapsedTime) {
+void Viper::update(Time elapsed_time) {
     if (state() == Dead) {
         notify(DestroyEvent(this));
         return;
     }
     if (state() == Dying) {
-        die(elapsedTime);  // Allow the viper to die for a while
+        die(elapsed_time);  // Allow the viper to die for a while
     } else {
-        create_next_head_temporal_track_point(elapsedTime);
-        grow(elapsedTime);
+        create_next_head_temporal_track_point(elapsed_time);
+        grow(elapsed_time);
     }
-    update_motion(elapsedTime);
+    update_motion(elapsed_time);
     update_vertices_and_polygons();
     clean_up_trailing_temporal_track_points();
     clean_up_dinner_times();
@@ -235,44 +150,46 @@ void Viper::add_boost_charge(Time charge) {
     }
 }
 
-void Viper::update_boost_charge(Time elapsedTime) {
+void Viper::update_boost_charge(Time elapsed_time) {
     if (_boost_recharge_cooldown == time_from_seconds(0)) {
-        add_boost_charge(elapsedTime * _viper_cfg.boost_recharge_rate);
+        add_boost_charge(elapsed_time *
+                         _viper_configuration->boost_recharge_rate);
     } else if (_boost_increase > 0)
-        add_boost_charge(-elapsedTime);
+        add_boost_charge(-elapsed_time);
 }
 
-void Viper::update_speed(const Time& elapsedTime) {
+void Viper::update_speed(const Time& elapsed_time) {
     double acceleration = 0;
-    double targetSpeed = _viper_cfg.nominal_speed;
+    double targetSpeed = _viper_configuration->nominal_speed;
     if (_boost_increase > 0) {
         targetSpeed *= (1 + _boost_increase);
-        _boost_recharge_cooldown = _viper_cfg.boost_recharge_cooldown;
+        _boost_recharge_cooldown =
+            _viper_configuration->boost_recharge_cooldown;
     } else {
         _boost_recharge_cooldown -=
-            std::min(_boost_recharge_cooldown, elapsedTime);
+            std::min(_boost_recharge_cooldown, elapsed_time);
     }
-    update_boost_charge(elapsedTime);
+    update_boost_charge(elapsed_time);
     if (_speed < targetSpeed) {
         // 0.5s to increase speed by nominal speed but cap at targetSpeed
         acceleration =
-            std::min(2 * _viper_cfg.nominal_speed,
-                     (targetSpeed - _speed) / time_as_seconds(elapsedTime));
+            std::min(2 * _viper_configuration->nominal_speed,
+                     (targetSpeed - _speed) / time_as_seconds(elapsed_time));
     } else if (_speed > targetSpeed) {
         acceleration =
-            std::max(-_viper_cfg.nominal_speed,
-                     (targetSpeed - _speed) / time_as_seconds(elapsedTime));
+            std::max(-_viper_configuration->nominal_speed,
+                     (targetSpeed - _speed) / time_as_seconds(elapsed_time));
     }
-    _speed += acceleration * time_as_seconds(elapsedTime);
+    _speed += acceleration * time_as_seconds(elapsed_time);
 }
 
-void Viper::update_angle(const Time& elapsedTime) {
-    _angle += _angularSpeed * time_as_seconds(elapsedTime);
+void Viper::update_angle(const Time& elapsed_time) {
+    _angle += _angular_speed * time_as_seconds(elapsed_time);
 }
 
-void Viper::update_motion(const Time& elapsedTime) {
-    update_speed(elapsedTime);
-    update_angle(elapsedTime);
+void Viper::update_motion(const Time& elapsed_time) {
+    update_speed(elapsed_time);
+    update_angle(elapsed_time);
 }
 
 void Viper::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -287,26 +204,27 @@ void Viper::create_vertex_vectors_and_polygons_for_body_part(
         return;
 
     TriangleStripArray* vertex_vector;
-    std::vector<Vec2>* nodes;
+    const std::vector<Vec2>* nodes;
     size_t number_of_segments = 1;
     Time nominal_segment_duration;
     switch (viper_part) {
         case ViperPart::Head: {
-            nominal_segment_duration = _viper_cfg.head_duration;
-            nodes = &_viper_cfg.head_nodes;
+            nominal_segment_duration = _viper_configuration->head_duration;
+            nodes = &_viper_configuration->head_nodes;
             vertex_vector = &_triangle_strip_head;
             break;
         }
         case ViperPart::Body: {
-            number_of_segments = part_duration / _viper_cfg.body_duration + 1;
-            nominal_segment_duration = _viper_cfg.body_duration;
-            nodes = &_viper_cfg.body_nodes;
+            number_of_segments =
+                part_duration / _viper_configuration->body_duration + 1;
+            nominal_segment_duration = _viper_configuration->body_duration;
+            nodes = &_viper_configuration->body_nodes;
             vertex_vector = &_triangle_strip_body;
             break;
         }
         case ViperPart::Tail: {
-            nominal_segment_duration = _viper_cfg.tail_duration;
-            nodes = &_viper_cfg.tail_nodes;
+            nominal_segment_duration = _viper_configuration->tail_duration;
+            nodes = &_viper_configuration->tail_nodes;
             vertex_vector = &_triangle_strip_tail;
             break;
         }
@@ -328,8 +246,9 @@ void Viper::create_vertex_vectors_and_polygons_for_body_part(
                 segment_start - segment_duration * (*nodes)[node_index].y;
             Vec2 position = _track->position(time);
             Vec2 velocity = _track->velocity(time);
-            Vec2 width = velocity.perpendicular() * _viper_cfg.nominal_speed *
-                         _viper_cfg.nominal_segment_width *
+            Vec2 width = velocity.perpendicular() *
+                         _viper_configuration->nominal_speed *
+                         _viper_configuration->nominal_segment_width *
                          (*nodes)[node_index].x / velocity.dot(velocity);
 
             Vec2 texture_coordinates_right =
@@ -353,15 +272,17 @@ void Viper::create_vertex_vectors_and_polygons_for_body_part(
 }
 
 void Viper::update_vertices_and_polygons() {
-    Time head_duration = std::min(_temporal_length, _viper_cfg.head_duration);
-    if (_temporal_length <
-        _viper_cfg.head_duration + _viper_cfg.tail_duration) {
-        head_duration = _temporal_length *
-                        (_viper_cfg.head_duration /
-                         (_viper_cfg.head_duration + _viper_cfg.tail_duration));
+    Time head_duration =
+        std::min(_temporal_length, _viper_configuration->head_duration);
+    if (_temporal_length < _viper_configuration->head_duration +
+                               _viper_configuration->tail_duration) {
+        head_duration =
+            _temporal_length * (_viper_configuration->head_duration /
+                                (_viper_configuration->head_duration +
+                                 _viper_configuration->tail_duration));
     }
-    Time tail_duration =
-        std::min(_temporal_length - head_duration, _viper_cfg.tail_duration);
+    Time tail_duration = std::min(_temporal_length - head_duration,
+                                  _viper_configuration->tail_duration);
     Time body_duration = _temporal_length - head_duration - tail_duration;
 
     Time head_start = _track->head_time();

@@ -53,11 +53,13 @@ void FlashScreenScene::on_notify(const GameEvent& event) {
                 MouseEvent::MouseEventType::ButtonPressed) {
                 notify(SceneEvent(SceneEvent::SceneEventType::Default));
             }
+            break;
         }
         case GameEvent::EventType::Update: {
             const UpdateEvent& update_event =
                 dynamic_cast<const UpdateEvent&>(event);
             update(update_event.elapsed_time);
+            break;
         }
         default:
             break;

@@ -12,14 +12,15 @@
 namespace VVipers {
 
 struct SteeringCommand {
-    bool enable = true;
+    bool enable = false;
     double turn = 0.;
     bool boost = false;
 };
 
 class Controller : public Object, public Observable, public Observer {
   public:
-    virtual ~Controller() {};
+    Controller() : _command() {}
+    virtual ~Controller() {}
     void on_notify(const GameEvent&) override;
     SteeringCommand steering_command() const { return _command; }
     void set_steering_command(const SteeringCommand& command) {

@@ -13,6 +13,7 @@ set(INC_FILES
     Engine/Scene.hpp
     Engine/TextureFileLoader.hpp
     Engine/WindowManager.hpp
+    GameElements/Controller.hpp
     GameElements/FlyingScore.hpp
     GameElements/Food.hpp
     GameElements/GameEvent.hpp
@@ -29,7 +30,6 @@ set(INC_FILES
     Scenes/OptionsMenuScene.hpp
     Scenes/PauseScene.hpp
     Scenes/PlayerConfScene.hpp
-    UIElements/Controller.hpp
     UIElements/MenuButton.hpp
     UIElements/MenuItem.hpp
     UIElements/MenuScene.hpp
@@ -56,6 +56,7 @@ set(SRC_FILES
     Engine/Scene.cpp
     Engine/TextureFileLoader.cpp
     Engine/WindowManager.cpp
+    GameElements/Controller.cpp
     GameElements/FlyingScore.cpp
     GameElements/Food.cpp
     GameElements/GameEvent.cpp
@@ -72,7 +73,6 @@ set(SRC_FILES
     Scenes/OptionsMenuScene.cpp
     Scenes/PauseScene.cpp
     Scenes/PlayerConfScene.cpp
-    UIElements/Controller.cpp
     UIElements/MenuButton.cpp
     UIElements/MenuItem.cpp
     UIElements/MenuScene.cpp

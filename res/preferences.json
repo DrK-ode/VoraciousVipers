@@ -34,7 +34,7 @@
 				89
 			],
 			"mouseEnabled" : false,
-			"name" : "DrK",
+			"name" : "Serral",
 			"primaryColor" : "#37E2D5",
 			"secondaryColor" : "#C70A80"
 		},
@@ -47,7 +47,7 @@
 				22
 			],
 			"mouseEnabled" : false,
-			"name" : "MrTest",
+			"name" : "herO",
 			"primaryColor" : "#FBCB0A",
 			"secondaryColor" : "#590696"
 		},
@@ -55,12 +55,12 @@
 		{
 			"keys" : 
 			[
-				1,
-				4,
-				23
+				9,
+				11,
+				8
 			],
 			"mouseEnabled" : false,
-			"name" : "Bosse",
+			"name" : "Maru",
 			"primaryColor" : "#DD99BB",
 			"secondaryColor" : "#93B7BE"
 		},
@@ -72,12 +72,12 @@
 				5,
 				24
 			],
-			"mouseEnabled" : false,
-			"name" : "Serral",
+			"mouseEnabled" : true,
+			"name" : "Clem",
 			"primaryColor" : "#EB5160",
 			"secondaryColor" : "#C9B79C"
 		},
-		"numberOfPlayers" : 2
+		"numberOfPlayers" : 1
 	},
 	"Viper" : 
 	{
